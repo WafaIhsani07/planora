@@ -1,0 +1,10 @@
+{
+  "name": "planora",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix backend run dev"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0"
+  }
+}

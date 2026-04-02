@@ -1,0 +1,99 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+ provider = "prisma-client-js"
+}
+
+datasource db {
+ provider = "postgresql"
+}
+
+model User {
+ id String @id @default(uuid())
+ name String
+ email String @unique
+ password String
+ role Role
+ createdAt DateTime @default(now())
+
+ vendorProfile VendorProfile?
+
+ bookings Booking[]
+}
+
+model VendorProfile {
+ id String @id @default(uuid())
+ userId String @unique
+ businessName String
+ description String?
+ location String?
+
+ user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+ services Service[]
+}
+
+model Service {
+ id String @id @default(uuid())
+ vendorId String
+ name String
+ price Float
+ description String?
+
+ vendor VendorProfile @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+ bookings Booking[]
+}
+
+model Booking {
+ id String @id @default(uuid())
+ userId String
+ serviceId String
+ date DateTime
+ status BookingStatus @default(PENDING)
+
+ user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+ payment Payment?
+ review Review?
+}
+
+model Payment {
+ id String @id @default(uuid())
+ bookingId String @unique
+ amount Float
+ status PaymentStatus
+
+ booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+ id String @id @default(uuid())
+ bookingId String @unique
+ rating Int
+ comment String?
+
+ booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}
+
+enum Role {
+ CUSTOMER
+ VENDOR
+ ADMIN
+}
+
+enum BookingStatus {
+ PENDING
+ CONFIRMED
+ CANCELLED
+ COMPLETED
+}
+
+enum PaymentStatus {
+ PENDING
+ DP
+ PAID
+}
