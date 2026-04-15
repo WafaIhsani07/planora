@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import BrandTrust from "@/components/BrandTrust";
 import CategorySection from "@/components/CategorySection";
 import HowItWorksSection from "@/components/HowItWorksSection";
@@ -172,11 +173,14 @@ function HeroSection() {
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-6">
-            <span className="hidden cursor-pointer text-[11px] font-bold tracking-widest text-brand-gray transition-colors hover:text-gray-900 sm:block">
+            <Link
+              href="/login"
+              className="hidden cursor-pointer text-[11px] font-bold tracking-widest text-brand-gray transition-colors hover:text-gray-900 sm:block"
+            >
               MASUK
-            </span>
+            </Link>
             <button className="rounded-full bg-brand-peach px-4 py-2.5 text-[10px] font-bold tracking-widest text-brand-dark transition-colors hover:bg-brand-peachHover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-dark/20 focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:px-6 sm:py-3 sm:text-[11px]">
-              MULAI GRATIS
+              DOWNLOAD PLANORA
             </button>
             <button
               type="button"

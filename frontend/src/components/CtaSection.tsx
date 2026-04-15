@@ -21,7 +21,7 @@ export default function CtaSection() {
 
                     <div className="flex w-full flex-col items-center justify-center gap-4 sm:w-auto sm:flex-row">
                         <button className="w-full rounded-full bg-[#FCE6E3] px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#2A2A2A] transition-all hover:scale-105 hover:bg-[#F8D8D3] active:scale-95 sm:w-auto md:text-xs">
-                            MULAI SEKARANG
+                            DOWNLOAD SEKARANG
                         </button>
                         <button className="w-full rounded-full border border-[#555] bg-transparent px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white transition-all hover:scale-105 hover:border-white hover:bg-white/5 active:scale-95 sm:w-auto md:text-xs">
                             HUBUNGI KAMI
