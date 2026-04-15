@@ -64,6 +64,20 @@ export default function LoginPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const router = useRouter();
+    const isDevelopment = process.env.NODE_ENV !== 'production';
+
+    const quickLoginConfig = {
+        vendor: {
+            email: 'vendor@planora.dev',
+            password: 'devvendor123',
+            callbackUrl: '/dashboard',
+        },
+        admin: {
+            email: 'admin@planora.dev',
+            password: 'devadmin123',
+            callbackUrl: '/admin',
+        },
+    } as const;
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -85,6 +99,32 @@ export default function LoginPage() {
         }
 
         router.push('/dashboard');
+    };
+
+    const handleQuickLogin = async (role: 'vendor' | 'admin') => {
+        const selectedRole = quickLoginConfig[role];
+
+        setEmail(selectedRole.email);
+        setPassword(selectedRole.password);
+        setRemember(true);
+        setIsSubmitting(true);
+        setErrorMessage('');
+
+        const result = await signIn('credentials', {
+            redirect: false,
+            email: selectedRole.email,
+            password: selectedRole.password,
+            callbackUrl: selectedRole.callbackUrl,
+        });
+
+        setIsSubmitting(false);
+
+        if (result?.error) {
+            setErrorMessage(`Quick Login ${role.toUpperCase()} gagal. Coba lagi.`);
+            return;
+        }
+
+        router.push(selectedRole.callbackUrl);
     };
 
     return (
@@ -236,6 +276,32 @@ export default function LoginPage() {
                         >
                             {isSubmitting ? 'Memproses...' : 'Masuk Sekarang'}
                         </button>
+
+                        {isDevelopment ? (
+                            <div className="rounded-xl border border-dashed border-gray-300 bg-[#FAFAFC] p-4">
+                                <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-[#6B7280]">
+                                    QUICK LOGIN DEV
+                                </p>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => handleQuickLogin('vendor')}
+                                        disabled={isSubmitting}
+                                        className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#2A2A2A] transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                                    >
+                                        Vendor
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleQuickLogin('admin')}
+                                        disabled={isSubmitting}
+                                        className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#2A2A2A] transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                                    >
+                                        Admin
+                                    </button>
+                                </div>
+                            </div>
+                        ) : null}
 
                         {errorMessage ? (
                             <p className="text-sm font-medium text-[#b45309]">{errorMessage}</p>
