@@ -1,0 +1,1797 @@
+PROPOSAL MINI PROYEK
+PROYEK INTEGRASI SISTEM
+“
+Planora : Sistem Marketplace Penyedia Jasa Event Terintegrasi
+”
+DOSEN PENGAMPU :
+Dr. Muhammad Adri, S.Pd., M.T
+OLEH:
+Ilham 
+Fahrozi
+ 
+| 23076033
+Nurwahidah Wafa Ihsani
+ 
+| 23076047
+Salsabila 
+Maulidia
+ 
+ 
+| 23076019
+Renanda
+ Anwar Pratama Siregar
+| 23076051
+PROGRAM STUDI PENDIDIKAN TEKNIK INFORMATIKA
+DEPARTEMEN TEKNIK ELEKTRONIKA
+FAKULTAS TEKNIK
+UNIVERSITAS NEGERI PADANG
+2026
+KATA PENGANTAR
+Puji syukur kami panjatkan kehadirat Allah SWT yang telah melimpahkan rahmat dan hidayah-Nya sehingga kami dapat menyelesaikan proposal mini project yang berjudul 
+“Planora: Platform Integrasi Penyedia Jasa Event Berbasis Web dan Mobile”
+ dengan baik dan tepat waktu.
+Proposal ini disusun sebagai salah satu bentuk perencanaan pengembangan sistem dalam rangka memenuhi tugas pada mata kuliah Proyek Integrasi Sistem yang diampu oleh Bapak Dr. Muhammad Adri, S.Pd., M.T. Mini project ini bertujuan untuk merancang sebuah platform digital yang mampu mengintegrasikan berbagai layanan penyedia jasa event dalam satu sistem terpusat berbasis web dan mobile. Sistem ini diharapkan dapat mempermudah pelanggan dalam mencari dan memesan layanan event, serta membantu para penyedia jasa (vendor) dalam mengelola layanan, jadwal, dan transaksi secara lebih terstruktur dan efisien.
+Kami mengucapkan terima kasih kepada Bapak Dr. Muhammad Adri, S.Pd., M.T. selaku dosen pengampu yang telah memberikan arahan, bimbingan, serta kesempatan kepada kami untuk mengembangkan ide dan perancangan sistem ini. Ucapan terima kasih juga kami sampaikan kepada seluruh pihak yang telah memberikan dukungan dan masukan selama proses penyusunan proposal ini.
+Kami menyadari bahwa proposal ini masih memiliki kekurangan, baik dari segi penyusunan maupun isi. Oleh karena itu, kami sangat mengharapkan kritik dan saran yang membangun demi penyempurnaan proposal ini di masa mendatang.
+Akhir kata, kami berharap proposal ini dapat menjadi langkah awal dalam pengembangan sistem yang bermanfaat serta memberikan kontribusi positif dalam penerapan integrasi sistem berbasis web dan mobile.
+Padang, 
+7 Maret
+ 2026
+   
+Kelompok
+ 2 
+DAFTAR ISI
+KATA PENGANTAR
+i
+DAFTAR ISI
+ii
+BAB I
+  
+PENDAHULUAN
+1
+1.1
+  
+Latar Belakang
+1
+1.2
+  
+Rumusan Masalah
+2
+1.3
+  
+Tujuan Proyek
+2
+1.4
+  
+Manfaat Proyek
+3
+1.5
+  
+Batasan Masalah
+3
+BAB II
+  
+ANALISIS SISTEM DAN STAKEHOLDER
+5
+2.1  Analisis Stakeholder
+5
+2.2
+   
+Gambaran Umum Sistem
+6
+2.2.1
+  Sistem yang Sedang Berjalan
+6
+2.2.2
+  Sistem yang Diusulkan
+7
+2.3
+  
+Analisis Kebutuhan Sistem
+7
+2.3.1  Kebutuhan Fungsional
+7
+2.3.2  Kebutuhan Non-Fungsional
+8
+2.4
+  
+Analisis Permasalahan
+8
+2.4.1  
+Kebutuhan Non-Fungsional
+9
+BAB III
+  
+METODOLOGI & ARSITEKTUR SISTEM
+10
+3.1
+  
+Metode Pengembangan Sistem
+10
+3.2
+  
+Arsitektur Sistem
+12
+3.3
+  
+Integrasi Sistem
+14
+3.4
+  
+Modul-Modul Sistem
+16
+3.4.1
+  
+Modul Booking
+16
+3.4.2
+  
+Modul Katalog Vendor
+16
+3.4.3
+  
+Modul Finance
+17
+3.4.4
+  
+Modul User & Autentikasi
+17
+3.4.5
+  
+Modul Review & Rating
+18
+3.5
+  
+Teknologi yang Digunakan
+18
+3.5.1  Frontend Web
+19
+3.5.2  Aplikasi Mobile
+20
+3.5.3   Backend
+20
+3.5.4  Database
+20
+3.5.5  Tools Pendukung
+20
+3.6
+  
+Use Case Diagram
+21
+3.6.1  Deskripsi Use Case
+22
+3.7
+  
+Activity Diagram
+24
+3.7.1  Activity Diagram – Proses Pemesanan Layanan (Booking)
+24
+3.7.2  Activity Diagram – Proses Pendaftaran & Verifikasi Vendor
+25
+3.7.3
+  Activity Diagram – Proses Login & Autentikasi
+26
+3.8
+  
+Entity Relationship Diagram
+27
+3.8.1
+  
+Deskripsi Entitas dan Relasi
+28
+3.9
+  
+Pembagian Tugas Tim
+29
+3.9.1
+  
+Detail Pembagian Tugas Per Tahapan Pengembangan
+31
+3.9.2
+  
+Kordinasi dan Komunikasi Tim
+32
+BAB IV
+  
+PENUTUP
+33
+4.1
+  
+Kesimpulan
+33
+4.2
+  
+Saran
+34
+BAB I
+PENDAHULUAN
+Latar Belakang
+ 
+Perkembangan teknologi informasi saat ini telah mendorong berbagai sektor usaha untuk melakukan transformasi digital guna meningkatkan efisiensi operasional dan kualitas pelayanan kepada pelanggan. Salah satu sektor yang memiliki potensi besar untuk dikembangkan melalui sistem informasi adalah industri jasa penyelenggaraan acara atau event. Berbagai jenis acara seperti pernikahan, wisuda, ulang tahun, seminar, maupun acara komunitas membutuhkan berbagai layanan pendukung seperti fotografer, dekorasi, catering, makeup artist, serta penyedia tempat acara.
+Namun dalam praktiknya, proses pencarian dan pemesanan jasa event masih banyak dilakukan secara manual melalui media sosial atau aplikasi pesan singkat seperti WhatsApp dan Instagram. Informasi mengenai penyedia jasa atau vendor seringkali tersebar di berbagai platform sehingga menyulitkan pelanggan dalam menemukan layanan yang sesuai dengan kebutuhan mereka. Selain itu, pelanggan juga kesulitan untuk membandingkan harga layanan, melihat portofolio vendor, serta mengetahui ketersediaan jadwal secara cepat dan akurat.
+Di sisi lain, para penyedia jasa event juga sering menghadapi permasalahan dalam pengelolaan pemesanan pelanggan dan penjadwalan layanan. Banyak vendor yang masih mencatat pesanan secara manual menggunakan buku catatan atau file spreadsheet sederhana. Kondisi ini dapat menyebabkan berbagai permasalahan seperti kesalahan pencatatan data, bentrok jadwal layanan, serta kesulitan dalam melakukan rekapitulasi transaksi dan laporan pendapatan.
+Permasalahan tersebut menunjukkan bahwa diperlukan sebuah sistem informasi yang mampu mengintegrasikan berbagai layanan penyedia jasa event dalam satu platform yang terstruktur dan terpusat. Dengan adanya sistem yang terintegrasi, pelanggan dapat dengan mudah mencari berbagai layanan event yang dibutuhkan, melakukan pemesanan secara online, serta memantau status pesanan secara lebih praktis. Sementara itu, vendor dapat mengelola layanan, jadwal, dan transaksi secara lebih efisien melalui sistem yang terorganisir.
+Berdasarkan latar belakang tersebut, pada proyek ini akan dirancang dan dikembangkan sebuah platform bernama 
+Planora
+, yaitu platform integrasi penyedia jasa event berbasis web dan mobile. Sistem ini dirancang untuk menghubungkan pelanggan dengan berbagai vendor penyedia layanan event dalam satu platform digital sehingga proses pencarian layanan, pemesanan, serta pengelolaan transaksi dapat dilakukan secara lebih mudah, terstruktur, dan efisien.
+Rumusan Masalah
+ 
+Berdasarkan latar belakang yang telah diuraikan, maka rumusan masalah dalam proyek ini adalah sebagai berikut:
+Bagaimana merancang sebuah platform digital yang dapat menghubungkan pelanggan dengan berbagai penyedia jasa event dalam satu sistem terintegrasi?
+Bagaimana mengembangkan sistem manajemen layanan yang memungkinkan vendor mengelola layanan, jadwal, serta pesanan pelanggan secara efektif dan terstruktur?
+Bagaimana mengintegrasikan aplikasi berbasis web dan mobile agar proses pencarian dan pemesanan layanan event dapat dilakukan secara terpusat dan real-time?
+Tujuan Proyek
+Tujuan dari pengembangan proyek ini adalah:
+Merancang dan membangun platform digital yang memudahkan pelanggan dalam mencari dan memesan berbagai layanan event secara online.
+Mengembangkan sistem manajemen vendor yang memungkinkan penyedia jasa event mengelola layanan, jadwal, serta pesanan pelanggan secara lebih terstruktur.
+Mengintegrasikan aplikasi berbasis web dan mobile agar proses pemesanan layanan event dapat dilakukan secara lebih efektif dan efisien.
+Manfaat Proyek
+Adapun manfaat yang diharapkan dari pengembangan sistem ini antara lain:
+Bagi 
+Pelanggan
+Sistem ini memberikan kemudahan bagi pelanggan dalam mencari berbagai layanan event yang dibutuhkan dalam satu platform. Pelanggan juga dapat melihat informasi layanan, harga, serta ketersediaan jadwal vendor secara lebih jelas sehingga proses pemesanan menjadi lebih praktis dan efisien.
+Bagi Vendor
+Bagi penyedia jasa event, sistem ini dapat membantu dalam mengelola layanan yang ditawarkan, mengatur jadwal pemesanan, serta mencatat transaksi secara lebih terstruktur. Dengan adanya sistem ini, vendor dapat mengurangi risiko kesalahan pencatatan serta meningkatkan efisiensi dalam pengelolaan operasional.
+Bagi Akademik
+Secara akademik, proyek ini menjadi sarana penerapan konsep integrasi sistem berbasis web dan mobile serta implementasi perancangan sistem informasi dalam bentuk proyek nyata yang dapat memberikan pengalaman praktis bagi mahasiswa.
+Batasan Masalah
+Agar pengembangan sistem lebih terarah dan sesuai dengan ruang lingkup mini project, maka batasan masalah dalam proyek ini adalah sebagai berikut:
+Sistem dikembangkan sebagai platform penyedia jasa event yang menghubungkan pelanggan dengan vendor dalam satu sistem terintegrasi.
+Sistem terdiri dari dua jenis aplikasi, yaitu:
+Aplikasi
+ mobile 
+untuk
+ 
+pelanggan
+Web dashboard 
+untuk
+ vendor dan admin
+Kategori vendor yang tersedia dalam sistem meliputi beberapa layanan event seperti fotografer, dekorasi, dan catering.
+Fitur utama yang dikembangkan dalam sistem meliputi:
+Registrasi
+ dan login 
+pengguna
+Pencarian
+ dan 
+penampilan
+ daftar vendor
+Pemesanan
+ 
+layanan
+ vendor
+Pengelolaan
+ 
+jadwal
+ 
+layanan
+ oleh vendor
+Manajemen
+ data 
+pelanggan
+ dan vendor
+Laporan
+ 
+transaksi
+ 
+sederhana
+Sistem tidak terintegrasi dengan payment gateway dan pembayaran dilakukan melalui metode transfer manual dengan unggah bukti pembayaran.
+BAB II
+ANALISIS SISTEM DAN STAKEHOLDER
+Analisis
+ Stakeholder
+Stakeholder merupakan pihak-pihak yang memiliki keterlibatan atau kepentingan terhadap sistem yang dikembangkan. Dalam pengembangan aplikasi 
+Planora
+, terdapat beberapa stakeholder utama yang berperan dalam penggunaan maupun pengelolaan sistem.
+Admin 
+Sistem
+Admin merupakan pihak yang bertanggung jawab dalam mengelola dan mengawasi seluruh aktivitas yang terjadi dalam sistem. Admin memiliki akses penuh terhadap pengelolaan data dan operasional sistem.
+Peran admin dalam sistem Planora antara lain:
+Mengelola data pengguna yang terdaftar dalam sistem
+Melakukan verifikasi terhadap vendor yang mendaftar
+Mengelola kategori layanan yang tersedia dalam platform
+Mengawasi
+ 
+aktivitas
+ 
+pemesanan
+ 
+layanan
+Menangani laporan atau keluhan dari pengguna
+Dengan adanya peran admin, sistem dapat berjalan secara teratur serta menjaga kualitas layanan yang tersedia dalam platform.
+Vendor
+Vendor merupakan penyedia jasa yang menawarkan layanan terkait penyelenggaraan acara melalui platform Planora. Vendor dapat berupa individu maupun perusahaan yang menyediakan berbagai layanan event.
+Contoh vendor dalam sistem ini antara lain:
+Fotografer
+ dan 
+videografer
+Penyedia
+ 
+gedung
+ 
+atau
+ venue acara
+Penyedia
+ 
+dekorasi
+ acara
+Penyedia
+ 
+katering
+Event organizer
+Penyedia
+ 
+hiburan
+Vendor dapat menggunakan sistem untuk mempromosikan layanan yang mereka tawarkan, mengelola informasi layanan, serta menerima pemesanan dari pelanggan melalui platform Planora.
+Pelanggan
+ (Customer)
+Pelanggan
+ 
+merupakan
+ 
+pengguna
+ yang 
+menggunakan
+ 
+aplikasi
+ 
+Planora
+ 
+untuk
+ 
+mencari
+ dan 
+memesan
+ 
+berbagai
+ 
+layanan
+ yang 
+dibutuhkan
+ 
+dalam
+ 
+penyelenggaraan
+ 
+suatu
+ acara.
+Melalui sistem ini, pelanggan dapat:
+Mencari
+ vendor 
+berdasarkan
+ 
+kategori
+ 
+layanan
+Melihat informasi layanan yang ditawarkan oleh vendor
+Membandingkan harga dan layanan dari beberapa vendor
+Melakukan pemesanan layanan secara langsung melalui sistem
+Memberikan ulasan dan penilaian terhadap layanan yang telah digunakan
+Dengan adanya sistem Planora, pelanggan dapat merencanakan acara dengan lebih mudah karena berbagai layanan tersedia dalam satu platform yang terintegrasi.
+Gambaran Umum 
+Sistem
+   
+Sistem
+ yang Sedang 
+Berjalan
+Pada 
+saat
+ 
+ini
+, proses 
+pencarian
+ dan 
+pemesanan
+ 
+layanan
+ event 
+masih
+ 
+banyak
+ 
+dilakukan
+ 
+secara
+ manual 
+melalui
+ 
+berbagai
+ platform yang 
+berbeda
+, 
+seperti
+ media 
+sosial
+, 
+pesan
+ 
+singkat
+, 
+atau
+ 
+rekomendasi
+ 
+dari
+ orang lain.
+Pelanggan
+ yang 
+ingin
+ 
+menyelenggarakan
+ 
+suatu
+ acara 
+biasanya
+ 
+harus
+ 
+mencari
+ vendor 
+secara
+ 
+terpisah
+ 
+untuk
+ 
+setiap
+ 
+kebutuhan
+, 
+seperti
+ 
+mencari
+ 
+fotografer
+, 
+tempat
+ acara, 
+dekorasi
+, 
+maupun
+ 
+katering
+. Proses 
+ini
+ 
+seringkali
+ 
+memerlukan
+ 
+waktu
+ yang 
+cukup
+ lama 
+karena
+ 
+pelanggan
+ 
+harus
+ 
+menghubungi
+ vendor 
+satu
+ per 
+satu
+ 
+untuk
+ 
+menanyakan
+ 
+informasi
+ 
+terkait
+ 
+layanan
+, 
+harga
+, 
+serta
+ 
+ketersediaan
+ 
+jadwal
+.
+Selain 
+itu
+, vendor juga 
+biasanya
+ 
+mempromosikan
+ 
+layanan
+ 
+mereka
+ 
+secara
+ 
+mandiri
+ 
+melalui
+ media 
+sosial
+ 
+tanpa
+ 
+adanya
+ 
+sistem
+ yang 
+terintegrasi
+ 
+untuk
+ 
+mengelola
+ 
+pemesanan
+ 
+atau
+ 
+jadwal
+ 
+layanan
+. 
+Hal ini seringkali menyebabkan kesulitan dalam pengelolaan jadwal serta kurangnya efisiensi dalam proses pelayanan kepada pelanggan.
+   
+Sistem
+ yang 
+Diusulkan
+Berdasarkan
+ 
+permasalahan
+ yang 
+ada
+, 
+maka
+ 
+diusulkan
+ 
+sebuah
+ 
+sistem
+ 
+berbasis
+ web dan mobile 
+bernama
+ 
+Planora
+, 
+yaitu
+ platform 
+penyedia
+ 
+jasa
+ event yang 
+mengintegrasikan
+ 
+berbagai
+ 
+layanan
+ event 
+dalam
+ 
+satu
+ 
+aplikasi
+.
+Melalui sistem Planora, pelanggan dapat dengan mudah mencari berbagai vendor yang menyediakan layanan event seperti fotografer, venue acara, dekorasi, katering, dan layanan lainnya dalam satu platform.
+Vendor juga dapat memanfaatkan sistem ini untuk mempromosikan layanan mereka kepada lebih banyak pelanggan serta mengelola pemesanan dan jadwal layanan secara lebih terstruktur.
+Sistem ini juga dilengkapi dengan fitur pencarian layanan, manajemen pemesanan, serta sistem ulasan dan penilaian untuk meningkatkan kualitas layanan yang tersedia dalam platform.
+Dengan adanya sistem Planora, diharapkan proses perencanaan acara dapat dilakukan dengan lebih mudah, efisien, dan terorganisir.
+Analisis
+ 
+Kebutuhan
+ 
+Sistem
+Analisis kebutuhan sistem dilakukan untuk mengidentifikasi berbagai kebutuhan yang diperlukan dalam pengembangan aplikasi Planora agar sistem dapat berjalan sesuai dengan tujuan yang diharapkan.
+   
+Kebutuhan
+ 
+Fungsional
+Kebutuhan fungsional merupakan fungsi-fungsi utama yang harus dimiliki oleh sistem agar dapat digunakan oleh pengguna.
+Beberapa kebutuhan fungsional dalam sistem Planora antara lain:
+Sistem menyediakan fitur registrasi dan login bagi pengguna.
+Sistem memungkinkan vendor untuk mendaftarkan layanan yang mereka tawarkan.
+Sistem menyediakan fitur pencarian layanan berdasarkan kategori.
+Sistem memungkinkan pelanggan untuk melihat informasi detail layanan yang ditawarkan oleh vendor.
+Sistem memungkinkan pelanggan untuk melakukan pemesanan layanan.
+Sistem memungkinkan vendor untuk mengelola informasi layanan dan jadwal pemesanan.
+Sistem menyediakan fitur ulasan dan penilaian terhadap layanan vendor.
+Sistem memungkinkan admin untuk mengelola data pengguna dan layanan dalam sistem.
+    
+Kebutuhan
+ Non-
+Fungsional
+Kebutuhan non-fungsional merupakan kebutuhan yang berkaitan dengan kualitas sistem yang dikembangkan.
+Beberapa kebutuhan non-fungsional dalam sistem Planora antara lain:
+Sistem harus mudah digunakan oleh pengguna (user friendly).
+Sistem harus dapat diakses melalui perangkat komputer maupun perangkat mobile.
+Sistem harus mampu menyimpan dan mengelola data pengguna serta transaksi secara aman.
+Sistem harus memiliki performa yang stabil saat digunakan oleh banyak pengguna.
+Sistem harus memiliki tampilan antarmuka yang jelas dan mudah dipahami oleh pengguna.
+Analisis
+ 
+Permasalahan
+Berdasarkan analisis terhadap sistem yang sedang berjalan, terdapat beberapa permasalahan utama yang dihadapi dalam proses pencarian dan pemesanan layanan event, yaitu:
+Informasi mengenai vendor penyedia jasa event masih tersebar di berbagai platform yang berbeda.
+Proses pencarian vendor seringkali memerlukan waktu yang lama karena harus dilakukan secara manual.
+Tidak adanya sistem yang terintegrasi untuk mengelola pemesanan layanan event.
+Vendor mengalami keterbatasan dalam mempromosikan layanan mereka kepada pelanggan yang lebih luas.
+Pelanggan kesulitan dalam membandingkan layanan dan harga dari berbagai vendor.
+Berdasarkan permasalahan tersebut, pengembangan aplikasi 
+Planora
+ diharapkan dapat menjadi solusi dengan menyediakan platform digital yang mengintegrasikan berbagai layanan event dalam satu sistem yang mudah digunakan oleh pelanggan maupun vendor.
+2.4.1    
+Kebutuhan Non-Fungsional
+Dalam sistem marketplace penyedia jasa event, terdapat beberapa potensi permasalahan yang perlu diperhatikan dalam proses perancangan sistem agar sistem dapat berjalan dengan efektif dan menghindari konflik operasional antara pelanggan dan vendor.
+Permasalahan
+Tingkat 
+Risiko
+Penjelasan
+Double booking vendor
+Tinggi
+Vendor dapat menerima dua pesanan pada tanggal yang sama jika sistem tidak memiliki mekanisme validasi jadwal.
+Booking 
+tanpa
+ 
+komitmen
+Tinggi
+Pelanggan dapat melakukan pemesanan tanpa melakukan pembayaran sehingga dapat menghambat slot jadwal vendor.
+Cancel system 
+tidak
+ 
+jelas
+Sedang
+Tidak adanya aturan pembatalan dapat menyebabkan konflik antara pelanggan dan vendor.
+Database design 
+tidak
+ 
+jelas
+Tinggi
+Struktur database yang tidak dirancang dengan baik dapat menyebabkan inkonsistensi data pemesanan.
+Integrasi 
+sistem
+ 
+belum
+ 
+kuat
+Sedang
+Sistem mobile dan web harus terintegrasi dengan backend agar data selalu sinkron.
+Review abuse
+Rendah
+Pengguna dapat memberikan ulasan meskipun belum menggunakan layanan vendor.
+BAB III
+METODOLOGI & 
+ARSITEKTUR SISTEM
+Metode 
+Pengembangan
+ 
+Sistem
+Pengembangan aplikasi Planora menggunakan metode Waterfall yang merupakan salah satu model dalam System Development Life Cycle (SDLC). Metode Waterfall dipilih karena memiliki tahapan pengembangan yang sistematis, terstruktur, dan mudah dipahami sehingga cocok digunakan dalam pengembangan sistem informasi berbasis web dan mobile yang memiliki kebutuhan yang relatif jelas sejak awal.
+Metode ini membagi proses pengembangan sistem menjadi beberapa tahapan yang dilakukan secara berurutan, dimana setiap tahap harus diselesaikan sebelum melanjutkan ke tahap berikutnya. Pendekatan ini memungkinkan proses pengembangan sistem dilakukan secara lebih terkontrol, terukur, dan terdokumentasi dengan baik. 
+Berikut
+ diagram 
+tahapan
+ 
+metode
+ Waterfall:
+Berikut adalah penjelasan setiap tahapan dalam metode Waterfall yang diterapkan pada pengembangan sistem Planora:
+Analisis
+ 
+Kebutuhan
+Tahap
+ 
+analisis
+ 
+kebutuhan
+ 
+bertujuan
+ 
+untuk
+ 
+mengidentifikasi
+ 
+secara
+ 
+menyeluruh
+ 
+permasalahan
+ yang 
+dihadapi
+ oleh 
+pelanggan
+ dan vendor 
+dalam
+ proses 
+pencarian
+ 
+serta
+ 
+pemesanan
+ 
+layanan
+ event 
+secara
+ 
+konvensional
+. Pada 
+tahap
+ 
+ini
+ 
+dilakukan
+:
+Identifikasi stakeholder utama (pelanggan, vendor, dan admin sistem)
+Analisis proses bisnis yang sedang berjalan
+Perumusan kebutuhan fungsional dan non-fungsional sistem
+Penentuan ruang lingkup dan batasan pengembangan sistem
+Hasil dari tahap ini adalah dokumen kebutuhan sistem yang menjadi acuan utama dalam proses perancangan aplikasi Planora.
+Perancangan
+ 
+Sistem
+Pada tahap ini dilakukan perancangan struktur dan arsitektur sistem secara menyeluruh berdasarkan kebutuhan yang telah diidentifikasi. 
+Perancangan
+ 
+meliputi
+:
+Perancangan
+ 
+arsitektur
+ 
+sistem
+ (Client-Server 
+berbasis
+ RESTful API)
+Perancangan struktur database dan relasi antar entitas
+Perancangan
+ 
+modul-modul
+ 
+sistem
+ (Booking, 
+Katalog
+, Finance, User, Review)
+Perancangan alur interaksi antara pengguna dengan sistem
+Perancangan antarmuka (UI/UX Design) menggunakan Figma
+Hasil dari tahap ini adalah blueprint sistem yang siap untuk diimplementasikan oleh tim pengembang.
+Implementasi
+ 
+Sistem
+Tahap implementasi merupakan proses penerjemahan desain sistem ke dalam bentuk kode program yang dapat dieksekusi. 
+Kegiatan
+ yang 
+dilakukan
+ pada 
+tahap
+ 
+ini
+ 
+meliputi
+:
+Pengembangan backend server dan pembuatan RESTful API
+Pembuatan dan konfigurasi database sesuai skema yang dirancang
+Pengembangan aplikasi mobile untuk pelanggan menggunakan Flutter 
+Pengembangan
+ web dashboard 
+untuk
+ vendor dan admin
+Integrasi seluruh komponen sistem melalui API
+Tahap ini menghasilkan sistem yang dapat dijalankan dan diuji fungsionalitasnya secara menyeluruh.
+Pengujian
+ 
+Sistem
+Setelah sistem selesai dikembangkan, dilakukan serangkaian pengujian untuk memastikan bahwa seluruh fitur berjalan sesuai dengan kebutuhan dan ekspektasi pengguna. 
+Jenis 
+pengujian
+ yang 
+dilakukan
+ 
+meliputi
+:
+Pengujian fungsional – memastikan setiap fitur berjalan dengan benar sesuai spesifikasi
+Pengujian integrasi – memastikan sinkronisasi data antara aplikasi mobile dan web dashboard berjalan dengan baik
+Pengujian performa – memastikan sistem dapat menangani beban akses dari banyak pengguna secara bersamaan
+Pengujian keamanan – memastikan data pengguna tersimpan dan diakses secara aman
+Hasil pengujian digunakan sebagai dasar untuk melakukan perbaikan sebelum sistem diluncurkan secara resmi.
+Deployment & 
+Pemeliharaan
+Tahap
+ deployment 
+merupakan
+ proses 
+penerapan
+ 
+sistem
+ yang 
+telah
+ 
+melewati
+ 
+tahap
+ 
+pengujian
+ 
+ke
+ 
+lingkungan
+ 
+produksi
+ 
+sehingga
+ 
+dapat
+ 
+digunakan
+ oleh 
+pengguna
+ 
+akhir
+. 
+Setelah
+ 
+diluncurkan
+, 
+dilakukan
+ 
+pemeliharaan
+ 
+sistem
+ yang 
+mencakup
+:
+Pemantauan performa dan stabilitas sistem secara berkala
+Perbaikan bug atau kesalahan yang ditemukan setelah penggunaan awal
+Penyempurnaan fitur berdasarkan masukan dari pengguna
+Perencanaan pengembangan fitur lanjutan sesuai kebutuhan
+Arsitektur
+ 
+Sistem
+Arsitektur sistem Planora dirancang menggunakan pendekatan Client-Server Architecture dengan konsep layanan terpusat (centralized service). Seluruh proses pengolahan data dan logika bisnis dikelola oleh satu backend server yang dapat diakses oleh aplikasi mobile pelanggan maupun web dashboard vendor dan admin melalui RESTful API. 
+Pendekatan ini dipilih karena mampu mendukung integrasi 
+multi-platform, menjaga konsistensi data, serta memudahkan pengembangan dan pemeliharaan sistem di masa mendatang.
+Secara umum, arsitektur sistem Planora terdiri dari tiga lapisan utama sebagai berikut:
+Presentation Layer (Frontend)
+Lapisan ini merupakan antarmuka yang digunakan langsung oleh pengguna untuk berinteraksi dengan sistem Planora. 
+Presentation layer 
+terdiri
+ 
+dari
+ dua 
+komponen
+ 
+utama
+:
+Aplikasi Mobile – digunakan oleh pelanggan untuk mencari vendor, melihat informasi layanan, melakukan pemesanan, dan memantau status pesanan.
+Web Dashboard – digunakan oleh vendor untuk mengelola layanan, jadwal, dan pesanan, serta oleh admin untuk memantau dan mengelola seluruh aktivitas dalam sistem.
+Frontend tidak mengakses database secara langsung, melainkan berkomunikasi dengan backend melalui RESTful API menggunakan format data JSON.
+Application Layer (Backend Server)
+Lapisan ini merupakan inti sistem yang mengelola seluruh logika bisnis aplikasi Planora. 
+Backend server 
+bertanggung
+ 
+jawab
+ 
+untuk
+:
+Memproses
+ 
+seluruh
+ 
+permintaan
+ (request) yang 
+dikirimkan
+ 
+dari
+ frontend
+Memvalidasi data pemesanan dan ketersediaan jadwal vendor
+Mengelola proses autentikasi dan otorisasi pengguna berdasarkan role
+Mengelola status pembayaran dan notifikasi sistem
+Mengirimkan
+ 
+respons
+ (response) 
+ke
+ frontend 
+dalam
+ format JSON
+Backend dibangun menggunakan arsitektur RESTful API sehingga komunikasi antar komponen sistem berjalan secara standar, terstruktur, dan mudah diperluas.
+Data Layer (
+Database & Storage
+)
+Lapisan ini berfungsi untuk menyimpan seluruh data sistem secara terpusat dan terstruktur. 
+Data yang 
+dikelola
+ 
+dalam
+ 
+lapisan
+ 
+ini
+ 
+meliputi
+:
+Data pengguna (pelanggan, vendor, admin)
+Data 
+profil
+ dan 
+layanan
+ vendor
+Data 
+pemesanan
+ (booking)
+Data 
+transaksi
+ dan 
+pembayaran
+Data 
+ulasan
+ dan 
+penilaian
+ 
+layanan
+File media 
+seperti
+ 
+foto
+ 
+portofolio
+ vendor dan 
+bukti
+ 
+pembayaran
+Database dirancang menggunakan sistem manajemen basis data relasional (MySQL atau PostgreSQL) untuk menjamin integritas, konsistensi, dan keamanan data dalam sistem.
+Integrasi 
+Sistem
+Integrasi sistem Planora dilakukan melalui backend sebagai pusat pengolahan data. Setiap aktivitas pengguna, baik dari aplikasi mobile maupun web dashboard, dikirimkan dalam bentuk request API ke backend server dan diproses sesuai dengan logika bisnis yang telah ditentukan.
+Contoh
+ 
+alur
+ 
+integrasi
+ proses booking 
+planora
+ :
+Skema integrasi antar komponen sistem Planora mencakup tiga aspek utama sebagai berikut:
+Integrasi 
+Katalog
+ dan 
+Pencarian
+Data 
+layanan
+ yang 
+didaftarkan
+ oleh vendor 
+melalui
+ web dashboard 
+akan
+ 
+langsung
+ 
+tersedia
+ dan 
+dapat
+ 
+ditemukan
+ oleh 
+pelanggan
+ 
+melalui
+ 
+fitur
+ 
+pencarian
+ di 
+aplikasi
+ mobile. 
+Setiap
+ 
+penambahan
+, 
+perubahan
+, 
+atau
+ 
+penghapusan
+ 
+informasi
+ 
+layanan
+ oleh vendor 
+akan
+ 
+secara
+ 
+otomatis
+ 
+diperbarui
+ pada 
+katalog
+ yang 
+terlihat
+ oleh 
+pelanggan
+ 
+secara
+ real-time.
+Integrasi 
+Pemesanan
+ dan Jadwal
+Ketika 
+pelanggan
+ 
+melakukan
+ 
+pemesanan
+ 
+layanan
+ 
+melalui
+ 
+aplikasi
+ mobile, data 
+pesanan
+ 
+tersebut
+ 
+langsung
+ 
+tersimpan
+ di database dan 
+notifikasi
+ 
+dikirimkan
+ 
+kepada
+ vendor 
+melalui
+ web dashboard. 
+Vendor dapat memverifikasi ketersediaan jadwal dan mengonfirmasi atau menolak pesanan. Setiap perubahan status pesanan oleh vendor akan langsung tercermin pada tampilan aplikasi mobile pelanggan secara otomatis.
+Integrasi 
+Transaksi
+ dan 
+Pembayaran
+Setelah
+ 
+pelanggan
+ 
+mengunggah
+ 
+bukti
+ transfer 
+pembayaran
+ 
+melalui
+ 
+aplikasi
+ mobile, 
+sistem
+ 
+secara
+ 
+otomatis
+ 
+memicu
+ 
+notifikasi
+ pada dashboard vendor 
+untuk
+ 
+segera
+ 
+memverifikasi
+ 
+pembayaran
+ 
+tersebut
+. Status 
+pembayaran
+ yang 
+telah
+ 
+diperbarui
+ oleh vendor (
+misalnya
+ 
+dari
+ 
+Menunggu
+ 
+menjadi
+ DP 
+atau
+ Lunas) 
+akan
+ 
+langsung
+ 
+diperbarui
+ dan 
+terlihat
+ oleh 
+pelanggan
+ 
+secara
+ real-time.
+Modul-Modul 
+Sistem
+Untuk mempermudah pengelolaan data dan proses bisnis dalam platform Planora, sistem dibagi menjadi beberapa modul utama yang saling terintegrasi. Pembagian modul ini bertujuan agar setiap komponen sistem memiliki tanggung jawab yang jelas, sehingga memudahkan proses pengembangan, pemeliharaan, dan skalabilitas sistem di masa mendatang.
+ 
+Modul Booking
+Booking merupakan inti dari sistem Planora yang bertanggung jawab dalam mengelola seluruh proses pemesanan layanan event. Modul ini mengatur alur pemesanan mulai dari pilihan layanan hingga konfirmasi pesanan oleh vendor.
+Fungsi utama modul ini meliputi:
+Memproses permintaan pemesanan layanan dari pelanggan
+Melakukan pengecekan ketersediaan jadwal vendor secara otomatis
+Menyimpan
+ data 
+pemesanan
+ 
+pelanggan
+ 
+ke
+ 
+dalam
+ database
+Mengelola status booking (Menunggu Konfirmasi, Dikonfirmasi, Berjalan, Selesai, Dibatalkan)
+Mengirimkan notifikasi perubahan status kepada pelanggan dan vendor
+Menyediakan riwayat pesanan yang dapat diakses oleh pelanggan maupun vendor
+Dengan mekanisme pengecekan jadwal secara otomatis pada sisi backend, sistem dapat mencegah terjadinya tumpang tindih jadwal layanan sehingga pengelolaan operasional vendor menjadi lebih tertata dan efisien.
+ 
+Modul 
+Katalog
+ Vendor
+Modul Katalog Vendor berfungsi untuk mengelola seluruh informasi terkait layanan yang ditawarkan oleh para vendor dalam platform Planora. Modul ini menghubungkan informasi vendor dengan fitur pencarian yang tersedia di aplikasi mobile pelanggan.
+Fungsi utama modul ini meliputi:
+Mengelola data profil vendor (nama, deskripsi, lokasi, kategori layanan)
+Mengelola data paket layanan (nama paket, harga, durasi, fasilitas yang termasuk)
+Menyimpan dan mengelola galeri portofolio vendor
+Menyediakan fitur pencarian layanan berdasarkan kategori dan lokasi
+Memungkinkan admin untuk memverifikasi dan mengelola akun vendor
+Modul ini membantu vendor dalam mempromosikan layanan mereka secara profesional dan terstruktur kepada lebih banyak calon pelanggan melalui satu platform yang terintegrasi.
+ 
+Modul Finance
+Modul Finance bertanggung jawab dalam pengelolaan seluruh transaksi keuangan yang terjadi dalam sistem Planora. Modul ini mendukung alur pembayaran dengan metode transfer manual yang dilengkapi dengan fitur pengunggahan bukti pembayaran.
+Fungsi utama modul ini meliputi:
+Menyimpan dan mengelola data transaksi pembayaran setiap pesanan
+Mengelola
+ status 
+pembayaran
+ (Belum Bayar, DP, Lunas)
+Menerima dan menyimpan bukti transfer yang diunggah oleh pelanggan
+Memungkinkan vendor untuk memverifikasi pembayaran yang masuk
+Menghasilkan rekapitulasi transaksi dan pendapatan untuk setiap vendor
+Menyediakan laporan transaksi yang dapat diakses oleh admin sistem
+Dengan adanya modul ini, pencatatan transaksi keuangan menjadi lebih sistematis, terdokumentasi dengan baik, dan memudahkan vendor dalam memantau pemasukan dari setiap layanan yang mereka berikan.
+ 
+Modul User & 
+Autentikasi
+Modul User berfungsi untuk mengelola data pengguna serta mengatur hak akses (role-based access control) dalam sistem Planora. Sistem membedakan tiga jenis peran utama pengguna, yaitu:
+Pelanggan – dapat melakukan pencarian dan pemesanan layanan, memantau status pesanan, serta memberikan ulasan
+Vendor – dapat mengelola profil, paket layanan, jadwal, pesanan yang masuk, serta melihat laporan transaksi
+Admin – memiliki akses penuh untuk mengelola data pengguna, memverifikasi vendor baru, memantau aktivitas sistem, serta menangani laporan
+Fungsi utama modul ini meliputi:
+Registrasi akun pengguna baru (pelanggan dan vendor)
+Autentikasi pengguna melalui mekanisme login yang aman
+Pengelolaan
+ data 
+profil
+ 
+pengguna
+Pengaturan hak akses berdasarkan role pengguna
+Pembatasan akses fitur sesuai dengan kewenangan masing-masing peran
+Dengan penerapan role-based access control, sistem Planora menjadi lebih aman dan terstruktur karena setiap pengguna hanya dapat mengakses fitur yang sesuai dengan peran dan kewenangannya dalam sistem.
+ 
+Modul Review & Rating
+Modul Review & Rating merupakan fitur tambahan yang membedakan Planora dari sistem pemesanan konvensional. Modul ini memberikan transparansi layanan kepada seluruh pengguna platform.
+Fungsi utama modul ini meliputi:
+Memungkinkan pelanggan memberikan penilaian bintang (1–5) terhadap layanan vendor yang telah digunakan
+Memungkinkan pelanggan menulis ulasan tekstual mengenai pengalaman menggunakan layanan
+Menampilkan rata-rata rating vendor pada halaman profil dan katalog layanan
+Memungkinkan vendor untuk merespons ulasan yang diberikan pelanggan
+Dengan adanya sistem ulasan dan penilaian, kualitas layanan vendor dapat dipantau secara transparan sehingga mendorong kompetisi yang sehat dan meningkatkan kepercayaan pelanggan dalam menggunakan platform Planora.
+Teknologi
+ yang 
+Digunakan
+Pemilihan teknologi dalam pengembangan sistem Planora dilakukan dengan mempertimbangkan aspek integrasi multi-platform, kemudahan pengembangan, skalabilitas, serta kemampuan mendukung komunikasi data secara real-time. Teknologi yang digunakan mencakup frontend web, aplikasi mobile, backend, 
+database, dan tools pendukung yang saling terintegrasi melalui arsitektur RESTful API.
+ 
+Berikut
+ 
+tabel
+ 
+ringkasan
+ 
+teknologi
+ yang 
+digunakan
+ 
+dalam
+ 
+sistem
+ 
+Planora
+Komponen
+Teknologi
+ / Framework
+Fungsi
+ Utama
+Frontend Web
+React.js 
+Dashboard vendor & admin
+Aplikasi
+ Mobile
+Flutter 
+Aplikasi
+ 
+pelanggan
+ (Android/iOS)
+Backend
+Node.js 
+Logika 
+bisnis
+ & RESTful API
+Database
+PostgreSQL
+Penyimpanan
+ data 
+terpusat
+File Storage
+Cloud Storage
+Foto 
+portofolio
+ & 
+bukti
+ 
+bayar
+UI Design
+Figma
+Perancangan
+ 
+antarmuka
+ 
+sistem
+API Testing
+Postman
+Pengujian
+ endpoint RESTful API
+Version Control
+Git + GitHub
+Manajemen
+ 
+versi
+ 
+kode
+ program
+Berikut adalah teknologi yang digunakan dalam pengembangan sistem:
+    
+Frontend Web
+Frontend web 
+digunakan
+ 
+untuk
+ 
+membangun
+ web dashboard yang 
+digunakan
+ oleh vendor dan admin. 
+Dashboard ini menyediakan fitur pengelolaan layanan, konfirmasi pesanan, verifikasi pembayaran, serta tampilan laporan transaksi.
+Teknologi yang digunakan antara lain:
+React.js 
+sebagai framework JavaScript untuk membangun antarmuka pengguna yang interaktif, responsif, dan berbasis komponen. Dengan pendekatan berbasis komponen, pengembangan antarmuka menjadi lebih terstruktur serta memudahkan proses pengelolaan dan pemeliharaan kode program.
+Penggunaan framework modern memungkinkan pengelolaan komponen secara terstruktur serta komunikasi yang efisien dengan backend melalui API.
+    
+Aplikasi
+ Mobile
+Aplikasi
+ mobile 
+digunakan
+ oleh 
+pelanggan
+ 
+untuk
+ 
+mengakses
+ 
+seluruh
+ 
+layanan
+ yang 
+tersedia
+ 
+dalam
+ platform 
+Planora
+, 
+mulai
+ 
+dari
+ 
+pencarian
+ vendor 
+hingga
+ 
+pemantauan
+ status 
+pesanan
+.
+ 
+Framework yang 
+digunakan
+ 
+adalah
+:
+ 
+Flutter (Dart)
+ 
+Flutter dipilih karena mendukung pengembangan aplikasi cross-platform, sehingga aplikasi yang dikembangkan dapat berjalan pada sistem operasi Android maupun iOS dengan satu basis kode yang sama.
+ 
+    
+Backend
+Backend merupakan pusat pengolahan logika bisnis sekaligus penyedia layanan RESTful API yang menghubungkan seluruh komponen sistem Planora.
+Teknologi backend yang digunakan adalah:
+Node.js dengan framework Express.js, 
+yang berfungsi sebagai server-side runtime untuk menjalankan aplikasi berbasis JavaScript. Backend juga menyediakan layanan RESTful API yang berfungsi sebagai penghubung antara aplikasi web dashboard dan aplikasi mobile dengan database sistem
+. 
+Melalui RESTful API, seluruh proses komunikasi data antara frontend dan backend dilakukan menggunakan format JSON, sehingga pertukaran data dapat dilakukan secara efisien dan terstruktur.
+    
+Database
+Database digunakan untuk menyimpan seluruh data yang berkaitan dengan sistem Planora secara terpusat dan terstruktur. Sistem manajemen basis data yang digunakan adalah PostgreSQL, yang merupakan salah satu database relasional yang memiliki performa tinggi serta mendukung pengelolaan data dalam skala besar. PostgreSQL dipilih karena memiliki kemampuan dalam menjaga integritas data melalui relasi antar tabel, mendukung keamanan data, serta mudah diintegrasikan dengan berbagai teknologi backend modern seperti Node.js.
+    
+Tools 
+Pendukung
+Untuk
+ 
+mendukung
+ proses 
+pengembangan
+ 
+sistem
+ 
+secara
+ 
+menyeluruh
+, 
+digunakan
+ 
+beberapa
+ tools 
+tambahan
+ 
+antara
+ lain:
+Figma
+ – untuk perancangan antarmuka dan prototipe sistem (UI/UX Design)
+Postman
+ – 
+untuk
+ 
+pengujian
+ endpoint RESTful API 
+selama
+ proses 
+pengembangan
+Git & GitHub
+ – untuk manajemen versi kode program dan kolaborasi antar anggota tim
+Tools ini membantu memastikan proses pengembangan berjalan secara terstruktur, terdokumentasi, dan dapat dikerjakan secara kolaboratif oleh seluruh anggota tim.
+Use Case Diagram
+Use Case Diagram menggambarkan interaksi antara pengguna (aktor) dengan sistem Planora secara fungsional. Diagram ini menunjukkan apa saja yang dapat dilakukan oleh masing-masing aktor terhadap sistem tanpa menjelaskan bagaimana proses tersebut dilakukan secara teknis. Terdapat tiga aktor utama dalam sistem Planora, yaitu Pelanggan, Vendor, dan Admin
+.
+Use Case Diagram 
+Sistem
+ 
+Planora
+    
+Deskripsi
+ Use Case
+Berikut adalah deskripsi singkat dari setiap use case yang terdapat dalam sistem Planora:
+Nama Use Case
+Aktor
+Deskripsi
+Registrasi
+ Akun
+Pelanggan
+, Vendor
+Pengguna baru mendaftar dengan mengisi data diri dan memilih peran (pelanggan/vendor).
+Login
+Semua
+ Aktor
+Pengguna masuk ke sistem menggunakan email dan kata sandi yang telah terdaftar.
+Kelola 
+Profil
+Pelanggan
+, Vendor
+Pengguna memperbarui data profil pribadi seperti nama, foto, dan informasi kontak.
+Cari Vendor / 
+Layanan
+Pelanggan
+Pelanggan mencari vendor berdasarkan kategori layanan, lokasi, atau kata kunci tertentu.
+Lihat
+ Detail 
+Layanan
+Pelanggan
+Pelanggan melihat informasi lengkap layanan vendor termasuk harga, deskripsi, dan portofolio.
+Buat
+ 
+Pemesanan
+Pelanggan
+Pelanggan memilih layanan dan tanggal, lalu mengirimkan permintaan pemesanan kepada vendor.
+Unggah
+ Bukti 
+Pembayaran
+Pelanggan
+Pelanggan mengunggah bukti transfer sebagai konfirmasi pembayaran DP atau pelunasan.
+Pantau
+ Status 
+Pesanan
+Pelanggan
+Pelanggan memantau perkembangan status pesanannya (Menunggu, Dikonfirmasi, Selesai, dll.).
+Beri 
+Ulasan
+ & Rating
+Pelanggan
+Pelanggan memberikan penilaian bintang dan ulasan terhadap layanan yang telah selesai digunakan.
+Kelola 
+Profil
+ & 
+Layanan
+ Vendor
+Vendor
+Vendor mengelola informasi profil usaha, menambah/mengubah/menghapus paket layanan yang ditawarkan.
+Kelola Jadwal
+Vendor
+Vendor mengatur ketersediaan tanggal dan slot waktu layanan agar tidak terjadi tumpang tindih.
+Konfirmasi
+ / Tolak 
+Pesanan
+Vendor
+Vendor menerima notifikasi pesanan masuk dan memilih untuk mengonfirmasi atau menolak pesanan.
+Verifikasi
+ 
+Pembayaran
+Vendor
+Vendor memeriksa bukti transfer yang diunggah pelanggan dan mengubah status pembayaran.
+Lihat
+ 
+Laporan
+ 
+Transaksi
+Vendor, Admin
+Vendor melihat rekap pendapatan; Admin memantau seluruh transaksi yang terjadi di platform.
+Verifikasi
+ Akun Vendor
+Admin
+Admin meninjau dan menyetujui atau menolak pendaftaran vendor baru sebelum dapat beroperasi.
+Kelola Data 
+Pengguna
+Admin
+Admin mengelola seluruh akun pengguna termasuk menonaktifkan akun yang melanggar ketentuan.
+Kelola 
+Kategori
+ Layanan
+Admin
+Admin menambah, mengubah, atau menghapus kategori layanan yang tersedia dalam platform.
+Pantau
+ 
+Aktivitas
+ 
+Sistem
+Admin
+Admin memantau seluruh aktivitas transaksi, pesanan, dan log sistem untuk memastikan operasional berjalan normal.
+Activity Diagram
+Activity Diagram menggambarkan alur aktivitas atau proses bisnis yang terjadi di dalam sistem Planora secara berurutan. Diagram ini memperlihatkan langkah-langkah yang dilakukan oleh setiap aktor dalam menyelesaikan suatu proses dari awal hingga akhir. Berikut disajikan activity diagram untuk tiga proses utama dalam sistem Planora.
+Activity Diagram – Proses 
+Pemesanan
+ Layanan (Booking)
+Activity Diagram Proses 
+Pemesanan
+ Layanan
+  
+Activity Diagram – Proses 
+Pendaftaran
+ & 
+Verifikasi
+ Vendor
+Diagram berikut menggambarkan alur pendaftaran vendor baru hingga akun vendor diverifikasi dan disetujui oleh admin sehingga dapat mulai menawarkan layanan di platform Planora.
+Activity Diagram Pendaftaran & Verifikasi Vendor
+  
+Activity Diagram – Proses Login & 
+Autentikasi
+Diagram berikut menggambarkan alur autentikasi pengguna saat masuk ke sistem Planora beserta mekanisme pemberian hak akses berdasarkan peran (role) pengguna.
+Activity Diagram Proses Login & 
+Autentikasi
+Entity Relationship Diagram
+Entity Relationship Diagram (ERD) menggambarkan struktur basis data sistem Planora beserta relasi antar entitas yang terlibat. ERD ini menjadi acuan dalam perancangan dan implementasi skema database agar seluruh data dapat tersimpan secara terstruktur, konsisten, dan mudah dikelola.
+Entity Relationship Diagram (ERD) Sistem Planora
+ 
+Deskripsi Entitas dan Relasi
+Berikut adalah penjelasan dari setiap entitas utama yang terdapat dalam skema database sistem Planora:
+Entitas
+Deskripsi
+Relasi
+ Utama
+USER
+Menyimpan data seluruh pengguna sistem (pelanggan, vendor, admin) beserta informasi login dan peran masing-masing.
+Berelasi
+ 
+ke
+ VENDOR_PROFILE, BOOKING, NOTIFIKASI, REVIEW
+VENDOR_PROFILE
+Menyimpan informasi detail usaha vendor seperti nama usaha, deskripsi, lokasi, kategori, dan status verifikasi admin.
+Berelasi ke USER (1:1), LAYANAN (1:N), JADWAL (1:N)
+LAYANAN
+Menyimpan data paket layanan yang ditawarkan vendor, termasuk nama paket, harga, durasi, fasilitas, dan status aktif.
+Berelasi
+ 
+ke
+ VENDOR_PROFILE (N:1), BOOKING (
+1:N
+)
+JADWAL
+Menyimpan
+ 
+ketersediaan
+ slot 
+waktu
+ 
+layanan
+ 
+milik
+ vendor 
+untuk
+ 
+mencegah
+ 
+terjadinya
+ 
+tumpang
+ 
+tindih
+ 
+pemesanan
+.
+Berelasi
+ 
+ke
+ VENDOR_PROFILE (N:1), BOOKING (
+1:N
+)
+BOOKING
+Menyimpan data transaksi pemesanan layanan pelanggan termasuk layanan dipilih, jadwal, tanggal acara, dan status pesanan.
+Berelasi
+ 
+ke
+ USER, LAYANAN, JADWAL, PEMBAYARAN, REVIEW
+PEMBAYARAN
+Menyimpan
+ 
+informasi
+ 
+transaksi
+ 
+keuangan
+ 
+setiap
+ booking, 
+termasuk
+ 
+jumlah
+ DP, 
+jumlah
+ 
+lunas
+, 
+bukti
+ transfer, dan status 
+bayar
+.
+Berelasi
+ 
+ke
+ BOOKING (1:1)
+REVIEW
+Menyimpan ulasan dan penilaian bintang dari pelanggan terhadap layanan vendor yang telah selesai digunakan.
+Berelasi
+ 
+ke
+ BOOKING (1:1), USER, VENDOR_PROFILE
+NOTIFIKASI
+Menyimpan pesan notifikasi sistem yang dikirimkan kepada pengguna terkait perubahan status pesanan atau pembayaran.
+Berelasi
+ 
+ke
+ USER (N:1)
+Pembagian
+ 
+Tugas
+ Tim
+Pengembangan platform Planora dilaksanakan secara kolaboratif oleh tim yang terdiri dari empat anggota. Pembagian tugas dilakukan berdasarkan kompetensi dan tanggung jawab masing-masing anggota agar proses pengembangan dapat berjalan secara terstruktur, efisien, dan tepat waktu. Setiap anggota memiliki peran dan tanggung jawab yang saling melengkapi dalam satu alur kerja pengembangan yang terintegrasi.
+T
+abel 
+Pembagian Tugas Tim Pengembang Planora
+No
+Nama
+NIM
+Peran
+Tanggung
+ Jawab Utama
+1
+Renanda
+ Anwar Pratama Siregar
+23076051
+Project Manager & Backend Developer
+Memimpin koordinasi tim, merancang arsitektur sistem dan RESTful API, mengembangkan backend server (Node.js), serta memastikan integrasi antar modul berjalan dengan baik.
+2
+Nurwahidah Wafa Ihsani
+23076047
+Frontend Web Developer & UI/UX Designer
+Merancang
+ 
+antarmuka
+ 
+sistem
+ 
+menggunakan
+ Figma, 
+mengembangkan
+ web dashboard 
+untuk
+ vendor dan admin (React.js/Vue.js + 
+Tailwind CSS), 
+serta
+ 
+memastikan
+ 
+tampilan
+ yang 
+responsif
+ dan 
+konsisten
+.
+3
+Ilham 
+Fahrozi
+23076033
+Mobile App Developer
+Mengembangkan aplikasi mobile pelanggan menggunakan Flutter
+, 
+mengimplementasikan fitur pencarian, pemesanan, pengunggahan bukti bayar, dan notifikasi status pesanan.
+4
+Salsabila 
+Maulidia
+23076019
+Database Engineer & System Analyst
+Merancang skema ERD dan struktur database, mengimplementasikan database MySQL/PostgreSQL, melakukan analisis kebutuhan sistem, serta menyusun dokumentasi teknis dan pengujian sistem.
+Detail Pembagian Tugas Per Tahapan Pengembangan
+Selain pembagian peran utama, berikut adalah rincian pembagian kontribusi setiap anggota tim berdasarkan tahapan pengembangan sistem Planora menggunakan metode Waterfall:
+Tahapan
+Renanda
+ A.P.S.
+Nurwahidah W.I.
+Ilham 
+Fahrozi
+Salsabila M.
+Analisis
+ 
+Kebutuhan
+Koordinasi
+ 
+analisis
+ 
+kebutuhan
+ & stakeholder
+Analisis
+ 
+kebutuhan
+ UI & 
+alur
+ 
+pengguna
+Analisis
+ 
+kebutuhan
+ 
+fitur
+ mobile
+Analisis permasalahan & dokumentasi kebutuhan sistem
+Perancangan
+ 
+Sistem
+Perancangan arsitektur sistem & desain API
+Perancangan
+ wireframe & 
+prototipe
+ UI (Figma)
+Perancangan
+ 
+alur
+ 
+aplikasi
+ mobile
+Perancangan
+ ERD, 
+skema
+ database & use case diagram
+Implementasi
+Pengembangan backend, API endpoint, & autentikasi
+Pengembangan
+ web dashboard (frontend web)
+Pengembangan
+ 
+aplikasi
+ mobile 
+pelanggan
+Konfigurasi
+ & 
+implementasi
+ database
+Pengujian
+Pengujian integrasi API & keamanan sistem
+Pengujian
+ 
+tampilan
+ & 
+fungsionalitas
+ web
+Pengujian
+ 
+fungsionalitas
+ 
+aplikasi
+ mobile
+Pengujian
+ database & 
+validasi
+ data
+Deployment & Docs
+Konfigurasi
+ server & deployment 
+sistem
+Dokumentasi
+ 
+antarmuka
+ & 
+panduan
+ 
+pengguna
+Build & 
+distribusi
+ 
+aplikasi
+ mobile
+Dokumentasi teknis & laporan akhir proyek
+Kordinasi dan Komunikasi Tim
+Untuk memastikan seluruh proses pengembangan berjalan lancar dan sesuai dengan target yang telah ditetapkan, tim pengembang Planora menerapkan mekanisme koordinasi dan komunikasi sebagai berikut:
+Rapat Mingguan – Tim mengadakan pertemuan rutin setiap minggu untuk membahas perkembangan pengerjaan, kendala yang dihadapi, serta rencana kerja untuk minggu berikutnya.
+Version Control – Seluruh kode program dikelola menggunakan Git dan disimpan pada repositori GitHub bersama, sehingga setiap anggota dapat berkolaborasi dan memantau perubahan kode secara transparan.
+Manajemen Tugas – Pembagian dan pemantauan tugas dilakukan menggunakan tools manajemen proyek seperti Trello atau Notion untuk memastikan setiap pekerjaan terdokumentasi dan memiliki tenggat waktu yang jelas.
+Komunikasi Harian – Komunikasi antar anggota tim dilakukan melalui grup WhatsApp atau platform komunikasi lainnya untuk membahas perkembangan harian dan menyelesaikan kendala secara cepat.
+Dengan pembagian tugas yang jelas dan terstruktur serta mekanisme koordinasi yang baik, tim pengembang Planora diharapkan dapat menyelesaikan pengembangan sistem secara tepat waktu dengan kualitas yang optimal sesuai dengan kebutuhan dan tujuan proyek.
+BAB IV
+PENUTUP
+Kesimpulan
+ 
+Berdasarkan hasil analisis kebutuhan dan perancangan sistem yang telah dilakukan, dapat disimpulkan bahwa pengembangan platform Planora sebagai sistem marketplace penyedia jasa event berbasis web dan mobile merupakan solusi yang relevan dan tepat terhadap berbagai permasalahan yang selama ini dihadapi dalam proses pencarian serta pemesanan layanan event secara konvensional.
+Sistem yang dirancang menggunakan arsitektur Client-Server berbasis RESTful API memungkinkan integrasi yang efisien antara aplikasi mobile pelanggan dan web dashboard vendor maupun admin. Seluruh data tersimpan dalam satu database terpusat sehingga menjamin konsistensi data, meminimalkan risiko kehilangan atau duplikasi data, serta memungkinkan pembaruan informasi secara real-time di seluruh platform.
+Pembagian sistem ke dalam lima modul utama, yaitu Modul Booking, Modul Katalog Vendor, Modul Finance, Modul User & Autentikasi, serta Modul Review & Rating, menjadikan arsitektur sistem lebih terstruktur dan setiap komponen memiliki tanggung jawab yang jelas. Dengan adanya mekanisme pemesanan otomatis dan pengecekan jadwal secara real-time, risiko tumpang tindih jadwal dapat diminimalkan. Selain itu, sistem ulasan dan penilaian vendor memberikan transparansi yang meningkatkan kepercayaan pengguna terhadap platform Planora.
+Dengan demikian, platform Planora tidak hanya meningkatkan efisiensi operasional bagi vendor dalam mengelola layanan dan transaksi, tetapi juga memberikan kemudahan yang signifikan bagi pelanggan dalam merencanakan dan mempersiapkan penyelenggaraan berbagai jenis acara dalam satu platform digital yang terintegrasi.
+Saran
+Meskipun sistem yang dirancang telah memenuhi kebutuhan dasar sebagai platform marketplace penyedia jasa event, terdapat beberapa saran pengembangan yang dapat dipertimbangkan untuk meningkatkan kualitas sistem Planora di masa mendatang, antara lain:
+Integrasi Payment Gateway
+: 
+Menambahkan fitur pembayaran otomatis melalui payment gateway seperti Midtrans atau Xendit agar proses verifikasi pembayaran dapat dilakukan secara otomatis tanpa konfirmasi manual.
+Sistem Notifikasi Otomatis
+: 
+Mengembangkan notifikasi berbasis WhatsApp Business API atau email otomatis sebagai pengingat jadwal dan pembaruan status pesanan secara real-time.
+Fitur Analitik dan Laporan Lanjutan
+: 
+Menambahkan laporan analitik disertai grafik statistik untuk membantu vendor memantau tren layanan dan mendukung pengambilan keputusan admin secara berbasis data.
+Pengembangan Multi-Platform Penuh
+: 
+Mengembangkan aplikasi mobile secara penuh untuk platform Android dan iOS, serta mempertimbangkan pengembangan versi Progressive Web App (PWA).
+Peningkatan Keamanan Sistem
+: 
+Mengimplementasikan enkripsi data, autentikasi dua faktor (2FA), dan audit log aktivitas pengguna untuk melindungi data pribadi seluruh pengguna platform.
+Fitur Paket Bundling Event
+: 
+Menambahkan fitur bundling layanan agar pelanggan dapat memesan beberapa layanan dari vendor berbeda dalam satu transaksi yang terintegrasi.
+Sistem Rekomendasi Cerdas
+: 
+Mengembangkan fitur rekomendasi vendor berbasis data rating, lokasi, dan preferensi pengguna menggunakan pendekatan machine learning sederhana.
+Dengan adanya pengembangan lanjutan tersebut, platform Planora diharapkan dapat terus berkembang menjadi solusi digital yang semakin optimal, aman, dan komprehensif dalam mendukung ekosistem industri jasa penyelenggaraan acara di Indonesia.

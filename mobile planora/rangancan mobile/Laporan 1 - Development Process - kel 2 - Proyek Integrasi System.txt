@@ -1,0 +1,2005 @@
+PROGRESS WEEK 1
+DEVELOPMENT PROCESS
+PROYEK INTEGRASI SISTEM
+“
+Planora
+ :
+ 
+Sistem
+ Marketplace 
+Penyedia
+ Jasa Event 
+Terintegrasi
+”
+DOSEN PENGAMPU :
+Dr. Muhammad Adri, S.Pd., M.T
+OLEH:
+Ilham 
+Fahrozi
+ 
+| 23076033
+Nurwahidah
+ Wafa Ihsani
+ 
+| 23076047
+Salsabila 
+Maulidia
+ 
+ 
+| 23076019
+Renanda
+ Anwar Pratama Siregar
+| 23076051
+PROGRAM STUDI PENDIDIKAN TEKNIK INFORMATIKA
+DEPARTEMEN TEKNIK ELEKTRONIKA
+FAKULTAS TEKNIK
+UNIVERSITAS NEGERI PADANG
+2026
+Analisis
+ User 
+ExperienceWeb
+ Dashboard 
+Planora
+Bagian ini menguraikan analisis kebutuhan dan alur pengalaman pengguna (UX) yang dikhususkan untuk Web Dashboard Planora. Sesuai dengan batasan masalah sistem, web dashboard ini dirancang secara spesifik untuk memfasilitasi dua peran utama, yaitu Vendor (penyedia jasa event) dan Admin Sistem (pengelola platform). Berbeda dengan aplikasi mobile yang mengutamakan kemudahan transaksi pelanggan, web dashboard mengutamakan efisiensi operasional dan kemudahan pengelolaan data.
+UX Requirements Web Dashboard
+Berdasarkan analisis kebutuhan non-fungsional sistem yang menuntut aplikasi agar user-friendly dan memiliki antarmuka yang jelas, perancangan web dashboard Planora untuk Vendor dan Admin harus memenuhi beberapa kriteria kebutuhan UX berikut:
+Kebutuhan Efisiensi Manajemen (Operational Efficiency)
+Vendor dan Admin memiliki tugas operasional yang padat setiap harinya. Dashboard harus mampu menyajikan informasi terpenting secara langsung tanpa pengguna perlu menelusuri banyak halaman terlebih dahulu.
+Penerapan
+Halaman utama dashboard wajib menampilkan ringkasan operasional harian dalam bentuk Summary Cards yang mudah dibaca secara sekilas (at-a-glance). Bagi Vendor, kartu ini menampilkan jumlah pesanan masuk hari ini, jadwal layanan yang akan datang, dan pembayaran yang masih menunggu verifikasi. Bagi Admin, kartu ini menampilkan jumlah vendor baru yang menunggu verifikasi, total transaksi aktif, dan laporan atau keluhan pengguna yang belum ditangani.
+Kebutuhan Pengelolaan Konten Layanan (Content Management)
+Vendor harus mampu mengelola seluruh informasi layanan mereka secara mandiri melalui dashboard, tanpa memerlukan bantuan teknis dari tim pengembang.
+Penerapan
+Halaman pengelolaan layanan dirancang dengan form input yang intuitif untuk menambah, mengubah, atau menonaktifkan paket layanan. Setiap field input dilengkapi validasi real-time yang langsung memberikan feedback apabila data yang 
+dimasukkan tidak valid (misalnya: harga harus berupa angka, nama paket tidak boleh kosong). Sebelum penghapusan data layanan, sistem menampilkan dialog konfirmasi agar vendor tidak secara tidak sengaja menghapus data penting yang masih aktif digunakan.
+Kebutuhan Manajemen Jadwal & Konfirmasi Pesanan (Schedule & Order Management)
+Vendor perlu memantau seluruh pesanan yang masuk dan mengelola ketersediaan jadwal mereka secara efisien agar tidak terjadi tumpang tindih layanan.
+Penerapan
+Halaman manajemen pesanan menampilkan daftar pesanan masuk secara real-time disertai detail pelanggan, layanan yang dipesan, tanggal acara, dan status pembayaran. Vendor dapat mengonfirmasi atau menolak pesanan langsung dari halaman ini dengan satu klik, disertai isian catatan alasan penolakan apabila pesanan ditolak. Sistem secara otomatis memperbarui ketersediaan jadwal pada kalender vendor setiap kali pesanan dikonfirmasi, sehingga slot tersebut tidak bisa dipesan lagi oleh pelanggan lain melalui aplikasi mobile.
+Kebutuhan Rekap Transaksi & Laporan Keuangan (Financial Visibility)
+Vendor membutuhkan visibilitas yang jelas terhadap arus keuangan layanan mereka, sementara Admin membutuhkan akses menyeluruh terhadap seluruh transaksi yang terjadi di platform.
+Penerapan
+Halaman laporan transaksi menampilkan riwayat pesanan yang dapat difilter berdasarkan status pembayaran (Belum Bayar, DP, Lunas) maupun rentang tanggal tertentu. Vendor dapat melihat rekap total pendapatan per periode secara langsung. Halaman ini juga menampilkan preview thumbnail bukti transfer yang diunggah pelanggan, sehingga vendor dapat memverifikasi pembayaran tanpa harus mengunduh file terlebih dahulu. Bagi Admin, tersedia halaman monitoring seluruh transaksi lintas vendor dengan kemampuan filter dan pencarian data yang komprehensif.
+Kebutuhan Alur Verifikasi Vendor yang Efisien (Vendor Verification Workflow)
+Admin bertanggung jawab memastikan setiap vendor yang beroperasi di platform Planora telah terverifikasi kredibilitasnya agar pelanggan terhindar dari penipuan.
+Penerapan
+Halaman verifikasi vendor menampilkan daftar pendaftaran vendor baru yang menunggu persetujuan. Setiap entri menampilkan detail profil usaha, dokumen pendukung, dan galeri portofolio yang dapat diperiksa langsung dari dashboard. Admin dapat menyetujui atau menolak pendaftaran dengan satu klik. Apabila ditolak, Admin diwajibkan mengisi catatan alasan penolakan yang akan dikirimkan sebagai notifikasi kepada vendor terkait, sehingga vendor dapat melakukan perbaikan dan mendaftar ulang.
+Kebutuhan
+ Keamanan Akses 
+Berbasis
+ Peran (Role-Based Secure Access)
+Web dashboard digunakan oleh dua peran dengan kewenangan yang sangat berbeda. Sistem harus memastikan setiap pengguna hanya dapat mengakses data dan fitur sesuai peran mereka.
+Penerapan
+Login web dashboard menggunakan kredensial aman dengan mekanisme JWT Token yang memiliki masa berlaku terbatas. Setiap sesi login secara otomatis terputus setelah periode tidak aktif tertentu. Data yang ditampilkan pada dashboard vendor dibatasi secara ketat hanya pada layanan, jadwal, pesanan, dan transaksi milik vendor yang bersangkutan (data isolation per vendor). Admin memiliki akses penuh ke seluruh data platform namun tidak dapat mengubah data layanan atau transaksi milik vendor secara langsung, melainkan hanya dapat mengelola status verifikasi dan akun pengguna.
+UX Flow Web Dashboard
+Profil Pengguna (User Persona) & Pendekatan Desain
+Sebelum merancang alur UX, perlu dipahami karakteristik dua target pengguna utama dari web dashboard ini:
+Vendor (
+Penyedia
+ Jasa Event)
+Vendor merupakan pemilik atau pengelola usaha jasa event skala kecil hingga menengah seperti fotografer, katering, penyedia venue, atau event organizer. Karakteristik pengguna ini umumnya:
+Tidak selalu memiliki latar belakang teknis, sehingga membutuhkan antarmuka yang sederhana dan mudah dipahami tanpa pelatihan khusus.
+Mengutamakan kecepatan dalam mengonfirmasi pesanan dan memverifikasi pembayaran agar operasional harian tidak terganggu.
+Membutuhkan visibilitas jadwal yang jelas agar tidak terjadi tumpang tindih layanan yang dapat merugikan reputasi usaha mereka.
+Admin Sistem
+Admin merupakan pengelola platform Planora yang bertanggung jawab atas keberlangsungan dan kualitas ekosistem marketplace. Karakteristik pengguna ini umumnya:
+Membutuhkan akses cepat dan terpusat terhadap seluruh aktivitas platform dalam satu layar monitoring.
+Memerlukan alur kerja yang efisien untuk menangani verifikasi vendor dan keluhan pengguna dalam jumlah banyak.
+Mengutamakan kemampuan pencarian dan filter data yang kuat untuk menemukan informasi spesifik dengan cepat.
+Oleh karena itu, prinsip utama UX web dashboard Planora adalah Efisiensi Operasional (Efficiency) dan Kontrol Data yang Jelas (Clarity of Control) agar memenuhi standar kebutuhan non-fungsional sistem yang user-friendly dan memiliki performa stabil.
+UX Flow Vendor 
+-
+ Alur 
+Penggunaan
+ Web Dashboard
+Diagram 
+berikut
+ 
+menjelaskan
+ 
+alur
+ 
+perjalanan
+ 
+lengkap
+ Vendor 
+dari
+ 
+pertama
+ kali 
+membuka
+ web dashboard, 
+mengelola
+ 
+layanan
+, 
+hingga
+ 
+memverifikasi
+ 
+pembayaran
+ 
+pesanan
+ yang 
+masuk
+.
+UX Flow Vendor:
+Gambar 1. 
+UX Flow Vendor — Web Dashboard 
+Planora
+Analisis
+ Alur Vendor
+Melalui
+ 
+alur
+ 
+tersebut
+, Vendor 
+dapat
+ 
+secara
+ 
+mandiri
+ 
+mengelola
+ 
+seluruh
+ 
+operasional
+ 
+layanan
+ 
+mereka
+ 
+mulai
+ 
+dari
+ 
+pengelolaan
+ 
+paket
+ 
+layanan
+, 
+konfirmasi
+ 
+pesanan
+, 
+verifikasi
+ 
+pembayaran
+, 
+hingga
+ 
+pemantauan
+ 
+laporan
+ 
+keuangan
+. 
+Pemisahan
+ menu yang 
+jelas
+ 
+antara
+ Kelola Layanan, 
+Pesanan
+ Masuk, 
+Verifikasi
+ Bayar, dan 
+Laporan
+ 
+dirancang
+ 
+untuk
+ 
+meminimalkan
+ 
+waktu
+ yang 
+dibutuhkan
+ vendor 
+dalam
+ 
+menyelesaikan
+ 
+satu
+ 
+tugas
+ 
+operasional
+ 
+tanpa
+ 
+harus
+ 
+berpindah-pindah
+ 
+halaman
+ yang 
+tidak
+ 
+relevan
+.
+UX Flow Admin 
+-
+ Alur 
+Penggunaan
+ Web Dashboard
+Diagram berikut menjelaskan alur perjalanan lengkap Admin dari membuka web dashboard, memverifikasi vendor baru, mengelola data pengguna, hingga memantau aktivitas platform.
+UX Flow Admin:
+Gambar 2. UX Flow Admin 
+-
+ Web Dashboard 
+Planora
+Analisis Alur Admin
+Melalui alur tersebut, Admin memiliki kendali penuh atas seluruh ekosistem platform Planora. Pemisahan menu yang jelas antara Verifikasi Vendor, Kelola Pengguna, Kelola Kategori, Monitor Transaksi, dan Pantau Sistem memungkinkan Admin menyelesaikan setiap tugas manajerial secara fokus dan efisien. Keberadaan halaman Log & Aktivitas Sistem memberikan transparansi operasional platform yang penting untuk mendeteksi potensi masalah teknis maupun perilaku pengguna yang mencurigakan.
+UX Interaction Flow: Proses 
+Verifikasi
+ Vendor (Admin)
+Interaksi ini adalah salah satu tugas terpenting Admin dalam menjaga kualitas platform. Berikut adalah alur interaksi saat Admin memproses pendaftaran vendor baru.
+UX Interaction Flow 
+Verifikasi
+ Vendor:
+Gambar 3. UX Interaction Flow 
+-
+ Proses Verifikasi Vendor
+Penanganan Kendala (Error Handling) pada UX
+Untuk mencegah terjadinya kesalahan dalam proses verifikasi vendor, sistem merespons interaksi Admin sebagai berikut:
+Skenario Normal: Apabila data vendor dinilai lengkap dan valid, Admin menekan tombol ‘Setujui’ dan sistem langsung mengaktifkan akun vendor serta menampilkan layanan mereka di platform.
+Skenario Penolakan: Apabila data tidak lengkap atau mencurigakan, tombol ‘Kirim Penolakan’ hanya dapat ditekan setelah field catatan alasan diisi. Hal ini memastikan vendor selalu mendapatkan informasi yang jelas mengenai alasan penolakan sehingga dapat melakukan perbaikan.
+UX Interaction Flow: Proses Konfirmasi & Verifikasi Pembayaran (Vendor)
+Dikarenakan sistem Planora menggunakan transfer manual, alur verifikasi pembayaran oleh Vendor di web dashboard harus dirancang se-efisien mungkin agar proses konfirmasi tidak memakan waktu lama dan pesanan pelanggan dapat segera diproses.
+Analisis Interaksi Verifikasi Pembayaran
+Pada flow ini, fitur preview thumbnail bukti transfer langsung di halaman verifikasi menjadi elemen UX yang sangat krusial. Alih-alih memaksa vendor mengunduh file bukti terlebih dahulu, tampilan preview langsung mempersingkat waktu verifikasi secara signifikan. Pemisahan yang jelas antara tombol ‘Verifikasi Lunas’ dan ‘Tolak Pembayaran’ dengan warna berbeda (hijau dan merah) juga mengurangi risiko vendor menekan tombol yang salah saat memproses banyak transaksi secara bersamaan.
+UX Interaction Flow Konfirmasi & Verifikasi Pembayaran:
+Gambar 4. UX Interaction Flow 
+-
+ Konfirmasi & Verifikasi Pembayaran Vendor
+UX Navigation Structure (Sitemap Web Dashboard)
+Diagram berikut menunjukkan struktur peta navigasi antarmuka (UX Navigation Map) pada web dashboard Planora untuk kedua peran pengguna: Vendor dan Admin.
+Analisis Navigasi
+Struktur navigasi web dashboard Planora dirancang berdasarkan prinsip pemisahan peran yang tegas (role separation). Dashboard Vendor dan Dashboard Admin memiliki hierarki menu yang sepenuhnya terpisah meskipun berada dalam satu platform web yang sama. Pemisahan ini penting karena kedua peran memiliki tanggung jawab dan kebutuhan informasi yang sama sekali berbeda, sehingga mencampurkan keduanya dalam satu tampilan akan menyebabkan cognitive overload dan potensi kesalahan operasional. Vendor hanya melihat data dan menu yang relevan dengan layanan mereka sendiri, sementara Admin memiliki akses ke seluruh data platform namun dalam konteks monitoring dan manajemen, bukan transaksi langsung.
+UX Navigation Structure (Sitemap):
+Gambar 5. UX Navigation Structure (Sitemap) 
+-
+ Web Dashboard 
+Planora
+Analisis
+ 
+Pengalaman
+ 
+Pengguna
+ (User Experience / UX) Mobile App 
+Planora
+Bagian 
+ini
+ 
+menguraikan
+ 
+analisis
+ 
+kebutuhan
+ dan 
+alur
+ 
+pengalaman
+ 
+pengguna
+ (UX) yang 
+dikhususkan
+ 
+untuk
+ 
+aplikasi
+ 
+mobile
+ 
+Planora
+. Sesuai 
+dengan
+ 
+batasan
+ 
+masalah
+ 
+sistem
+, 
+aplikasi
+ 
+mobile
+ 
+ini
+ 
+dirancang
+ 
+secara
+ 
+spesifik
+ 
+untuk
+ 
+memfasilitasi
+ 
+peran
+ Pelanggan (Customer) dalam 
+mencari
+, 
+memesan
+, dan 
+mengevaluasi
+ 
+layanan
+ 
+event
+ 
+secara
+ 
+efisien
+.
+UX Requirements Mobile App
+Berdasarkan
+ 
+analisis
+ 
+kebutuhan
+ non-
+fungsional
+ 
+sistem
+ yang 
+menuntut
+ 
+aplikasi
+ agar 
+user-friendly
+ dan 
+memiliki
+ 
+antarmuka
+ yang 
+jelas
+, 
+perancangan
+ 
+aplikasi
+ 
+mobile
+ 
+Planora
+ 
+untuk
+ pelanggan 
+harus
+ 
+memenuhi
+ 
+beberapa
+ 
+kriteria
+ 
+kebutuhan
+ UX 
+berikut
+:
+Kebutuhan
+ 
+Visibilitas
+ Status 
+Sistem
+ (System Status Visibility)
+Pelanggan 
+harus
+ 
+selalu
+ 
+tahu
+ di 
+tahap
+ mana proses 
+transaksi
+ 
+mereka
+ 
+berada
+.
+Penerapan
+Aplikasi
+ 
+harus
+ menampilkan 
+indikator
+ status 
+pesanan
+ yang 
+jelas
+ (
+misal
+: 
+badge
+ 
+warna
+ 
+kuning
+ 
+untuk
+ "
+Menunggu
+ Konfirmasi", 
+hijau
+ 
+untuk
+ "
+Berjalan
+", 
+abu-abu
+ 
+untuk
+ "Selesai"). Saat pelanggan 
+mengunggah
+ 
+bukti
+ transfer, 
+sistem
+ 
+harus
+ 
+langsung
+ memberikan 
+feedback
+ visual bahwa 
+foto
+ berhasil 
+diunggah
+.
+Kebutuhan
+ 
+Pencegahan
+ 
+Kesalahan
+ (Error Prevention)
+Aplikasi
+ 
+harus
+ 
+meminimalkan
+ 
+kemungkinan
+ 
+pelanggan
+ 
+melakukan
+ 
+kesalahan
+ 
+saat
+ 
+memesan
+ 
+layanan
+, 
+terutama
+ 
+untuk
+ 
+menghindari
+ 
+konflik
+ 
+operasional
+ 
+seperti
+ 
+double booking
+.
+Penerapan
+Pada 
+fitur
+ 
+pemilihan
+ 
+tanggal
+ (
+calendar booking
+), 
+tanggal
+ yang 
+sudah
+ dipesan oleh pelanggan lain 
+harus
+ 
+otomatis
+ 
+dinonaktifkan
+ (
+disabled
+ / 
+greyed out
+) 
+sehingga
+ tidak 
+bisa
+ 
+diklik
+. Selain 
+itu
+, 
+harus
+ 
+ada
+ 
+fitur
+ 
+preview
+ 
+foto
+ 
+sebelum
+ pelanggan 
+mengirimkan
+ 
+bukti
+ transfer manual.
+Kebutuhan
+ Kemudahan 
+Penggunaan
+ (Usability & Simplicity)
+Mengingat
+ 
+pengguna
+ 
+aplikasi
+ 
+memiliki
+ 
+latar
+ 
+belakang
+ yang 
+beragam
+, 
+antarmuka
+ tidak 
+boleh
+ 
+membingungkan
+ atau 
+memiliki
+ 
+terlalu
+ 
+banyak
+ 
+tahapan
+ (
+clicks
+) yang tidak 
+perlu
+.
+Penerapan
+Struktur
+ 
+navigasi
+ 
+menggunakan
+ 
+Bottom Navigation Bar
+ 
+maksimal
+ 4 menu (Beranda, Pesanan, 
+Notifikasi
+, 
+Profil
+). Alur 
+dari
+ 
+pencarian
+ vendor 
+hingga
+ 
+checkout
+ 
+dirancang
+ se-linear 
+mungkin
+ 
+tanpa
+ 
+banyak
+ 
+cabang
+ 
+halaman
+.
+Kebutuhan
+ 
+Kepercayaan
+ dan 
+Transparansi
+ (Trust & Transparency)
+ 
+Karena platform 
+Planora
+ 
+menggunakan
+ 
+metode
+ 
+pembayaran
+ transfer manual, UI/UX 
+harus
+ 
+dirancang
+ 
+untuk
+ 
+menumbuhkan
+ rasa 
+aman
+ 
+bagi
+ 
+pelanggan
+ 
+saat
+ 
+bertransaksi
+.
+Penerapan
+Halaman 
+pembayaran
+ 
+harus
+ menampilkan nomor 
+rekening
+ vendor 
+dengan
+ sangat 
+jelas
+, 
+dilengkapi
+ 
+dengan
+ 
+tombol
+ 
+micro-interaction
+ "Salin 
+Rekening
+" (
+Copy to Clipboard
+) 
+untuk
+ 
+mencegah
+ kesalahan 
+ketik
+ pelanggan. Selain 
+itu
+, 
+transparansi
+ 
+diwujudkan
+ 
+dengan
+ menampilkan 
+rating
+ dan 
+ulasan
+ 
+asli
+ 
+secara
+ 
+terbuka
+ di 
+profil
+ vendor.
+Kebutuhan
+ 
+Aksesibilitas
+ (Accessibility)
+Desain 
+aplikasi
+ 
+harus
+ 
+nyaman
+ 
+digunakan
+ di 
+berbagai
+ 
+ukuran
+ 
+layar
+ 
+ponsel
+ pelanggan.
+Penerapan
+Tombol-tombol
+ 
+utama
+ (Call-to-Action) 
+seperti
+ 
+tombol
+ "Pesan Layanan" dan "
+Unggah
+ Bukti" 
+harus
+ 
+memiliki
+ 
+ukuran
+ 
+sentuh
+ (
+touch target
+) yang 
+cukup
+ 
+besar
+ 
+untuk
+ 
+jari
+. 
+Kontras
+ 
+warna
+ 
+teks
+ dan 
+latar
+ 
+belakang
+ 
+harus
+ 
+disesuaikan
+ agar 
+informasi
+ 
+harga
+ dan 
+jadwal
+ 
+mudah
+ 
+dibaca
+.
+UX 
+Flow
+ Mobile App
+Profil
+ 
+Pengguna
+ (User Persona) & 
+Pendekatan
+ Desain
+Sebelum
+ 
+merancang
+ 
+alur
+ UX, 
+perlu
+ 
+dipahami
+ target 
+pengguna
+ 
+dari
+ 
+aplikasi
+ 
+mobile
+ 
+ini
+. 
+Pengguna
+ 
+utama
+ 
+Planora
+ 
+adalah
+ 
+individu
+ atau 
+panitia
+ yang 
+sedang
+ 
+merencanakan
+ acara 
+seperti
+ 
+pernikahan
+, 
+wisuda
+, 
+ulang
+ 
+tahun
+, atau seminar. 
+Karakteristik
+ 
+pengguna
+ 
+ini
+ 
+umumnya
+:
+Membutuhkan
+ 
+informasi
+ yang 
+cepat
+ dan 
+transparan
+ 
+mengenai
+ 
+harga
+ dan 
+portofolio
+ vendor.
+Menginginkan
+ proses pemesanan yang 
+praktis
+ 
+tanpa
+ 
+harus
+ 
+berpindah-pindah
+ platform pesan 
+singkat
+.
+Membutuhkan
+ rasa 
+aman
+ dalam 
+bertransaksi
+, 
+terutama
+ 
+karena
+ 
+sistem
+ 
+masih
+ 
+menggunakan
+ 
+metode
+ transfer manual.
+Oleh 
+karena
+ 
+itu
+, 
+prinsip
+ 
+utama
+ UX 
+Planora
+ 
+adalah
+ 
+Kejelasan
+ 
+Informasi
+ (Clarity) dan 
+Kemudahan
+ Navigasi (Simplicity) agar 
+memenuhi
+ 
+standar
+ 
+kebutuhan
+ non-
+fungsional
+ 
+sistem
+ yang 
+user-friendly
+.
+UX Flow 
+Singkat
+ 
+Pelanggan
+ 
+Planora
+Diagram 
+ini
+ 
+menjelaskan
+ 
+alur
+ 
+perjalanan
+ 
+lengkap
+ 
+pengguna
+ 
+dari
+ 
+pertama
+ kali 
+membuka
+ 
+aplikasi
+ (
+onboarding
+), 
+melakukan
+ 
+transaksi
+, 
+hingga
+ memberikan 
+ulasan
+ 
+atas
+ 
+layanan
+ yang 
+digunakan
+.
+Gambar 
+6
+. UX Navigation 
+Singkat
+Analisis
+ Alur
+Melalui 
+alur
+ tersebut, pelanggan dapat 
+secara
+ 
+mandiri
+ 
+melakukan
+ 
+pencarian
+ vendor, 
+mengirimkan
+ 
+permintaan
+ 
+pesanan
+, 
+mengonfirmasi
+ 
+pembayaran
+ 
+secara
+ manual, 
+memantau
+ 
+progress
+, 
+hingga
+ memberikan 
+rating
+. Ini 
+merupakan
+ 
+standar
+ 
+User Journey
+ yang 
+efisien
+ 
+untuk
+ 
+aplikasi
+ 
+marketplace
+ 
+jasa
+, di mana jumlah 
+langkah
+ (
+clicks
+) 
+diminimalkan
+ 
+untuk
+ 
+mencegah
+ 
+pengguna
+ 
+membatalkan
+ 
+pesanan
+ di 
+tengah
+ 
+jalan
+.
+UX Navigation Structure (Sitemap UX)
+Diagram 
+ini
+ 
+menunjukkan
+ 
+struktur
+ 
+peta
+ 
+navigasi
+ 
+antarmuka
+ (UX Navigation Map) pada 
+aplikasi
+ 
+mobile
+ 
+Planora
+. 
+Navigasi
+ 
+dirancang
+ 
+menggunakan
+ 
+pendekatan
+ 
+Bottom Navigation Bar
+ 
+dengan
+ menu 
+esensial
+ agar 
+pengguna
+ tidak 
+mengalami
+ 
+kelebihan
+ 
+beban
+ 
+kognitif
+ (
+cognitive overload
+).
+Gambar 
+dibawah
+ 
+penjelasan
+Analisis
+ 
+Navigasi
+Pemilihan
+ 4 menu 
+utama
+ 
+ini
+ 
+didasarkan
+ pada 
+aktivitas
+ paling rutin yang 
+dilakukan
+ pelanggan. Menu Beranda 
+difokuskan
+ 
+untuk
+ 
+eksplorasi
+ dan 
+pencarian
+, 
+sementara
+ menu Pesanan dan 
+Notifikasi
+ 
+dipisahkan
+ agar pelanggan dapat 
+dengan
+ 
+mudah
+ 
+melacak
+ 
+transaksi
+ 
+mereka
+ yang 
+sedang
+ 
+berjalan
+ 
+tanpa
+ 
+tercampur
+ 
+dengan
+ pesan 
+sistem
+ 
+lainnya
+.
+Gambar 
+7
+. UX Navigation Structure (Sitemap)
+UX Interaction Flow: Proses 
+Pemesanan
+ (Booking)
+Interaksi
+ 
+ini
+ 
+adalah
+ 
+fitur
+ inti 
+dari
+ 
+aplikasi
+. 
+Berikut
+ 
+adalah
+ 
+alur
+ 
+interaksi
+ 
+saat
+ pelanggan 
+memutuskan
+ 
+untuk
+ 
+menggunakan
+ 
+layanan
+ 
+dari
+ vendor 
+tertentu
+.
+Gambar 
+8
+. 
+UX Interaction Flow
+ 
+Proses Pemesanan
+Penanganan
+ Kendala (Error Handling) pada UX
+Untuk
+ 
+mencegah
+ 
+terjadinya
+ kesalahan 
+teknis
+ 
+maupun
+ 
+konflik
+ 
+jadwal
+ 
+antar
+ vendor, 
+sistem
+ 
+merespons
+ 
+interaksi
+ 
+pengguna
+ sebagai 
+berikut
+:
+Skenario
+ Normal:
+ Jika 
+tanggal
+ 
+tersedia
+, 
+tombol
+ "Kirim 
+Permintaan
+" 
+akan
+ 
+aktif
+ dan 
+membawa
+ 
+pengguna
+ ke 
+halaman
+ 
+sukses
+.
+Skenario
+ 
+Gagal
+ (
+Error State
+):
+ Jika 
+tanggal
+ 
+telah
+ di-
+booking
+ oleh orang lain, 
+sistem
+ 
+akan
+ 
+memunculkan
+ 
+feedback
+ visual (
+misalnya
+ 
+teks
+ 
+merah
+ "Jadwal 
+Penuh
+") dan 
+menonaktifkan
+ 
+tombol
+ 
+kirim
+, 
+memaksa
+ 
+pengguna
+ 
+memilih
+ 
+tanggal
+ 
+alternatif
+. Hal 
+ini
+ 
+sejalan
+ 
+dengan
+ 
+upaya
+ 
+sistem
+ 
+mencegah
+ 
+double booking
+.
+UX Interaction Flow: 
+Konfirmasi
+ 
+Pembayaran
+ Manual
+Dikarenakan
+ 
+sistem
+ 
+Planora
+ 
+dirancang
+ 
+belum
+ 
+menggunakan
+ 
+payment gateway
+ 
+terintegrasi
+ dan 
+mengandalkan
+ transfer manual, 
+alur
+ UX 
+untuk
+ 
+mengunggah
+ 
+bukti
+ 
+pembayaran
+ 
+harus
+ 
+dirancang
+ 
+sejelas
+ 
+mungkin
+ 
+untuk
+ 
+menghindari
+ 
+kecemasan
+ pelanggan (UX 
+Trust & Security
+).
+Gambar 
+9
+. UX 
+Interaction Flow: 
+Konfirmasi
+ 
+Pembayaran
+ Manual
+Analisis
+ 
+Interaksi
+ 
+Pembayaran
+Pada 
+flow
+ 
+ini
+, 
+tombol
+ "Salin Nomor 
+Rekening
+" (Copy to Clipboard) menjadi 
+elemen
+ 
+mikro-interaksi
+ (
+micro-interaction
+) yang sangat 
+krusial
+. Alih-
+alih
+ 
+memaksa
+ 
+pengguna
+ 
+menghafal
+ nomor 
+rekening
+, 
+fitur
+ 
+salin
+ 
+ini
+ 
+meminimalisir
+ kesalahan 
+ketik
+ (
+human error
+) 
+saat
+ pelanggan 
+melakukan
+ transfer melalui 
+aplikasi
+ 
+mobile banking
+ 
+mereka
+. Setelah 
+foto
+ 
+bukti
+ 
+diunggah
+, 
+perubahan
+ status menjadi "
+Menunggu
+ Verifikasi" memberikan 
+kejelasan
+ (
+system status visibility
+) kepada pelanggan bahwa 
+tugas
+ 
+mereka
+ 
+telah
+ selesai.
+Analisis
+ Business Model Canvas (BMC) - 
+Planora
+Untuk
+ 
+memastikan
+ platform 
+Planora
+ 
+memiliki
+ 
+nilai
+ 
+keberlanjutan
+ dan 
+kelayakan
+ 
+bisnis
+, 
+berikut
+ 
+adalah
+ 
+rancangan
+ 
+Business Model Canvas
+ (BMC) yang 
+memetakan
+ 9 
+elemen
+ 
+kunci
+ 
+dari
+ 
+aplikasi
+ 
+ini
+:
+Ini 
+dia
+ 
+draf
+ 
+laporan
+ 
+analisis
+ BMC 
+untuk
+ 
+Planora
+ yang 
+sudah
+ 
+dirapikan
+. 
+Formatnya
+ 
+dibuat
+ 
+terstruktur
+ dan 
+profesional
+, 
+siap
+ 
+untuk
+ 
+kamu
+ 
+copy-paste
+ ke dalam 
+dokumen
+ 
+laporan
+ 
+proyekmu
+.
+1. Customer Segments (
+Segmen
+ Pelanggan)
+Pelanggan B2C (
+Individu
+): Orang-orang yang 
+sedang
+ 
+merencanakan
+ acara personal 
+seperti
+ 
+pernikahan
+, 
+ulang
+ 
+tahun
+, atau 
+wisuda
+.
+Pelanggan B2B (
+Organisasi
+/
+Panitia
+): 
+Kepanitiaan
+ 
+kampus
+, 
+komunitas
+, atau 
+perusahaan
+ yang 
+menyelenggarakan
+ seminar dan 
+event
+ 
+skala
+ 
+menengah
+.
+Mitra Vendor: 
+Pemilik
+ 
+usaha
+ 
+jasa
+ 
+event
+ 
+skala
+ 
+kecil
+ 
+hingga
+ 
+menengah
+ (
+fotografer
+, 
+katering
+, 
+penyedia
+ 
+gedung
+, 
+dekorasi
+) yang 
+butuh
+ 
+wadah
+ 
+promosi
+.
+2. Value Propositions (
+Proposisi
+ Nilai)
+Bagi Pelanggan: 
+Kemudahan
+ 
+mencari
+, 
+membandingkan
+ 
+harga
+, dan 
+memesan
+ 
+berbagai
+ 
+layanan
+ 
+event
+ dalam 
+satu
+ platform 
+mobile
+ yang 
+terintegrasi
+, 
+tanpa
+ 
+harus
+ 
+mencari
+ manual di media 
+sosial
+. 
+Transparansi
+ 
+kualitas
+ 
+layanan
+ melalui 
+sistem
+ 
+ulasan
+ dan 
+rating
+.
+Bagi Vendor: 
+Sistem
+ 
+manajemen
+ 
+jadwal
+ 
+otomatis
+ yang 
+mencegah
+ 
+double booking
+, 
+kemudahan
+ 
+rekapitulasi
+ 
+pesanan
+, dan 
+perluasan
+ 
+jangkauan
+ pasar 
+tanpa
+ 
+biaya
+ 
+promosi
+ 
+awal
+ yang 
+besar
+.
+3. Channels (
+Saluran
+)
+Aplikasi
+ Mobile (Android/iOS): 
+Saluran
+ 
+utama
+ 
+untuk
+ pelanggan 
+melakukan
+ 
+pencarian
+ dan 
+transaksi
+.
+Web Dashboard: 
+Saluran
+ 
+operasional
+ 
+bagi
+ vendor dan admin 
+sistem
+.
+Media Sosial (Instagram/TikTok): 
+Untuk
+ 
+pemasaran
+ dan 
+edukasi
+ 
+brand
+ kepada 
+calon
+ 
+pengguna
+.
+4. Customer Relationships (
+Hubungan
+ Pelanggan) 
+Sistem
+ 
+Kepercayaan
+ (Trust): Fitur 
+transparansi
+ 
+ulasan
+ (
+review
+ & 
+rating
+) 
+dari
+ pelanggan 
+sebelumnya
+.
+Layanan
+ Pelanggan: Admin yang 
+sigap
+ 
+menangani
+ 
+keluhan
+ 
+pengguna
+ dan 
+membantu
+ 
+verifikasi
+ 
+kendala
+ 
+transaksi
+.
+Notifikasi
+ 
+Sistem
+: 
+Pemberitahuan
+ 
+real-time
+ 
+terkait
+ status 
+pesanan
+ dan 
+konfirmasi
+ 
+pembayaran
+ agar 
+pengguna
+ 
+merasa
+ 
+aman
+.
+5. Revenue Streams (
+Sumber
+ 
+Pendapatan
+) 
+Rencana
+ 
+Pengembangan
+ Masa 
+Depan
+Biaya Platform / Admin Fee: Biaya 
+layanan
+ 
+bernominal
+ 
+kecil
+ yang 
+dibebankan
+ kepada pelanggan pada 
+setiap
+ 
+transaksi
+ yang berhasil 
+diselesaikan
+ melalui platform.
+Biaya 
+Langganan
+ Vendor (
+Rencana
+ Masa 
+Depan
+): Vendor dapat 
+membayar
+ 
+biaya
+ 
+langganan
+ 
+bulanan
+ 
+untuk
+ 
+mendapatkan
+ 
+fitur
+ premium (
+misal
+: 
+muncul
+ di 
+halaman
+ 
+rekomendasi
+ 
+utama
+).
+Key Activities (
+Aktivitas
+ Utama)
+Pemeliharaan
+ 
+Sistem
+ (Maintenance): 
+Menjaga
+ 
+kestabilan
+ server (
+backend
+ dan 
+database
+) agar 
+aplikasi
+ 
+mobile
+ dan web 
+selalu
+ 
+bisa
+ 
+diakses
+.
+Verifikasi
+ & 
+Kurasi
+ Vendor: Admin 
+memvalidasi
+ 
+keabsahan
+ data vendor yang 
+mendaftar
+ agar pelanggan 
+terhindar
+ 
+dari
+ 
+penipuan
+.
+Manajemen
+ 
+Transaksi
+: 
+Memantau
+ 
+alur
+ 
+pesanan
+ dan 
+kelancaran
+ 
+unggah
+ 
+bukti
+ 
+pembayaran
+ manual.
+Key Resources (
+Sumber
+ Daya Utama) 
+Infrastruktur
+ IT: Server 
+Backend
+, 
+Database
+ 
+terpusat
+ (MySQL/PostgreSQL), dan 
+sistem
+ 
+penyimpanan
+ 
+file
+ (
+untuk
+ 
+foto
+ 
+portofolio
+ dan 
+bukti
+ 
+bayar
+).
+Hak 
+Kekayaan
+ 
+Intelektual
+: 
+Aplikasi
+ Mobile Pelanggan dan Web Dashboard Vendor.
+Sumber
+ Daya 
+Manusia
+ (Tim Pengembang): Project Manager, Frontend Web Developer, Mobile App Developer, dan Database Engineer.
+8. Key Partnerships (
+Kemitraan
+ Utama) 
+Vendor 
+Penyedia
+ Jasa Event: Mitra 
+bisnis
+ 
+utama
+ yang 
+menyediakan
+ 
+produk
+/
+layanan
+ di dalam 
+aplikasi
+. 
+Tanpa
+ 
+mereka
+, 
+aplikasi
+ tidak 
+memiliki
+ 
+inventaris
+ 
+untuk
+ 
+ditawarkan
+.
+Penyedia
+ 
+Layanan
+ Cloud/Hosting: 
+Pihak
+ 
+ketiga
+ yang 
+menyediakan
+ 
+infrastruktur
+ server 
+untuk
+ 
+menampung
+ 
+database
+ 
+sistem
+ 
+Planora
+.
+9. Cost Structure (
+Struktur
+ Biaya) 
+Perencanaan
+ Jika Berhasil Kerja 
+sama
+ Mitra
+Biaya 
+Infrastruktur
+ IT: Biaya 
+sewa
+ server/hosting, domain, dan 
+pemeliharaan
+ 
+database
+.
+Biaya 
+Pengembangan
+: Waktu dan 
+sumber
+ 
+daya
+ 
+operasional
+ 
+tim
+ 
+pengembang
+ 
+selama
+ 
+pembuatan
+ 
+aplikasi
+ (
+riset
+, 
+desain
+, 
+coding
+, 
+pengujian
+).
+Biaya Pemasaran: Biaya 
+untuk
+ 
+promosi
+ 
+aplikasi
+ guna 
+mengakuisisi
+ 
+pengguna
+ baru.

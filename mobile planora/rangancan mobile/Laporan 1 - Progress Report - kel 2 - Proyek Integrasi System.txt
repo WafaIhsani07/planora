@@ -1,0 +1,2628 @@
+PROGRESS WEEK 1
+PROGRESS REPORT
+PROYEK INTEGRASI SISTEM
+“
+Planora
+ :
+ 
+Sistem
+ Marketplace 
+Penyedia
+ Jasa Event 
+Terintegrasi
+”
+DOSEN PENGAMPU :
+Dr. Muhammad Adri, S.Pd., M.T
+OLEH:
+Ilham 
+Fahrozi
+ 
+| 23076033
+Nurwahidah
+ Wafa Ihsani
+ 
+| 23076047
+Salsabila 
+Maulidia
+ 
+ 
+| 23076019
+Renanda
+ Anwar Pratama Siregar
+| 23076051
+PROGRAM STUDI PENDIDIKAN TEKNIK INFORMATIKA
+DEPARTEMEN TEKNIK ELEKTRONIKA
+FAKULTAS TEKNIK
+UNIVERSITAS NEGERI PADANG
+2026
+BAB I
+ 
+PENDAHULUAN
+Latar 
+Belakang
+ dan 
+Deskripsi
+ Proyek
+ 
+Laporan
+ 
+kemajuan
+ 
+ini
+ 
+menguraikan
+ 
+progres
+ 
+pengembangan
+ 
+dari
+ 
+proyek
+ 
+integrasi
+ 
+sistem
+ yang 
+berjudul
+ “
+Planora
+”. 
+Planora
+ 
+merupakan
+ 
+sebuah
+ 
+sistem
+ 
+marketplace
+ 
+penyedia
+ 
+jasa
+ 
+event
+ 
+terintegrasi
+ yang 
+dirancang
+ 
+untuk
+ 
+menjembatani
+ 
+kebutuhan
+ 
+antara
+ pelanggan dan vendor 
+jasa
+ acara. 
+Sistem
+ 
+ini
+ 
+dikembangkan
+ 
+dengan
+ dua 
+antarmuka
+ 
+utama
+. 
+Pertama
+, 
+aplikasi
+ 
+mobile
+ yang 
+dirancang
+ 
+secara
+ 
+spesifik
+ 
+untuk
+ 
+memfasilitasi
+ 
+peran
+ Pelanggan (Customer) dalam 
+mencari
+, 
+memesan
+, dan 
+mengevaluasi
+ 
+layanan
+ 
+event
+ 
+secara
+ 
+efisien
+. 
+Kedua
+, 
+sebuah
+ 
+Web Dashboard
+ yang 
+difokuskan
+ 
+untuk
+ 
+efisiensi
+ 
+operasional
+ dan 
+pengelolaan
+ data 
+bagi
+ dua 
+peran
+ 
+krusial
+ 
+lainnya
+, 
+yakni
+ Vendor (
+penyedia
+ 
+jasa
+ event) dan Admin 
+Sistem
+ (
+pengelola
+ platform).
+Tujuan Laporan 
+Kemajuan
+ 
+Tujuan 
+utama
+ 
+dari
+ 
+dokumen
+ 
+laporan
+ 
+kemajuan
+ 
+ini
+ 
+adalah
+ 
+untuk
+ 
+memaparkan
+ 
+penyelesaian
+ 
+tahap
+ 
+Analisis
+ Kebutuhan, 
+Perancangan
+ 
+Pengalaman
+ 
+Pengguna
+ (User Experience/UX), dan 
+pemodelan
+ 
+bisnis
+ 
+untuk
+ platform 
+Planora
+ yang 
+telah
+ 
+diselesaikan
+ pada 
+sprint
+ 
+pengembangan
+ 
+minggu
+ 
+ini
+.
+Ringkasan
+ 
+Eksekutif
+ 
+Kemajuan
+ 
+Pada 
+periode
+ 
+pelaporan
+ 
+ini
+, 
+tim
+ 
+pengembang
+ 
+telah
+ berhasil 
+merampungkan
+ 
+serangkaian
+ 
+dokumen
+ 
+spesifikasi
+ 
+teknis
+ dan 
+desain
+, yang 
+meliputi
+:
+Analisis
+ 
+Profil
+ 
+Pengguna
+ (
+User Persona
+) 
+untuk
+ 
+ketiga
+ 
+aktor
+ 
+utama
+ (Pelanggan, Vendor, dan Admin).
+Spesifikasi
+ 
+UX Requirements
+ yang 
+mendetail
+ 
+untuk
+ 
+aplikasi
+ 
+Mobile
+ dan 
+Web Dashboard
+.
+Perancangan
+ 
+UX Flow
+, 
+Sitemap Navigation
+, dan 
+pemodelan
+ 
+Error Handling
+.
+Analisis
+ 
+kelayakan
+ dan strategi 
+bisnis
+ melalui 
+Business Model Canvas
+ (BMC).
+BAB II
+ 
+ANALISIS 
+USER EXPERIENCE
+ APLIKASI MOBILE
+Bagian 
+ini
+ 
+menguraikan
+ 
+analisis
+ 
+kebutuhan
+ 
+pengguna
+ dan 
+alur
+ 
+pengalaman
+ 
+pengguna
+ yang 
+dikhususkan
+ 
+untuk
+ 
+antarmuka
+ 
+aplikasi
+ 
+mobile
+ 
+Planora
+.
+User Persona 
+Aplikasi
+ Mobile
+Sebelum
+ 
+merancang
+ 
+alur
+ 
+interaksi
+, 
+tim
+ 
+memetakan
+ target 
+pengguna
+ 
+utama
+ 
+dari
+ 
+aplikasi
+ 
+mobile
+ 
+ini
+. 
+Pengguna
+ 
+utama
+ 
+Planora
+ 
+adalah
+ 
+individu
+ atau 
+panitia
+ yang 
+sedang
+ 
+merencanakan
+ acara 
+seperti
+ 
+pernikahan
+, 
+wisuda
+, 
+ulang
+ 
+tahun
+, atau seminar. 
+Berdasarkan
+ 
+riset
+ 
+kebutuhan
+, 
+karakteristik
+ 
+pengguna
+ 
+ini
+ 
+umumnya
+ sangat 
+membutuhkan
+ 
+informasi
+ yang 
+cepat
+ dan 
+transparan
+ 
+mengenai
+ 
+harga
+ dan 
+portofolio
+ vendor. 
+Mereka
+ juga 
+menginginkan
+ proses pemesanan yang 
+praktis
+ 
+tanpa
+ 
+harus
+ 
+berpindah-pindah
+ platform pesan 
+singkat
+. Selain 
+itu
+, 
+karena
+ 
+sistem
+ 
+ini
+ 
+masih
+ 
+menggunakan
+ 
+metode
+ transfer manual, 
+pengguna
+ sangat 
+membutuhkan
+ rasa 
+aman
+ dan 
+kepastian
+ dalam 
+bertransaksi
+. Oleh 
+karena
+ 
+itu
+, 
+prinsip
+ 
+utama
+ 
+rancangan
+ UX 
+Planora
+ 
+adalah
+ 
+Kejelasan
+ 
+Informasi
+ (
+Clarity
+) dan 
+Kemudahan
+ Navigasi (
+Simplicity
+).
+UX Requirements
+Berdasarkan
+ 
+analisis
+ 
+kebutuhan
+ non-
+fungsional
+ 
+sistem
+ yang 
+menuntut
+ 
+aplikasi
+ agar 
+user-friendly
+ dan 
+memiliki
+ 
+antarmuka
+ yang 
+jelas
+, 
+perancangan
+ 
+aplikasi
+ 
+mobile
+ 
+Planora
+ 
+harus
+ 
+memenuhi
+ 
+kriteria
+ 
+berikut
+:
+System Status Visibility
+Pelanggan 
+harus
+ 
+selalu
+ 
+tahu
+ di 
+tahap
+ mana proses 
+transaksi
+ 
+mereka
+ 
+berada
+. 
+Penerapannya
+ 
+dilakukan
+ 
+dengan
+ menampilkan 
+indikator
+ status 
+pesanan
+ yang 
+jelas
+ (
+misal
+: 
+badge
+ 
+warna
+ 
+kuning
+ 
+untuk
+ "
+Menunggu
+ Konfirmasi", 
+hijau
+ 
+untuk
+ "
+Berjalan
+", 
+abu-abu
+ 
+untuk
+ "Selesai"). Saat pelanggan 
+mengunggah
+ 
+bukti
+ transfer, 
+sistem
+ 
+harus
+ 
+langsung
+ memberikan 
+feedback
+ visual bahwa 
+foto
+ berhasil 
+diunggah
+.
+Error Prevention
+Aplikasi
+ 
+harus
+ 
+meminimalkan
+ 
+kemungkinan
+ pelanggan 
+melakukan
+ kesalahan 
+saat
+ 
+memesan
+ 
+layanan
+, 
+terutama
+ 
+untuk
+ 
+menghindari
+ 
+konflik
+ 
+operasional
+ 
+seperti
+ 
+double booking
+. Pada 
+fitur
+ 
+pemilihan
+ 
+tanggal
+ (
+calendar 
+booking
+), 
+tanggal
+ yang 
+sudah
+ dipesan oleh pelanggan lain 
+harus
+ 
+otomatis
+ 
+dinonaktifkan
+ (
+disabled / greyed out
+) 
+sehingga
+ tidak 
+bisa
+ 
+diklik
+. Selain 
+itu
+, 
+harus
+ 
+ada
+ 
+fitur
+ 
+preview
+ 
+foto
+ 
+sebelum
+ pelanggan 
+mengirimkan
+ 
+bukti
+ transfer manual.
+Usability & Simplicity
+Mengingat
+ 
+pengguna
+ 
+memiliki
+ 
+latar
+ 
+belakang
+ yang 
+beragam
+, 
+antarmuka
+ tidak 
+boleh
+ 
+membingungkan
+ atau 
+memiliki
+ 
+terlalu
+ 
+banyak
+ 
+tahapan
+ (
+clicks
+) yang tidak 
+perlu
+. 
+Struktur
+ 
+navigasi
+ 
+dirancang
+ 
+menggunakan
+ 
+Bottom Navigation Bar
+ 
+maksimal
+ 4 menu (Beranda, Pesanan, 
+Notifikasi
+, 
+Profil
+). Alur 
+dari
+ 
+pencarian
+ vendor 
+hingga
+ 
+checkout
+ 
+dirancang
+ se-linear 
+mungkin
+ 
+tanpa
+ 
+banyak
+ 
+cabang
+ 
+halaman
+.
+Trust & Transparency
+Karena platform 
+menggunakan
+ 
+metode
+ 
+pembayaran
+ transfer manual, UI/UX 
+dirancang
+ 
+untuk
+ 
+menumbuhkan
+ rasa 
+aman
+. Halaman 
+pembayaran
+ menampilkan nomor 
+rekening
+ vendor 
+dengan
+ sangat 
+jelas
+, 
+dilengkapi
+ 
+tombol
+ 
+micro-interaction
+ "Salin 
+Rekening
+" (
+Copy to Clipboard
+) 
+untuk
+ 
+mencegah
+ kesalahan 
+ketik
+. 
+Transparansi
+ juga 
+diwujudkan
+ 
+dengan
+ menampilkan 
+rating
+ dan 
+ulasan
+ 
+asli
+ 
+secara
+ 
+terbuka
+ di 
+profil
+ vendor.
+Accessibility
+Desain 
+aplikasi
+ 
+harus
+ 
+nyaman
+ 
+digunakan
+ di 
+berbagai
+ 
+ukuran
+ 
+layar
+ 
+ponsel
+ pelanggan. 
+Tombol-tombol
+ 
+utama
+ (
+Call-to-Action
+) 
+seperti
+ 
+tombol
+ "Pesan Layanan" dan "
+Unggah
+ Bukti" 
+harus
+ 
+memiliki
+ 
+ukuran
+ 
+sentuh
+ (
+touch target
+) yang 
+cukup
+ 
+besar
+ 
+untuk
+ 
+jari
+. 
+Kontras
+ 
+warna
+ 
+teks
+ dan 
+latar
+ 
+belakang
+ 
+harus
+ 
+disesuaikan
+ agar 
+informasi
+ 
+harga
+ dan 
+jadwal
+ 
+mudah
+ 
+dibaca
+.
+UX Navigation Structure
+Navigasi
+ 
+dirancang
+ 
+menggunakan
+ 
+pendekatan
+ 
+Bottom Navigation Bar
+ 
+dengan
+ menu 
+esensial
+ agar 
+pengguna
+ tidak 
+mengalami
+ 
+kelebihan
+ 
+beban
+ 
+kognitif
+ (
+cognitive overload
+). 
+Pemilihan
+ 4 menu 
+utama
+ 
+ini
+ 
+didasarkan
+ pada 
+aktivitas
+ paling rutin yang 
+dilakukan
+ pelanggan. Menu Beranda 
+difokuskan
+ 
+untuk
+ 
+eksplorasi
+ dan 
+pencarian
+, 
+sementara
+ menu Pesanan dan 
+Notifikasi
+ 
+dipisahkan
+ agar pelanggan 
+dapat 
+dengan
+ 
+mudah
+ 
+melacak
+ 
+transaksi
+ 
+mereka
+ yang 
+sedang
+ 
+berjalan
+ 
+tanpa
+ 
+tercampur
+ 
+dengan
+ pesan 
+sistem
+ 
+lainnya
+.
+Gambar 
+1
+. UX Navigation Structure (Sitemap)
+BAB III
+ 
+ALUR INTERAKSI DAN SKENARIO MOBILE
+UX Flow Utama 
+Pelanggan
+Melalui 
+alur
+ 
+perjalanan
+ 
+pengguna
+ (
+User Journey
+), pelanggan dapat 
+secara
+ 
+mandiri
+ 
+melakukan
+ 
+pencarian
+ vendor, 
+mengirimkan
+ 
+permintaan
+ 
+pesanan
+, 
+mengonfirmasi
+ 
+pembayaran
+ 
+secara
+ manual, 
+memantau
+ 
+progress
+, 
+hingga
+ memberikan 
+rating
+. Ini 
+merupakan
+ 
+standar
+ yang 
+efisien
+ 
+untuk
+ 
+aplikasi
+ 
+marketplace
+ 
+jasa
+, di mana jumlah 
+langkah
+ 
+diminimalkan
+ 
+untuk
+ 
+mencegah
+ 
+pengguna
+ 
+membatalkan
+ 
+pesanan
+ di 
+tengah
+ 
+jalan
+.
+Gambar 
+2
+. UX Navigation 
+Singkat
+Booking
+ 
+dan 
+Penanganan
+ Kendala
+Dalam proses 
+booking
+, 
+sistem
+ 
+telah
+ 
+merancang
+ 
+penanganan
+ 
+kendala
+ (
+Error Handling
+) 
+untuk
+ 
+mencegah
+ 
+terjadinya
+ kesalahan 
+teknis
+ 
+maupun
+ 
+konflik
+ 
+jadwal
+ 
+antar
+ vendor.
+Skenario
+ Normal
+Jika 
+tanggal
+ 
+tersedia
+, 
+tombol
+ "Kirim 
+Permintaan
+" 
+akan
+ 
+aktif
+ dan 
+membawa
+ 
+pengguna
+ ke 
+halaman
+ 
+sukses
+.
+Skenario
+ 
+Gagal
+ (Error State)
+Jika 
+tanggal
+ 
+telah
+ di-
+booking
+ oleh orang lain, 
+sistem
+ 
+akan
+ 
+memunculkan
+ 
+feedback
+ visual (
+misalnya
+ 
+teks
+ 
+merah
+ "Jadwal 
+Penuh
+") dan 
+menonaktifkan
+ 
+tombol
+ 
+kirim
+, 
+memaksa
+ 
+pengguna
+ 
+memilih
+ 
+tanggal
+ 
+alternatif
+. Hal 
+ini
+ 
+sejalan
+ 
+dengan
+ 
+upaya
+ 
+sistem
+ 
+mencegah
+ 
+double booking
+.
+Gambar 
+3
+. 
+UX Interaction Flow
+ 
+Proses Pemesanan
+Proses 
+Konfirmasi
+ 
+Pembayaran
+ Manual
+Dikarenakan
+ 
+sistem
+ 
+Planora
+ 
+dirancang
+ 
+belum
+ 
+menggunakan
+ 
+payment gateway
+ 
+terintegrasi
+ dan 
+mengandalkan
+ transfer manual, 
+alur
+ UX 
+untuk
+ 
+mengunggah
+ 
+bukti
+ 
+pembayaran
+ 
+harus
+ 
+dirancang
+ 
+sejelas
+ 
+mungkin
+ 
+untuk
+ 
+menghindari
+ 
+kecemasan
+ pelanggan (
+UX Trust & Security
+).
+Pada 
+alur
+ 
+ini
+, 
+tombol
+ "Salin Nomor 
+Rekening
+" (
+Copy to Clipboard
+) menjadi 
+elemen
+ 
+mikro-interaksi
+ (
+micro-interaction
+) yang sangat 
+krusial
+. Alih-
+alih
+ 
+memaksa
+ 
+pengguna
+ 
+menghafal
+ nomor 
+rekening
+, 
+fitur
+ 
+salin
+ 
+ini
+ 
+meminimalisir
+ kesalahan 
+ketik
+ (
+human error
+) 
+saat
+ pelanggan 
+melakukan
+ transfer melalui 
+aplikasi
+ 
+mobile banking
+ 
+mereka
+. Setelah 
+foto
+ 
+bukti
+ 
+diunggah
+, 
+perubahan
+ status menjadi "
+Menunggu
+ Verifikasi" memberikan 
+kejelasan
+ (
+system status visibility
+) kepada pelanggan bahwa 
+tugas
+ 
+mereka
+ 
+telah
+ selesai.
+Gambar 
+4
+. UX 
+Interaction Flow: 
+Konfirmasi
+ 
+Pembayaran
+ Manual
+BAB 
+IV
+ 
+ ANALISIS
+ 
+USER EXPERINCE
+ WEB DASHBOARD
+Berbeda
+ 
+dengan
+ 
+aplikasi
+ 
+mobile
+ yang 
+mengutamakan
+ 
+kemudahan
+ 
+transaksi
+ pelanggan, 
+web dashboard
+ 
+dirancang
+ 
+khusus
+ 
+untuk
+ 
+mengutamakan
+ 
+efisiensi
+ 
+operasional
+ dan 
+kemudahan
+ 
+pengelolaan
+ data 
+bagi
+ Vendor dan Admin.
+User Persona Web Dashboard
+Sebelum
+ 
+merancang
+ 
+antarmuka
+ web, 
+tim
+ 
+membagi
+ persona 
+pengguna
+ menjadi dua 
+peran
+ 
+utama
+:
+Vendor
+Vendor 
+merupakan
+ 
+pemilik
+ atau 
+pengelola
+ 
+usaha
+ 
+jasa
+ 
+event
+ 
+skala
+ 
+kecil
+ 
+hingga
+ 
+menengah
+ 
+seperti
+ 
+fotografer
+, 
+katering
+, 
+penyedia
+ 
+venue
+, atau 
+event organizer
+. 
+Karakteristik
+ 
+pengguna
+ 
+ini
+ 
+umumnya
+ tidak 
+selalu
+ 
+memiliki
+ 
+latar
+ 
+belakang
+ 
+teknis
+, 
+sehingga
+ 
+membutuhkan
+ 
+antarmuka
+ yang 
+sederhana
+. 
+Mereka
+ 
+mengutamakan
+ 
+kecepatan
+ dalam 
+mengonfirmasi
+ 
+pesanan
+ dan 
+memverifikasi
+ 
+pembayaran
+, 
+serta
+ 
+membutuhkan
+ 
+visibilitas
+ 
+jadwal
+ yang 
+jelas
+ agar tidak 
+terjadi
+ 
+tumpang
+ 
+tindih
+ 
+layanan
+ yang dapat 
+merugikan
+ 
+reputasi
+ 
+usaha
+ 
+mereka
+.
+Admin 
+Sistem
+Admin 
+merupakan
+ 
+pengelola
+ platform 
+Planora
+ yang 
+bertanggung
+ 
+jawab
+ 
+atas
+ 
+keberlangsungan
+ dan 
+kualitas
+ 
+ekosistem
+ 
+marketplace
+. 
+Karakteristik
+ admin 
+membutuhkan
+ 
+akses
+ 
+cepat
+ dan 
+terpusat
+ 
+terhadap
+ 
+seluruh
+ 
+aktivitas
+ platform, 
+alur
+ 
+kerja
+ yang 
+efisien
+ 
+untuk
+ 
+verifikasi
+ vendor, 
+serta
+ 
+kemampuan
+ 
+pencarian
+ dan 
+filter
+ data yang 
+kuat
+.
+Oleh 
+karena
+ 
+itu
+, 
+prinsip
+ 
+utama
+ UX 
+web dashboard
+ 
+Planora
+ 
+adalah
+ 
+Efisiensi
+ 
+Operasional
+ (
+Efficiency
+) dan 
+Kontrol
+ Data yang Jelas (
+Clarity of Control
+).
+Kebutuhan
+ UX Web Dashboard
+Operational Efficiency)
+Dashboard 
+harus
+ 
+mampu
+ 
+menyajikan
+ 
+informasi
+ 
+terpenting
+ 
+secara
+ 
+langsung
+ 
+tanpa
+ 
+pengguna
+ 
+perlu
+ 
+menelusuri
+ 
+banyak
+ 
+halaman
+ 
+terlebih
+ 
+dahulu
+. Halaman 
+utama
+ 
+dashboard
+ 
+wajib
+ menampilkan 
+ringkasan
+ 
+operasional
+ 
+harian
+ dalam 
+bentuk
+ 
+Summary Cards
+ yang 
+mudah
+ 
+dibaca
+ 
+secara
+ 
+sekilas
+ (
+at-a-glance
+).
+Content Management
+Vendor 
+harus
+ 
+mampu
+ 
+mengelola
+ 
+seluruh
+ 
+informasi
+ 
+layanan
+ 
+mereka
+ 
+secara
+ 
+mandiri
+. Form 
+input
+ 
+dilengkapi
+ 
+validasi
+ 
+real-time
+ yang 
+langsung
+ memberikan 
+feedback
+ 
+apabila
+ data tidak valid, dan 
+sistem
+ menampilkan dialog 
+konfirmasi
+ 
+sebelum
+ 
+penghapusan
+ data 
+layanan
+.
+Manajemen
+ Jadwal & 
+Konfirmasi
+ Pesanan
+Vendor 
+perlu
+ 
+memantau
+ 
+seluruh
+ 
+pesanan
+ 
+masuk
+ 
+secara
+ 
+real-time
+. 
+Sistem
+ 
+secara
+ 
+otomatis
+ 
+memperbarui
+ 
+ketersediaan
+ 
+jadwal
+ pada 
+kalender
+ vendor 
+setiap
+ kali 
+pesanan
+ 
+dikonfirmasi
+, 
+sehingga
+ slot tersebut tidak 
+bisa
+ dipesan 
+lagi
+ oleh pelanggan lain melalui 
+aplikasi
+ 
+mobile
+.
+Rekap
+ 
+Transaksi
+ & 
+Laporan
+ 
+Keuangan
+Vendor 
+membutuhkan
+ 
+visibilitas
+ yang 
+jelas
+ 
+terhadap
+ 
+arus
+ 
+keuangan
+. Halaman 
+laporan
+ menampilkan 
+riwayat
+ 
+pesanan
+ yang dapat 
+difilter
+ 
+berdasarkan
+ status 
+pembayaran
+ (Belum Bayar, DP, Lunas) 
+maupun
+ 
+rentang
+ 
+tanggal
+ 
+tertentu
+.
+Alur 
+Verifikasi
+ Vendor (Admin)
+Halaman 
+verifikasi
+ vendor menampilkan daftar 
+pendaftaran
+ baru. 
+Apabila
+ 
+ditolak
+, Admin 
+diwajibkan
+ 
+mengisi
+ 
+catatan
+ 
+alasan
+ 
+penolakan
+ yang 
+akan
+ 
+dikirimkan
+ sebagai 
+notifikasi
+ kepada vendor 
+terkait
+, 
+sehingga
+ vendor dapat 
+melakukan
+ 
+perbaikan
+.
+Keamanan
+ Akses 
+Berbasis
+ Peran
+Login web dashboard
+ 
+menggunakan
+ 
+kredensial
+ 
+aman
+ 
+dengan
+ 
+mekanisme
+ JWT Token yang 
+memiliki
+ masa 
+berlaku
+ 
+terbatas
+. Data yang 
+ditampilkan
+ pada 
+dashboard
+ vendor 
+dibatasi
+ 
+secara
+ 
+ketat
+ 
+hanya
+ pada data 
+milik
+ vendor yang 
+bersangkutan
+ (
+data isolation per vendor
+), 
+sementara
+ Admin 
+memiliki
+ 
+akses
+ 
+penuh
+ 
+untuk
+ 
+manajemen
+ 
+tanpa
+ dapat 
+mengubah
+ data 
+layanan
+ vendor.
+Struktur
+ 
+Navigasi
+ (Sitemap) Web Dashboard
+ 
+Struktur
+ 
+navigasi
+ 
+web dashboard
+ 
+dirancang
+ 
+berdasarkan
+ 
+prinsip
+ 
+pemisahan
+ 
+peran
+ yang 
+tegas
+ (
+role separation
+). Dashboard Vendor dan Dashboard Admin 
+memiliki
+ 
+hierarki
+ menu yang 
+sepenuhnya
+ 
+terpisah
+ 
+meskipun
+ 
+berada
+ dalam 
+satu
+ platform web yang 
+sama
+. 
+Pemisahan
+ 
+ini
+ 
+penting
+ 
+karena
+ 
+kedua
+ 
+peran
+ 
+memiliki
+ 
+tanggung
+ 
+jawab
+ yang 
+berbeda
+, 
+sehingga
+ 
+mencampurkan
+ 
+keduanya
+ dalam 
+satu
+ 
+tampilan
+ 
+akan
+ 
+menyebabkan
+ 
+cognitive overload
+ dan 
+potensi
+ kesalahan 
+operasional
+.
+Gambar 5. UX Navigation Structure (Sitemap)
+BAB V
+ 
+ALUR INTERAKSI WEB DASHBOARD
+Alur 
+Penggunaan
+ Vendor
+ 
+Melalui 
+alur
+ 
+ini
+, Vendor dapat 
+secara
+ 
+mandiri
+ 
+mengelola
+ 
+seluruh
+ 
+operasional
+ 
+layanan
+ 
+mereka
+. 
+Pemisahan
+ menu yang 
+jelas
+ 
+dirancang
+ 
+untuk
+ 
+meminimalkan
+ 
+waktu
+ yang 
+dibutuhkan
+ vendor dalam 
+menyelesaikan
+ 
+satu
+ 
+tugas
+ 
+operasional
+ 
+tanpa
+ 
+harus
+ 
+berpindah-pindah
+ 
+halaman
+ yang tidak 
+relevan
+.
+Gambar 
+6
+. 
+UX Flow Vendor
+Pada proses 
+konfirmasi
+ dan 
+verifikasi
+ 
+pembayaran
+, 
+fitur
+ preview thumbnail 
+bukti
+ transfer 
+langsung
+ di 
+halaman
+ 
+verifikasi
+ menjadi 
+elemen
+ UX yang sangat 
+krusial
+. Alih-
+alih
+ 
+memaksa
+ vendor 
+mengunduh
+ file 
+bukti
+ 
+terlebih
+ 
+dahulu
+, 
+tampilan
+ preview 
+langsung
+ 
+mempersingkat
+ 
+waktu
+ 
+verifikasi
+ 
+secara
+ 
+signifikan
+. 
+Pemisahan
+ 
+warna
+ 
+tombol
+ ‘
+Verifikasi
+ Lunas’ (
+hijau
+) dan ‘Tolak 
+Pembayaran
+’ (
+merah
+) 
+mengurangi
+ 
+risiko
+ vendor 
+menekan
+ 
+tombol
+ yang salah.
+Gambar 
+7
+. UX Interaction Flow 
+-
+ Konfirmasi & Verifikasi Pembayaran Vendor
+Alur 
+Penggunaan
+ Admin
+Melalui 
+alur
+ admin, 
+pengelola
+ 
+memiliki
+ 
+kendali
+ 
+penuh
+ 
+atas
+ 
+seluruh
+ 
+ekosistem
+ platform 
+Planora
+. 
+Keberadaan
+ 
+halaman
+ Log & 
+Aktivitas
+ 
+Sistem
+ memberikan 
+transparansi
+ 
+operasional
+ platform yang 
+penting
+ 
+untuk
+ 
+mendeteksi
+ 
+potensi
+ 
+masalah
+ 
+teknis
+ 
+maupun
+ 
+perilaku
+ 
+pengguna
+ yang 
+mencurigakan
+.
+Gambar 
+8
+. UX Flow Admin 
+-
+ Web Dashboard 
+Planora
+Dalam proses 
+verifikasi
+ vendor, 
+sistem
+ 
+menerapkan
+ 
+penanganan
+ 
+kendala
+ yang 
+ketat
+. 
+Apabila
+ data vendor 
+dinilai
+ valid, Admin dapat 
+menyetujuinya
+. 
+Namun
+ pada 
+skenario
+ 
+penolakan
+ 
+karena
+ data 
+mencurigakan
+, 
+tombol
+ ‘Kirim 
+Penolakan
+’ 
+hanya
+ dapat 
+ditekan
+ setelah field 
+catatan
+ 
+alasan
+ diisi. Hal 
+ini
+ 
+memastikan
+ vendor 
+selalu
+ 
+mendapatkan
+ 
+informasi
+ yang 
+jelas
+ 
+mengenai
+ 
+alasan
+ 
+penolakan
+.
+BAB VI ANALISIS BUSINESS MODEL CANVAS
+Untuk
+ 
+memastikan
+ platform 
+Planora
+ 
+memiliki
+ 
+nilai
+ 
+keberlanjutan
+ dan 
+kelayakan
+ 
+bisnis
+, 
+tim
+ 
+telah
+ 
+merancang
+ 
+Business Model Canvas
+ (BMC) yang 
+memetakan
+ 9 
+elemen
+ 
+kunci
+ 
+dari
+ 
+aplikasi
+ 
+ini
+.
+Penjabaran
+ 
+rinci
+ 
+dari
+ 9 
+elemen
+ 
+Business Model Canvas
+ 
+Planora
+ 
+adalah
+ sebagai 
+berikut
+:
+Customer Segments (
+Segmen
+ Pelanggan)
+Terdiri
+ 
+dari
+ Pelanggan B2C (
+Individu
+) yang 
+merencanakan
+ acara personal, Pelanggan B2B (
+Organisasi
+/
+Panitia
+) yang 
+menyelenggarakan
+ seminar, 
+serta
+ Mitra Vendor 
+penyedia
+ 
+jasa
+ 
+event
+.
+Value Propositions (
+Proposisi
+ Nilai)
+Bagi pelanggan, platform memberikan 
+kemudahan
+ 
+membandingkan
+ 
+harga
+ dan 
+transparansi
+ 
+ulasan
+. Bagi vendor, platform 
+menawarkan
+ 
+sistem
+ 
+manajemen
+ 
+jadwal
+ 
+otomatis
+ yang 
+mencegah
+ double booking dan 
+perluasan
+ 
+jangkauan
+ pasar.
+Channels (
+Saluran
+)
+Terdiri
+ 
+dari
+ 
+Aplikasi
+ Mobile sebagai 
+saluran
+ 
+pencarian
+ 
+utama
+, Web Dashboard sebagai 
+saluran
+ 
+operasional
+ vendor, dan Media Sosial 
+untuk
+ 
+edukasi
+ 
+merek
+.
+Customer Relationships (
+Hubungan
+ Pelanggan)
+Dibangun
+ melalui 
+sistem
+ 
+ulasan
+ (review & rating), 
+layanan
+ pelanggan yang 
+sigap
+, 
+serta
+ 
+notifikasi
+ 
+sistem
+ real-time 
+terkait
+ status 
+pesanan
+.
+Revenue Streams (
+Sumber
+ 
+Pendapatan
+)
+Pendapatan
+ 
+bersumber
+ 
+dari
+ Biaya Platform (Admin Fee) per 
+transaksi
+ selesai, 
+serta
+ 
+rencana
+ Biaya 
+Langganan
+ Vendor premium di masa 
+depan
+.
+Key Activities (
+Aktivitas
+ Utama)
+Meliputi
+ 
+pemeliharaan
+ 
+kestabilan
+ 
+sistem
+ (server dan database), 
+verifikasi
+ 
+kurasi
+ vendor, 
+serta
+ 
+manajemen
+ 
+kelancaran
+ 
+transaksi
+.
+Key Resources (
+Sumber
+ Daya Utama)
+Mengandalkan
+ 
+Infrastruktur
+ IT (Server, Database), Hak 
+Kekayaan
+ 
+Intelektual
+ 
+aplikasi
+, dan 
+sumber
+ 
+daya
+ 
+manusia
+ (Tim Pengembang).
+Key Partnerships (
+Kemitraan
+ Utama)
+Melibatkan
+ Vendor 
+Penyedia
+ Jasa Event sebagai 
+mitra
+ 
+penyedia
+ 
+inventaris
+, dan 
+Penyedia
+ 
+Layanan
+ Cloud/Hosting sebagai 
+infrastruktur
+ server.
+Cost Structure (
+Struktur
+ Biaya)
+Pembiayaan
+ 
+mencakup
+ 
+biaya
+ 
+infrastruktur
+ IT (
+sewa
+ server, domain), 
+biaya
+ 
+pengembangan
+ (
+operasional
+ 
+tim
+), dan 
+biaya
+ 
+pemasaran
+ 
+aplikasi
+.
+BAB VII
+ 
+PENUTUP DAN RENCANA TINDAK LANJUT
+Kesimpulan 
+Capaian
+Dokumentasi
+ 
+spesifikasi
+ 
+UX Requirements
+, 
+perancangan
+ 
+alur
+ 
+interaksi
+ (
+User Flow
+), 
+pemetaan
+ 
+navigasi
+ 
+antarmuka
+, dan strategi 
+bisnis
+ 
+Business Model Canvas
+ (BMC) 
+telah
+ berhasil 
+diselesaikan
+ pada 
+periode
+ 
+pelaporan
+ 
+ini
+. 
+Seluruh
+ 
+artefak
+ 
+analisis
+ 
+ini
+ 
+siap
+ 
+dijadikan
+ 
+landasan
+ 
+utama
+ (
+blueprint
+) 
+untuk
+ 
+tahapan
+ 
+selanjutnya
+ dalam 
+siklus
+ 
+pengembangan
+ 
+perangkat
+ 
+lunak
+ 
+proyek
+ 
+Planora
+.
+Rencana
+ 
+Kerja
+ 
+Selanjutnya
+ (Next Steps)
+Berdasarkan
+ 
+penyelesaian
+ 
+tahap
+ 
+analisis
+ 
+sistem
+, target 
+pekerjaan
+ 
+tim
+ 
+untuk
+ 
+sprint
+ 
+berikutnya
+ 
+meliputi
+:
+Translasi
+ 
+spesifikasi
+ 
+UX Navigation Structure
+ dan diagram 
+alur
+ 
+interaksi
+ menjadi 
+desain
+ 
+purwarupa
+ 
+antarmuka
+ 
+pengguna
+ 
+tingkat
+ 
+tinggi
+ (
+High-Fidelity UI Mockup/Prototype
+).
+Perancangan
+ 
+skema
+ 
+relasi
+ basis data (ERD) 
+untuk
+ 
+memetakan
+ 
+hubungan
+ 
+entitas
+ Pelanggan, Vendor, Admin, dan 
+riwayat
+ 
+Transaksi
+.
+Inisialisasi
+ 
+lingkungan
+ 
+pengembangan
+ (
+development environment setup
+) 
+untuk
+ 
+persiapan
+ 
+penulisan
+ 
+kode
+ 
+sumber
+ (
+coding
+) pada 
+sisi
+ 
+aplikasi
+ 
+Mobile
+, 
+antarmuka
+ 
+Web
+, dan 
+struktur
+ 
+Backend
+.
+Kendala dan 
+Tantangan
+Sampai
+ 
+dengan
+ 
+tahapan
+ 
+penyelesaian
+ 
+dokumen
+ 
+analisis
+ UX dan 
+desain
+ 
+operasional
+ 
+ini
+, proses 
+pengembangan
+ 
+proyek
+ 
+berjalan
+ 
+lancar
+ dan 
+terstruktur
+ 
+sesuai
+ 
+dengan
+ 
+timeline
+ yang 
+telah
+ 
+disepakati
+ oleh 
+tim.
