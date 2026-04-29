@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Footer from "@/components/Footer";
 import "../styles/globals.css";
+import ScrollObserver from "@/components/ScrollObserver";
 
 export const metadata: Metadata = {
   title: "Planora",
@@ -21,7 +21,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html lang="id" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className="font-sans antialiased" suppressHydrationWarning>
         {children}
-        <Footer />
+        <ScrollObserver />
       </body>
     </html>
   );

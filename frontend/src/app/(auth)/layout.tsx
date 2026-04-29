@@ -9,7 +9,7 @@ type AuthLayoutProps = {
 export default function AuthLayout({ children }: AuthLayoutProps) {
   const segment = useSelectedLayoutSegment();
 
-  if (segment === "register") {
+  if (segment === "register" || segment === "login") {
     return <main className="min-h-screen">{children}</main>;
   }
 

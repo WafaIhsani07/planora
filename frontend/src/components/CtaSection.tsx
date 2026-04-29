@@ -1,30 +1,27 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 
 export default function CtaSection() {
     return (
-        <section className="w-full bg-white px-6 py-20 sm:px-10 md:py-24 lg:px-12">
-            <div className="relative mx-auto max-w-[1200px] overflow-hidden rounded-[3rem] bg-[#2A2A2A] px-6 py-20 text-center shadow-2xl md:py-28">
-                <div className="pointer-events-none absolute left-[-10%] top-[-50%] h-[300px] w-[300px] rounded-full bg-[#FCE6E3]/10 blur-[100px]"></div>
-                <div className="pointer-events-none absolute bottom-[-50%] right-[-10%] h-[300px] w-[300px] rounded-full bg-[#FCE6E3]/10 blur-[100px]"></div>
+        <section data-reveal className="bg-white px-6 py-16 md:py-20 md:px-12">
+            <div className="relative mx-auto max-w-7xl overflow-hidden rounded-[3rem] bg-black px-6 py-12 text-center md:px-12 md:py-16">
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,154,158,0.12),_transparent_45%)]"></div>
 
-                <div className="relative z-10 flex flex-col items-center">
-                    <h2 className="mb-6 text-4xl font-black italic leading-[1.05] tracking-tighter text-white md:text-5xl lg:text-[4rem]">
-                        SIAP MENGATUR <br />
-                        <span className="text-[#FCE6E3]">MOMEN HEBAT?</span>
-                    </h2>
+                <div className="relative z-10 mx-auto flex max-w-5xl flex-col items-center justify-between gap-8 text-left md:flex-row">
+                    <div>
+                        <h2 className="mb-4 text-3xl font-extrabold leading-tight tracking-tight text-white md:text-5xl">
+                            Siap Wujudkan Momen <br /> Spesial Bersama <span className="text-pink-gradient">Planora?</span>
+                        </h2>
+                        <p className="text-sm text-gray-400">Bergabung sekarang dan temukan vendor terbaik untuk acara tak terlupakan.</p>
+                    </div>
 
-                    <p className="mx-auto mb-12 max-w-lg text-sm leading-relaxed text-[#A8A8A8] md:text-base">
-                        Jadilah bagian dari revolusi industri event di Indonesia bersama Planora. Cepat, Terintegrasi, dan Estetik.
-                    </p>
-
-                    <div className="flex w-full flex-col items-center justify-center gap-4 sm:w-auto sm:flex-row">
-                        <button className="w-full rounded-full bg-[#FCE6E3] px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#2A2A2A] transition-all hover:scale-105 hover:bg-[#F8D8D3] active:scale-95 sm:w-auto md:text-xs">
-                            DOWNLOAD SEKARANG
+                    <div className="flex flex-col gap-5 sm:flex-row">
+                        <button className="rounded-2xl bg-pink-gradient px-10 py-4 font-extrabold text-black transition transform hover:scale-105 hover:opacity-90">
+                            Mulai Rencanakan
                         </button>
-                        <button className="w-full rounded-full border border-[#555] bg-transparent px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white transition-all hover:scale-105 hover:border-white hover:bg-white/5 active:scale-95 sm:w-auto md:text-xs">
-                            HUBUNGI KAMI
+                        <button className="rounded-2xl border border-white/20 bg-white/5 px-10 py-4 font-extrabold text-white transition transform hover:scale-105 hover:bg-white/10">
+                            Hubungi Kami
                         </button>
                     </div>
                 </div>

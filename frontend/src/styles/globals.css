@@ -1,30 +1,16 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700;1,800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap');
 @import "tailwindcss";
 
-@theme {
-  --color-brand-dark: #2a2a2a;
-  --color-brand-peach: #fce6e3;
-  --color-brand-peachHover: #f8d8d3;
-  --color-brand-gray: #a8a8a8;
-  --color-brand-bg: #fafafc;
-  --color-brand-50: #f2f7f6;
-  --color-brand-100: #dceae7;
-  --color-brand-200: #b8d5cf;
-  --color-brand-300: #8cb8ad;
-  --color-brand-400: #63998d;
-  --color-brand-500: #497f74;
-  --color-brand-600: #37645c;
-  --color-brand-700: #2f504a;
-  --color-brand-800: #2a423d;
-  --color-brand-900: #253935;
-}
-
 :root {
-  --background: #f5f6f8;
-  --foreground: #13211f;
-  --surface: #ffffff;
-  --muted: #5f6f6b;
-  --brand: #2f504a;
-  --brand-contrast: #e6f3f0;
+  --color-brand-dark: #2C2D2A; /* main */
+  --color-accent: #FFDED7; /* pink pastel */
+  --color-accent-hover: #F8D8D3;
+  --color-brand-gray: #A8A8A8;
+  --color-brand-bg: #FFFFFF;
+  --card-radius: 2rem;
+  --background: var(--color-brand-bg);
+  --foreground: var(--color-brand-dark);
 }
 
 * {
@@ -44,7 +30,56 @@ html {
 body {
   background: var(--color-brand-bg);
   color: var(--color-brand-dark);
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
 }
+
+.font-logo {
+  font-family: 'Playfair Display', serif;
+}
+
+.bg-pink-gradient {
+  background: linear-gradient(90deg, #FF9A9E 0%, #FAD0C4 100%);
+}
+
+.text-pink-gradient {
+  background: linear-gradient(90deg, #FF9A9E 0%, #FAD0C4 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-bg {
+  background-color: #0A0A0A;
+  background-image:
+    radial-gradient(circle at 90% 50%, rgba(255, 154, 158, 0.12) 0%, transparent 40%),
+    radial-gradient(circle at 10% 20%, rgba(255, 154, 158, 0.05) 0%, transparent 30%);
+}
+
+.image-glow {
+  filter: drop-shadow(0 0 40px rgba(255, 154, 158, 0.15));
+}
+
+.step-glow {
+  box-shadow: 0 0 20px rgba(255, 154, 158, 0.2);
+}
+
+.rounded-card {
+  border-radius: var(--card-radius);
+}
+
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal-visible {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+/* Accent helpers for existing components */
+.bg-accent { background: var(--color-accent); }
+.bg-accent-hover { background: var(--color-accent-hover); }
 
 a {
   color: inherit;
