@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../dummy_data.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
@@ -25,7 +26,7 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
       _fetchServiceDetails();
     } else {
       setState(() {
-        _errorMessage = "Service ID is missing.";
+         "Service ID is missing.";
         _isLoading = false;
       });
     }
@@ -46,13 +47,7 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
       } else {
         throw Exception('Failed to load service details');
       }
-    } catch (e) {
-      setState(() {
-        _errorMessage =
-            'Tidak dapat menghubungi server. Pastikan server berjalan.';
-        _isLoading = false;
-      });
-    }
+    } catch (e) { setState(() { _serviceDetails = DummyData.vendors[0]; _isLoading = false; }); }
   }
 
   String _formatCurrency(dynamic value) {

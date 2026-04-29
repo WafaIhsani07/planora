@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../dummy_data.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -11,7 +12,7 @@ class ExploreScreen extends StatefulWidget {
 
 class _ExploreScreenState extends State<ExploreScreen> {
   final int _currentIndex = 1; // Index 1 untuk halaman Eksplor
-  List<dynamic> _recommendations = [];
+  List<dynamic> _recommendations = DummyData.vendors;
   bool _isLoading = true;
 
   String _searchQuery = '';
@@ -55,12 +56,12 @@ class _ExploreScreenState extends State<ExploreScreen> {
         });
       } else {
         setState(() {
-          _recommendations = [];
+          _recommendations = DummyData.vendors;
         });
       }
     } catch (e) {
       setState(() {
-        _recommendations = [];
+        _recommendations = DummyData.vendors;
       });
     } finally {
       setState(() {

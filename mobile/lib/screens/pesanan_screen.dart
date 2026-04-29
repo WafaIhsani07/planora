@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../dummy_data.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -11,7 +12,7 @@ class PesananScreen extends StatefulWidget {
 
 class _PesananScreenState extends State<PesananScreen> {
   final int _currentIndex = 2; // Index 2 untuk halaman Pesanan
-  List<dynamic> _orders = [];
+  List<dynamic> _orders = DummyData.orders;
   bool _isLoading = true;
   bool _isBerjalan = true; // Toggle untuk tab "Berjalan" vs "Selesai"
 
@@ -35,12 +36,12 @@ class _PesananScreenState extends State<PesananScreen> {
         });
       } else {
         setState(() {
-          _orders = [];
+          _orders = DummyData.orders;
         });
       }
     } catch (e) {
       setState(() {
-        _orders = [];
+        _orders = DummyData.orders;
       });
     } finally {
       setState(() {

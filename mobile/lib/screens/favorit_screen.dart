@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../dummy_data.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -11,7 +12,7 @@ class FavoritScreen extends StatefulWidget {
 
 class _FavoritScreenState extends State<FavoritScreen> {
   final int _currentIndex = 3; // Index 3 untuk halaman Favorit
-  List<dynamic> _favorites = [];
+  List<dynamic> _favorites = DummyData.vendors;
   bool _isLoading = true;
 
   @override
@@ -34,12 +35,12 @@ class _FavoritScreenState extends State<FavoritScreen> {
         });
       } else {
         setState(() {
-          _favorites = [];
+          _favorites = DummyData.vendors;
         });
       }
     } catch (e) {
       setState(() {
-        _favorites = [];
+        _favorites = DummyData.vendors;
       });
     } finally {
       setState(() {

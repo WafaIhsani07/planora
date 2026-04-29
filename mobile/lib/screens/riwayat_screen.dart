@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../dummy_data.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -10,7 +11,7 @@ class RiwayatScreen extends StatefulWidget {
 }
 
 class _RiwayatScreenState extends State<RiwayatScreen> {
-  List<dynamic> _histories = [];
+  List<dynamic> _histories = DummyData.orders.where((o) => o['isPaid'] == true).toList();
   bool _isLoading = true;
 
   @override

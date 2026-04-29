@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../dummy_data.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -11,7 +12,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
-  List<dynamic> _vendors = [];
+  List<dynamic> _vendors = DummyData.vendors;
   bool _isLoading = true;
 
   @override
@@ -35,13 +36,13 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       } else {
         setState(() {
-          _vendors = []; // Jika endpoint tidak ada, biarkan kosong (sesuai req)
+          _vendors = DummyData.vendors; // Jika endpoint tidak ada, biarkan kosong (sesuai req)
         });
       }
     } catch (e) {
       // Tangkap error jika backend mati/belum ada endpoint (akan kosong)
       setState(() {
-        _vendors = [];
+        _vendors = DummyData.vendors;
       });
     } finally {
       setState(() {
