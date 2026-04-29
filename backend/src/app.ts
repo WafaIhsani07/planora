@@ -1,6 +1,7 @@
 import express, { type Request, type Response, type NextFunction } from "express"
 import cors from "cors"
 import dotenv from "dotenv"
+import authRoutes from "./routes/auth.route.js"
 
 dotenv.config()
 
@@ -15,6 +16,8 @@ app.use(express.urlencoded({ extended: true }))
 app.get("/", (req: Request, res: Response) => {
     res.json({ message: "Planora API running", status: "ok" })
 })
+
+app.use("/auth", authRoutes)
 
 // ─── 404 Handler ─────────────────────────────────────────────────────────────
 app.use((req: Request, res: Response) => {

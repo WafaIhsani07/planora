@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import {
   Mail,
   Lock,
@@ -14,21 +15,56 @@ import {
   ShieldCheck,
   Sparkles,
 } from 'lucide-react';
+import { login } from '@/services/auth.service';
+import { useAuthStore } from '@/store/authStore';
 
 type UserRole = 'customer' | 'vendor';
 
 export default function LoginPage() {
+  const router = useRouter();
+  const setSession = useAuthStore((state) => state.setSession);
+  
   const [role, setRole] = useState<UserRole>('customer');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-    // TODO: Implement login logic
-    setTimeout(() => {
+    setError('');
+
+    try {
+      const response = await login({
+        email,
+        password,
+        role: role === 'customer' ? 'CUSTOMER' : 'VENDOR'
+      });
+
+      if (response.success && response.data) {
+        const { user, token } = response.data;
+        
+        // Store token in localStorage
+        localStorage.setItem('authToken', token);
+        
+        // Update auth store
+        setSession(user, token);
+        
+        // Redirect based on role
+        if (user.role === 'VENDOR') {
+          router.push('/vendor/dashboard');
+        } else {
+          router.push('/dashboard');
+        }
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Login gagal. Cek email dan password Anda.');
+      console.error('Login error:', err);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -167,6 +203,13 @@ export default function LoginPage() {
 
           {/* Form Inputs */}
           <form className="space-y-6" onSubmit={handleSubmit}>
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-sm font-medium">
+                {error}
+              </div>
+            )}
+            
             {/* Email Input */}
             <div className="space-y-2.5">
                 <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">
@@ -179,6 +222,8 @@ export default function LoginPage() {
                 <input
                   type="text"
                   placeholder="Masukkan email atau nomor HP"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400"
                   required
                 />
@@ -197,6 +242,8 @@ export default function LoginPage() {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Masukkan kata sandi"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-12 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400"
                   required
                 />
