@@ -16,10 +16,10 @@ const ClockIcon = ({ className }: { className?: string }) => (
 
 export default function DetailPesananByIdPage() {
     return (
-        <div className="mx-auto w-full max-w-[1200px]">
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-4 mb-8">
+        <div className="flex h-full w-full flex-col gap-6">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-4">
                 <div>
-                    <span className="text-[10px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase mb-2 block">
+                    <span className="text-[10px] font-bold tracking-[0.2em] text-[#FF7F97] uppercase mb-2 block">
                         RINCIAN OPERASIONAL ACARA
                     </span>
                     <h1 className="text-3xl md:text-[2.25rem] leading-[1.05] font-black italic tracking-tighter text-[#2A2A2A]">

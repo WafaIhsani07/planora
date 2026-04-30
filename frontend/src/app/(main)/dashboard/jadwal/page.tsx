@@ -1,8 +1,17 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
-import Link from 'next/link';
+import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import DashboardLayout from '../DashboardLayout';
+import {
+  ShoppingBag,
+  List,
+  Calendar as CalendarIcon,
+  MoreHorizontal,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
 
 const ChevronLeftIcon = ({ className }: { className?: string }) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m15 18-6-6 6-6" /></svg>
@@ -20,304 +29,535 @@ const ClockIcon = ({ className }: { className?: string }) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
 );
 
-type CalendarDay = {
-    key: string;
-    day: string;
-    isPrevMonth: boolean;
-    isNextMonth: boolean;
-    isEvent: boolean;
-    eventName?: string;
+type OrderStatus = 'Menunggu' | 'Dikonfirmasi' | 'Selesai';
+type PaymentStatus = 'menunggu' | 'dikonfirmasi' | 'selesai';
+
+interface Order {
+  id: string;
+  name: string;
+  client: string;
+  date: string;
+  time: string;
+  package: string;
+  type: string;
+  status: OrderStatus;
+  paymentStatus: PaymentStatus;
+  amount: string;
+  img: string;
+}
+
+const mockOrders: Order[] = [
+  {
+    id: '#PLR-240512-001',
+    name: 'Pernikahan A & D',
+    client: 'Andini Putri',
+    date: '12 Mei 2026',
+    time: '08.00 - 16.00',
+    package: 'Paket Dekorasi',
+    type: 'Premium',
+    status: 'Menunggu',
+    paymentStatus: 'menunggu',
+    amount: 'Rp 8.500.000',
+    img: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=100',
+  },
+  {
+    id: '#PLR-240511-002',
+    name: 'Lamaran R & S',
+    client: 'Raka Pratama',
+    date: '11 Mei 2026',
+    time: '13.00 - 17.00',
+    package: 'Paket Dekorasi',
+    type: 'Standard',
+    status: 'Dikonfirmasi',
+    paymentStatus: 'dikonfirmasi',
+    amount: 'Rp 5.250.000',
+    img: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=100',
+  },
+  {
+    id: '#PLR-240509-003',
+    name: 'Pernikahan M & F',
+    client: 'Farah Quinn',
+    date: '9 Mei 2026',
+    time: '08.00 - 15.00',
+    package: 'Paket Dekorasi',
+    type: 'Premium',
+    status: 'Selesai',
+    paymentStatus: 'selesai',
+    amount: 'Rp 12.000.000',
+    img: 'https://images.unsplash.com/photo-1523438885200-e635ba2c371e?auto=format&fit=crop&q=80&w=100',
+  },
+  {
+    id: '#PLR-240507-004',
+    name: 'Ulang Tahun Aisyah',
+    client: 'Budi Santoso',
+    date: '7 Mei 2026',
+    time: '16.00 - 20.00',
+    package: 'Paket Dekorasi',
+    type: 'Basic',
+    status: 'Menunggu',
+    paymentStatus: 'menunggu',
+    amount: 'Rp 2.000.000',
+    img: 'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&q=80&w=100',
+  },
+  {
+    id: '#PLR-240505-005',
+    name: 'Pernikahan B & C',
+    client: 'Citra Kirana',
+    date: '5 Mei 2026',
+    time: '08.00 - 16.00',
+    package: 'Paket Dekorasi',
+    type: 'Premium',
+    status: 'Selesai',
+    paymentStatus: 'selesai',
+    amount: 'Rp 9.000.000',
+    img: 'https://images.unsplash.com/photo-1519222970733-f546218fa6d7?auto=format&fit=crop&q=80&w=100',
+  },
+  {
+    id: '#PLR-240520-006',
+    name: 'Aqiqah Rafasya',
+    client: 'Rina Aprilia',
+    date: '20 Mei 2026',
+    time: '10.00 - 14.00',
+    package: 'Paket Dekorasi',
+    type: 'Standard',
+    status: 'Dikonfirmasi',
+    paymentStatus: 'dikonfirmasi',
+    amount: 'Rp 3.750.000',
+    img: 'https://images.unsplash.com/photo-1467226623193-bfe1b0c0dc1d?auto=format&fit=crop&q=80&w=100',
+  },
+  {
+    id: '#PLR-240525-007',
+    name: 'Resepsi Nikah I & M',
+    client: 'Dimas Putra',
+    date: '25 Mei 2026',
+    time: '17.00 - 22.00',
+    package: 'Paket Dekorasi Premium',
+    type: 'Premium',
+    status: 'Selesai',
+    paymentStatus: 'selesai',
+    amount: 'Rp 15.000.000',
+    img: 'https://images.unsplash.com/photo-1519167758481-83f19106048c?auto=format&fit=crop&q=80&w=100',
+  },
+];
+
+const getStatusStyle = (status: OrderStatus) => {
+  switch (status) {
+    case 'Menunggu':
+      return 'bg-[#FCE6E3] text-[#FF527B]';
+    case 'Dikonfirmasi':
+      return 'bg-[#FFF9E5] text-[#F59E0B]';
+    case 'Selesai':
+      return 'bg-[#E6F9F0] text-[#10B981]';
+    default:
+      return 'bg-slate-100 text-slate-400';
+  }
 };
 
 const MONTH_NAMES = [
-    'JANUARI',
-    'FEBRUARI',
-    'MARET',
-    'APRIL',
-    'MEI',
-    'JUNI',
-    'JULI',
-    'AGUSTUS',
-    'SEPTEMBER',
-    'OKTOBER',
-    'NOVEMBER',
-    'DESEMBER',
+  'JANUARI',
+  'FEBRUARI',
+  'MARET',
+  'APRIL',
+  'MEI',
+  'JUNI',
+  'JULI',
+  'AGUSTUS',
+  'SEPTEMBER',
+  'OKTOBER',
+  'NOVEMBER',
+  'DESEMBER',
 ];
 
-const CALENDAR_EVENTS: Record<string, string> = {
-    '2026-05-12': 'ANDI PRATAMA',
-    '2026-05-15': 'SITI AMINAH',
-    '2026-06-20': 'RINA APRILIA',
-    '2026-07-05': 'DIMAS PUTRA',
+type CalendarDay = {
+  key: string;
+  day: string;
+  isPrevMonth: boolean;
+  isNextMonth: boolean;
+  isEvent: boolean;
+  eventName?: string;
+  eventStatus?: OrderStatus;
+  order?: Order;
 };
 
 function formatDateKey(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
-function buildCalendarDays(cursor: Date): CalendarDay[] {
-    const year = cursor.getFullYear();
-    const month = cursor.getMonth();
-    const firstDayOfMonth = new Date(year, month, 1);
-    const startOffset = firstDayOfMonth.getDay();
-    const startDate = new Date(year, month, 1 - startOffset);
+function buildCalendarDays(cursor: Date, orders: Order[]): CalendarDay[] {
+  // Buat map order berdasarkan tanggal (format: "YYYY-MM-DD")
+  const orderMap: Record<string, Order[]> = {};
+  orders.forEach((order) => {
+    const [datePart] = order.date.split(' ');
+    const monthMap: Record<string, string> = {
+      'Januari': '01', 'Februari': '02', 'Maret': '03', 'April': '04',
+      'Mei': '05', 'Juni': '06', 'Juli': '07', 'Agustus': '08',
+      'September': '09', 'Oktober': '10', 'November': '11', 'Desember': '12',
+    };
+    const parts = order.date.split(' ');
+    const day = String(parseInt(parts[0])).padStart(2, '0');
+    const month = monthMap[parts[1]];
+    const year = parts[2];
+    const dateKey = `${year}-${month}-${day}`;
+    if (!orderMap[dateKey]) orderMap[dateKey] = [];
+    orderMap[dateKey].push(order);
+  });
 
-    return Array.from({ length: 42 }, (_, index) => {
-        const cellDate = new Date(startDate);
-        cellDate.setDate(startDate.getDate() + index);
+  const year = cursor.getFullYear();
+  const month = cursor.getMonth();
+  const firstDayOfMonth = new Date(year, month, 1);
+  const startOffset = firstDayOfMonth.getDay();
+  const startDate = new Date(year, month, 1 - startOffset);
 
-        const isCurrentMonth =
-            cellDate.getFullYear() === year && cellDate.getMonth() === month;
+  return Array.from({ length: 42 }, (_, index) => {
+    const cellDate = new Date(startDate);
+    cellDate.setDate(startDate.getDate() + index);
 
-        const eventName = CALENDAR_EVENTS[formatDateKey(cellDate)];
-        const isPrevMonth =
-            cellDate.getFullYear() < year ||
-            (cellDate.getFullYear() === year && cellDate.getMonth() < month);
-        const isNextMonth =
-            cellDate.getFullYear() > year ||
-            (cellDate.getFullYear() === year && cellDate.getMonth() > month);
+    const isCurrentMonth =
+      cellDate.getFullYear() === year && cellDate.getMonth() === month;
+    const isPrevMonth =
+      cellDate.getFullYear() < year ||
+      (cellDate.getFullYear() === year && cellDate.getMonth() < month);
+    const isNextMonth =
+      cellDate.getFullYear() > year ||
+      (cellDate.getFullYear() === year && cellDate.getMonth() > month);
 
-        return {
-            key: formatDateKey(cellDate),
-            day: String(cellDate.getDate()).padStart(2, '0'),
-            isPrevMonth,
-            isNextMonth,
-            isEvent: Boolean(eventName) && isCurrentMonth,
-            eventName,
-        };
-    });
+    const dateKey = formatDateKey(cellDate);
+    const ordersOnDate = orderMap[dateKey] || [];
+    const firstOrder = ordersOnDate[0];
+
+    return {
+      key: dateKey,
+      day: String(cellDate.getDate()).padStart(2, '0'),
+      isPrevMonth,
+      isNextMonth,
+      isEvent: ordersOnDate.length > 0,
+      eventName: firstOrder?.name,
+      eventStatus: firstOrder?.status,
+      order: firstOrder,
+    };
+  });
 }
 
-export default function PesananJadwalVendorPage() {
-    const router = useRouter();
-    const [calendarCursor, setCalendarCursor] = useState(() => new Date(2026, 4, 1));
+export default function PesananPage() {
+  const router = useRouter();
+  const [pesananView, setPesananView] = useState<'list' | 'calendar'>('list');
+  const [filterStatus, setFilterStatus] = useState('Semua');
+  const [calendarCursor, setCalendarCursor] = useState(() => new Date(2026, 4, 1));
 
-    const calendarDays = useMemo(
-        () => buildCalendarDays(calendarCursor),
-        [calendarCursor],
-    );
+  const calendarDays = useMemo(
+    () => buildCalendarDays(calendarCursor, mockOrders),
+    [calendarCursor],
+  );
 
-    const calendarTitle = `${MONTH_NAMES[calendarCursor.getMonth()]} ${calendarCursor.getFullYear()}`;
+  const calendarTitle = `${MONTH_NAMES[calendarCursor.getMonth()]} ${calendarCursor.getFullYear()}`;
 
-    const goToPrevMonth = () => {
-        setCalendarCursor((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
-    };
+  const filteredOrders = filterStatus === 'Semua'
+    ? mockOrders
+    : mockOrders.filter((order) => order.status === filterStatus);
 
-    const goToNextMonth = () => {
-        setCalendarCursor((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
-    };
+  return (
+    <DashboardLayout>
+      <div className="space-y-8 animate-in fade-in duration-500">
+        {/* Header */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+          <div className="space-y-1">
+            <h1 className="text-[34px] font-black tracking-tight text-[#2A2A2A]">Manajemen Pesanan</h1>
+            <p className="text-[#2A2A2A]/40 text-xs font-bold uppercase tracking-[0.25em]">PANTAU DAN KELOLA JADWAL ACARAMU.</p>
+          </div>
 
-    return (
-        <div className="mx-auto flex h-full w-full max-w-[1320px] flex-col">
-            <div className="mb-4 flex flex-col items-start justify-between gap-3 lg:flex-row lg:items-end">
-                <div>
-                    <span className="text-[10px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase mb-2 block">
-                        LOGISTIK & PENJADWALAN
-                    </span>
-                    <h1 className="text-[1.7rem] md:text-[1.9rem] leading-[1.05] font-black italic tracking-tighter text-[#2A2A2A]">
-                        PESANAN & JADWAL EVENT.
-                    </h1>
-                </div>
-
-                <div className="flex items-center gap-2.5">
-                    <div className="flex h-9 items-center rounded-full border border-gray-100 bg-white px-3.5 py-1.5 shadow-sm">
-                        <div className="flex flex-col items-center justify-center border-r border-gray-100 pr-3.5">
-                            <span className="text-[8px] font-bold tracking-widest text-[#A8A8A8] uppercase">AKTIF</span>
-                            <span className="mt-1 text-[11px] font-black leading-none text-[#2A2A2A]">12</span>
-                        </div>
-                        <div className="flex flex-col items-center justify-center pl-3.5">
-                            <span className="text-[8px] font-bold tracking-widest text-[#A8A8A8] uppercase">PENDING</span>
-                            <span className="mt-1 text-[11px] font-black leading-none text-emerald-500">03</span>
-                        </div>
-                    </div>
-
-                    <button className="flex h-9 items-center gap-2 rounded-full bg-[#2A2A2A] px-3.5 text-[8px] font-bold tracking-widest text-white uppercase transition-colors shadow-lg shadow-[#2A2A2A]/20 hover:bg-[#1a1a1a]">
-                        <CalendarPlusIcon className="w-4 h-4" />
-                        ATUR LIBUR
-                    </button>
-                </div>
+          <div className="flex items-center gap-3">
+            <div className="flex bg-white border border-[#2A2A2A]/5 p-1 rounded-2xl shadow-sm">
+              <button
+                onClick={() => setPesananView('list')}
+                className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                  pesananView === 'list'
+                    ? 'bg-[#FF9A9E] text-white shadow-sm'
+                    : 'text-[#2A2A2A]/30 hover:bg-slate-50'
+                }`}
+              >
+                <List className="w-3.5 h-3.5" /> Daftar
+              </button>
+              <button
+                onClick={() => setPesananView('calendar')}
+                className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                  pesananView === 'calendar'
+                    ? 'bg-[#FF9A9E] text-white shadow-sm'
+                    : 'text-[#2A2A2A]/30 hover:bg-slate-50'
+                }`}
+              >
+                <CalendarIcon className="w-3.5 h-3.5" /> Kalender
+              </button>
             </div>
-
-            <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-3">
-                <div className="lg:col-span-2 min-h-0 bg-white rounded-[1.5rem] shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] border border-gray-100 p-4 flex flex-col">
-                    <div className="mb-3 flex items-center justify-between">
-                        <h2 className="text-lg font-black italic tracking-tighter text-[#2A2A2A] uppercase">
-                            {calendarTitle}
-                        </h2>
-                        <div className="flex items-center gap-2">
-                            <button
-                                type="button"
-                                aria-label="Bulan sebelumnya"
-                                title="Bulan sebelumnya"
-                                onClick={goToPrevMonth}
-                                className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors"
-                            >
-                                <ChevronLeftIcon className="w-4 h-4" />
-                            </button>
-                            <button
-                                type="button"
-                                aria-label="Bulan berikutnya"
-                                title="Bulan berikutnya"
-                                onClick={goToNextMonth}
-                                className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors"
-                            >
-                                <ChevronRightIcon className="w-4 h-4" />
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="w-full min-h-0 flex-1 flex flex-col overflow-hidden rounded-2xl border-l border-t border-gray-100">
-                        <div className="grid grid-cols-7 bg-[#FAFAFC] border-b border-gray-100">
-                            {['MING', 'SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB'].map((day) => (
-                                <div key={day} className="border-r border-gray-100 py-2 text-center text-[8px] font-bold tracking-[0.18em] text-[#A8A8A8] uppercase last:border-r-0">
-                                    {day}
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="grid grid-cols-7 auto-rows-fr flex-1 bg-white">
-                            {calendarDays.map((date) => (
-                                <div
-                                    key={date.key}
-                                    className={`relative flex min-h-[52px] flex-col justify-between border-b border-r border-gray-100 p-2 transition-colors last:border-r-0 ${date.isEvent
-                                        ? 'z-10 -m-[1px] border-2 border-[#2A2A2A] bg-[#F6D5CF]'
-                                        : date.isPrevMonth || date.isNextMonth
-                                            ? 'bg-[#FAFAFC]'
-                                            : 'bg-white'
-                                        }`}
-                                >
-                                    <span className={`text-[10px] font-bold ${date.isPrevMonth || date.isNextMonth ? 'text-gray-300' : date.isEvent ? 'text-[#2A2A2A]' : 'text-gray-600'
-                                        }`}>
-                                        {date.day}
-                                    </span>
-
-                                    {date.isEvent ? (
-                                        <div className="mt-auto inline-flex max-w-full flex-col">
-                                            <span className="truncate text-[7px] font-extrabold leading-none tracking-[0.06em] text-[#2A2A2A] uppercase">
-                                                {date.eventName}
-                                            </span>
-                                            <span className="mt-1 h-[2px] w-5 rounded-full bg-[#2A2A2A]" />
-                                        </div>
-                                    ) : null}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                <div className="lg:col-span-1 min-h-0 flex flex-col gap-3">
-                    <div className="bg-white rounded-[1.5rem] shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] border border-gray-100 p-4 flex flex-col">
-                        <h3 className="mb-3 text-base font-black italic tracking-tighter text-[#2A2A2A] uppercase">
-                            AKSI HARI INI
-                        </h3>
-
-                        <div className="flex flex-col gap-2.5">
-                            <div className="bg-[#EAF5EF] rounded-2xl p-2.5 flex items-center justify-between cursor-pointer border border-transparent hover:border-emerald-200 transition-colors group">
-                                <div className="flex items-center gap-2.5">
-                                    <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-emerald-500 shadow-sm">
-                                        <CheckCircleIcon className="w-4 h-4" />
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="mb-0.5 text-[10px] font-bold tracking-wider text-[#2A2A2A] uppercase">
-                                            KONFIRMASI BAYAR
-                                        </span>
-                                        <span className="text-[8px] font-bold text-emerald-600 tracking-wider uppercase">
-                                            BUKTI TRANSFER MASUK
-                                        </span>
-                                    </div>
-                                </div>
-                                <ChevronRightIcon className="w-4 h-4 text-emerald-500 group-hover:translate-x-1 transition-transform" />
-                            </div>
-
-                            <div className="bg-[#F4F4F5] rounded-2xl p-2.5 flex items-center justify-between cursor-pointer border border-transparent hover:border-gray-200 transition-colors group">
-                                <div className="flex items-center gap-2.5">
-                                    <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-gray-400 shadow-sm">
-                                        <ClockIcon className="w-4 h-4" />
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="mb-0.5 text-[10px] font-bold tracking-wider text-[#2A2A2A] uppercase">
-                                            REMINDER JADWAL
-                                        </span>
-                                        <span className="text-[8px] font-bold text-gray-400 tracking-wider uppercase">
-                                            H-1 WEDDING ANDI
-                                        </span>
-                                    </div>
-                                </div>
-                                <ChevronRightIcon className="w-4 h-4 text-gray-400 group-hover:translate-x-1 transition-transform" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-white rounded-[1.5rem] shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] border border-gray-100 p-4 flex flex-col flex-1 min-h-0">
-                        <h3 className="mb-3 text-base font-black italic tracking-tighter text-[#2A2A2A] uppercase">
-                            PESANAN TERDEKAT
-                        </h3>
-
-                        <div className="flex flex-col gap-4 overflow-hidden">
-                            <div className="flex flex-col border-b border-gray-100 pb-4">
-                                <div className="mb-1.5 flex items-start justify-between gap-3">
-                                    <h4 className="text-sm font-black italic tracking-tight text-[#2A2A2A] uppercase">
-                                        ANDI PRATAMA
-                                    </h4>
-                                    <span className="shrink-0 rounded-full bg-[#EAF5EF] px-2 py-1 text-[7px] font-black tracking-[0.12em] text-emerald-600 uppercase">
-                                        LUNAS
-                                    </span>
-                                </div>
-                                <span className="mb-1 text-[9px] font-bold tracking-[0.16em] text-[#A8A8A8] uppercase">
-                                    12 MEI 2026 • 09:00 WIB
-                                </span>
-                                <span className="mb-3 text-[10px] font-bold tracking-wide text-gray-500 uppercase">
-                                    WEDDING PHOTO PRO • PADANG
-                                </span>
-                                <div className="flex items-center gap-2.5 mt-auto">
-                                    <button
-                                        type="button"
-                                        onClick={() => router.push('/dashboard/pesanan/PLN-29302')}
-                                        className="inline-flex h-7 min-w-[78px] items-center justify-center rounded-lg bg-[#2A2A2A] px-3 text-[10px] font-black tracking-[0.06em] text-white uppercase transition-colors hover:bg-[#1a1a1a]"
-                                    >
-                                        DETAIL
-                                    </button>
-                                    <button className="h-7 rounded-lg border border-gray-200 bg-white px-3 text-[8px] font-bold tracking-widest text-[#2A2A2A] uppercase transition-colors hover:bg-gray-50">
-                                        CHAT KLIEN
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col">
-                                <div className="mb-1.5 flex items-start justify-between gap-3">
-                                    <h4 className="text-sm font-black italic tracking-tight text-[#2A2A2A] uppercase">
-                                        SITI AMINAH
-                                    </h4>
-                                    <span className="shrink-0 rounded-full bg-[#FFF4E5] px-2 py-1 text-[7px] font-black tracking-[0.12em] text-[#F97316] uppercase">
-                                        BOOKING
-                                    </span>
-                                </div>
-                                <span className="mb-1 text-[9px] font-bold tracking-[0.16em] text-[#A8A8A8] uppercase">
-                                    15 MEI 2026 • 13:00 WIB
-                                </span>
-                                <span className="mb-3 text-[10px] font-bold tracking-wide text-gray-500 uppercase">
-                                    GRADUATION VIDEO • UNP PADANG
-                                </span>
-                                <div className="flex items-center gap-2.5 mt-auto">
-                                    <button
-                                        type="button"
-                                        onClick={() => router.push('/dashboard/pesanan/PLN-29322')}
-                                        className="inline-flex h-7 min-w-[78px] items-center justify-center rounded-lg bg-[#2A2A2A] px-3 text-[10px] font-black tracking-[0.06em] text-white uppercase transition-colors hover:bg-[#1a1a1a]"
-                                    >
-                                        DETAIL
-                                    </button>
-                                    <button className="h-7 rounded-lg border border-gray-200 bg-white px-3 text-[8px] font-bold tracking-widest text-[#2A2A2A] uppercase transition-colors hover:bg-gray-50">
-                                        CHAT KLIEN
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+          </div>
         </div>
-    );
+
+        {pesananView === 'list' ? (
+          <>
+            {/* Status Filter Tabs */}
+            <div className="flex items-center gap-2 border-b border-[#2A2A2A]/5 pb-1 overflow-x-auto no-scrollbar">
+              {[
+                { name: 'Semua', count: null },
+                { name: 'Menunggu', count: mockOrders.filter((o) => o.status === 'Menunggu').length },
+                { name: 'Dikonfirmasi', count: mockOrders.filter((o) => o.status === 'Dikonfirmasi').length },
+                { name: 'Selesai', count: mockOrders.filter((o) => o.status === 'Selesai').length },
+              ].map((status) => (
+                <button
+                  key={status.name}
+                  onClick={() => setFilterStatus(status.name)}
+                  className={`relative px-6 py-4 text-[11px] font-black uppercase tracking-widest transition-all flex items-center gap-3 whitespace-nowrap ${
+                    filterStatus === status.name
+                      ? 'text-[#FF527B]'
+                      : 'text-[#2A2A2A]/40 hover:text-[#2A2A2A]'
+                  }`}
+                >
+                  {status.name}
+                  {status.count !== null && (
+                    <span
+                      className={`w-5 h-5 flex items-center justify-center rounded-full text-[9px] font-black ${
+                        filterStatus === status.name
+                          ? 'bg-[#FF527B] text-white'
+                          : 'bg-[#2A2A2A]/5 text-[#2A2A2A]/40'
+                      }`}
+                    >
+                      {status.count}
+                    </span>
+                  )}
+                  {filterStatus === status.name && (
+                    <div className="absolute bottom-0 left-0 w-full h-[2.5px] bg-[#FF527B] rounded-t-full"></div>
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {/* Orders Table */}
+            <div className="bg-white rounded-[40px] border border-[#2A2A2A]/5 overflow-hidden shadow-sm">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse min-w-[1100px]">
+                  <thead>
+                    <tr className="bg-slate-50/40 text-[10px] font-black text-[#2A2A2A]/30 uppercase tracking-[0.2em] border-b border-slate-50">
+                      <th className="px-10 py-6 text-left">Pesanan</th>
+                      <th className="px-10 py-6 text-left">Klien</th>
+                      <th className="px-10 py-6 text-left">Tanggal Acara</th>
+                      <th className="px-10 py-6 text-left">Paket</th>
+                      <th className="px-10 py-6 text-left">Total</th>
+                      <th className="px-10 py-6 text-left">Status</th>
+                      <th className="px-10 py-6 text-right">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {filteredOrders.map((order, idx) => (
+                      <tr key={idx} className="group hover:bg-[#FDF1F0]/20 transition-all">
+                        <td className="px-10 py-6">
+                          <div className="flex items-center gap-4">
+                            <img
+                              src={order.img}
+                              className="w-12 h-12 rounded-xl object-cover shadow-sm transition-transform group-hover:scale-105"
+                              alt="Order"
+                            />
+                            <div>
+                              <h4 className="font-black text-[#2A2A2A] text-[14px] mb-0.5">{order.name}</h4>
+                              <p className="text-[10px] font-bold text-[#2A2A2A]/30 tracking-widest uppercase">{order.id}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-10 py-6">
+                          <p className="text-sm font-black text-[#2A2A2A]">{order.client}</p>
+                        </td>
+                        <td className="px-10 py-6">
+                          <div className="space-y-1">
+                            <p className="text-sm font-black text-[#2A2A2A]">{order.date}</p>
+                            <p className="text-[10px] font-bold text-[#2A2A2A]/40 uppercase">{order.time}</p>
+                          </div>
+                        </td>
+                        <td className="px-10 py-6">
+                          <div className="space-y-1">
+                            <p className="text-sm font-black text-[#2A2A2A]">{order.package}</p>
+                            <p className="text-[10px] font-bold text-[#2A2A2A]/40 uppercase">{order.type}</p>
+                          </div>
+                        </td>
+                        <td className="px-10 py-6">
+                          <p className="text-sm font-black text-[#2A2A2A]">{order.amount}</p>
+                        </td>
+                        <td className="px-10 py-6">
+                          <div className={`inline-block px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-wider whitespace-nowrap ${getStatusStyle(order.status)}`}>
+                            {order.status}
+                          </div>
+                        </td>
+                        <td className="px-10 py-6 text-right">
+                          <div className="flex items-center justify-end gap-3">
+                            <button
+                              onClick={() => router.push(`/dashboard/jadwal/${order.id}`)}
+                              className="px-5 py-2.5 rounded-xl bg-white border border-[#2A2A2A]/5 text-[9px] font-black uppercase tracking-widest text-[#2A2A2A]/60 hover:bg-[#2A2A2A] hover:text-white transition-all shadow-sm"
+                            >
+                              Detail
+                            </button>
+                            <button className="p-2.5 rounded-lg bg-slate-50/50 text-[#2A2A2A]/20 hover:bg-[#FCE6E3] hover:text-[#FF527B] transition-all">
+                              <MoreHorizontal className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination */}
+              <div className="p-10 border-t border-slate-50 flex flex-col sm:flex-row items-center justify-between gap-8 bg-white">
+                <p className="text-[11px] font-bold text-[#2A2A2A]/30 uppercase tracking-[0.15em]">
+                  Menampilkan <span className="text-[#2A2A2A]">1 - {Math.min(5, filteredOrders.length)}</span> dari{' '}
+                  <span className="text-[#2A2A2A]">{filteredOrders.length}</span> pesanan
+                </p>
+                <div className="flex items-center gap-2">
+                  <button className="p-3 rounded-xl border border-slate-100 text-slate-300 hover:bg-slate-50 transition-all shadow-sm">
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  {[1, 2, 3, 4, 5].map((p) => (
+                    <button
+                      key={p}
+                      className={`w-10 h-10 rounded-xl text-[11px] font-black transition-all ${
+                        p === 1
+                          ? 'bg-[#FCE6E3] text-[#FF527B] shadow-sm'
+                          : 'text-[#2A2A2A]/30 hover:bg-slate-50'
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                  <button className="p-3 rounded-xl border border-slate-100 text-[#2A2A2A]/40 hover:bg-slate-50 transition-all shadow-sm">
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="bg-white rounded-[40px] border border-[#2A2A2A]/5 shadow-sm p-8">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-xl font-black tracking-tight text-[#2A2A2A]">{calendarTitle}</h2>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() =>
+                    setCalendarCursor(
+                      (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1),
+                    )
+                  }
+                  className="p-2 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() =>
+                    setCalendarCursor(
+                      (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1),
+                    )
+                  }
+                  className="p-2 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            <div className="w-full flex flex-col border border-gray-100 rounded-2xl overflow-hidden">
+              {/* Day headers */}
+              <div className="grid grid-cols-7 bg-[#FAFAFC] border-b border-gray-100">
+                {['MING', 'SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB'].map((day) => (
+                  <div
+                    key={day}
+                    className="border-r border-gray-100 py-3 text-center text-[8px] font-bold tracking-[0.18em] text-[#A8A8A8] uppercase last:border-r-0"
+                  >
+                    {day}
+                  </div>
+                ))}
+              </div>
+
+              {/* Calendar grid */}
+              <div className="grid grid-cols-7 auto-rows-[120px] bg-white">
+                {calendarDays.map((date) => {
+                  const cellContent = (
+                    <div
+                      className={`border-b border-r border-gray-100 p-3 transition-all last:border-r-0 group hover:bg-[#FDF1F0]/50 cursor-pointer h-full flex flex-col ${
+                        date.isPrevMonth || date.isNextMonth
+                          ? 'bg-[#FAFAFC]'
+                          : date.isEvent
+                            ? 'bg-white'
+                            : 'bg-white'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <span
+                          className={`text-[12px] font-bold ${
+                            date.isPrevMonth || date.isNextMonth
+                              ? 'text-gray-300'
+                              : 'text-gray-700'
+                          }`}
+                        >
+                          {date.day}
+                        </span>
+                        {date.isEvent && date.eventStatus && (
+                          <span
+                            className={`text-[8px] font-black px-2 py-0.5 rounded-full whitespace-nowrap ${
+                              date.eventStatus === 'Menunggu'
+                                ? 'bg-[#FCE6E3] text-[#FF527B]'
+                                : date.eventStatus === 'Dikonfirmasi'
+                                  ? 'bg-[#FFF9E5] text-[#F59E0B]'
+                                  : 'bg-[#E6F9F0] text-[#10B981]'
+                            }`}
+                          >
+                            {date.eventStatus === 'Menunggu' && '⏳'}
+                            {date.eventStatus === 'Dikonfirmasi' && '✓'}
+                            {date.eventStatus === 'Selesai' && '✓✓'}
+                          </span>
+                        )}
+                      </div>
+
+                      {date.isEvent && date.order ? (
+                        <div className="mt-auto space-y-1.5 group-hover:scale-105 transition-transform origin-top-left">
+                          <p className="text-[10px] font-black text-[#2A2A2A] leading-tight line-clamp-2">
+                            {date.order.name}
+                          </p>
+                          <p className="text-[8px] font-bold text-[#2A2A2A]/60">
+                            {date.order.time}
+                          </p>
+                          <div className="flex items-center gap-1 mt-1.5 pt-1.5 border-t border-gray-100">
+                            <img
+                              src={date.order.img}
+                              alt={date.order.name}
+                              className="w-6 h-6 rounded object-cover"
+                            />
+                            <span className="text-[7px] font-bold text-[#2A2A2A]/50 truncate">
+                              {date.order.client}
+                            </span>
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
+                  );
+
+                  return (
+                    <div key={date.key}>
+                      {date.isEvent && date.order ? (
+                        <div
+                          onClick={() => router.push(`/dashboard/jadwal/${date.order.id}`)}
+                          className="block"
+                        >
+                          {cellContent}
+                        </div>
+                      ) : (
+                        cellContent
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </DashboardLayout>
+  );
 }

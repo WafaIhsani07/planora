@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import {
   Briefcase,
   Building,
@@ -19,8 +18,6 @@ import {
   User,
   UserCircle,
 } from 'lucide-react';
-import { register } from '@/services/auth.service';
-import { useAuthStore } from '@/store/authStore';
 
 type AccountType = 'customer' | 'vendor';
 
@@ -40,120 +37,9 @@ const serviceCategories = [
 ];
 
 export default function RegisterPage() {
-  const router = useRouter();
-  const setSession = useAuthStore((state) => state.setSession);
-  
   const [role, setRole] = useState<AccountType>('vendor');
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [agreed, setAgreed] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  // Customer fields
-  const [customerName, setCustomerName] = useState('');
-  const [customerEmail, setCustomerEmail] = useState('');
-  const [customerPhone, setCustomerPhone] = useState('');
-
-  // Vendor fields
-  const [vendorOwnerName, setVendorOwnerName] = useState('');
-  const [vendorContact, setVendorContact] = useState('');
-  const [vendorBusinessName, setVendorBusinessName] = useState('');
-  const [vendorCategory, setVendorCategory] = useState('');
-  const [vendorBusinessEmail, setVendorBusinessEmail] = useState('');
-  const [vendorCity, setVendorCity] = useState('');
-  const [vendorAddress, setVendorAddress] = useState('');
-
-  // Password
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
-
-    try {
-      // Validate passwords match
-      if (password !== confirmPassword) {
-        setError('Password tidak cocok');
-        setIsLoading(false);
-        return;
-      }
-
-      // Validate minimum password length
-      if (password.length < 8) {
-        setError('Password minimal 8 karakter');
-        setIsLoading(false);
-        return;
-      }
-
-      // Validate agreement
-      if (!agreed) {
-        setError('Anda harus menyetujui Syarat & Ketentuan');
-        setIsLoading(false);
-        return;
-      }
-
-      let payload: any;
-
-      if (role === 'customer') {
-        if (!customerName || !customerEmail || !customerPhone) {
-          setError('Semua field harus diisi');
-          setIsLoading(false);
-          return;
-        }
-        payload = {
-          name: customerName,
-          email: customerEmail,
-          password,
-          role: 'CUSTOMER',
-          phone: customerPhone
-        };
-      } else {
-        if (!vendorOwnerName || !vendorBusinessName || !vendorCategory || !vendorBusinessEmail) {
-          setError('Semua field harus diisi');
-          setIsLoading(false);
-          return;
-        }
-        payload = {
-          name: vendorOwnerName,
-          email: vendorContact,
-          password,
-          role: 'VENDOR',
-          businessName: vendorBusinessName,
-          category: vendorCategory,
-          city: vendorCity,
-          address: vendorAddress,
-          phone: vendorContact
-        };
-      }
-
-      const response = await register(payload);
-
-      if (response.success && response.data) {
-        const { user, token } = response.data;
-        
-        // Store token in localStorage
-        localStorage.setItem('authToken', token);
-        
-        // Update auth store
-        setSession(user, token);
-        
-        // Redirect based on role
-        if (user.role === 'VENDOR') {
-          router.push('/vendor/dashboard');
-        } else {
-          router.push('/dashboard');
-        }
-      }
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Pendaftaran gagal. Coba lagi.');
-      console.error('Register error:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [agreed, setAgreed] = useState(true);
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row font-sans text-slate-900 overflow-hidden bg-white text-base">
@@ -254,34 +140,28 @@ export default function RegisterPage() {
             </button>
           </div>
 
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-sm font-medium">
-                {error}
-              </div>
-            )}
-            
+          <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
             {role === 'customer' ? (
               <div className="space-y-5">
                 <div className="space-y-2.5">
                   <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Nama Lengkap</label>
                   <div className="relative group">
                     <User className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[#FF9A9E] transition-colors" />
-                    <input type="text" placeholder="Masukkan nama lengkap" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400" required />
+                    <input type="text" placeholder="Masukkan nama lengkap" className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400" />
                   </div>
                 </div>
                 <div className="space-y-2.5">
                   <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Email</label>
                   <div className="relative group">
                     <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[#FF9A9E] transition-colors" />
-                    <input type="email" placeholder="Masukkan alamat email" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400" required />
+                    <input type="email" placeholder="Masukkan alamat email" className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400" />
                   </div>
                 </div>
                 <div className="space-y-2.5">
                   <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Nomor HP</label>
                   <div className="relative group">
                     <Phone className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[#FF9A9E] transition-colors" />
-                    <input type="tel" placeholder="Contoh: 081234567890" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400" required />
+                    <input type="tel" placeholder="Contoh: 081234567890" className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400" />
                   </div>
                 </div>
               </div>
@@ -290,11 +170,11 @@ export default function RegisterPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2.5">
                     <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Nama Pemilik (Owner)</label>
-                    <input type="text" placeholder="Nama lengkap" value={vendorOwnerName} onChange={(e) => setVendorOwnerName(e.target.value)} className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 px-6 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400" required />
+                    <input type="text" placeholder="Nama lengkap" className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 px-6 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400" />
                   </div>
                   <div className="space-y-2.5">
                     <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Email / Nomor HP</label>
-                    <input type="text" placeholder="Email atau No. HP" value={vendorContact} onChange={(e) => setVendorContact(e.target.value)} className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 px-6 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400" required />
+                    <input type="text" placeholder="Email atau No. HP" className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 px-6 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400" />
                   </div>
                 </div>
 
@@ -302,7 +182,7 @@ export default function RegisterPage() {
                   <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Nama Bisnis</label>
                   <div className="relative group">
                     <Building className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[#FF9A9E] transition-colors" />
-                    <input type="text" placeholder="Contoh: Arkana Photography" value={vendorBusinessName} onChange={(e) => setVendorBusinessName(e.target.value)} className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400" required />
+                    <input type="text" placeholder="Contoh: Arkana Photography" className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400" />
                   </div>
                 </div>
 
@@ -310,7 +190,7 @@ export default function RegisterPage() {
                   <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Kategori Jasa</label>
                   <div className="relative">
                     <Briefcase className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                    <select value={vendorCategory} onChange={(e) => setVendorCategory(e.target.value)} className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-10 appearance-none focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white transition-all text-slate-600 font-medium text-sm md:text-base" required>
+                    <select className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-10 appearance-none focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white transition-all text-slate-600 font-medium text-sm md:text-base">
                       <option value="">Pilih kategori utama</option>
                       {serviceCategories.map((category) => (
                         <option key={category} value={category}>{category}</option>
@@ -324,7 +204,7 @@ export default function RegisterPage() {
                   <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Email Bisnis</label>
                   <div className="relative group">
                     <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[#FF9A9E] transition-colors" />
-                    <input type="email" placeholder="email@bisnisanda.id" value={vendorBusinessEmail} onChange={(e) => setVendorBusinessEmail(e.target.value)} className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400" required />
+                    <input type="email" placeholder="email@bisnisanda.id" className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400" />
                   </div>
                 </div>
 
@@ -333,12 +213,12 @@ export default function RegisterPage() {
                     <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Kota Domisili</label>
                     <div className="relative group">
                       <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[#FF9A9E] transition-colors" />
-                      <input type="text" placeholder="Nama Kota" value={vendorCity} onChange={(e) => setVendorCity(e.target.value)} className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400" />
+                      <input type="text" placeholder="Nama Kota" className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400" />
                     </div>
                   </div>
                   <div className="space-y-2.5">
                     <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Alamat Lengkap</label>
-                    <input type="text" placeholder="Detail Alamat" value={vendorAddress} onChange={(e) => setVendorAddress(e.target.value)} className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 px-6 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400" />
+                    <input type="text" placeholder="Detail Alamat" className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 px-6 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400" />
                   </div>
                 </div>
               </div>
@@ -352,10 +232,7 @@ export default function RegisterPage() {
                   <input
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Min. 8 Karakter"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
                     className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-12 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400"
-                    required
                   />
                   <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 pr-5 flex items-center text-slate-300 hover:text-slate-500 transition-colors">
                     {showPassword ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
@@ -364,20 +241,7 @@ export default function RegisterPage() {
               </div>
               <div className="space-y-2.5">
                 <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Konfirmasi Sandi</label>
-                <div className="relative group">
-                  <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[#FF9A9E] transition-colors" />
-                  <input 
-                    type={showConfirmPassword ? 'text' : 'password'} 
-                    placeholder="Ulangi sandi" 
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-12 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400"
-                    required
-                  />
-                  <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute inset-y-0 right-0 pr-5 flex items-center text-slate-300 hover:text-slate-500 transition-colors">
-                    {showConfirmPassword ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
-                  </button>
-                </div>
+                <input type="password" placeholder="Ulangi sandi" className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 px-6 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400" />
               </div>
             </div>
 
@@ -394,8 +258,8 @@ export default function RegisterPage() {
               </label>
             </div>
 
-            <button type="submit" disabled={isLoading} className="w-full bg-[#0D121F] text-white font-bold py-4.5 rounded-2xl shadow-xl transition-all text-base md:text-lg mt-4 hover:bg-slate-800 disabled:opacity-75 disabled:cursor-not-allowed active:scale-95">
-              {isLoading ? 'Sedang Memproses...' : 'Daftar Sekarang'}
+            <button className="w-full bg-[#0D121F] text-white font-bold py-4.5 rounded-2xl shadow-xl transition-all text-base md:text-lg mt-4 hover:bg-slate-800 active:scale-95">
+              Daftar Sekarang
             </button>
           </form>
 

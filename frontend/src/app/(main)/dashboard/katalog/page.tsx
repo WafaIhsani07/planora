@@ -1,125 +1,418 @@
-const PlusIcon = ({ className }: { className?: string }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" x2="12" y1="5" y2="19" /><line x1="5" x2="19" y1="12" y2="12" /></svg>
-);
-const FilterIcon = ({ className }: { className?: string }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="4" x2="20" y1="6" y2="6" /><line x1="14" x2="14" y1="4" y2="8" /><line x1="4" x2="20" y1="18" y2="18" /><line x1="8" x2="8" y1="16" y2="20" /><line x1="4" x2="20" y1="12" y2="12" /><line x1="17" x2="17" y1="10" y2="14" /></svg>
-);
+'use client';
 
-export default function VendorCatalogPage() {
+import React, { useState } from 'react';
+import DashboardLayout from '../DashboardLayout';
+import { Plus, Edit3, Trash2, X, Check, Upload, ChevronDown, ArrowLeft } from 'lucide-react';
+
+interface ServicePackage {
+  id: number;
+  name: string;
+  category: string;
+  price: string;
+  status: 'Aktif' | 'Nonaktif';
+  orders: number;
+  img: string;
+  features: string[];
+}
+
+const mockPackages: ServicePackage[] = [
+  {
+    id: 1,
+    name: 'Paket Dekorasi Basic',
+    category: 'Dekorasi Pernikahan',
+    price: 'Rp 2.000.000',
+    status: 'Aktif',
+    orders: 12,
+    img: 'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&q=80&w=400',
+    features: ['Dekorasi Meja Akad', 'Bunga Meja', 'Kursi 20 Set'],
+  },
+  {
+    id: 2,
+    name: 'Paket Dekorasi Standard',
+    category: 'Dekorasi Lamaran',
+    price: 'Rp 5.250.000',
+    status: 'Aktif',
+    orders: 34,
+    img: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=400',
+    features: ['Backdrop Kayu', 'Artificial Flower', 'Ring Box', 'Initial Name'],
+  },
+  {
+    id: 3,
+    name: 'Paket Dekorasi Premium',
+    category: 'Dekorasi Pernikahan',
+    price: 'Rp 12.000.000',
+    status: 'Aktif',
+    orders: 8,
+    img: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=400',
+    features: ['Pelaminan 8-10 Meter', 'Full Fresh Flower', 'Lighting Set', 'Gate Jalur'],
+  },
+];
+
+export default function KatalogPage() {
+  const [packages, setPackages] = useState<ServicePackage[]>(mockPackages);
+  const [isAddingPackage, setIsAddingPackage] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    category: 'Dekorasi Pernikahan',
+    price: '',
+    features: ['', ''],
+    description: '',
+  });
+
+  const handleAddPackage = () => {
+    if (!formData.name || !formData.price) {
+      alert('Nama paket dan harga tidak boleh kosong!');
+      return;
+    }
+
+    const newPackage: ServicePackage = {
+      id: Math.max(...packages.map(p => p.id)) + 1,
+      name: formData.name,
+      category: formData.category,
+      price: `Rp ${parseInt(formData.price).toLocaleString('id-ID')}`,
+      status: 'Aktif',
+      orders: 0,
+      img: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=400',
+      features: formData.features.filter(f => f.trim()),
+    };
+
+    setPackages([...packages, newPackage]);
+    resetForm();
+    setIsAddingPackage(false);
+  };
+
+  const handleDeletePackage = (id: number) => {
+    if (confirm('Apakah Anda yakin ingin menghapus paket ini?')) {
+      setPackages(packages.filter(p => p.id !== id));
+    }
+  };
+
+  const handleToggleStatus = (id: number) => {
+    setPackages(packages.map(p => 
+      p.id === id ? { ...p, status: p.status === 'Aktif' ? 'Nonaktif' : 'Aktif' } : p
+    ));
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      category: 'Dekorasi Pernikahan',
+      price: '',
+      features: ['', ''],
+      description: '',
+    });
+  };
+
+  const addFeature = () => {
+    setFormData({
+      ...formData,
+      features: [...formData.features, ''],
+    });
+  };
+
+  const removeFeature = (index: number) => {
+    setFormData({
+      ...formData,
+      features: formData.features.filter((_, i) => i !== index),
+    });
+  };
+
+  if (isAddingPackage) {
     return (
-        <div className="mx-auto flex h-full w-full max-w-[1360px] flex-col">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-6">
-                <div>
-                    <span className="text-[10px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase mb-2 block">
-                        PUSAT PRODUK VENDOR
-                    </span>
-                    <h1 className="text-3xl md:text-[2.25rem] leading-[1] font-black italic tracking-tighter text-[#2A2A2A]">
-                        KATALOG <br /> LAYANAN JASA.
-                    </h1>
+      <DashboardLayout>
+        <div className="max-w-6xl space-y-8">
+          {/* Header Form */}
+          <div className="flex items-center gap-6">
+            <button
+              onClick={() => setIsAddingPackage(false)}
+              className="w-12 h-12 bg-white border border-[#2A2A2A]/5 rounded-2xl flex items-center justify-center text-[#2A2A2A] hover:bg-[#FF9A9E] hover:text-white transition-all shadow-sm"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div>
+              <h1 className="text-[34px] font-black tracking-tight text-[#2A2A2A]">Buat Paket Baru</h1>
+              <p className="text-[#2A2A2A]/40 text-xs font-bold uppercase tracking-[0.25em]">ISI DETAIL LAYANAN UNTUK KLIENMU.</p>
+            </div>
+          </div>
+
+          <div className="grid lg:grid-cols-12 gap-8 items-start">
+            {/* Left Column: Image Upload */}
+            <div className="lg:col-span-4 space-y-6">
+              <div className="bg-white p-8 rounded-[40px] border border-[#2A2A2A]/5 shadow-sm">
+                <h4 className="text-[10px] font-black text-[#2A2A2A]/30 uppercase tracking-widest mb-6">Foto Utama Paket</h4>
+                <div className="aspect-square bg-[#FDF1F0] rounded-[32px] border-2 border-dashed border-[#FF9A9E]/30 flex flex-col items-center justify-center p-8 text-center group hover:bg-[#FDF1F0] transition-all cursor-pointer">
+                  <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform">
+                    <Upload className="w-6 h-6 text-[#FF9A9E]" />
+                  </div>
+                  <p className="text-xs font-bold text-[#2A2A2A]/60 leading-relaxed">
+                    Klik atau tarik gambar <br /> ke sini untuk unggah
+                  </p>
+                  <p className="text-[9px] text-[#2A2A2A]/30 mt-2 uppercase tracking-tighter">PNG, JPG up to 5MB</p>
                 </div>
-                <div className="flex items-center gap-3">
-                    <button className="flex items-center gap-2 px-5 py-3 rounded-full border border-gray-200 text-[#2A2A2A] text-[9px] font-bold tracking-widest uppercase hover:bg-gray-50 transition-colors bg-white">
-                        <FilterIcon className="w-3.5 h-3.5" />
-                        FILTER KATEGORI
-                    </button>
-                    <button className="flex items-center gap-2 px-5 py-3 rounded-full bg-[#2A2A2A] text-white text-[9px] font-bold tracking-widest uppercase hover:bg-[#1a1a1a] transition-colors shadow-lg shadow-[#2A2A2A]/20">
-                        <PlusIcon className="w-3.5 h-3.5" />
-                        TAMBAH JASA BARU
-                    </button>
-                </div>
+              </div>
+
+              <div className="bg-[#2A2A2A] p-8 rounded-[40px] text-white shadow-xl shadow-[#2A2A2A]/10">
+                <h4 className="text-[10px] font-black opacity-30 uppercase tracking-[0.2em] mb-4">Tips Planora</h4>
+                <p className="text-xs font-medium leading-relaxed opacity-70">
+                  Gunakan foto dengan pencahayaan yang baik untuk menarik minat klien hingga 3x lipat lebih tinggi.
+                </p>
+              </div>
             </div>
 
-            <div className="grid flex-1 min-h-0 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
-                <div className="bg-white rounded-[1.5rem] shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] border border-gray-100 overflow-hidden flex flex-col transition-transform hover:-translate-y-1">
-                    <div className="w-full aspect-[16/9] bg-[#F4F4F5] relative overflow-hidden flex items-center justify-center">
-                        <svg className="absolute inset-0 w-full h-full text-gray-200" preserveAspectRatio="none" viewBox="0 0 100 100">
-                            <line x1="0" y1="0" x2="100" y2="100" stroke="currentColor" strokeWidth="0.5" />
-                            <line x1="100" y1="0" x2="0" y2="100" stroke="currentColor" strokeWidth="0.5" />
-                        </svg>
-                        <div className="absolute top-4 right-4 bg-[#EAF5EF] text-emerald-600 px-3 py-1.5 rounded-full text-[8px] font-extrabold tracking-widest uppercase shadow-sm">
-                            AKTIF
-                        </div>
+            {/* Right Column: Form */}
+            <div className="lg:col-span-8 space-y-8">
+              <div className="bg-white p-10 rounded-[40px] border border-[#2A2A2A]/5 shadow-sm space-y-8">
+                {/* Nama & Kategori */}
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black text-[#2A2A2A]/40 uppercase tracking-widest ml-1">
+                      Nama Paket
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      placeholder="Contoh: Paket Intimate Rose"
+                      className="w-full bg-[#FDF1F0]/50 border border-transparent rounded-2xl py-4 px-6 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/30 focus:bg-white focus:border-[#FF9A9E] transition-all"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black text-[#2A2A2A]/40 uppercase tracking-widest ml-1">
+                      Kategori Utama
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={formData.category}
+                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                        className="w-full bg-[#FDF1F0]/50 border border-transparent rounded-2xl py-4 px-6 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/30 focus:bg-white appearance-none cursor-pointer"
+                      >
+                        <option>Dekorasi Pernikahan</option>
+                        <option>Dekorasi Lamaran</option>
+                        <option>Dekorasi Ulang Tahun</option>
+                        <option>Dekorasi Aqiqah</option>
+                        <option>Dekorasi Wisuda</option>
+                      </select>
+                      <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 w-4 h-4 text-[#2A2A2A]/30 pointer-events-none" />
                     </div>
-
-                    <div className="p-4 flex flex-col flex-1">
-                        <h3 className="text-sm font-extrabold italic text-[#2A2A2A] tracking-tight mb-1">
-                            WEDDING PHOTOGRAPHY PRO
-                        </h3>
-                        <span className="text-[8px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase mb-3">
-                            KATEGORI: FOTOGRAFI
-                        </span>
-
-                        <div className="bg-[#FAFAFC] rounded-2xl p-4 mb-3 flex flex-col justify-center">
-                            <span className="text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase mb-1">
-                                HARGA MULAI DARI
-                            </span>
-                            <span className="text-xl font-black text-[#2A2A2A] tracking-tighter">
-                                Rp 5.500.000
-                            </span>
-                        </div>
-
-                        <div className="flex items-center gap-3 mt-auto">
-                            <button className="flex-1 py-2.5 bg-[#2A2A2A] text-white rounded-xl text-[8px] font-bold tracking-widest uppercase hover:bg-[#1a1a1a] transition-colors">
-                                EDIT DATA
-                            </button>
-                            <button className="flex-1 py-2.5 bg-white border border-gray-200 text-[#A8A8A8] hover:text-[#2A2A2A] hover:border-gray-300 rounded-xl text-[8px] font-bold tracking-widest uppercase transition-colors">
-                                NONAKTIF
-                            </button>
-                        </div>
-                    </div>
+                  </div>
                 </div>
 
-                <div className="bg-white rounded-[1.5rem] shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] border border-gray-100 overflow-hidden flex flex-col transition-transform hover:-translate-y-1">
-                    <div className="w-full aspect-[16/9] bg-[#F4F4F5] relative overflow-hidden flex items-center justify-center">
-                        <svg className="absolute inset-0 w-full h-full text-gray-200" preserveAspectRatio="none" viewBox="0 0 100 100">
-                            <line x1="0" y1="0" x2="100" y2="100" stroke="currentColor" strokeWidth="0.5" />
-                            <line x1="100" y1="0" x2="0" y2="100" stroke="currentColor" strokeWidth="0.5" />
-                        </svg>
-                        <div className="absolute top-4 right-4 bg-[#EAF5EF] text-emerald-600 px-3 py-1.5 rounded-full text-[8px] font-extrabold tracking-widest uppercase shadow-sm">
-                            AKTIF
-                        </div>
-                    </div>
-
-                    <div className="p-4 flex flex-col flex-1">
-                        <h3 className="text-sm font-extrabold italic text-[#2A2A2A] tracking-tight mb-1">
-                            CINEMATIC HIGHLIGHT 4K
-                        </h3>
-                        <span className="text-[8px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase mb-3">
-                            KATEGORI: VIDEOGRAFI
-                        </span>
-
-                        <div className="bg-[#FAFAFC] rounded-2xl p-4 mb-3 flex flex-col justify-center">
-                            <span className="text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase mb-1">
-                                HARGA MULAI DARI
-                            </span>
-                            <span className="text-xl font-black text-[#2A2A2A] tracking-tighter">
-                                Rp 3.500.000
-                            </span>
-                        </div>
-
-                        <div className="flex items-center gap-3 mt-auto">
-                            <button className="flex-1 py-2.5 bg-[#2A2A2A] text-white rounded-xl text-[8px] font-bold tracking-widest uppercase hover:bg-[#1a1a1a] transition-colors">
-                                EDIT DATA
-                            </button>
-                            <button className="flex-1 py-2.5 bg-white border border-gray-200 text-[#A8A8A8] hover:text-[#2A2A2A] hover:border-gray-300 rounded-xl text-[8px] font-bold tracking-widest uppercase transition-colors">
-                                NONAKTIF
-                            </button>
-                        </div>
-                    </div>
+                {/* Harga */}
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-[#2A2A2A]/40 uppercase tracking-widest ml-1">
+                    Harga Layanan
+                  </label>
+                  <div className="relative">
+                    <div className="absolute left-6 top-1/2 -translate-y-1/2 font-black text-[#FF527B]">Rp</div>
+                    <input
+                      type="number"
+                      value={formData.price}
+                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                      placeholder="0"
+                      className="w-full bg-[#FDF1F0]/50 border border-transparent rounded-2xl py-4 pl-14 pr-6 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/30 focus:bg-white focus:border-[#FF9A9E] transition-all"
+                    />
+                  </div>
                 </div>
 
-                <div className="rounded-[1.5rem] border-2 border-dashed border-gray-300 bg-transparent flex flex-col items-center justify-center text-center p-6 transition-colors hover:bg-white cursor-pointer group min-h-[280px]">
-                    <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm border border-gray-100 mb-4 group-hover:scale-110 transition-transform duration-300">
-                        <PlusIcon className="w-6 h-6 text-[#2A2A2A]" />
-                    </div>
-                    <h3 className="text-sm font-extrabold text-[#2A2A2A] tracking-tight mb-1">
-                        TAMBAH PAKET
-                    </h3>
-                    <span className="text-[8px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">
-                        PERLUAS LAYANAN BISNIS
-                    </span>
+                {/* Features */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[10px] font-black text-[#2A2A2A]/40 uppercase tracking-widest ml-1">
+                      Layanan yang Didapat
+                    </label>
+                    <button
+                      onClick={addFeature}
+                      className="text-[9px] font-black text-[#FF9A9E] uppercase tracking-widest hover:text-[#FF527B]"
+                    >
+                      + TAMBAH POIN
+                    </button>
+                  </div>
+                  <div className="space-y-3">
+                    {formData.features.map((feature, i) => (
+                      <div key={i} className="flex items-center gap-3">
+                        <input
+                          type="text"
+                          value={feature}
+                          onChange={(e) => {
+                            const newFeatures = [...formData.features];
+                            newFeatures[i] = e.target.value;
+                            setFormData({ ...formData, features: newFeatures });
+                          }}
+                          placeholder="Contoh: Pelaminan Full Flower"
+                          className="flex-1 bg-[#FDF1F0]/30 border border-[#2A2A2A]/5 rounded-xl py-3 px-5 text-xs font-bold text-[#2A2A2A]/70 focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/30"
+                        />
+                        {formData.features.length > 1 && (
+                          <button
+                            onClick={() => removeFeature(i)}
+                            className="p-2 rounded-lg hover:bg-red-50 text-[#2A2A2A]/20 hover:text-red-500 transition-all"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
+
+                {/* Deskripsi */}
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-[#2A2A2A]/40 uppercase tracking-widest ml-1">
+                    Deskripsi Paket
+                  </label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="Ceritakan detail paketmu..."
+                    rows={4}
+                    className="w-full bg-[#FDF1F0]/50 border border-transparent rounded-[24px] py-4 px-6 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/30 focus:bg-white focus:border-[#FF9A9E] transition-all resize-none"
+                  />
+                </div>
+
+                {/* Action Buttons */}
+                <div className="pt-6 border-t border-slate-50 flex items-center justify-end gap-4">
+                  <button
+                    onClick={() => {
+                      setIsAddingPackage(false);
+                      resetForm();
+                    }}
+                    className="px-8 py-4 rounded-[18px] text-[11px] font-black uppercase tracking-widest text-[#2A2A2A]/40 hover:text-[#2A2A2A] transition-all"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    onClick={handleAddPackage}
+                    className="bg-[#FF9A9E] text-white px-10 py-4 rounded-[18px] font-bold text-[11px] uppercase tracking-[0.2em] shadow-lg shadow-[#FF9A9E]/20 hover:bg-[#FF527B] transition-all active:scale-95"
+                  >
+                    Simpan Paket
+                  </button>
+                </div>
+              </div>
             </div>
+          </div>
         </div>
+      </DashboardLayout>
     );
+  }
+
+  return (
+    <DashboardLayout>
+      <div className="space-y-8">
+        {/* Header */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+          <div className="space-y-1">
+            <h1 className="text-[34px] font-black tracking-tight text-[#2A2A2A]">Kelola Paket Layanan</h1>
+            <p className="text-[#2A2A2A]/40 text-xs font-bold uppercase tracking-[0.25em]">ATUR HARGA DAN DETAIL PAKET ACARAMU.</p>
+          </div>
+          <button
+            onClick={() => setIsAddingPackage(true)}
+            className="bg-[#2A2A2A] text-white px-8 py-4 rounded-[20px] font-bold flex items-center gap-3 hover:bg-[#FF527B] transition-all shadow-sm active:scale-95 w-fit"
+          >
+            <Plus className="w-5 h-5" /> TAMBAH PAKET BARU
+          </button>
+        </div>
+
+        {/* Package Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {packages.map((item) => (
+            <div
+              key={item.id}
+              className="bg-white rounded-[40px] border border-[#2A2A2A]/5 overflow-hidden flex flex-col hover:shadow-[0_15px_45px_rgb(0,0,0,0.06)] transition-all group"
+            >
+              {/* Image Section */}
+              <div className="relative h-56 overflow-hidden">
+                <img
+                  src={item.img}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  alt={item.name}
+                />
+                <div
+                  className={`absolute top-6 left-6 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                    item.status === 'Aktif'
+                      ? 'bg-[#E6F9F0] text-[#10B981]'
+                      : 'bg-slate-100 text-slate-400'
+                  }`}
+                >
+                  {item.status}
+                </div>
+                <div className="absolute top-6 right-6 flex gap-2">
+                  <button className="w-10 h-10 bg-white/90 backdrop-blur-md rounded-xl flex items-center justify-center text-[#2A2A2A]/40 hover:text-[#FF527B] transition-colors shadow-sm">
+                    <Edit3 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDeletePackage(item.id)}
+                    className="w-10 h-10 bg-white/90 backdrop-blur-md rounded-xl flex items-center justify-center text-[#2A2A2A]/40 hover:text-red-500 transition-colors shadow-sm"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Content Section */}
+              <div className="p-8 flex-1 flex flex-col">
+                <div className="mb-6">
+                  <p className="text-[10px] font-black text-[#FF9A9E] uppercase tracking-[0.2em] mb-1">
+                    {item.category}
+                  </p>
+                  <h4 className="text-xl font-black text-[#2A2A2A] leading-tight">{item.name}</h4>
+                </div>
+
+                {/* Features */}
+                <div className="space-y-3 mb-8 flex-1">
+                  <p className="text-[10px] font-black text-[#2A2A2A]/20 uppercase tracking-widest border-b border-[#2A2A2A]/5 pb-2">
+                    Fitur Utama
+                  </p>
+                  <ul className="space-y-2">
+                    {item.features.map((feature, i) => (
+                      <li key={i} className="flex items-center gap-2 text-xs font-bold text-[#2A2A2A]/60">
+                        <Check className="w-3.5 h-3.5 text-[#10B981]" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Footer: Price & Orders */}
+                <div className="pt-6 border-t border-slate-50 flex items-center justify-between mb-6">
+                  <div>
+                    <p className="text-[10px] font-bold text-[#2A2A2A]/30 uppercase tracking-tighter">Harga Paket</p>
+                    <p className="text-xl font-black text-[#FF527B]">{item.price}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] font-bold text-[#2A2A2A]/30 uppercase tracking-tighter">Dipesan</p>
+                    <p className="text-sm font-black text-[#2A2A2A]">{item.orders} Kali</p>
+                  </div>
+                </div>
+
+                {/* Status Toggle */}
+                <button
+                  onClick={() => handleToggleStatus(item.id)}
+                  className={`w-full py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                    item.status === 'Aktif'
+                      ? 'bg-[#E6F9F0] text-[#10B981] hover:bg-[#10B981] hover:text-white'
+                      : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
+                  }`}
+                >
+                  {item.status === 'Aktif' ? 'Aktif - Klik untuk Nonaktifkan' : 'Nonaktif - Klik untuk Aktifkan'}
+                </button>
+              </div>
+            </div>
+          ))}
+
+          {/* Add New Package Card */}
+          <div
+            onClick={() => setIsAddingPackage(true)}
+            className="bg-[#FDF1F0]/50 rounded-[40px] border-2 border-dashed border-[#FF9A9E]/20 flex flex-col items-center justify-center p-12 hover:bg-[#FDF1F0] transition-all cursor-pointer group"
+          >
+            <div className="w-20 h-20 bg-white rounded-[32px] flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform">
+              <Plus className="w-8 h-8 text-[#FF9A9E]" />
+            </div>
+            <p className="text-sm font-black text-[#FF9A9E] uppercase tracking-widest">Buat Paket Baru</p>
+            <p className="text-[10px] font-bold text-[#2A2A2A]/30 uppercase tracking-tighter mt-2">
+              Kembangkan variasi produkmu
+            </p>
+          </div>
+        </div>
+      </div>
+    </DashboardLayout>
+  );
 }

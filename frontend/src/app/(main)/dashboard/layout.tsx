@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getSession } from 'next-auth/react';
-import VendorSidebar from '@/components/VendorSidebar';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -36,18 +35,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (isCheckingSession) {
     return (
-      <div className="grid h-screen place-items-center bg-[#F9FAFB]">
-        <span className="text-[10px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">MEMUAT DASHBOARD...</span>
+      <div className="grid h-screen place-items-center bg-[#FDF1F0]">
+        <span className="text-[10px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">MEMUAT DASHBOARD VENDOR...</span>
       </div>
     );
   }
 
-  return (
-    <div className="flex h-screen w-full bg-[#F9FAFB] font-sans overflow-hidden relative">
-      <VendorSidebar />
-      <div className="flex-1 flex flex-col h-full overflow-hidden relative bg-[#FAFAFC]">
-        {children}
-      </div>
-    </div>
-  );
+  return <>{children}</>;
 }

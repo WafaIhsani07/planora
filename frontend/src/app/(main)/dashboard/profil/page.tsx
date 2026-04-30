@@ -105,10 +105,10 @@ export default function ProfilVendorPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-[1300px] pb-8">
-      <div className="mb-8 flex flex-col items-start justify-between gap-4 lg:flex-row lg:items-end">
+    <div className="flex h-full w-full flex-col gap-6 pb-2">
+      <div className="flex flex-col items-start justify-between gap-4 lg:flex-row lg:items-end">
         <div>
-          <span className="mb-2 block text-[10px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">
+          <span className="mb-2 block text-[10px] font-bold tracking-[0.2em] text-[#FF7F97] uppercase">
             IDENTITAS BISNIS & BRAND
           </span>
           <h1 className="text-4xl font-black italic tracking-tighter text-[#2A2A2A] leading-[1.05] md:text-[2.75rem]">

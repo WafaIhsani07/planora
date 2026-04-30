@@ -4,68 +4,53 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import {
   Mail,
   Lock,
   EyeOff,
   Eye,
-  ArrowRight,
   User,
   UserCircle,
   ShieldCheck,
   Sparkles,
 } from 'lucide-react';
-import { login } from '@/services/auth.service';
-import { useAuthStore } from '@/store/authStore';
 
 type UserRole = 'customer' | 'vendor';
 
 export default function LoginPage() {
-  const router = useRouter();
-  const setSession = useAuthStore((state) => state.setSession);
-  
   const [role, setRole] = useState<UserRole>('customer');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [authError, setAuthError] = useState('');
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
+    setAuthError('');
 
-    try {
-      const response = await login({
-        email,
-        password,
-        role: role === 'customer' ? 'CUSTOMER' : 'VENDOR'
-      });
+    const formData = new FormData(e.currentTarget);
+    const email = String(formData.get('email') ?? '').trim() || (role === 'vendor' ? 'vendor@planora.dev' : 'customer@planora.dev');
+    const password = String(formData.get('password') ?? '').trim() || (role === 'vendor' ? 'devvendor123' : 'devcustomer123');
 
-      if (response.success && response.data) {
-        const { user, token } = response.data;
-        
-        // Store token in localStorage
-        localStorage.setItem('authToken', token);
-        
-        // Update auth store
-        setSession(user, token);
-        
-        // Redirect based on role
-        if (user.role === 'VENDOR') {
-          router.push('/vendor/dashboard');
-        } else {
-          router.push('/dashboard');
-        }
-      }
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Login gagal. Cek email dan password Anda.');
-      console.error('Login error:', err);
-    } finally {
+    const result = await signIn('credentials', {
+      redirect: false,
+      email,
+      password,
+      role,
+    });
+
+    if (result?.error) {
+      setAuthError('Login gagal. Coba lagi dengan akun demo yang tersedia.');
       setIsLoading(false);
+      return;
     }
+
+    router.replace(role === 'vendor' ? '/dashboard' : '/dashboard/customer');
+    router.refresh();
   };
+
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row font-sans text-slate-900 overflow-hidden bg-white text-base">
@@ -160,7 +145,7 @@ export default function LoginPage() {
                 href="/register"
                 className="text-[#FF9A9E] font-bold hover:underline inline-flex items-center gap-1 transition-all"
               >
-                Daftar Sekarang <ArrowRight className="w-4 h-4" />
+                Daftar Sekarang
               </Link>
             </p>
           </div>
@@ -203,16 +188,9 @@ export default function LoginPage() {
 
           {/* Form Inputs */}
           <form className="space-y-6" onSubmit={handleSubmit}>
-            {/* Error Message */}
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-sm font-medium">
-                {error}
-              </div>
-            )}
-            
             {/* Email Input */}
             <div className="space-y-2.5">
-                <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">
+              <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">
                 Email atau Nomor HP
               </label>
               <div className="relative">
@@ -220,10 +198,9 @@ export default function LoginPage() {
                   <Mail className="w-5 h-5" />
                 </div>
                 <input
+                  name="email"
                   type="text"
                   placeholder="Masukkan email atau nomor HP"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400"
                   required
                 />
@@ -240,10 +217,9 @@ export default function LoginPage() {
                   <Lock className="w-5 h-5" />
                 </div>
                 <input
+                  name="password"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Masukkan kata sandi"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-12 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400"
                   required
                 />
@@ -297,6 +273,12 @@ export default function LoginPage() {
             >
               {isLoading ? 'Sedang Memproses...' : 'Masuk'}
             </button>
+
+            {authError ? (
+              <p className="text-sm font-bold text-rose-500 text-center">{authError}</p>
+            ) : null}
+
+            {/* Quick login removed — use role switcher and standard login form */}
           </form>
 
           {/* Divider */}
