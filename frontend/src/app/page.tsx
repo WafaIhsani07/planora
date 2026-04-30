@@ -158,6 +158,9 @@ function HeroSection() {
           </nav>
 
           <div className="flex items-center gap-3">
+            <Link href="/admin/dashboard" className="hidden rounded-xl border border-[#FF9A9E]/30 bg-[#FF9A9E]/10 px-5 py-2.5 text-sm font-bold !text-white transition hover:border-[#FF9A9E]/50 hover:bg-[#FF9A9E]/15 md:block">
+              Masuk Admin
+            </Link>
             <Link href="/login" className="hidden rounded-xl border border-[#FF9A9E]/40 px-6 py-2.5 text-sm font-bold !text-white transition hover:border-[#FF9A9E]/60 hover:bg-[#FF9A9E]/5 md:block">
               Masuk
             </Link>
@@ -183,133 +186,136 @@ function HeroSection() {
 
         <div className="relative mx-auto max-w-7xl px-6 pt-32 md:px-12 md:pt-36">
 
-        {isMobileMenuOpen ? (
-          <div id="mobile-nav-menu" className="mx-6 mt-4 rounded-3xl border border-white/10 bg-black/95 p-4 shadow-[0_15px_35px_-15px_rgba(0,0,0,0.3)] md:mx-12 lg:hidden">
-            <div className="flex flex-col gap-2 text-sm font-semibold text-white">
-              <a href="#beranda" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>
-                Beranda
-              </a>
-              <a href="#kategori" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>
-                Jelajahi Vendor
-              </a>
-              <a href="#cara-kerja" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>
-                Cara Kerja
-              </a>
-              <a href="#features" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>
-                Untuk Vendor
-              </a>
-              <a href="#footer" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>
-                Tentang Kami
-              </a>
-            </div>
-          </div>
-        ) : null}
-
-        <main className="grid grid-cols-1 items-start gap-6 pb-8 pt-2 sm:pt-6 lg:grid-cols-2 lg:gap-10">
-          <div className="flex flex-col items-start pr-0 lg:pr-10">
-            <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 sm:mb-9">
-              <span className="text-[10px] font-bold tracking-wider text-gray-300 sm:hidden">
-                #1 MARKETPLACE JASA ACARA
-              </span>
-              <span className="hidden text-[10px] font-bold tracking-wider text-gray-300 sm:inline">
-                #1 MARKETPLACE JASA ACARA
-              </span>
-            </div>
-
-            <h1 className="mb-6 max-w-[12ch] text-[2.8rem] font-extrabold leading-[1.04] tracking-tight text-white sm:max-w-none sm:text-[3.8rem] md:text-[4.7rem] lg:text-[5.2rem]">
-              Rencanakan Momen <br /> Spesialmu dengan <br /> <span className="text-pink-gradient italic">Sempurna</span>
-            </h1>
-
-            <p className="mb-8 max-w-md text-sm leading-relaxed text-gray-400">
-              Temukan vendor terbaik untuk setiap kebutuhan acaramu. Aman, mudah, dan terpercaya bersama Planora.
-            </p>
-
-            <div className="mb-6 flex w-full max-w-xl flex-col gap-2 rounded-full bg-white p-1.5 shadow-2xl md:flex-row">
-              <div className="flex flex-1 items-center px-6 py-2 gap-3">
-                <SearchIcon className="mr-3 h-5 w-5 shrink-0 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Cari vendor, kategori, atau kota..."
-                  aria-label="Cari vendor"
-                  className="w-full bg-transparent text-sm text-black placeholder-gray-400 outline-none focus-visible:ring-0"
-                />
-              </div>
-              <button className="flex w-full items-center justify-center gap-2 rounded-full bg-black px-8 py-3.5 text-sm font-bold text-white transition hover:bg-gray-800 md:w-auto">
-                <span>Cari Vendor</span>
-                <ArrowRightIcon className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="mb-8 flex flex-wrap gap-2">
-              <div className="flex flex-wrap gap-2">
-                {['Fotografi','Katering','Dekorasi','Wedding Organizer','Hiburan'].map((chip) => (
-                  <button key={chip} type="button" className="rounded-full border border-white/20 px-5 py-2 text-[11px] font-bold uppercase tracking-tight text-white transition hover:bg-white/10">
-                    {chip}
-                  </button>
-                ))}
+          {isMobileMenuOpen ? (
+            <div id="mobile-nav-menu" className="mx-6 mt-4 rounded-3xl border border-white/10 bg-black/95 p-4 shadow-[0_15px_35px_-15px_rgba(0,0,0,0.3)] md:mx-12 lg:hidden">
+              <div className="flex flex-col gap-2 text-sm font-semibold text-white">
+                <Link href="/admin/dashboard" className="rounded-xl border border-[#FF9A9E]/30 bg-[#FF9A9E]/10 px-3 py-2 text-center transition-colors hover:bg-[#FF9A9E]/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>
+                  Masuk Admin
+                </Link>
+                <a href="#beranda" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>
+                  Beranda
+                </a>
+                <a href="#kategori" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>
+                  Jelajahi Vendor
+                </a>
+                <a href="#cara-kerja" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>
+                  Cara Kerja
+                </a>
+                <a href="#features" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>
+                  Untuk Vendor
+                </a>
+                <a href="#footer" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>
+                  Tentang Kami
+                </a>
               </div>
             </div>
+          ) : null}
 
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="flex -space-x-2.5">
-                <img
-                  className="h-9 w-9 rounded-full border-2 border-black object-cover"
-                  src="https://i.pravatar.cc/100?u=a1"
-                  alt="User 1"
-                />
-                <img
-                  className="h-9 w-9 rounded-full border-2 border-black object-cover"
-                  src="https://i.pravatar.cc/100?u=a2"
-                  alt="User 2"
-                />
-                <img
-                  className="h-9 w-9 rounded-full border-2 border-black object-cover"
-                  src="https://i.pravatar.cc/100?u=a3"
-                  alt="User 3"
-                />
-                <img
-                  className="h-9 w-9 rounded-full border-2 border-black object-cover"
-                  src="https://i.pravatar.cc/100?u=a4"
-                  alt="User 4"
-                />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[13px] font-semibold uppercase tracking-wide text-gray-400">10.000+ pelanggan puas</span>
-                <span className="text-[9px] font-bold uppercase tracking-widest text-brand-gray sm:text-[10px]">
+          <main className="grid grid-cols-1 items-start gap-6 pb-8 pt-2 sm:pt-6 lg:grid-cols-2 lg:gap-10">
+            <div className="flex flex-col items-start pr-0 lg:pr-10">
+              <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 sm:mb-9">
+                <span className="text-[10px] font-bold tracking-wider text-gray-300 sm:hidden">
+                  #1 MARKETPLACE JASA ACARA
+                </span>
+                <span className="hidden text-[10px] font-bold tracking-wider text-gray-300 sm:inline">
+                  #1 MARKETPLACE JASA ACARA
                 </span>
               </div>
-            </div>
-          </div>
 
-          <div className="image-glow relative w-full max-w-[34rem] self-center lg:max-w-none lg:self-start">
-            <SparkleIcon className="absolute left-10 top-28 h-4 w-4 text-[#FF9A9E]/70" />
-            <SparkleIcon className="absolute right-16 top-16 h-5 w-5 text-[#FF9A9E]/80" />
-            <div className="pointer-events-none absolute right-6 top-8 hidden h-44 w-44 rounded-full bg-[#FF9A9E]/20 blur-[70px] lg:block"></div>
-            <div className="pointer-events-none absolute bottom-0 right-10 hidden h-52 w-52 rounded-full bg-[#FF9A9E]/25 blur-[90px] lg:block"></div>
+              <h1 className="mb-6 max-w-[12ch] text-[2.8rem] font-extrabold leading-[1.04] tracking-tight text-white sm:max-w-none sm:text-[3.8rem] md:text-[4.7rem] lg:text-[5.2rem]">
+                Rencanakan Momen <br /> Spesialmu dengan <br /> <span className="text-pink-gradient italic">Sempurna</span>
+              </h1>
 
-            <div className="space-y-3 sm:space-y-4">
-              {/* Katering - Large top left */}
-              <div className="relative h-48 overflow-hidden rounded-[1.4rem] bg-white shadow-[0_28px_90px_-36px_rgba(255,154,158,0.85)] ring-1 ring-white/10 sm:h-56 lg:h-52">
-                <img src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=800&auto=format&fit=crop" alt="katering" className="h-full w-full object-cover" />
-                <span className="absolute left-2 sm:left-3 top-2 sm:top-3 rounded-full bg-accent px-2 sm:px-3 py-1 text-xs font-bold text-[#2C2D2A]">Katering</span>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                {/* Dekorasi - Top right smaller */}
-                <div className="relative h-40 overflow-hidden rounded-[1.4rem] bg-white shadow-[0_28px_90px_-36px_rgba(255,154,158,0.85)] ring-1 ring-white/10 sm:h-44">
-                  <img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=800&auto=format&fit=crop" alt="dekorasi" className="h-full w-full object-cover" />
-                  <span className="absolute left-2 sm:left-3 top-2 sm:top-3 rounded-full bg-accent px-2 sm:px-3 py-1 text-xs font-bold text-[#2C2D2A]">Dekorasi</span>
+              <p className="mb-8 max-w-md text-sm leading-relaxed text-gray-400">
+                Temukan vendor terbaik untuk setiap kebutuhan acaramu. Aman, mudah, dan terpercaya bersama Planora.
+              </p>
+
+              <div className="mb-6 flex w-full max-w-xl flex-col gap-2 rounded-full bg-white p-1.5 shadow-2xl md:flex-row">
+                <div className="flex flex-1 items-center px-6 py-2 gap-3">
+                  <SearchIcon className="mr-3 h-5 w-5 shrink-0 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Cari vendor, kategori, atau kota..."
+                    aria-label="Cari vendor"
+                    className="w-full bg-transparent text-sm text-black placeholder-gray-400 outline-none focus-visible:ring-0"
+                  />
                 </div>
-                
-                {/* Fotografi - Top right */}
-                <div className="relative h-40 overflow-hidden rounded-[1.4rem] bg-white shadow-[0_28px_90px_-36px_rgba(255,154,158,0.85)] ring-1 ring-white/10 sm:h-44">
-                  <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop" alt="fotografi" className="h-full w-full object-cover" />
-                  <span className="absolute left-2 sm:left-3 top-2 sm:top-3 rounded-full bg-accent px-2 sm:px-3 py-1 text-xs font-bold text-[#2C2D2A]">Fotografi</span>
+                <button className="flex w-full items-center justify-center gap-2 rounded-full bg-black px-8 py-3.5 text-sm font-bold text-white transition hover:bg-gray-800 md:w-auto">
+                  <span>Cari Vendor</span>
+                  <ArrowRightIcon className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="mb-8 flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2">
+                  {['Fotografi', 'Katering', 'Dekorasi', 'Wedding Organizer', 'Hiburan'].map((chip) => (
+                    <button key={chip} type="button" className="rounded-full border border-white/20 px-5 py-2 text-[11px] font-bold uppercase tracking-tight text-white transition hover:bg-white/10">
+                      {chip}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="flex -space-x-2.5">
+                  <img
+                    className="h-9 w-9 rounded-full border-2 border-black object-cover"
+                    src="https://i.pravatar.cc/100?u=a1"
+                    alt="User 1"
+                  />
+                  <img
+                    className="h-9 w-9 rounded-full border-2 border-black object-cover"
+                    src="https://i.pravatar.cc/100?u=a2"
+                    alt="User 2"
+                  />
+                  <img
+                    className="h-9 w-9 rounded-full border-2 border-black object-cover"
+                    src="https://i.pravatar.cc/100?u=a3"
+                    alt="User 3"
+                  />
+                  <img
+                    className="h-9 w-9 rounded-full border-2 border-black object-cover"
+                    src="https://i.pravatar.cc/100?u=a4"
+                    alt="User 4"
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[13px] font-semibold uppercase tracking-wide text-gray-400">10.000+ pelanggan puas</span>
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-brand-gray sm:text-[10px]">
+                  </span>
                 </div>
               </div>
             </div>
-          </div>
-        </main>
+
+            <div className="image-glow relative w-full max-w-[34rem] self-center lg:max-w-none lg:self-start">
+              <SparkleIcon className="absolute left-10 top-28 h-4 w-4 text-[#FF9A9E]/70" />
+              <SparkleIcon className="absolute right-16 top-16 h-5 w-5 text-[#FF9A9E]/80" />
+              <div className="pointer-events-none absolute right-6 top-8 hidden h-44 w-44 rounded-full bg-[#FF9A9E]/20 blur-[70px] lg:block"></div>
+              <div className="pointer-events-none absolute bottom-0 right-10 hidden h-52 w-52 rounded-full bg-[#FF9A9E]/25 blur-[90px] lg:block"></div>
+
+              <div className="space-y-3 sm:space-y-4">
+                {/* Katering - Large top left */}
+                <div className="relative h-48 overflow-hidden rounded-[1.4rem] bg-white shadow-[0_28px_90px_-36px_rgba(255,154,158,0.85)] ring-1 ring-white/10 sm:h-56 lg:h-52">
+                  <img src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=800&auto=format&fit=crop" alt="katering" className="h-full w-full object-cover" />
+                  <span className="absolute left-2 sm:left-3 top-2 sm:top-3 rounded-full bg-accent px-2 sm:px-3 py-1 text-xs font-bold text-[#2C2D2A]">Katering</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                  {/* Dekorasi - Top right smaller */}
+                  <div className="relative h-40 overflow-hidden rounded-[1.4rem] bg-white shadow-[0_28px_90px_-36px_rgba(255,154,158,0.85)] ring-1 ring-white/10 sm:h-44">
+                    <img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=800&auto=format&fit=crop" alt="dekorasi" className="h-full w-full object-cover" />
+                    <span className="absolute left-2 sm:left-3 top-2 sm:top-3 rounded-full bg-accent px-2 sm:px-3 py-1 text-xs font-bold text-[#2C2D2A]">Dekorasi</span>
+                  </div>
+
+                  {/* Fotografi - Top right */}
+                  <div className="relative h-40 overflow-hidden rounded-[1.4rem] bg-white shadow-[0_28px_90px_-36px_rgba(255,154,158,0.85)] ring-1 ring-white/10 sm:h-44">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop" alt="fotografi" className="h-full w-full object-cover" />
+                    <span className="absolute left-2 sm:left-3 top-2 sm:top-3 rounded-full bg-accent px-2 sm:px-3 py-1 text-xs font-bold text-[#2C2D2A]">Fotografi</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </main>
         </div>
       </div>
     </>

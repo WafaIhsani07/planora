@@ -204,6 +204,54 @@ Terima kasih.
 
 ---
 
+## Script Presentasi Cepat Frontend
+
+### Bagian 1 - Pembukaan
+"Pada presentasi ini, saya akan menjelaskan frontend Planora sebagai wajah utama platform marketplace jasa event. Fokus utama frontend kami adalah membuat pengalaman pengguna terasa cepat dipahami, menarik secara visual, dan mudah dipakai oleh tiga jenis pengguna, yaitu pengunjung umum, vendor, dan admin."
+
+### Bagian 2 - Landing Page
+"Kalau kita lihat halaman landing page, bagian ini menjadi pintu masuk utama pengguna. Di sini kami menampilkan hero section yang kuat, navigasi yang jelas, highlight kategori layanan, social proof, serta CTA agar pengunjung langsung memahami value Planora sejak awal membuka website."
+
+### Bagian 3 - Alur Autentikasi
+"Setelah pengguna tertarik, frontend mengarahkan mereka ke alur autentikasi. Kami menyediakan halaman login, register, dan forgot password dengan tampilan yang konsisten agar onboarding terasa sederhana dan aman, baik untuk pengguna biasa maupun vendor yang ingin bergabung."
+
+### Bagian 4 - Area Pengguna
+"Untuk pengguna yang sudah masuk, frontend menyediakan area dashboard yang berisi halaman event, booking, profile, pengaturan, katalog, jadwal, keuangan, portofolio, hingga ulasan. Tujuannya adalah agar semua aktivitas penting bisa dipantau dari satu tempat tanpa berpindah ke banyak sistem."
+
+### Bagian 5 - Area Admin
+"Untuk admin, kami juga menyiapkan area khusus yang memudahkan monitoring dan pengelolaan platform. Di dalamnya ada dashboard admin, verifikasi vendor, manajemen user, monitoring transaksi, kategori jasa, dan pengaturan sistem. Jadi sisi operasional platform tetap terpusat dan mudah diawasi."
+
+### Bagian 6 - Desain dan Struktur Teknologi
+"Dari sisi implementasi, frontend dibangun dengan Next.js, React, TypeScript, Tailwind CSS, Zustand, React Query, dan NextAuth. Struktur folder dipisahkan berdasarkan area agar kode lebih rapi, reusable, dan siap dikembangkan ke fitur yang lebih besar."
+
+### Bagian 7 - Penutup
+"Secara keseluruhan, frontend Planora sudah menjadi fondasi yang kuat untuk pengalaman pengguna dan operasional admin. Masih ada beberapa bagian yang bisa dilengkapi, tetapi struktur yang sudah ada saat ini sudah cukup siap untuk dikembangkan ke tahap integrasi penuh dan produksi."
+
+---
+
+## Bagian Yang Belum Diimplementasi Sepenuhnya
+
+- CTA di landing page sudah ada, tetapi alur lanjutan seperti pencarian vendor, pemilihan layanan, dan booking otomatis belum sepenuhnya tersambung ke data real atau hasil filter dinamis.
+- Tombol CTA di section promosi masih bersifat visual, jadi belum semuanya terhubung ke flow aksi spesifik seperti pembuatan pesanan atau kontak langsung.
+- Beberapa halaman admin masih menampilkan data statis atau contoh data, sehingga belum sepenuhnya menarik data dari backend secara real-time.
+- Integrasi API di seluruh halaman frontend masih perlu disempurnakan agar form, tabel, dan ringkasan dashboard benar-benar memakai data produksi.
+- Validasi dan handling error di beberapa form masih bisa ditingkatkan supaya UX lebih lengkap saat input gagal atau data tidak tersedia.
+
+---
+
+## Pemetaan Bagian Script ke Slide
+
+- Pembukaan: Bagian 1
+- Landing Page: Bagian 2
+- Autentikasi: Bagian 3
+- Area Pengguna: Bagian 4
+- Area Admin: Bagian 5
+- Desain dan Struktur Teknologi: Bagian 6
+- Penutup: Bagian 7
+- Kekurangan / belum diimplementasi: bagian "Bagian Yang Belum Diimplementasi Sepenuhnya"
+
+---
+
 ## Lampiran - Quick Run Frontend
 
 ```bash
