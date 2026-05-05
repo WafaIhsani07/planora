@@ -10,16 +10,12 @@ import {
   Lock,
   EyeOff,
   Eye,
-  User,
-  UserCircle,
   ShieldCheck,
   Sparkles,
 } from 'lucide-react';
 
-type UserRole = 'customer' | 'vendor';
-
 export default function LoginPage() {
-  const [role, setRole] = useState<UserRole>('customer');
+  const [isVendor] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState('');
@@ -31,14 +27,14 @@ export default function LoginPage() {
     setAuthError('');
 
     const formData = new FormData(e.currentTarget);
-    const email = String(formData.get('email') ?? '').trim() || (role === 'vendor' ? 'vendor@planora.dev' : 'customer@planora.dev');
-    const password = String(formData.get('password') ?? '').trim() || (role === 'vendor' ? 'devvendor123' : 'devcustomer123');
+    const email = String(formData.get('email') ?? '').trim() || 'vendor@planora.dev';
+    const password = String(formData.get('password') ?? '').trim() || 'devvendor123';
 
     const result = await signIn('credentials', {
       redirect: false,
       email,
       password,
-      role,
+      role: 'vendor',
     });
 
     if (result?.error) {
@@ -47,7 +43,7 @@ export default function LoginPage() {
       return;
     }
 
-    router.replace(role === 'vendor' ? '/dashboard' : '/dashboard/customer');
+    router.replace('/dashboard');
     router.refresh();
   };
 
@@ -150,41 +146,7 @@ export default function LoginPage() {
             </p>
           </div>
 
-          {/* Role Switcher */}
-          <div className="flex bg-[#F7F9FC] p-1.5 rounded-2xl mb-10 border border-slate-100">
-            <button
-              type="button"
-              onClick={() => setRole('customer')}
-              className={`flex-1 flex items-center justify-center gap-3 py-3.5 rounded-xl font-bold text-sm transition-all duration-300 ${
-                role === 'customer'
-                  ? 'bg-[#FFDED7] text-black shadow-sm'
-                  : 'text-slate-400 hover:text-slate-500'
-              }`}
-            >
-              <User
-                className={`w-5 h-5 ${
-                  role === 'customer' ? 'text-black' : 'text-slate-400'
-                }`}
-              />
-              Customer
-            </button>
-            <button
-              type="button"
-              onClick={() => setRole('vendor')}
-              className={`flex-1 flex items-center justify-center gap-3 py-3.5 rounded-xl font-bold text-sm transition-all duration-300 ${
-                role === 'vendor'
-                  ? 'bg-[#FFDED7] text-black shadow-sm'
-                  : 'text-slate-400 hover:text-slate-500'
-              }`}
-            >
-              <UserCircle
-                className={`w-5 h-5 ${
-                  role === 'vendor' ? 'text-black' : 'text-slate-400'
-                }`}
-              />
-              Vendor
-            </button>
-          </div>
+          {/* Vendor-only login (customer accounts handled in mobile app) */}
 
           {/* Form Inputs */}
           <form className="space-y-6" onSubmit={handleSubmit}>
@@ -278,7 +240,7 @@ export default function LoginPage() {
               <p className="text-sm font-bold text-rose-500 text-center">{authError}</p>
             ) : null}
 
-            {/* Quick login removed — use role switcher and standard login form */}
+            {/* Vendor-only login form */}
           </form>
 
           {/* Divider */}

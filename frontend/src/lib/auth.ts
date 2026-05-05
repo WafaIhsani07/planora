@@ -14,7 +14,8 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const role = credentials.role === "vendor" ? "vendor" : "customer";
+        // Web only supports vendor/admin roles; default to 'vendor' for credentials-based demo
+        const role = credentials.role === "vendor" ? "vendor" : "vendor";
 
         return {
           id: "demo-user",
@@ -34,14 +35,14 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = (user as { role?: string }).role ?? "customer";
+        token.role = (user as { role?: string }).role ?? "vendor";
       }
 
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as { role?: string }).role = (token.role as string | undefined) ?? "customer";
+        (session.user as { role?: string }).role = (token.role as string | undefined) ?? "vendor";
       }
 
       return session;

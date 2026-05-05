@@ -164,8 +164,8 @@ function HeroSection() {
             <Link href="/login" className="hidden rounded-xl border border-[#FF9A9E]/40 px-6 py-2.5 text-sm font-bold !text-white transition hover:border-[#FF9A9E]/60 hover:bg-[#FF9A9E]/5 md:block">
               Masuk
             </Link>
-            <Link href="/register" className="rounded-xl bg-pink-gradient px-6 py-2.5 text-sm font-bold text-black shadow-[0_12px_28px_-14px_rgba(255,154,158,0.8)] transition hover:opacity-90">
-              Daftar Gratis
+            <Link href="/download" className="rounded-xl bg-pink-gradient px-6 py-2.5 text-sm font-bold text-black shadow-[0_12px_28px_-14px_rgba(255,154,158,0.8)] transition hover:opacity-90">
+              Download App
             </Link>
             <button
               type="button"
@@ -207,6 +207,9 @@ function HeroSection() {
                 <a href="#footer" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>
                   Tentang Kami
                 </a>
+                <Link href="/download" className="rounded-xl bg-pink-gradient px-3 py-2 text-center font-bold text-black transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>
+                  Download App
+                </Link>
               </div>
             </div>
           ) : null}
@@ -280,7 +283,7 @@ function HeroSection() {
                   />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[13px] font-semibold uppercase tracking-wide text-gray-400">10.000+ pelanggan puas</span>
+                  <span className="text-[13px] font-semibold uppercase tracking-wide text-gray-400">Customer bisa melihat katalog, rekomendasi, dan testimoni di web</span>
                   <span className="text-[9px] font-bold uppercase tracking-widest text-brand-gray sm:text-[10px]">
                   </span>
                 </div>

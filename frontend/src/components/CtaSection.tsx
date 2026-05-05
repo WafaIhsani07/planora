@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 
 export default function CtaSection() {
     return (
@@ -17,12 +18,12 @@ export default function CtaSection() {
                     </div>
 
                     <div className="flex flex-col gap-5 sm:flex-row">
-                        <button className="rounded-2xl bg-pink-gradient px-10 py-4 font-extrabold text-black transition transform hover:scale-105 hover:opacity-90">
-                            Mulai Rencanakan
-                        </button>
-                        <button className="rounded-2xl border border-white/20 bg-white/5 px-10 py-4 font-extrabold text-white transition transform hover:scale-105 hover:bg-white/10">
-                            Hubungi Kami
-                        </button>
+                        <Link href="/download" className="rounded-2xl bg-pink-gradient px-10 py-4 font-extrabold text-black transition transform hover:scale-105 hover:opacity-90">
+                            Download App
+                        </Link>
+                        <Link href="#features" className="rounded-2xl border border-white/20 bg-white/5 px-10 py-4 font-extrabold text-white transition transform hover:scale-105 hover:bg-white/10">
+                            Lihat Fitur Vendor
+                        </Link>
                     </div>
                 </div>
             </div>
