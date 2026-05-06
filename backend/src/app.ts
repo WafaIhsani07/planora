@@ -8,7 +8,10 @@ import { sendError } from "./utils/response.js"
 import authRoutes from "./modules/auth/auth.routes.js"
 import usersRoutes from "./modules/users/users.routes.js"   
 import vendorsRoutes from "./modules/vendors/vendors.routes.js"       
-import kategoriRoutes from "./modules/kategori/kategori.routes.js"   
+import kategoriRoutes from "./modules/kategori/kategori.routes.js" 
+import jadwalRoutes from "./modules/jadwal/jadwal.routes.js"
+import bookingsRoutes from "./modules/bookings/bookings.routes.js"
+import paymentsRoutes from "./modules/payments/payments.routes.js"
 
 const app = express()
 
@@ -37,9 +40,9 @@ app.use("/api/v1/auth", authRoutes)
 app.use("/api/v1/users", usersRoutes) 
 app.use("/api/v1/vendors",  vendorsRoutes)    
 app.use("/api/v1/kategori", kategoriRoutes)   
-// app.use("/api/v1/jadwal",   jadwalRoutes)  ← TASK 6
-// app.use("/api/v1/bookings", bookingRoutes) ← TASK 7
-// app.use("/api/v1/payments", paymentRoutes) ← TASK 8
+app.use("/api/v1/jadwal", jadwalRoutes)
+app.use("/api/v1/bookings", bookingsRoutes)
+app.use("/api/v1/payments", paymentsRoutes)
 // app.use("/api/v1/reviews",  reviewRoutes)  ← TASK 9
 // app.use("/api/v1/admin",    adminRoutes)   ← TASK 11
 
