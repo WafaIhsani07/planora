@@ -54,7 +54,7 @@ export default function VendorFeatured() {
             <article key={vendor.name} className="group overflow-hidden rounded-[2.5rem] border border-gray-100 bg-white shadow-[0_10px_30px_-20px_rgba(0,0,0,0.18)] transition-all hover:-translate-y-1 hover:shadow-xl">
               <div className="relative h-64 overflow-hidden">
                 <div className="absolute inset-0">
-                  <Image src={vendor.image} alt={vendor.name} fill className="object-cover transition duration-500 group-hover:scale-105" />
+                  <Image src={vendor.image} alt={vendor.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover transition duration-500 group-hover:scale-105" />
                 </div>
                 <button type="button" aria-label="Simpan vendor" className="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-gray-400 shadow-sm backdrop-blur-md transition hover:text-red-500">
                   <Heart className="h-5 w-5" />

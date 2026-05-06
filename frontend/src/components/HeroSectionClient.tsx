@@ -97,7 +97,7 @@ export default function HeroSectionClient() {
                 </div>
             </header>
 
-            <div id="beranda" data-reveal className="relative overflow-hidden hero-bg font-sans text-white">
+            <div id="beranda" data-reveal suppressHydrationWarning className="relative overflow-hidden hero-bg font-sans text-white">
                 <div className="pointer-events-none absolute right-[-8%] top-[-10%] z-0 h-155 w-155 rounded-full bg-[#fff0ed] opacity-70 blur-[100px]"></div>
                 <div className="pointer-events-none absolute bottom-[-12%] left-[-12%] z-0 h-130 w-130 rounded-full bg-[#e8eaee] opacity-60 blur-[120px]"></div>
 
@@ -149,16 +149,16 @@ export default function HeroSectionClient() {
                             <div className="flex items-center gap-3 sm:gap-4">
                                 <div className="flex -space-x-2.5">
                                     <div className="relative h-9 w-9 rounded-full border-2 border-black overflow-hidden">
-                                        <Image src="https://i.pravatar.cc/100?u=a1" alt="User 1" fill className="object-cover" />
+                                        <Image src="https://i.pravatar.cc/100?u=a1" alt="User 1" fill sizes="36px" className="object-cover" />
                                     </div>
                                     <div className="relative h-9 w-9 rounded-full border-2 border-black overflow-hidden">
-                                        <Image src="https://i.pravatar.cc/100?u=a2" alt="User 2" fill className="object-cover" />
+                                        <Image src="https://i.pravatar.cc/100?u=a2" alt="User 2" fill sizes="36px" className="object-cover" />
                                     </div>
                                     <div className="relative h-9 w-9 rounded-full border-2 border-black overflow-hidden">
-                                        <Image src="https://i.pravatar.cc/100?u=a3" alt="User 3" fill className="object-cover" />
+                                        <Image src="https://i.pravatar.cc/100?u=a3" alt="User 3" fill sizes="36px" className="object-cover" />
                                     </div>
                                     <div className="relative h-9 w-9 rounded-full border-2 border-black overflow-hidden">
-                                        <Image src="https://i.pravatar.cc/100?u=a4" alt="User 4" fill className="object-cover" />
+                                        <Image src="https://i.pravatar.cc/100?u=a4" alt="User 4" fill sizes="36px" className="object-cover" />
                                     </div>
                                 </div>
                                 <div className="flex flex-col">
@@ -176,18 +176,18 @@ export default function HeroSectionClient() {
 
                             <div className="space-y-3 sm:space-y-4">
                                 <div className="relative h-48 overflow-hidden rounded-[1.4rem] bg-white shadow-[0_28px_90px_-36px_rgba(255,154,158,0.85)] ring-1 ring-white/10 sm:h-56 lg:h-52">
-                                    <Image src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=800&auto=format&fit=crop" alt="katering" fill className="object-cover" />
+                                    <Image src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=800&auto=format&fit=crop" alt="katering" fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" loading="eager" className="object-cover" />
                                     <span className="absolute left-2 sm:left-3 top-2 sm:top-3 rounded-full bg-accent px-2 sm:px-3 py-1 text-xs font-bold text-[#2C2D2A]">Katering</span>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-3 sm:gap-4">
                                     <div className="relative h-40 overflow-hidden rounded-[1.4rem] bg-white shadow-[0_28px_90px_-36px_rgba(255,154,158,0.85)] ring-1 ring-white/10 sm:h-44">
-                                        <Image src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=800&auto=format&fit=crop" alt="dekorasi" fill className="object-cover" />
+                                        <Image src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=800&auto=format&fit=crop" alt="dekorasi" fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" loading="eager" className="object-cover" />
                                         <span className="absolute left-2 sm:left-3 top-2 sm:top-3 rounded-full bg-accent px-2 sm:px-3 py-1 text-xs font-bold text-[#2C2D2A]">Dekorasi</span>
                                     </div>
 
                                     <div className="relative h-40 overflow-hidden rounded-[1.4rem] bg-white shadow-[0_28px_90px_-36px_rgba(255,154,158,0.85)] ring-1 ring-white/10 sm:h-44">
-                                        <Image src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop" alt="fotografi" fill className="object-cover" />
+                                        <Image src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop" alt="fotografi" fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover" />
                                         <span className="absolute left-2 sm:left-3 top-2 sm:top-3 rounded-full bg-accent px-2 sm:px-3 py-1 text-xs font-bold text-[#2C2D2A]">Fotografi</span>
                                     </div>
                                 </div>

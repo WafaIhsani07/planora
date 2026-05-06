@@ -31,7 +31,7 @@ export default function CategorySection() {
                     {categories.map((category) => (
                         <div key={category.title} className="group relative h-56 overflow-hidden rounded-[2rem] cursor-pointer">
                             <div className="absolute inset-0">
-                                <Image src={category.image} alt={category.title} fill className="object-cover transition duration-500 group-hover:scale-110" />
+                                <Image src={category.image} alt={category.title} fill sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 20vw" className="object-cover transition duration-500 group-hover:scale-110" />
                             </div>
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                             <div className="absolute bottom-6 left-6 text-white">

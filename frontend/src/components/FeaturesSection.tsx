@@ -94,11 +94,11 @@ export default function FeaturesSection() {
                     </div>
 
                     <div className="aspect-square overflow-hidden rounded-[3rem] shadow-xl relative">
-                        <Image src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80" alt="Decoration" fill className="object-cover grayscale" />
+                        <Image src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80" alt="Decoration" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover grayscale" />
                     </div>
 
                     <div className="aspect-square overflow-hidden rounded-[3rem] shadow-xl relative">
-                        <Image src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80" alt="Entertainment" fill className="object-cover" />
+                        <Image src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80" alt="Entertainment" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
                     </div>
 
                     <div className="flex aspect-square flex-col justify-center rounded-[3rem] bg-[#F6F6F6] p-10 shadow-sm">
