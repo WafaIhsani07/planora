@@ -217,4 +217,94 @@ class ApiService {
       return {'success': false, 'data': [], 'message': 'Gagal terhubung ke server'};
     }
   }
+
+  // T9: Ambil detail satu booking berdasarkan ID
+  static Future<Map<String, dynamic>> getBookingById(String id, {http.Client? client}) async {
+    try {
+      final response = await getRequest('/bookings/$id', client: client);
+      final data = json.decode(response.body);
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {'success': true, 'data': data['data']};
+      } else {
+        return {'success': false, 'message': data['message'] ?? 'Pesanan tidak ditemukan'};
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Gagal terhubung ke server'};
+    }
+  }
+
+  // T10: Konfirmasi pembayaran — update status booking menjadi PAID
+  static Future<Map<String, dynamic>> confirmPayment(String bookingId, {http.Client? client}) async {
+    try {
+      final response = await postRequest(
+        '/bookings/$bookingId/pay',
+        {'status': 'PAID'},
+        client: client,
+      );
+      final data = json.decode(response.body);
+      if ((response.statusCode == 200 || response.statusCode == 201) &&
+          data['success'] == true) {
+        return {'success': true, 'data': data['data']};
+      } else {
+        return {'success': false, 'message': data['message'] ?? 'Gagal mengkonfirmasi pembayaran'};
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Gagal terhubung ke server'};
+    }
+  }
+
+  // T11: Tambah ulasan untuk vendor
+  static Future<Map<String, dynamic>> addReview(
+    String vendorId,
+    int rating,
+    String comment, {
+    http.Client? client,
+  }) async {
+    try {
+      final response = await postRequest(
+        '/vendors/$vendorId/reviews',
+        {'rating': rating, 'comment': comment},
+        client: client,
+      );
+      final data = json.decode(response.body);
+      if ((response.statusCode == 200 || response.statusCode == 201) &&
+          data['success'] == true) {
+        return {'success': true, 'data': data['data']};
+      } else {
+        return {'success': false, 'message': data['message'] ?? 'Gagal mengirim ulasan'};
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Gagal terhubung ke server'};
+    }
+  }
+
+  // T12: Update profil pengguna (nama, nomor telepon)
+  static Future<Map<String, dynamic>> updateProfile(
+    String name,
+    String phone, {
+    http.Client? client,
+  }) async {
+    final httpClient = client ?? http.Client();
+    final token = await getToken();
+    try {
+      final response = await httpClient.patch(
+        Uri.parse('$baseUrl/auth/profile'),
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+        body: json.encode({'name': name, 'phone': phone}),
+      );
+      final data = json.decode(response.body);
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {'success': true, 'data': data['data']};
+      } else {
+        return {'success': false, 'message': data['message'] ?? 'Gagal memperbarui profil'};
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Gagal terhubung ke server'};
+    } finally {
+      if (client == null) httpClient.close();
+    }
+  }
 }

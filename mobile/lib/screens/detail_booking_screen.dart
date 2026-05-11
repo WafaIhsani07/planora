@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DetailBookingScreen extends StatefulWidget {
   const DetailBookingScreen({super.key});
@@ -83,6 +84,24 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
     }
   }
 
+  // T13: Fungsi buka peta
+  Future<void> _openMaps(double lat, double lng) async {
+    final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
+    try {
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      } else {
+        throw Exception('Tidak bisa membuka URL map');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Gagal meluncurkan peta.')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -130,6 +149,10 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
     final String rating = vendor['rating']?.toString() ?? '0.0';
     final String location = vendor['city'] ?? vendor['location'] ?? 'Lokasi belum tersedia';
     final String description = vendor['description'] ?? 'Deskripsi belum tersedia.';
+
+    // Koordinat Peta
+    final double? lat = vendor['latitude'] != null ? double.tryParse(vendor['latitude'].toString()) : null;
+    final double? lng = vendor['longitude'] != null ? double.tryParse(vendor['longitude'].toString()) : null;
 
     // Harga tampil dari paket yang dipilih, atau harga terendah dari services
     String displayPrice = '0';
@@ -202,13 +225,43 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
                   Padding(
                     padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Icon(Icons.location_on, color: Colors.grey, size: 20),
-                        const SizedBox(width: 8),
-                        Text(
-                          location,
-                          style: const TextStyle(color: Colors.grey, fontSize: 14),
+                        Expanded(
+                          child: Row(
+                            children: [
+                              const Icon(Icons.location_on, color: Colors.grey, size: 20),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  location,
+                                  style: const TextStyle(color: Colors.grey, fontSize: 14),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
+                        if (lat != null && lng != null)
+                          TextButton.icon(
+                            onPressed: () => _openMaps(lat, lng),
+                            icon: const Icon(Icons.map, size: 16, color: Color(0xFF00C48C)),
+                            label: const Text(
+                              'Buka Peta',
+                              style: TextStyle(
+                                color: Color(0xFF00C48C),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              backgroundColor: const Color(0xFFE8F5E9),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ),

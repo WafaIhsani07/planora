@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
@@ -19,6 +19,7 @@ import 'screens/chat_list_screen.dart';
 import 'screens/chat_detail_screen.dart';
 import 'screens/pembayaran_screen.dart';
 import 'screens/riwayat_screen.dart';
+import 'screens/edit_profil_screen.dart';
 
 void main() {
   runApp(const PlanoraApp());
@@ -59,6 +60,7 @@ class PlanoraApp extends StatelessWidget {
         '/chat_detail': (context) => const ChatDetailScreen(),
         '/pembayaran': (context) => const PembayaranScreen(),
         '/riwayat': (context) => const RiwayatScreen(),
+        '/edit_profil': (context) => const EditProfilScreen(),
       },
     );
   }

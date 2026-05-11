@@ -95,12 +95,7 @@ class _PengaturanScreenState extends State<PengaturanScreen> {
                       icon: Icons.person_outline,
                       title: 'Edit Profil',
                       onTap: () {
-                        // Navigator.pushNamed(context, '/edit_profil');
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Menu Edit Profil ditekuk (Mock)'),
-                          ),
-                        );
+                        Navigator.pushNamed(context, '/edit_profil');
                       },
                     ),
                     _buildDivider(),
