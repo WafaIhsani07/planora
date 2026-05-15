@@ -7,6 +7,8 @@ type AdminStatCardProps = {
     cardBorderClassName?: string;
 };
 
+import { adminTokens } from './designTokens';
+
 export default function AdminStatCard({
     icon,
     label,
@@ -16,7 +18,7 @@ export default function AdminStatCard({
     cardBorderClassName = 'border-white',
 }: AdminStatCardProps) {
     return (
-        <div className={`bg-white p-6 rounded-2xl shadow-[0_4px_20px_-8px_rgba(255,154,158,0.2)] border flex flex-col gap-4 ${cardBorderClassName}`}>
+        <div className={`${adminTokens.cardBg} p-6 ${adminTokens.cardRadius} ${adminTokens.cardShadow} border flex flex-col gap-4 ${cardBorderClassName}`}>
             <div className="flex items-center justify-between">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${iconWrapClassName}`}>
                     {icon}

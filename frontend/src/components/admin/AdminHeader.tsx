@@ -1,7 +1,8 @@
-'use client';
+"use client";
 
 import { useState } from 'react';
 import { Bell, Menu } from 'lucide-react';
+import { adminTokens } from './designTokens';
 
 type AdminHeaderProps = {
   searchPlaceholder?: string;
@@ -22,24 +23,24 @@ export default function AdminHeader({
   const [notifCount] = useState(3);
 
   return (
-    <header className="h-16 bg-white/80 backdrop-blur-md px-6 flex items-center justify-between border-b border-[#2A2A2A]/5">
+    <header className={`h-16 ${adminTokens.headerBg} ${adminTokens.headerText} px-6 flex items-center justify-between border-b border-white/5`}>
       {/* Left — Toggle + Search */}
       <div className="flex items-center gap-4">
         {onToggleSidebar && (
           <button
             onClick={onToggleSidebar}
-            className="p-1.5 text-[#2A2A2A] hover:bg-gray-100 rounded-md transition"
+            className="p-1.5 text-white/80 hover:bg-white/5 rounded-md transition"
           >
             <Menu className="w-5 h-5" />
           </button>
         )}
         <div className="relative w-full max-w-[320px]">
-          <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60" />
           <input
             type="text"
             placeholder={searchPlaceholder}
             aria-label={searchPlaceholder}
-            className="w-full bg-[#F4F4F5] rounded-full py-2.5 pl-11 pr-4 text-[11px] font-semibold text-[#2A2A2A] placeholder-gray-400 outline-none focus:ring-2 focus:ring-[#FF9A9E]/30 transition-all"
+            className="w-full bg-white/5 rounded-full py-2.5 pl-11 pr-4 text-[12px] font-semibold placeholder-white/40 outline-none focus:ring-2 focus:ring-[#FF9A9E]/25 transition-all"
           />
         </div>
       </div>
@@ -47,10 +48,10 @@ export default function AdminHeader({
       {/* Right — Notif + Avatar */}
       <div className="flex items-center gap-6">
         {/* Notif Bell */}
-        <button className="relative p-1.5 text-[#2A2A2A]/40 hover:text-[#FF9A9E] transition-colors">
+        <button className="relative p-1.5 text-white/60 hover:text-[#FF9A9E] transition-colors">
           <Bell className="w-5 h-5" />
           {notifCount > 0 && (
-            <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-[#FF527B] text-white text-[6px] flex items-center justify-center rounded-full border border-white font-bold">
+            <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-[#FF9A9E] text-white text-[6px] flex items-center justify-center rounded-full border border-white font-bold">
               {notifCount}
             </span>
           )}
@@ -62,8 +63,8 @@ export default function AdminHeader({
             A
           </div>
           <div className="hidden sm:flex flex-col text-left">
-            <p className="text-xs font-semibold text-[#2A2A2A]">Admin Planora</p>
-            <p className="text-[8px] font-medium text-[#2A2A2A]/40 uppercase tracking-tight">
+            <p className="text-xs font-semibold text-white">Admin Planora</p>
+            <p className="text-[8px] font-medium text-white/60 uppercase tracking-tight">
               Root Access
             </p>
           </div>

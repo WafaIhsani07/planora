@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { signOut } from 'next-auth/react';
+import { getPendingOrderCount } from '@/lib/orders';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -26,12 +27,13 @@ export default function DashboardLayoutWrapper({ children }: DashboardLayoutProp
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const pathname = usePathname();
+  const pendingOrderCount = getPendingOrderCount();
 
   const vendorName = 'Wafa Decoration';
 
   const menuItems = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Pesanan', href: '/dashboard/jadwal', icon: ShoppingBag, badge: 3 },
+    { name: 'Pesanan', href: '/dashboard/jadwal', icon: ShoppingBag, badge: pendingOrderCount },
     { name: 'Paket Layanan', href: '/dashboard/katalog', icon: Briefcase },
     { name: 'Portofolio', href: '/dashboard/portofolio', icon: ImageIcon },
     { name: 'Ulasan', href: '/dashboard/ulasan', icon: Star },
@@ -47,13 +49,9 @@ export default function DashboardLayoutWrapper({ children }: DashboardLayoutProp
   return (
     <div className="min-h-screen bg-[#FDF1F0] flex font-sans text-[#2A2A2A]">
       {/* SIDEBAR */}
-      <aside
-        className={`${
-          isSidebarOpen ? 'w-64' : 'w-20'
-        } bg-[#2A2A2A] transition-all duration-300 flex flex-col fixed h-full z-50`}
-      >
+      <aside className={`w-[280px] bg-[#0A0A0A] border-r border-white/5 flex flex-col fixed h-screen left-0 top-0 z-20`}>
         {/* Logo Section */}
-        <div className="p-6 pb-6 flex items-center gap-3 border-b border-white/5">
+        <div className="p-8 pb-8 flex items-center gap-3 border-b border-white/5">
           <Image
             src="/images/logogmbr.png"
             alt="Planora"
@@ -72,8 +70,12 @@ export default function DashboardLayoutWrapper({ children }: DashboardLayoutProp
         </div>
 
         {/* Menu Items */}
-        <nav className="flex-1 px-3 overflow-y-auto custom-scrollbar mt-6">
-          <ul className="space-y-1">
+        <nav className="flex-1 px-3 mt-6 overflow-y-auto">
+          <div className="flex flex-col gap-2">
+            <span className="text-[9px] font-bold tracking-[0.2em] text-white/40 uppercase px-3 mb-2 block">
+              NAVIGASI
+            </span>
+            <ul className="space-y-1">
             {menuItems.map((item) => {
               const isActive = pathname === item.href;
               return (
@@ -120,39 +122,31 @@ export default function DashboardLayoutWrapper({ children }: DashboardLayoutProp
               );
             })}
           </ul>
+          </div>
         </nav>
-
-        {/* Profile Sidebar Footer */}
         <div className="p-3 border-t border-white/5">
           <div
             className={`flex items-center gap-2 p-2.5 rounded-lg bg-white/5 border border-white/5 ${
               !isSidebarOpen && 'justify-center'
             }`}
           >
-            <img
-              src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=300"
-              className="w-8 h-8 rounded-md object-cover border border-white/10 flex-shrink-0"
-              alt="Vendor Logo"
-            />
             {isSidebarOpen && (
-              <div className="overflow-hidden text-left min-w-0">
-                <p className="text-xs font-semibold truncate text-white">{vendorName}</p>
-                <button
-                  onClick={() => setShowLogoutModal(true)}
-                  className="flex items-center gap-1 text-[8px] text-[#FF9A9E] font-bold uppercase tracking-tight hover:text-[#FF527B] transition-colors whitespace-nowrap"
-                >
-                  <LogOut className="w-2.5 h-2.5" /> KELUAR
-                </button>
-              </div>
+              <button
+                onClick={() => setShowLogoutModal(true)}
+                className="flex w-full items-center justify-center gap-1.5 text-sm text-[#FF9A9E] font-extrabold uppercase tracking-wide hover:text-[#FF527B] transition-colors whitespace-nowrap"
+              >
+                <LogOut className="w-3 h-3" />
+                Keluar
+              </button>
             )}
           </div>
         </div>
       </aside>
 
       {/* MAIN AREA */}
-      <div className={`flex-1 transition-all duration-300 flex flex-col ${isSidebarOpen ? 'ml-64' : 'ml-20'}`}>
+      <div className={`ml-[280px] flex-1 flex flex-col min-h-screen`}>
         {/* TOPBAR */}
-        <header className="h-16 bg-white/80 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-40 border-b border-[#2A2A2A]/5">
+        <header className="h-16 bg-[#FDF1F0] px-6 flex items-center justify-between sticky top-0 z-40 border-b border-[#F1D7D3]">
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             className="p-1.5 text-[#2A2A2A] hover:bg-gray-100 rounded-md transition"

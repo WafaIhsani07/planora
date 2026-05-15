@@ -21,15 +21,24 @@ class _ProfilScreenState extends State<ProfilScreen> {
 
   // Mengambil data profil dari backend API (dengan JWT Token via ApiService)
   Future<void> _fetchProfile() async {
-    final result = await ApiService.getProfile();
-    setState(() {
-      if (result['success'] == true) {
-        _userProfile = result['data'];
-      } else {
-        _userProfile = null;
+
+    try {
+      final result = await ApiService.getProfile();
+      if (mounted) {
+        setState(() {
+          if (result['success'] == true) {
+            _userProfile = result['data'];
+          } else {
+            _userProfile = null;
+          }
+        });
       }
-      _isLoading = false;
-    });
+    } catch (e) {
+      if (mounted) setState(() => _userProfile = null);
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+
   }
 
   // Navigasi Bottom Bar
@@ -204,10 +213,47 @@ class _ProfilScreenState extends State<ProfilScreen> {
                     ),
                     _buildMenuCard(
                       icon: Icons.payment,
-                      iconColor: const Color(0xFFE53935), // Merah
+                      iconColor: const Color(0xFFE53935),
                       iconBgColor: const Color(0xFFFFEBEE),
                       title: 'Daftar Pembayaran',
-                      isRedText: true, // Label text merah sesuai Mockup
+                      isRedText: true,
+                    ),
+                    const SizedBox(height: 8),
+                    // Tombol Logout
+                    GestureDetector(
+                      onTap: () async {
+                        await ApiService.logout();
+                        if (mounted) {
+                          Navigator.pushNamedAndRemoveUntil(
+                            context, '/welcome', (route) => false);
+                        }
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFEBEE),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: const Color(0xFFFFCDD2)),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.logout, color: Color(0xFFE53935), size: 20),
+                            SizedBox(width: 16),
+                            Expanded(
+                              child: Text(
+                                'Keluar',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFFE53935),
+                                ),
+                              ),
+                            ),
+                            Icon(Icons.chevron_right, color: Color(0xFFE53935), size: 20),
+                          ],
+                        ),
+                      ),
                     ),
                     _buildMenuCard(
                       icon: Icons.logout,
@@ -322,3 +368,4 @@ class _ProfilScreenState extends State<ProfilScreen> {
     );
   }
 }
+

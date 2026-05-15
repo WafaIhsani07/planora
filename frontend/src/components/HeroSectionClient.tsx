@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { CATEGORIES } from "../lib/categories";
 
 const SearchIcon = ({ className }: { className?: string }) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -73,26 +74,26 @@ export default function HeroSectionClient() {
                         <SparkleIcon className="mt-[-6px] h-4 w-4 text-[#FF9A9E]" />
                     </div>
 
-                    <nav className="hidden items-center gap-10 text-sm font-semibold text-gray-300 lg:flex">
-                        <a href="#beranda" className="relative text-[#FF9A9E] after:absolute after:-bottom-1.5 after:left-1/2 after:h-0.5 after:w-7 after:-translate-x-1/2 after:bg-[#FF9A9E]">Beranda</a>
-                        <a href="#kategori" className="transition hover:text-white">Jelajahi Vendor</a>
-                        <a href="#cara-kerja" className="transition hover:text-white">Cara Kerja</a>
-                        <a href="#features" className="transition hover:text-white">Untuk Vendor</a>
-                        <a href="#footer" className="transition hover:text-white">Tentang Kami</a>
-                    </nav>
+                    <div className="flex items-center gap-8">
+                        <nav className="hidden items-center gap-8 text-sm font-semibold text-gray-300 lg:flex">
+                            <a href="#beranda" className="relative text-[#FF9A9E] after:absolute after:-bottom-1.5 after:left-1/2 after:h-0.5 after:w-7 after:-translate-x-1/2 after:bg-[#FF9A9E]">Beranda</a>
+                            <Link href="/vendors" className="relative transition hover:text-white after:absolute after:-bottom-1.5 after:left-1/2 after:h-0.5 after:w-7 after:-translate-x-1/2 after:bg-[#FF9A9E] after:opacity-0 hover:after:opacity-100 after:transition-opacity">Jelajahi Vendor</Link>
+                            <a href="#footer" className="relative transition hover:text-white after:absolute after:-bottom-1.5 after:left-1/2 after:h-0.5 after:w-7 after:-translate-x-1/2 after:bg-[#FF9A9E] after:opacity-0 hover:after:opacity-100 after:transition-opacity" onClick={() => setIsMobileMenuOpen(false)}>Tentang</a>
+                        </nav>
 
-                    <div className="flex items-center gap-3">
-                        <Link href="/login" className="hidden rounded-xl border border-[#FF9A9E]/40 px-6 py-2.5 text-sm font-bold !text-white transition hover:border-[#FF9A9E]/60 hover:bg-[#FF9A9E]/5 md:block">Masuk</Link>
-                        <Link href="/download" className="rounded-xl bg-pink-gradient px-6 py-2.5 text-sm font-bold text-black shadow-[0_12px_28px_-14px_rgba(255,154,158,0.8)] transition hover:opacity-90">Download App</Link>
-                        <button
-                            type="button"
-                            aria-label={isMobileMenuOpen ? "Tutup menu" : "Buka menu"}
-                            aria-controls="mobile-nav-menu"
-                            onClick={() => setIsMobileMenuOpen((value) => !value)}
-                            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-2 focus-visible:ring-offset-black lg:hidden"
-                        >
-                            {isMobileMenuOpen ? <CloseIcon className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
-                        </button>
+                        <div className="flex items-center gap-3">
+                            <Link href="/login" className="hidden rounded-xl bg-[#FF9A9E] px-6 py-2.5 text-sm font-bold text-white transition hover:bg-[#FF527B] md:block">Masuk</Link>
+                            <Link href="/download" className="rounded-xl bg-pink-gradient px-6 py-2.5 text-sm font-bold text-black shadow-[0_12px_28px_-14px_rgba(255,154,158,0.8)] transition hover:opacity-90">Download App</Link>
+                            <button
+                                type="button"
+                                aria-label={isMobileMenuOpen ? "Tutup menu" : "Buka menu"}
+                                aria-controls="mobile-nav-menu"
+                                onClick={() => setIsMobileMenuOpen((value) => !value)}
+                                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-2 focus-visible:ring-offset-black lg:hidden"
+                            >
+                                {isMobileMenuOpen ? <CloseIcon className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -107,10 +108,8 @@ export default function HeroSectionClient() {
                         <div id="mobile-nav-menu" className="mx-6 mt-4 rounded-3xl border border-white/10 bg-black/95 p-4 shadow-[0_15px_35px_-15px_rgba(0,0,0,0.3)] md:mx-12 lg:hidden">
                             <div className="flex flex-col gap-2 text-sm font-semibold text-white">
                                 <a href="#beranda" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>Beranda</a>
-                                <a href="#kategori" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>Jelajahi Vendor</a>
-                                <a href="#cara-kerja" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>Cara Kerja</a>
-                                <a href="#features" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>Untuk Vendor</a>
-                                <a href="#footer" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>Tentang Kami</a>
+                                <Link href="/vendors" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>Jelajahi Vendor</Link>
+                                <a href="#footer" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>Tentang</a>
                                 <Link href="/download" className="rounded-xl bg-pink-gradient px-3 py-2 text-center font-bold text-black transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>Download App</Link>
                             </div>
                         </div>
@@ -140,8 +139,8 @@ export default function HeroSectionClient() {
 
                             <div className="mb-8 flex flex-wrap gap-2">
                                 <div className="flex flex-wrap gap-2">
-                                    {['Fotografi', 'Katering', 'Dekorasi', 'Wedding Organizer', 'Hiburan'].map((chip) => (
-                                        <button key={chip} type="button" className="rounded-full border border-white/20 px-5 py-2 text-[11px] font-bold uppercase tracking-tight text-white transition hover:bg-white/10">{chip}</button>
+                                    {CATEGORIES.slice(0, 5).map((chip) => (
+                                        <button key={chip.id} type="button" className="rounded-full border border-white/20 px-5 py-2 text-[11px] font-bold uppercase tracking-tight text-white transition hover:bg-white/10">{chip.name}</button>
                                     ))}
                                 </div>
                             </div>

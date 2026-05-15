@@ -1,10 +1,11 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminHeader from '@/components/admin/AdminHeader';
 import FilterTabs from '@/components/admin/FilterTabs';
 import AdminPagination from '@/components/admin/AdminPagination';
 import StatusBadge from '@/components/admin/StatusBadge';
+import { getAllBookings } from '@/services/admin.service';
 
 const EyeIcon = ({ className }: { className?: string }) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
@@ -36,123 +37,71 @@ const CreditCardIcon = ({ className }: { className?: string }) => (
 
 type BookingStatus = 'MENUNGGU' | 'DIKONFIRMASI' | 'BERJALAN' | 'SELESAI' | 'DIBATALKAN';
 
-type Booking = {
-    id: string;
-    pelanggan: string;
-    email: string;
-    telepon: string;
-    vendor: string;
-    kategoriVendor: string;
-    layanan: string;
-    tanggal: string;
-    jamMulai: string;
-    jamSelesai: string;
-    lokasi: string;
-    nominal: string;
-    dp: string;
-    statusPembayaran: string;
-    catatan: string;
-    status: BookingStatus;
-    createdAt: string;
+const statusVariantMap: Record<string, 'blue' | 'emerald' | 'red'> = {
+    PENDING: 'blue',
+    CONFIRMED: 'emerald',
+    IN_PROGRESS: 'blue',
+    COMPLETED: 'emerald',
+    CANCELLED: 'red',
 };
 
-const bookings: Booking[] = [
-    {
-        id: 'BK-2026-001',
-        pelanggan: 'Andi Pratama',
-        email: 'andi.pratama@gmail.com',
-        telepon: '+62 812 3456 7890',
-        vendor: 'Wafa Media Studio',
-        kategoriVendor: 'Fotografi',
-        layanan: 'Paket Foto Pernikahan',
-        tanggal: '20 Mei 2026',
-        jamMulai: '08.00',
-        jamSelesai: '17.00',
-        lokasi: 'Gedung Graha Saba, Padang',
-        nominal: 'Rp 5.500.000',
-        dp: 'Rp 2.750.000',
-        statusPembayaran: 'DP',
-        catatan: 'Mohon siapkan lighting tambahan untuk indoor.',
-        status: 'DIKONFIRMASI',
-        createdAt: '10 Mei 2026',
-    },
-    {
-        id: 'BK-2026-002',
-        pelanggan: 'Siti Aminah',
-        email: 'siti.a@outlook.com',
-        telepon: '+62 856 7890 1234',
-        vendor: 'Catering Jaya Raya',
-        kategoriVendor: 'Katering',
-        layanan: 'Paket Katering 200 Pax',
-        tanggal: '22 Mei 2026',
-        jamMulai: '10.00',
-        jamSelesai: '15.00',
-        lokasi: 'Hotel Santika Premiere, Bukittinggi',
-        nominal: 'Rp 12.000.000',
-        dp: '-',
-        statusPembayaran: 'Belum Bayar',
-        catatan: 'Menu bebas kacang untuk tamu alergi.',
-        status: 'MENUNGGU',
-        createdAt: '12 Mei 2026',
-    },
-    {
-        id: 'BK-2026-003',
-        pelanggan: 'Budi Santoso',
-        email: 'budi.san@gmail.com',
-        telepon: '+62 821 2345 6789',
-        vendor: 'Dekor Elegan',
-        kategoriVendor: 'Dekorasi',
-        layanan: 'Paket Dekorasi Gedung',
-        tanggal: '25 Mei 2026',
-        jamMulai: '07.00',
-        jamSelesai: '20.00',
-        lokasi: 'Gedung Serbaguna, Padang',
-        nominal: 'Rp 7.500.000',
-        dp: 'Rp 7.500.000',
-        statusPembayaran: 'Lunas',
-        catatan: 'Tema warna soft pink dan gold.',
-        status: 'SELESAI',
-        createdAt: '8 Mei 2026',
-    },
-    {
-        id: 'BK-2026-004',
-        pelanggan: 'Rini Wulandari',
-        email: 'rini.w@gmail.com',
-        telepon: '+62 877 8901 2345',
-        vendor: 'Musik Harmoni',
-        kategoriVendor: 'Hiburan',
-        layanan: 'Paket Live Music 4 Jam',
-        tanggal: '18 Mei 2026',
-        jamMulai: '19.00',
-        jamSelesai: '23.00',
-        lokasi: 'Rumah Pribadi, Padang Panjang',
-        nominal: 'Rp 3.200.000',
-        dp: '-',
-        statusPembayaran: 'Belum Bayar',
-        catatan: '-',
-        status: 'DIBATALKAN',
-        createdAt: '5 Mei 2026',
-    },
-];
+const mapStatusToIndonesian = (status: string) => {
+    switch (status) {
+        case 'PENDING': return 'MENUNGGU';
+        case 'CONFIRMED': return 'DIKONFIRMASI';
+        case 'IN_PROGRESS': return 'BERJALAN';
+        case 'COMPLETED': return 'SELESAI';
+        case 'CANCELLED': return 'DIBATALKAN';
+        default: return status;
+    }
+};
 
-const statusVariantMap: Record<BookingStatus, 'blue' | 'emerald' | 'red'> = {
-    MENUNGGU: 'blue',
-    DIKONFIRMASI: 'emerald',
-    BERJALAN: 'blue',
-    SELESAI: 'emerald',
-    DIBATALKAN: 'red',
+const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(amount);
 };
 
 type TabValue = 'semua' | 'menunggu' | 'dikonfirmasi' | 'selesai' | 'dibatalkan';
 
 export default function AdminManajemenBookingPage() {
     const [activeTab, setActiveTab] = useState<TabValue>('semua');
-    const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+    const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
+    const [data, setData] = useState<{ bookings: any[], stats: any, total: number }>({ bookings: [], stats: {}, total: 0 });
+    const [isLoading, setIsLoading] = useState(true);
 
-    const filtered = bookings.filter((b) => {
-        if (activeTab === 'semua') return true;
-        return b.status.toLowerCase() === activeTab;
-    });
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                let statusFilter = undefined;
+                if (activeTab === 'menunggu') statusFilter = 'PENDING';
+                if (activeTab === 'dikonfirmasi') statusFilter = 'CONFIRMED';
+                if (activeTab === 'selesai') statusFilter = 'COMPLETED';
+                if (activeTab === 'dibatalkan') statusFilter = 'CANCELLED';
+
+                const response = await getAllBookings({ status: statusFilter });
+                setData(response);
+            } catch (error) {
+                console.error("Gagal mengambil data booking", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        setIsLoading(true);
+        fetchData();
+    }, [activeTab]);
+
+    if (isLoading && data.bookings.length === 0) {
+        return (
+            <div className="flex h-screen items-center justify-center" data-testid="loading-spinner">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF9A9E]"></div>
+            </div>
+        );
+    }
 
     return (
         <>
@@ -175,15 +124,21 @@ export default function AdminManajemenBookingPage() {
                         <div className="flex items-center bg-white rounded-full px-8 py-2 border border-[#FF9A9E]/20 shadow-sm h-14 gap-0">
                             <div className="flex flex-col items-center justify-center pr-6 border-r border-gray-100">
                                 <span className="text-[8px] font-bold tracking-widest text-[#2A2A2A]/40 uppercase">TOTAL BOOKING</span>
-                                <span className="text-base font-black text-[#2A2A2A] leading-none mt-1">425</span>
+                                <span className="text-base font-black text-[#2A2A2A] leading-none mt-1">
+                                    {data.stats?.total?.toString().padStart(2, '0') ?? '00'}
+                                </span>
                             </div>
                             <div className="flex flex-col items-center justify-center px-6 border-r border-gray-100">
                                 <span className="text-[8px] font-bold tracking-widest text-[#2A2A2A]/40 uppercase">MENUNGGU</span>
-                                <span className="text-base font-black text-[#FF9A9E] leading-none mt-1">12</span>
+                                <span className="text-base font-black text-[#FF9A9E] leading-none mt-1">
+                                    {data.stats?.pending?.toString().padStart(2, '0') ?? '00'}
+                                </span>
                             </div>
                             <div className="flex flex-col items-center justify-center pl-6">
                                 <span className="text-[8px] font-bold tracking-widest text-[#2A2A2A]/40 uppercase">SELESAI</span>
-                                <span className="text-base font-black text-emerald-500 leading-none mt-1">389</span>
+                                <span className="text-base font-black text-emerald-500 leading-none mt-1">
+                                    {data.stats?.completed?.toString().padStart(2, '0') ?? '00'}
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -191,10 +146,10 @@ export default function AdminManajemenBookingPage() {
                     {/* Stat Cards */}
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                         {[
-                            { icon: <ClipboardListIcon className="w-4 h-4 text-[#FF9A9E]" />, label: 'Total Booking', value: '425', sub: '↑ 15% bulan ini' },
-                            { icon: <CalendarIcon className="w-4 h-4 text-[#FF9A9E]" />, label: 'Menunggu Konfirmasi', value: '12', sub: 'Perlu tindakan' },
-                            { icon: <CheckCircleIcon className="w-4 h-4 text-emerald-500" />, label: 'Selesai', value: '389', sub: '↑ 8% bulan ini' },
-                            { icon: <XCircleIcon className="w-4 h-4 text-red-400" />, label: 'Dibatalkan', value: '24', sub: 'Perlu evaluasi' },
+                            { icon: <ClipboardListIcon className="w-4 h-4 text-[#FF9A9E]" />, label: 'Total Booking', value: data.stats?.total ?? 0, sub: 'Semua Status' },
+                            { icon: <CalendarIcon className="w-4 h-4 text-[#FF9A9E]" />, label: 'Menunggu Konfirmasi', value: data.stats?.pending ?? 0, sub: 'Perlu tindakan' },
+                            { icon: <CheckCircleIcon className="w-4 h-4 text-emerald-500" />, label: 'Selesai', value: data.stats?.completed ?? 0, sub: 'Sudah diselesaikan' },
+                            { icon: <XCircleIcon className="w-4 h-4 text-red-400" />, label: 'Dibatalkan', value: (data.stats?.total ?? 0) - (data.stats?.pending ?? 0) - (data.stats?.completed ?? 0), sub: 'Status lainnya' },
                         ].map((card) => (
                             <div key={card.label} className="bg-white rounded-2xl p-5 shadow-[0_4px_20px_-8px_rgba(255,154,158,0.15)] border border-white flex flex-col gap-3">
                                 <div className="w-8 h-8 rounded-xl bg-[#FDF1F0] flex items-center justify-center">
@@ -240,43 +195,51 @@ export default function AdminManajemenBookingPage() {
                         </div>
 
                         {/* Table Rows */}
-                        {filtered.map((booking, i) => (
-                            <div
-                                key={booking.id}
-                                className="flex items-center py-4 border-b border-gray-50 last:border-0 hover:bg-[#FDF1F0]/30 transition-colors rounded-xl px-2"
-                            >
-                                <div className="w-[5%]">
-                                    <span className="text-[10px] font-bold text-[#2A2A2A]/20">{i + 1}</span>
+                        {data.bookings.map((booking, i) => {
+                            const date = new Date(booking.eventDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                            return (
+                                <div
+                                    key={booking.id}
+                                    className="flex items-center py-4 border-b border-gray-50 last:border-0 hover:bg-[#FDF1F0]/30 transition-colors rounded-xl px-2"
+                                >
+                                    <div className="w-[5%]">
+                                        <span className="text-[10px] font-bold text-[#2A2A2A]/20">{i + 1}</span>
+                                    </div>
+                                    <div className="w-[20%] flex flex-col pr-2">
+                                        <span className="text-[10px] font-extrabold text-[#2A2A2A] mb-0.5 tracking-wider uppercase truncate">{booking.id}</span>
+                                        <span className="text-[9px] font-semibold text-[#2A2A2A]/50 truncate">{booking.customer?.name}</span>
+                                        <span className="text-[8px] font-medium text-[#2A2A2A]/30 truncate">{booking.customer?.email}</span>
+                                    </div>
+                                    <div className="w-[20%] flex flex-col pr-2">
+                                        <span className="text-[10px] font-bold text-[#2A2A2A] truncate">{booking.vendor?.businessName}</span>
+                                        <span className="text-[9px] font-medium text-[#2A2A2A]/40 truncate">{booking.layanan?.name}</span>
+                                    </div>
+                                    <div className="w-[15%]">
+                                        <span className="text-[10px] font-bold text-[#2A2A2A]/60">{date}</span>
+                                    </div>
+                                    <div className="w-[15%]">
+                                        <span className="text-[11px] font-extrabold text-[#2A2A2A]">{formatCurrency(booking.totalPrice)}</span>
+                                    </div>
+                                    <div className="w-[15%] flex justify-center">
+                                        <StatusBadge text={mapStatusToIndonesian(booking.status)} variant={statusVariantMap[booking.status] || 'blue'} />
+                                    </div>
+                                    <div className="w-[10%] flex justify-end">
+                                        <button
+                                            type="button"
+                                            onClick={() => setSelectedBooking(booking)}
+                                            className="w-9 h-9 bg-[#FDF1F0] hover:bg-[#FCE6E3] border border-[#FF9A9E]/10 rounded-xl flex items-center justify-center text-[#FF9A9E] hover:text-[#FF527B] transition-colors"
+                                        >
+                                            <EyeIcon className="w-4 h-4" />
+                                        </button>
+                                    </div>
                                 </div>
-                                <div className="w-[20%] flex flex-col">
-                                    <span className="text-[10px] font-extrabold text-[#2A2A2A] mb-0.5 tracking-wider uppercase">{booking.id}</span>
-                                    <span className="text-[9px] font-semibold text-[#2A2A2A]/50">{booking.pelanggan}</span>
-                                    <span className="text-[8px] font-medium text-[#2A2A2A]/30">{booking.email}</span>
-                                </div>
-                                <div className="w-[20%] flex flex-col">
-                                    <span className="text-[10px] font-bold text-[#2A2A2A]">{booking.vendor}</span>
-                                    <span className="text-[9px] font-medium text-[#2A2A2A]/40">{booking.layanan}</span>
-                                </div>
-                                <div className="w-[15%]">
-                                    <span className="text-[10px] font-bold text-[#2A2A2A]/60">{booking.tanggal}</span>
-                                </div>
-                                <div className="w-[15%]">
-                                    <span className="text-[11px] font-extrabold text-[#2A2A2A]">{booking.nominal}</span>
-                                </div>
-                                <div className="w-[15%] flex justify-center">
-                                    <StatusBadge text={booking.status} variant={statusVariantMap[booking.status]} />
-                                </div>
-                                <div className="w-[10%] flex justify-end">
-                                    <button
-                                        type="button"
-                                        onClick={() => setSelectedBooking(booking)}
-                                        className="w-9 h-9 bg-[#FDF1F0] hover:bg-[#FCE6E3] border border-[#FF9A9E]/10 rounded-xl flex items-center justify-center text-[#FF9A9E] hover:text-[#FF527B] transition-colors"
-                                    >
-                                        <EyeIcon className="w-4 h-4" />
-                                    </button>
-                                </div>
+                            );
+                        })}
+                        {data.bookings.length === 0 && !isLoading && (
+                            <div className="py-8 text-center text-xs text-gray-400 font-medium">
+                                Tidak ada data pemesanan.
                             </div>
-                        ))}
+                        )}
                     </div>
 
                     <AdminPagination pages={[1, 2, 3]} currentPage={1} />
@@ -326,11 +289,11 @@ export default function AdminManajemenBookingPage() {
                     {/* Status & Tanggal Buat */}
                     <div className="flex items-center justify-between">
                         <StatusBadge
-                            text={selectedBooking.status}
-                            variant={statusVariantMap[selectedBooking.status]}
+                            text={mapStatusToIndonesian(selectedBooking.status)}
+                            variant={statusVariantMap[selectedBooking.status] || 'blue'}
                         />
                         <span className="text-[9px] font-bold text-[#2A2A2A]/30 uppercase tracking-wider">
-                            Dibuat: {selectedBooking.createdAt}
+                            Dibuat: {new Date(selectedBooking.createdAt).toLocaleDateString('id-ID')}
                         </span>
                     </div>
 
@@ -346,13 +309,13 @@ export default function AdminManajemenBookingPage() {
                                 </span>
                             </div>
                             <span className="text-[13px] font-extrabold text-[#2A2A2A]">
-                                {selectedBooking.pelanggan}
+                                {selectedBooking.customer?.name}
                             </span>
                             <span className="text-[10px] font-medium text-[#2A2A2A]/50">
-                                {selectedBooking.email}
+                                {selectedBooking.customer?.email}
                             </span>
                             <span className="text-[10px] font-medium text-[#2A2A2A]/50">
-                                {selectedBooking.telepon}
+                                {selectedBooking.customer?.phone || '-'}
                             </span>
                         </div>
 
@@ -365,13 +328,13 @@ export default function AdminManajemenBookingPage() {
                                 </span>
                             </div>
                             <span className="text-[13px] font-extrabold text-[#2A2A2A]">
-                                {selectedBooking.vendor}
+                                {selectedBooking.vendor?.businessName}
                             </span>
                             <span className="text-[10px] font-bold text-[#FF9A9E]">
-                                {selectedBooking.kategoriVendor}
+                                {selectedBooking.layanan?.kategori?.name || 'Kategori Umum'}
                             </span>
                             <span className="text-[10px] font-medium text-[#2A2A2A]/50">
-                                {selectedBooking.layanan}
+                                {selectedBooking.layanan?.name}
                             </span>
                         </div>
 
@@ -389,20 +352,20 @@ export default function AdminManajemenBookingPage() {
                                         Tanggal
                                     </p>
                                     <p className="text-[11px] font-extrabold text-[#2A2A2A]">
-                                        {selectedBooking.tanggal}
+                                        {new Date(selectedBooking.eventDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
                                     </p>
                                 </div>
                                 <div>
                                     <p className="text-[8px] font-bold text-[#2A2A2A]/30 uppercase tracking-wider mb-0.5">
-                                        Waktu
+                                        Catatan
                                     </p>
-                                    <p className="text-[11px] font-extrabold text-[#2A2A2A]">
-                                        {selectedBooking.jamMulai} – {selectedBooking.jamSelesai}
+                                    <p className="text-[11px] font-extrabold text-[#2A2A2A] max-w-[150px] truncate">
+                                        {selectedBooking.notes || '-'}
                                     </p>
                                 </div>
                             </div>
                             <p className="text-[10px] font-medium text-[#2A2A2A]/50 leading-relaxed">
-                                {selectedBooking.lokasi}
+                                {selectedBooking.eventAddress || 'Sesuai Layanan'}
                             </p>
                         </div>
 
@@ -420,15 +383,7 @@ export default function AdminManajemenBookingPage() {
                                         Total
                                     </p>
                                     <p className="text-[13px] font-black text-[#2A2A2A]">
-                                        {selectedBooking.nominal}
-                                    </p>
-                                </div>
-                                <div>
-                                    <p className="text-[8px] font-bold text-[#2A2A2A]/30 uppercase tracking-wider mb-0.5">
-                                        DP
-                                    </p>
-                                    <p className="text-[13px] font-black text-[#2A2A2A]">
-                                        {selectedBooking.dp}
+                                        {formatCurrency(selectedBooking.totalPrice)}
                                     </p>
                                 </div>
                             </div>
@@ -437,13 +392,11 @@ export default function AdminManajemenBookingPage() {
                                     Status
                                 </span>
                                 <span className={`text-[10px] font-black uppercase tracking-wider ${
-                                    selectedBooking.statusPembayaran === 'Lunas'
+                                    selectedBooking.payment?.status === 'PAID'
                                         ? 'text-emerald-500'
-                                        : selectedBooking.statusPembayaran === 'DP'
-                                        ? 'text-[#FF9A9E]'
                                         : 'text-[#2A2A2A]/30'
                                 }`}>
-                                    {selectedBooking.statusPembayaran}
+                                    {selectedBooking.payment?.status || 'BELUM BAYAR'}
                                 </span>
                             </div>
                         </div>
@@ -464,23 +417,12 @@ export default function AdminManajemenBookingPage() {
 
                 {/* Modal Footer */}
                 <div className="px-8 py-5 border-t border-gray-50 flex-shrink-0 flex gap-3">
-                    {selectedBooking.status === 'MENUNGGU' ? (
-                        <>
-                            <button className="flex-1 py-3.5 bg-[#2A2A2A] text-white rounded-xl text-[9px] font-black tracking-widest uppercase hover:bg-[#FF9A9E] transition-colors">
-                                KONFIRMASI
-                            </button>
-                            <button className="flex-1 py-3.5 bg-white border border-red-100 text-red-400 rounded-xl text-[9px] font-black tracking-widest uppercase hover:bg-red-50 transition-colors">
-                                TOLAK
-                            </button>
-                        </>
-                    ) : (
-                        <button
-                            onClick={() => setSelectedBooking(null)}
-                            className="w-full py-3.5 bg-[#FAFAFC] border border-gray-100 text-[#2A2A2A]/40 rounded-xl text-[9px] font-black tracking-widest uppercase hover:text-[#2A2A2A] transition-colors"
-                        >
-                            TUTUP
-                        </button>
-                    )}
+                    <button
+                        onClick={() => setSelectedBooking(null)}
+                        className="w-full py-3.5 bg-[#FAFAFC] border border-gray-100 text-[#2A2A2A]/40 rounded-xl text-[9px] font-black tracking-widest uppercase hover:text-[#2A2A2A] transition-colors"
+                    >
+                        TUTUP
+                    </button>
                 </div>
 
             </div>

@@ -3,6 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import { Mail, MapPin, Phone } from "lucide-react";
+import { CATEGORIES } from "../lib/categories";
 
 const InstagramIcon = ({ className }: { className?: string }) => (
   <svg
@@ -66,7 +67,7 @@ const YouTubeIcon = ({ className }: { className?: string }) => (
 
 const footerLinks = {
   platform: ["Jelajahi Vendor", "Cara Kerja", "Untuk Vendor", "Tentang Kami"],
-  kategori: ["Fotografi", "Katering", "Dekorasi", "Hiburan"],
+  kategori: CATEGORIES.slice(0, 4).map((c) => c.name),
 };
 
 export default function Footer() {

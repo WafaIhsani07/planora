@@ -28,11 +28,11 @@ export default function DetailPesananByIdPage() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <button className="flex items-center gap-2 px-5 h-10 rounded-full border border-emerald-200 text-emerald-600 bg-[#EAF5EF] hover:bg-emerald-50 text-[9px] font-bold tracking-widest uppercase transition-colors shadow-sm">
+                    <button className="flex items-center gap-2 px-5 h-10 rounded-full border border-emerald-200 text-emerald-600 bg-[#EAF5EF] hover:bg-emerald-50 text-[9px] font-bold tracking-widest uppercase transition-colors shadow-sm cursor-pointer">
                         <CheckCircleIcon className="w-4 h-4" />
                         PESANAN SELESAI
                     </button>
-                    <button className="flex items-center gap-2 px-5 h-10 rounded-full bg-[#2A2A2A] text-white text-[9px] font-bold tracking-widest uppercase hover:bg-[#1a1a1a] transition-colors shadow-lg shadow-[#2A2A2A]/20">
+                    <button className="flex items-center gap-2 px-5 h-10 rounded-full bg-[#2A2A2A] text-white text-[9px] font-bold tracking-widest uppercase hover:bg-[#1a1a1a] transition-colors shadow-lg shadow-[#2A2A2A]/20 cursor-pointer">
                         <MessageCircleIcon className="w-4 h-4" />
                         CHAT PELANGGAN
                     </button>

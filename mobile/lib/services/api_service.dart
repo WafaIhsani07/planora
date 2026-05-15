@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
@@ -168,9 +167,10 @@ class ApiService {
   }
 
   // Ambil profil pengguna yang sedang login (membutuhkan token)
+  // Menyatukan rute /users/me dari main dan implementasi dari branch kita
   static Future<Map<String, dynamic>> getProfile({http.Client? client}) async {
     try {
-      final response = await getRequest('/auth/profile', client: client);
+      final response = await getRequest('/users/me', client: client);
       final data = json.decode(response.body);
 
       if (response.statusCode == 200 && data['success'] == true) {
@@ -233,7 +233,33 @@ class ApiService {
     }
   }
 
-  // T10: Konfirmasi pembayaran — update status booking menjadi PAID
+  // Buat Pembayaran (inisiasi payment record) - Dari upstream/main
+  static Future<Map<String, dynamic>> createPayment({
+    required String bookingId,
+    required double amount,
+    required String method,
+    http.Client? client,
+  }) async {
+    try {
+      final response = await postRequest('/payments', {
+        'bookingId': bookingId,
+        'amount': amount,
+        'method': method,
+      }, client: client);
+
+      final data = json.decode(response.body);
+
+      if ((response.statusCode == 200 || response.statusCode == 201) && data['success'] == true) {
+        return {'success': true, 'data': data['data']};
+      } else {
+        return {'success': false, 'message': data['message'] ?? 'Gagal membuat pembayaran'};
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Gagal terhubung ke server'};
+    }
+  }
+
+  // T10: Konfirmasi pembayaran - update status booking menjadi PAID
   static Future<Map<String, dynamic>> confirmPayment(String bookingId, {http.Client? client}) async {
     try {
       final response = await postRequest(
@@ -288,7 +314,7 @@ class ApiService {
     final token = await getToken();
     try {
       final response = await httpClient.patch(
-        Uri.parse('$baseUrl/auth/profile'),
+        Uri.parse('$baseUrl/users/me'),
         headers: {
           'Content-Type': 'application/json',
           if (token != null) 'Authorization': 'Bearer $token',
@@ -306,5 +332,10 @@ class ApiService {
     } finally {
       if (client == null) httpClient.close();
     }
+  }
+
+  // Hapus token (Logout) - Dari upstream/main
+  static Future<void> logout() async {
+    await clearToken();
   }
 }

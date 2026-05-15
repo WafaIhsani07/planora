@@ -117,11 +117,11 @@ export default function ProfilVendorPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button className="flex h-11 items-center gap-2 rounded-full border border-gray-200 bg-white px-5 text-[10px] font-bold tracking-widest text-[#2A2A2A] uppercase shadow-sm transition-colors hover:bg-gray-50">
+          <button className="flex h-11 items-center gap-2 rounded-full border border-gray-200 bg-white px-5 text-[10px] font-bold tracking-widest text-[#2A2A2A] uppercase shadow-sm transition-colors hover:bg-gray-50 cursor-pointer">
             <ExternalLinkIcon className="h-4 w-4" />
             LIHAT PUBLIK
           </button>
-          <button className="flex h-11 items-center gap-2 rounded-full bg-[#2A2A2A] px-5 text-[10px] font-bold tracking-widest text-white uppercase shadow-lg shadow-[#2A2A2A]/20 transition-colors hover:bg-[#1a1a1a]">
+          <button className="flex h-11 items-center gap-2 rounded-full bg-[#2A2A2A] px-5 text-[10px] font-bold tracking-widest text-white uppercase shadow-lg shadow-[#2A2A2A]/20 transition-colors hover:bg-[#1a1a1a] cursor-pointer">
             <SaveIcon className="h-4 w-4" />
             SIMPAN PROFIL
           </button>

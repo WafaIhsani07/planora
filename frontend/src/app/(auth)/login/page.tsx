@@ -21,6 +21,30 @@ export default function LoginPage() {
   const [authError, setAuthError] = useState('');
   const router = useRouter();
 
+  const handleQuickLogin = async (type: 'vendor' | 'admin') => {
+    if (isLoading) return;
+
+    setUserType(type);
+    setIsLoading(true);
+    setAuthError('');
+
+    const result = await signIn('credentials', {
+      redirect: false,
+      email: type === 'admin' ? 'admin@planora.dev' : 'vendor@planora.dev',
+      password: type === 'admin' ? 'devadmin123' : 'devvendor123',
+      role: type,
+    });
+
+    if (result?.error) {
+      setAuthError('Login gagal. Coba lagi dengan akun demo yang tersedia.');
+      setIsLoading(false);
+      return;
+    }
+
+    router.replace(type === 'admin' ? '/admin/dashboard' : '/dashboard');
+    router.refresh();
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
@@ -128,6 +152,11 @@ export default function LoginPage() {
       {/* SISI KANAN: LOGIN FORM */}
       <div className="w-full lg:w-1/2 flex items-center justify-center bg-white p-8 md:p-20 overflow-y-auto">
         <div className="w-full max-w-[500px] py-10">
+          {/* Back to Home Button */}
+          <Link href="/" className="inline-flex items-center gap-2 mb-8 text-slate-500 hover:text-[#FF9A9E] transition-colors text-sm font-semibold">
+            ← Kembali ke Beranda
+          </Link>
+
           {/* Header Section */}
           <div className="mb-10">
             <p className="text-slate-400 text-[11px] mb-2 font-bold uppercase tracking-[0.15em]">
@@ -140,7 +169,8 @@ export default function LoginPage() {
               Belum punya akun?{' '}
               <Link
                 href="/register"
-                className="text-[#FF9A9E] font-bold hover:underline inline-flex items-center gap-1 transition-all"
+                className="font-bold hover:underline inline-flex items-center gap-1 transition-all"
+                style={{ color: '#FF9A9E' }}
               >
                 Daftar Sekarang
               </Link>
@@ -151,25 +181,27 @@ export default function LoginPage() {
           <div className="mb-8 flex gap-3 flex-col sm:flex-row">
             <button
               type="button"
-              onClick={() => setUserType('admin')}
+              onClick={() => handleQuickLogin('admin')}
+              disabled={isLoading}
               className={`flex-1 rounded-xl border px-4 py-3 text-center font-bold transition text-sm md:text-base ${
                 userType === 'admin'
-                  ? 'border-[#FF9A9E]/60 bg-[#FF9A9E]/15 text-[#FF9A9E]'
-                  : 'border-[#FF9A9E]/30 bg-[#FF9A9E]/10 text-[#FF9A9E] hover:border-[#FF9A9E]/60 hover:bg-[#FF9A9E]/15'
+                  ? 'border-[#FF9A9E] bg-[#FFE6E1] text-[#FF4F79] shadow-sm'
+                  : 'border-[#E5E7EB] bg-white text-[#94A3B8] hover:border-[#FF9A9E]/50 hover:bg-[#FFF7F8] hover:text-[#FF7B93]'
               }`}
             >
-              Masuk Admin
+              {isLoading && userType === 'admin' ? 'Memproses...' : 'Masuk Admin'}
             </button>
             <button
               type="button"
-              onClick={() => setUserType('vendor')}
+              onClick={() => handleQuickLogin('vendor')}
+              disabled={isLoading}
               className={`flex-1 rounded-xl border px-4 py-3 text-center font-bold transition text-sm md:text-base ${
                 userType === 'vendor'
-                  ? 'border-[#FF9A9E]/60 bg-[#FF9A9E]/20 text-[#0D121F]'
-                  : 'border-[#FF9A9E]/40 bg-white text-[#0D121F] hover:bg-[#F7F9FC]'
+                  ? 'border-[#FF9A9E] bg-[#FFE6E1] text-[#FF4F79] shadow-sm'
+                  : 'border-[#E5E7EB] bg-white text-[#94A3B8] hover:border-[#FF9A9E]/50 hover:bg-[#FFF7F8] hover:text-[#FF7B93]'
               }`}
             >
-              Masuk Vendor
+              {isLoading && userType === 'vendor' ? 'Memproses...' : 'Masuk Vendor'}
             </button>
           </div>
 

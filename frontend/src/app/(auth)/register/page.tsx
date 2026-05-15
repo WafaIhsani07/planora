@@ -3,25 +3,13 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { CATEGORIES } from "../../../lib/categories";
 import { useRouter } from "next/navigation";
 import { Briefcase, Building, ChevronDown, Eye, EyeOff, Lock, Mail, MapPin, Phone, ShieldCheck, Sparkles } from "lucide-react";
 import api from "@/lib/api";
 import { signIn } from "next-auth/react";
 
-const serviceCategories = [
-  "Wedding Organizer",
-  "Venue",
-  "Katering",
-  "Fotografi",
-  "Videografi",
-  "Dekorasi & Florist",
-  "Make Up Artist (MUA)",
-  "Busana Pengantin",
-  "MC (Master of Ceremony)",
-  "Hiburan Musik (Band/DJ)",
-  "Undangan Digital",
-  "Souvenir",
-];
+const serviceCategories = CATEGORIES;
 
 export default function RegisterPage() {
   const role = "VENDOR";
@@ -199,10 +187,15 @@ export default function RegisterPage() {
 
       <div className="w-full lg:w-1/2 flex items-center justify-center bg-white p-8 md:p-20 overflow-y-auto">
         <div className="w-full max-w-[500px] py-8 md:py-10">
+          {/* Back to Home Button */}
+          <Link href="/" className="inline-flex items-center gap-2 mb-8 text-slate-500 hover:text-[#FF9A9E] transition-colors text-sm font-semibold">
+            ← Kembali ke Beranda
+          </Link>
+
           <div className="mb-10">
             <p className="text-slate-400 text-[11px] mb-2 font-bold uppercase tracking-[0.15em]">Selamat Datang ✨</p>
             <h2 className="text-3xl md:text-[2rem] font-extrabold text-[#0D121F] mb-3 tracking-tight leading-tight">Daftar Vendor <span className="text-[#FF9A9E]">Planora</span></h2>
-            <p className="text-slate-400 text-sm font-medium">Sudah punya akun? <Link href="/login" className="text-[#FF9A9E] font-bold hover:underline">Masuk Sekarang</Link></p>
+            <p className="text-slate-400 text-sm font-medium">Sudah punya akun? <Link href="/login" className="font-bold hover:underline" style={{color: '#FF9A9E'}}>Masuk Sekarang</Link></p>
           </div>
 
           <form className="space-y-6" onSubmit={handleSubmit}>
@@ -268,7 +261,7 @@ export default function RegisterPage() {
                   >
                     <option value="">Pilih kategori utama</option>
                     {serviceCategories.map((category) => (
-                      <option key={category} value={category}>{category}</option>
+                      <option key={category.id} value={category.id}>{category.name}</option>
                     ))}
                   </select>
                   <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />

@@ -7,9 +7,9 @@ type StatusBadgeProps = {
 };
 
 const variantMap: Record<StatusBadgeProps['variant'], string> = {
-    blue: 'bg-[#EBF3FF] text-blue-500',
-    emerald: 'bg-[#EAF5EF] text-emerald-500',
-    red: 'bg-[#FDF1F0] text-red-500',
+    blue: 'bg-[#EBF3FF] text-blue-600',
+    emerald: 'bg-[#EAF5EF] text-emerald-600',
+    red: 'bg-[#FDF1F0] text-red-600',
 };
 
 const borderVariantMap: Record<StatusBadgeProps['variant'], string> = {
@@ -24,9 +24,9 @@ export default function StatusBadge({ text, variant, rounded = 'full', bordered 
 
     return (
         <div className="flex flex-col items-end">
-            <span className={`px-3 py-1.5 text-[8px] font-extrabold tracking-widest uppercase ${radiusClass} ${variantMap[variant]} ${borderClass} ${helperActionText ? 'mb-1' : ''}`}>
-                {text}
-            </span>
+                <span className={`px-3 py-1.5 text-[9px] font-black tracking-wider uppercase ${radiusClass} ${variantMap[variant]} ${borderClass} ${helperActionText ? 'mb-1' : ''}`}>
+                    {text}
+                </span>
             {helperActionText ? (
                 <button type="button" className="text-[7px] font-bold tracking-widest text-red-400 hover:text-red-600 uppercase transition-colors pr-2">
                     {helperActionText}

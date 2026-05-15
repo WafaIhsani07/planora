@@ -170,4 +170,133 @@ void main() {
       expect(result['message'], 'Gagal terhubung ke server');
     });
   });
+
+  group('ApiService Profile Tests', () {
+    test('[POSITIF] getProfile mengembalikan data user saat 200', () async {
+      SharedPreferences.setMockInitialValues({'access_token': 'valid-token'});
+
+      final mockClient = MockClient((request) async {
+        expect(request.url.toString(), '${ApiService.baseUrl}/users/me');
+        expect(request.headers['Authorization'], 'Bearer valid-token');
+
+        return http.Response(
+          json.encode({
+            'success': true,
+            'data': {
+              'id': 'user-1',
+              'name': 'Budi Santoso',
+              'email': 'budi@test.com',
+              'role': 'CUSTOMER',
+            }
+          }),
+          200,
+        );
+      });
+
+      final result = await ApiService.getProfile(client: mockClient);
+
+      expect(result['success'], true);
+      expect(result['data']['name'], 'Budi Santoso');
+      expect(result['data']['email'], 'budi@test.com');
+    });
+
+    test('[NEGATIF] getProfile mengembalikan error saat token tidak valid (401)', () async {
+      SharedPreferences.setMockInitialValues({'access_token': 'expired-token'});
+
+      final mockClient = MockClient((request) async {
+        return http.Response(
+          json.encode({'success': false, 'message': 'Token tidak valid'}),
+          401,
+        );
+      });
+
+      final result = await ApiService.getProfile(client: mockClient);
+
+      expect(result['success'], false);
+      expect(result['message'], 'Token tidak valid');
+    });
+
+    test('[NEGATIF] getProfile handles network exception', () async {
+      final mockClient = MockClient((request) async {
+        throw Exception('Connection refused');
+      });
+
+      final result = await ApiService.getProfile(client: mockClient);
+
+      expect(result['success'], false);
+      expect(result['message'], 'Gagal terhubung ke server');
+    });
+  });
+
+  group('ApiService Payment Tests', () {
+    test('[POSITIF] createPayment berhasil membuat data pembayaran', () async {
+      SharedPreferences.setMockInitialValues({'access_token': 'valid-token'});
+
+      final mockClient = MockClient((request) async {
+        expect(request.url.toString(), '${ApiService.baseUrl}/payments');
+        final body = json.decode(request.body);
+        expect(body['bookingId'], 'booking-1');
+        expect(body['method'], 'BANK_TRANSFER');
+
+        return http.Response(
+          json.encode({
+            'success': true,
+            'data': {
+              'id': 'pay-1',
+              'status': 'PENDING',
+              'bookingId': 'booking-1'
+            }
+          }),
+          201,
+        );
+      });
+
+      final result = await ApiService.createPayment(
+        bookingId: 'booking-1',
+        amount: 5000000,
+        method: 'BANK_TRANSFER',
+        client: mockClient,
+      );
+
+      expect(result['success'], true);
+      expect(result['data']['status'], 'PENDING');
+    });
+
+    test('[NEGATIF] createPayment gagal jika booking tidak ditemukan (404)', () async {
+      SharedPreferences.setMockInitialValues({'access_token': 'valid-token'});
+
+      final mockClient = MockClient((request) async {
+        return http.Response(
+          json.encode({'success': false, 'message': 'Booking tidak ditemukan'}),
+          404,
+        );
+      });
+
+      final result = await ApiService.createPayment(
+        bookingId: 'invalid-id',
+        amount: 5000000,
+        method: 'BANK_TRANSFER',
+        client: mockClient,
+      );
+
+      expect(result['success'], false);
+      expect(result['message'], 'Booking tidak ditemukan');
+    });
+
+    test('[NEGATIF] createPayment menangani exception jaringan', () async {
+      final mockClient = MockClient((request) async {
+        throw Exception('Network Error');
+      });
+
+      final result = await ApiService.createPayment(
+        bookingId: 'booking-1',
+        amount: 5000000,
+        method: 'BANK_TRANSFER',
+        client: mockClient,
+      );
+
+      expect(result['success'], false);
+      expect(result['message'], 'Gagal terhubung ke server');
+    });
+  });
 }

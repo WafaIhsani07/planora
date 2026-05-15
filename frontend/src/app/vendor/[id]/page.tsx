@@ -8,106 +8,12 @@ import {
   MessageCircle,
   Star,
 } from 'lucide-react';
-
-const vendorData = {
-  v1: {
-    name: 'Lumiere Decoration',
-    category: 'Dekorasi',
-    location: 'Jakarta Selatan',
-    rating: 4.9,
-    reviews: 120,
-    price: 'Rp 8.500.000',
-    description:
-      'Lumiere Decoration menyediakan dekorasi wedding elegan, romantis, dan rapi untuk venue indoor maupun outdoor.',
-    cover:
-      'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=1400',
-    gallery: [
-      'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&q=80&w=900',
-      'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?auto=format&fit=crop&q=80&w=900',
-      'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&q=80&w=900',
-    ],
-    services: [
-      'Dekorasi pelaminan',
-      'Backwall & bunga segar',
-      'Venue styling full set',
-      'Free konsultasi konsep',
-    ],
-    reviewsList: [
-      { name: 'Nadia', text: 'Hasilnya mewah dan sesuai brief, tim juga responsif.', rating: 5 },
-      { name: 'Rizky', text: 'Dekorasi datang tepat waktu dan setup sangat detail.', rating: 5 },
-    ],
-  },
-  v2: {
-    name: 'Eterna Photography',
-    category: 'Fotografi',
-    location: 'Jakarta Timur',
-    rating: 4.8,
-    reviews: 98,
-    price: 'Rp 3.500.000',
-    description:
-      'Eterna Photography menangkap momen acara dengan gaya natural, hangat, dan cinematic.',
-    cover:
-      'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&q=80&w=1400',
-    gallery: [
-      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=900',
-      'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=900',
-      'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&q=80&w=900',
-    ],
-    services: ['Pre-wedding shoot', 'Wedding coverage', 'Album premium', 'Drone shot'],
-    reviewsList: [
-      { name: 'Alya', text: 'Foto-fotonya sangat hidup dan hasil editnya clean.', rating: 5 },
-      { name: 'Dimas', text: 'Komunikasi mudah dan file dikirim cepat.', rating: 4 },
-    ],
-  },
-  v3: {
-    name: 'Delish Catering',
-    category: 'Katering',
-    location: 'Tangerang',
-    rating: 4.7,
-    reviews: 76,
-    price: 'Rp 25.000/porsi',
-    description:
-      'Delish Catering menghadirkan menu yang lezat, higienis, dan pilihan paket yang fleksibel.',
-    cover:
-      'https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&q=80&w=1400',
-    gallery: [
-      'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=900',
-      'https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&q=80&w=900',
-      'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=900',
-    ],
-    services: ['Buffet wedding', 'Snack box', 'Coffee break', 'Menu custom'],
-    reviewsList: [
-      { name: 'Sinta', text: 'Semua makanan habis diserbu tamu, enak banget.', rating: 5 },
-      { name: 'Farhan', text: 'Porsi pas dan variasi menunya banyak.', rating: 4 },
-    ],
-  },
-  v4: {
-    name: 'Glow Makeup',
-    category: 'Make Up',
-    location: 'Bekasi',
-    rating: 4.9,
-    reviews: 64,
-    price: 'Rp 2.500.000',
-    description:
-      'Glow Makeup fokus pada riasan yang tahan lama, natural glowing, dan cocok untuk acara spesial.',
-    cover:
-      'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&q=80&w=1400',
-    gallery: [
-      'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&q=80&w=900',
-      'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80&w=900',
-      'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&q=80&w=900',
-    ],
-    services: ['Bridal makeup', 'Hair styling', 'Touch up kit', 'Trial session'],
-    reviewsList: [
-      { name: 'Putri', text: 'Makeup-nya tahan seharian dan hasil foto sangat bagus.', rating: 5 },
-      { name: 'Tania', text: 'Timnya ramah dan bisa menyesuaikan style.', rating: 5 },
-    ],
-  },
-} as const;
+import { getVendorById } from '../../../lib/vendors';
+import { getCategoryById } from '../../../lib/categories';
 
 export default async function VendorDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const vendor = vendorData[id as keyof typeof vendorData];
+  const vendor = getVendorById(id as string);
 
   if (!vendor) {
     notFound();
@@ -161,7 +67,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
                   <Check className="h-3.5 w-3.5" /> Terverifikasi
                 </span>
               </div>
-              <p className="mt-2 text-sm font-semibold text-slate-500">{vendor.category}</p>
+              <p className="mt-2 text-sm font-semibold text-slate-500">{getCategoryById(vendor.category)?.name ?? vendor.category}</p>
 
               <div className="mt-4 space-y-2 text-sm text-slate-500">
                 <div className="inline-flex items-center gap-2"><Star className="h-4 w-4 fill-yellow-400 text-yellow-400" /> {vendor.rating} ({vendor.reviews} ulasan)</div>
