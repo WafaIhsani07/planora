@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
+import '../main.dart' show PlanoraColors;
 
 class EditProfilScreen extends StatefulWidget {
   const EditProfilScreen({super.key});
@@ -65,41 +66,27 @@ class _EditProfilScreenState extends State<EditProfilScreen> {
 
     if (result['success'] == true) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Profil berhasil diperbarui!'),
-          backgroundColor: Color(0xFF00C48C),
-        ),
+        const SnackBar(content: Text('Profil berhasil diperbarui!')),
       );
       // Pop dengan membawa data baru supaya profil screen bisa refresh
       Navigator.pop(context, {'name': name, 'phone': phone});
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result['message'] ?? 'Gagal memperbarui profil.'),
-        ),
+        SnackBar(content: Text(result['message'] ?? 'Gagal memperbarui profil.')),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final tt = Theme.of(context).textTheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9),
+      backgroundColor: PlanoraColors.background,
       appBar: AppBar(
-        title: const Text(
-          'Edit Profil',
-          style: TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        centerTitle: true,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black87),
+        title: const Text('Edit Profil'),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+          icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -109,194 +96,126 @@ class _EditProfilScreenState extends State<EditProfilScreen> {
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
-                  // ── Avatar placeholder ─────────────────────────────────────
+                  // ── Avatar placeholder ────────────────────────────────
                   Center(
                     child: Stack(
                       children: [
                         Container(
                           width: 100,
                           height: 100,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             shape: BoxShape.circle,
-                            color: const Color(0xFFFA9081).withValues(alpha: 0.15),
-                            border: Border.all(
-                              color: const Color(0xFFFA9081),
-                              width: 2,
-                            ),
+                            color: PlanoraColors.brandAccent,
                           ),
                           child: const Icon(
-                            Icons.person,
+                            Icons.person_rounded,
                             size: 52,
-                            color: Color(0xFFFA9081),
+                            color: PlanoraColors.brandDark,
                           ),
                         ),
                         Positioned(
-                          bottom: 0,
-                          right: 0,
+                          bottom: 0, right: 0,
                           child: Container(
-                            padding: const EdgeInsets.all(6),
+                            padding: const EdgeInsets.all(7),
                             decoration: const BoxDecoration(
-                              color: Color(0xFFFA9081),
+                              color: PlanoraColors.brandDark,
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
-                              Icons.camera_alt,
+                              Icons.camera_alt_rounded,
                               size: 16,
-                              color: Colors.white,
+                              color: PlanoraColors.background,
                             ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 28),
 
-                  // ── Form Card ──────────────────────────────────────────────
+                  // ── Form Card ─────────────────────────────────────────
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 10,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
+                      color: PlanoraColors.surface,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: PlanoraColors.divider),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Email (read-only)
                         if (_email != null && _email!.isNotEmpty) ...[
-                          const Text(
-                            'EMAIL',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey,
-                            ),
-                          ),
+                          Text('EMAIL',
+                              style: tt.labelSmall?.copyWith(letterSpacing: 0.8)),
                           const SizedBox(height: 8),
-                          TextField(
-                            controller:
-                                TextEditingController(text: _email),
-                            readOnly: true,
-                            style: const TextStyle(color: Colors.grey),
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor: const Color(0xFFF5F5F5),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
-                              ),
-                              prefixIcon: const Icon(
-                                  Icons.email_outlined,
-                                  color: Colors.grey),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 14),
+                            decoration: BoxDecoration(
+                              color: PlanoraColors.divider.withAlpha(60),
+                              borderRadius: BorderRadius.circular(28),
+                              border: Border.all(color: PlanoraColors.divider),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.email_outlined,
+                                    color: PlanoraColors.brandGray, size: 18),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(_email!,
+                                      style: tt.bodyMedium?.copyWith(
+                                          color: PlanoraColors.brandGray)),
+                                ),
+                              ],
                             ),
                           ),
                           const SizedBox(height: 20),
                         ],
 
                         // Nama
-                        const Text(
-                          'NAMA LENGKAP',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey,
-                          ),
-                        ),
+                        Text('NAMA LENGKAP',
+                            style: tt.labelSmall?.copyWith(letterSpacing: 0.8)),
                         const SizedBox(height: 8),
                         TextField(
                           controller: _nameController,
                           textCapitalization: TextCapitalization.words,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             hintText: 'Masukkan nama lengkap',
-                            prefixIcon: const Icon(
-                                Icons.person_outline,
-                                color: Color(0xFFFA9081)),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide:
-                                  const BorderSide(color: Color(0xFFEEEEEE)),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                  color: Color(0xFFFA9081)),
-                            ),
+                            prefixIcon: Icon(Icons.person_outline_rounded),
                           ),
                         ),
                         const SizedBox(height: 20),
 
                         // No. Telepon
-                        const Text(
-                          'NOMOR TELEPON',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey,
-                          ),
-                        ),
+                        Text('NOMOR TELEPON',
+                            style: tt.labelSmall?.copyWith(letterSpacing: 0.8)),
                         const SizedBox(height: 8),
                         TextField(
                           controller: _phoneController,
                           keyboardType: TextInputType.phone,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             hintText: 'Masukkan nomor telepon',
-                            prefixIcon: const Icon(
-                                Icons.phone_outlined,
-                                color: Color(0xFFFA9081)),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide:
-                                  const BorderSide(color: Color(0xFFEEEEEE)),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                  color: Color(0xFFFA9081)),
-                            ),
+                            prefixIcon: Icon(Icons.phone_outlined),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 28),
 
-                  // ── Tombol Simpan ─────────────────────────────────────────
-                  SizedBox(
-                    width: double.infinity,
-                    height: 54,
-                    child: ElevatedButton(
-                      onPressed: _isSaving ? null : _saveProfile,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFA9081),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        elevation: 2,
-                      ),
-                      child: _isSaving
-                          ? const SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : const Text(
-                              'Simpan Perubahan',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                    ),
+                  // ── Tombol Simpan ──────────────────────────────────────
+                  ElevatedButton(
+                    onPressed: _isSaving ? null : _saveProfile,
+                    child: _isSaving
+                        ? const SizedBox(
+                            width: 22, height: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  PlanoraColors.brandDark),
+                            ))
+                        : const Text('Simpan Perubahan'),
                   ),
                 ],
               ),

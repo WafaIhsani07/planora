@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'package:intl/intl.dart';
-
+import '../main.dart' show PlanoraColors;
 
 class PemesananFormScreen extends StatefulWidget {
   const PemesananFormScreen({super.key});
@@ -36,18 +36,17 @@ class _PemesananFormScreenState extends State<PemesananFormScreen> {
   }
 
   String _formatCurrency(dynamic value) {
-    if (value == null) return "Rp 0";
+    if (value == null) return 'Rp 0';
     try {
-      final double amount = value is String
-          ? double.parse(value)
-          : value.toDouble();
+      final double amount =
+          value is String ? double.parse(value) : value.toDouble();
       return NumberFormat.currency(
         locale: 'id_ID',
         symbol: 'Rp ',
         decimalDigits: 0,
       ).format(amount);
     } catch (_) {
-      return "Rp 0";
+      return 'Rp 0';
     }
   }
 
@@ -57,6 +56,17 @@ class _PemesananFormScreenState extends State<PemesananFormScreen> {
       initialDate: DateTime.now().add(const Duration(days: 7)),
       firstDate: DateTime.now(),
       lastDate: DateTime(2030),
+      builder: (context, child) => Theme(
+        data: Theme.of(context).copyWith(
+          colorScheme: const ColorScheme.light(
+            primary: PlanoraColors.brandDark,
+            onPrimary: PlanoraColors.background,
+            surface: PlanoraColors.background,
+            onSurface: PlanoraColors.brandDark,
+          ),
+        ),
+        child: child!,
+      ),
     );
     if (picked != null) {
       setState(() {
@@ -73,9 +83,7 @@ class _PemesananFormScreenState extends State<PemesananFormScreen> {
       return;
     }
 
-    setState(() {
-      _isSubmitting = true;
-    });
+    setState(() => _isSubmitting = true);
 
     final String layananId = _serviceData?['id']?.toString() ?? '1';
     final String date = _dateController.text;
@@ -85,24 +93,16 @@ class _PemesananFormScreenState extends State<PemesananFormScreen> {
     final result = await ApiService.createBooking(layananId, date, address, notes);
 
     if (mounted) {
-      setState(() {
-        _isSubmitting = false;
-      });
+      setState(() => _isSubmitting = false);
 
       if (result['success'] == true) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Pemesanan berhasil! Cek riwayat pesanan Anda.'),
-            backgroundColor: Color(0xFF00C48C),
-          ),
+          const SnackBar(content: Text('Pemesanan berhasil! Cek riwayat pesanan Anda.')),
         );
-        // Navigasi ke layar Pesanan agar user bisa lihat ordernya langsung
         Navigator.pushReplacementNamed(context, '/pesanan');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(result['message'] ?? 'Gagal melakukan pemesanan.'),
-          ),
+          SnackBar(content: Text(result['message'] ?? 'Gagal melakukan pemesanan.')),
         );
       }
     }
@@ -110,10 +110,14 @@ class _PemesananFormScreenState extends State<PemesananFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final tt = Theme.of(context).textTheme;
+
     if (_serviceData == null) {
       return Scaffold(
         appBar: AppBar(title: const Text('Formulir Pemesanan')),
-        body: const Center(child: Text('Data layanan tidak ditemukan.')),
+        body: Center(
+          child: Text('Data layanan tidak ditemukan.', style: tt.bodyMedium),
+        ),
       );
     }
 
@@ -123,62 +127,45 @@ class _PemesananFormScreenState extends State<PemesananFormScreen> {
     final String imagePath = _serviceData!['image'] ?? '';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9), // Light background
-      appBar: AppBar(
-        title: const Text(
-          'Formulir Pemesanan',
-          style: TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black87),
-        elevation: 0,
-      ),
+      backgroundColor: PlanoraColors.background,
+      appBar: AppBar(title: const Text('Formulir Pemesanan')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 120),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Vendor Info Card
+            // ── Vendor Info Card ──────────────────────────────────────────
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: const Color(0xFFFA9081).withValues(alpha: 0.2),
-                ),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 10,
-                    offset: Offset(0, 4),
-                  ),
-                ],
+                color: PlanoraColors.surface,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: PlanoraColors.divider),
               ),
               child: Row(
                 children: [
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                     child: imagePath.isNotEmpty
                         ? Image.network(
                             imagePath,
-                            width: 60,
-                            height: 60,
+                            width: 64,
+                            height: 64,
                             fit: BoxFit.cover,
                             errorBuilder: (_, __, ___) => Container(
-                              color: Colors.grey[300],
-                              width: 60,
-                              height: 60,
+                              width: 64,
+                              height: 64,
+                              color: PlanoraColors.brandAccent,
+                              child: const Icon(Icons.storefront_outlined,
+                                  color: PlanoraColors.brandDark),
                             ),
                           )
                         : Container(
-                            color: Colors.grey[300],
-                            width: 60,
-                            height: 60,
+                            width: 64,
+                            height: 64,
+                            color: PlanoraColors.brandAccent,
+                            child: const Icon(Icons.storefront_outlined,
+                                color: PlanoraColors.brandDark),
                           ),
                   ),
                   const SizedBox(width: 16),
@@ -186,22 +173,10 @@ class _PemesananFormScreenState extends State<PemesananFormScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          title,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
+                        Text(title, style: tt.titleMedium,
+                            maxLines: 1, overflow: TextOverflow.ellipsis),
                         const SizedBox(height: 4),
-                        Text(
-                          category,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
-                          ),
-                        ),
+                        Text(category, style: tt.bodySmall),
                       ],
                     ),
                   ),
@@ -210,42 +185,23 @@ class _PemesananFormScreenState extends State<PemesananFormScreen> {
             ),
             const SizedBox(height: 24),
 
-            // Form Rincian Pemesanan Card
+            // ── Form Card ─────────────────────────────────────────────────
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 10,
-                    offset: Offset(0, 4),
-                  ),
-                ],
+                color: PlanoraColors.surface,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: PlanoraColors.divider),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Rincian Pemesanan',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
+                  Text('Rincian Pemesanan', style: tt.titleLarge),
                   const SizedBox(height: 24),
 
-                  // Date Picker Input
-                  const Text(
-                    'TANGGAL ACARA',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey,
-                    ),
-                  ),
+                  // Tanggal Acara
+                  Text('TANGGAL ACARA',
+                      style: tt.labelSmall?.copyWith(letterSpacing: 0.8)),
                   const SizedBox(height: 8),
                   TextField(
                     controller: _dateController,
@@ -253,98 +209,49 @@ class _PemesananFormScreenState extends State<PemesananFormScreen> {
                     onTap: () => _selectDate(context),
                     decoration: const InputDecoration(
                       hintText: 'Pilih Tanggal',
-                      suffixIcon: Icon(
-                        Icons.calendar_today,
-                        color: Colors.black54,
-                        size: 20,
-                      ),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.black12),
-                      ),
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.black45),
-                      ),
+                      suffixIcon: Icon(Icons.calendar_today_rounded, size: 20),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
 
-                  // Alamat Input
-                  const Text(
-                    'ALAMAT ACARA',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey,
-                    ),
-                  ),
+                  // Alamat Acara
+                  Text('ALAMAT ACARA',
+                      style: tt.labelSmall?.copyWith(letterSpacing: 0.8)),
                   const SizedBox(height: 8),
                   TextField(
                     controller: _addressController,
                     decoration: const InputDecoration(
                       hintText: 'Tuliskan lokasi acara',
-                      enabledBorder: UnderlineInputBorder(
-                         borderSide: BorderSide(color: Colors.black12),
-                      ),
-                      focusedBorder: UnderlineInputBorder(
-                         borderSide: BorderSide(color: Colors.black45),
-                      ),
+                      prefixIcon: Icon(Icons.location_on_outlined),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
 
-                  // Notes Text Area
-                  const Text(
-                    'CATATAN TAMBAHAN',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey,
-                    ),
-                  ),
+                  // Catatan Tambahan
+                  Text('CATATAN TAMBAHAN',
+                      style: tt.labelSmall?.copyWith(letterSpacing: 0.8)),
                   const SizedBox(height: 8),
                   TextField(
                     controller: _notesController,
                     maxLines: 4,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: 'Tulis instruksi atau tema warna...',
-                      hintStyle: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 13,
-                      ),
-                      filled: true,
-                      fillColor: const Color(0xFFF7F8FA),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Colors.black12),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Colors.black12),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Colors.black45),
-                      ),
+                      alignLabelWithHint: true,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 100), // Spacing for bottom sheet
           ],
         ),
       ),
+
+      // ── Bottom Sheet: Total + Tombol Pesan ───────────────────────────────
       bottomSheet: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         decoration: const BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 10,
-              offset: Offset(0, -2),
-            ),
-          ],
+          color: PlanoraColors.background,
+          border: Border(top: BorderSide(color: PlanoraColors.divider)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -353,53 +260,33 @@ class _PemesananFormScreenState extends State<PemesananFormScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "TOTAL BAYAR",
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey,
-                  ),
-                ),
+                Text('TOTAL BAYAR',
+                    style: tt.labelSmall?.copyWith(letterSpacing: 0.8)),
                 Text(
                   _formatCurrency(price),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF00C48C),
+                  style: tt.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
             ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00C48C),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 14,
-                ),
+            SizedBox(
+              width: 140,
+              child: ElevatedButton(
+                onPressed: _isSubmitting ? null : _submitOrder,
+                child: _isSubmitting
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            PlanoraColors.brandDark,
+                          ),
+                        ),
+                      )
+                    : const Text('Pesan'),
               ),
-              onPressed: _isSubmitting ? null : _submitOrder,
-              child: _isSubmitting
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
-                      ),
-                    )
-                  : const Text(
-                      "Pesan",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
             ),
           ],
         ),

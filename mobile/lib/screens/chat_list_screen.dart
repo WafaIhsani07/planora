@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'package:intl/intl.dart';
+import '../main.dart' show PlanoraColors;
 
 class ChatListScreen extends StatefulWidget {
   const ChatListScreen({super.key});
@@ -66,80 +67,112 @@ class _ChatListScreenState extends State<ChatListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final tt = Theme.of(context).textTheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9),
+      backgroundColor: PlanoraColors.background,
       appBar: AppBar(
-        title: const Text(
-          'Chat Vendor',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
+        title: const Text('Chat Vendor'),
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            color: Colors.black87,
-            size: 20,
-          ),
+          icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => Navigator.pop(context),
         ),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _vendors.isEmpty
-          ? const Center(
-              child: Padding(
-                padding: EdgeInsets.all(32.0),
-                child: Text(
-                  'Belum ada riwayat pesanan untuk dihubungi.',
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontStyle: FontStyle.italic,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              itemCount: _vendors.length,
-              itemBuilder: (context, index) {
-                final v = _vendors[index];
-                return ListTile(
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 8,
-                  ),
-                  leading: CircleAvatar(
-                    backgroundImage: NetworkImage(v['imageUrl']),
-                    backgroundColor: Colors.grey.shade300,
-                    radius: 26,
-                  ),
-                  title: Text(
-                    v['name'],
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 72, height: 72,
+                          decoration: const BoxDecoration(
+                            color: PlanoraColors.brandAccent,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.chat_bubble_outline_rounded,
+                              size: 36, color: PlanoraColors.brandDark),
+                        ),
+                        const SizedBox(height: 16),
+                        Text('Belum ada riwayat pesanan untuk dihubungi.',
+                            style: tt.bodyMedium?.copyWith(
+                              color: PlanoraColors.brandGray,
+                              fontStyle: FontStyle.italic,
+                            ),
+                            textAlign: TextAlign.center),
+                      ],
                     ),
                   ),
-                  subtitle: Text(
-                    v['lastMessage'],
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  trailing: Text(
-                    v['lastTime'],
-                    style: TextStyle(
-                      color: Colors.green.shade600,
-                      fontSize: 12,
-                    ),
-                  ),
-                  onTap: () {
-                    Navigator.pushNamed(context, '/chat_detail', arguments: v);
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  itemCount: _vendors.length,
+                  itemBuilder: (context, index) {
+                    final v = _vendors[index];
+                    return GestureDetector(
+                      onTap: () => Navigator.pushNamed(context, '/chat_detail', arguments: v),
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: PlanoraColors.surface,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: PlanoraColors.divider),
+                        ),
+                        child: Row(
+                          children: [
+                            // Avatar
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: Image.network(
+                                v['imageUrl'],
+                                width: 52, height: 52,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Container(
+                                  width: 52, height: 52,
+                                  decoration: const BoxDecoration(
+                                    color: PlanoraColors.brandAccent,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      v['name'].isNotEmpty
+                                          ? v['name'][0].toUpperCase()
+                                          : 'V',
+                                      style: tt.titleLarge?.copyWith(
+                                          color: PlanoraColors.brandDark),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            // Info
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(v['name'], style: tt.titleSmall,
+                                      maxLines: 1, overflow: TextOverflow.ellipsis),
+                                  const SizedBox(height: 4),
+                                  Text(v['lastMessage'], style: tt.bodySmall,
+                                      maxLines: 1, overflow: TextOverflow.ellipsis),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            // Waktu
+                            Text(v['lastTime'],
+                                style: tt.labelSmall?.copyWith(
+                                    color: PlanoraColors.brandGray)),
+                          ],
+                        ),
+                      ),
+                    );
                   },
-                );
-              },
-            ),
+                ),
     );
   }
 }

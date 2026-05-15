@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../main.dart' show PlanoraColors;
 
 class DetailBookingScreen extends StatefulWidget {
   const DetailBookingScreen({super.key});
@@ -27,7 +28,6 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
     final args = ModalRoute.of(context)?.settings.arguments;
     if (args != null) {
       final newId = args.toString();
-      // Hindari fetch ulang jika ID tidak berubah (dipanggil > 1x)
       if (_vendorId != newId) {
         _vendorId = newId;
         _fetchVendorDetail();
@@ -42,7 +42,6 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
     }
   }
 
-  // T5: Fetch vendor detail via ApiService
   Future<void> _fetchVendorDetail() async {
     setState(() => _isLoading = true);
     final result = await ApiService.getVendorById(_vendorId);
@@ -58,7 +57,6 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
     });
   }
 
-  // T6: Fetch paket layanan vendor via ApiService
   Future<void> _fetchVendorServices() async {
     setState(() => _isServicesLoading = true);
     final result = await ApiService.getVendorServices(_vendorId);
@@ -74,11 +72,8 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
     try {
       final double amount =
           value is String ? double.parse(value) : value.toDouble();
-      return NumberFormat.currency(
-        locale: 'id_ID',
-        symbol: 'Rp ',
-        decimalDigits: 0,
-      ).format(amount);
+      return NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0)
+          .format(amount);
     } catch (_) {
       return 'Rp 0';
     }
@@ -104,8 +99,13 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final tt = Theme.of(context).textTheme;
+
     if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(
+        backgroundColor: PlanoraColors.background,
+        body: Center(child: CircularProgressIndicator()),
+      );
     }
 
     if (_errorMessage != null || _vendorDetails == null) {
@@ -113,16 +113,25 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
         appBar: AppBar(title: const Text('Detail Vendor')),
         body: Center(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(24),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    color: PlanoraColors.error.withAlpha(15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.error_outline_rounded,
+                      size: 36, color: PlanoraColors.error),
+                ),
                 const SizedBox(height: 16),
                 Text(
                   _errorMessage ?? 'Vendor tidak ditemukan.',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 16),
+                  style: tt.bodyMedium,
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
@@ -137,8 +146,6 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
     }
 
     final vendor = _vendorDetails!;
-
-    // Mapping field dari response backend
     final String imagePath = vendor['avatar'] != null
         ? (vendor['avatar'].toString().startsWith('http')
             ? vendor['avatar']
@@ -150,72 +157,136 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
     final String location = vendor['city'] ?? vendor['location'] ?? 'Lokasi belum tersedia';
     final String description = vendor['description'] ?? 'Deskripsi belum tersedia.';
 
-    // Koordinat Peta
     final double? lat = vendor['latitude'] != null ? double.tryParse(vendor['latitude'].toString()) : null;
     final double? lng = vendor['longitude'] != null ? double.tryParse(vendor['longitude'].toString()) : null;
 
-    // Harga tampil dari paket yang dipilih, atau harga terendah dari services
     String displayPrice = '0';
     if (_selectedService != null) {
-      displayPrice = _selectedService!['harga']?.toString() ??
-          _selectedService!['price']?.toString() ?? '0';
+      displayPrice = _selectedService!['harga']?.toString() ?? _selectedService!['price']?.toString() ?? '0';
     } else if (_services.isNotEmpty) {
-      // Tampilkan harga terendah sebagai "mulai dari"
       final prices = _services
-          .map((s) =>
-              double.tryParse(s['harga']?.toString() ?? s['price']?.toString() ?? '0') ?? 0)
+          .map((s) => double.tryParse(s['harga']?.toString() ?? s['price']?.toString() ?? '0') ?? 0)
           .toList();
       prices.sort();
       displayPrice = prices.first.toStringAsFixed(0);
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: PlanoraColors.background,
       body: Stack(
         children: [
-          // ── Hero Image ──────────────────────────────────────────────────────
+          // ── Hero Image ────────────────────────────────────────────────
           Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
+            top: 0, left: 0, right: 0,
             height: MediaQuery.of(context).size.height * 0.45,
             child: imagePath.isNotEmpty
                 ? Image.network(
                     imagePath,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) =>
-                        Container(color: Colors.grey[300]),
+                    errorBuilder: (_, __, ___) => Container(color: PlanoraColors.brandAccent),
                   )
                 : Container(
-                    color: Colors.grey[300],
-                    child:
-                        const Center(child: Icon(Icons.image, size: 50, color: Colors.grey)),
+                    color: PlanoraColors.brandAccent,
+                    child: const Center(
+                      child: Icon(Icons.storefront_outlined, size: 60, color: PlanoraColors.brandDark),
+                    ),
                   ),
           ),
 
-          // ── Back Button ─────────────────────────────────────────────────────
+          // ── Back Button ───────────────────────────────────────────────
           Positioned(
-            top: 40,
+            top: 48,
             left: 16,
-            child: CircleAvatar(
-              backgroundColor: Colors.white.withValues(alpha: 0.5),
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new,
-                    color: Colors.white, size: 20),
-                onPressed: () => Navigator.pop(context),
+            child: GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: PlanoraColors.brandDark.withAlpha(100),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.arrow_back_rounded,
+                  color: PlanoraColors.background,
+                  size: 20,
+                ),
               ),
             ),
           ),
 
-          // ── Sliding Sheet ────────────────────────────────────────────────────
+          // ── Category + Title + Rating (over hero) ─────────────────────
+          Positioned(
+            top: MediaQuery.of(context).size.height * 0.35 - 90,
+            left: 24, right: 24,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: PlanoraColors.brandAccent,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    category,
+                    style: tt.labelSmall?.copyWith(
+                      color: PlanoraColors.brandDark,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: const TextStyle(
+                          color: PlanoraColors.background,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700,
+                          shadows: [Shadow(color: Colors.black45, blurRadius: 6)],
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: PlanoraColors.background.withAlpha(50),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.star_rounded, color: Color(0xFFFFB300), size: 15),
+                          const SizedBox(width: 4),
+                          Text(
+                            rating,
+                            style: const TextStyle(
+                              color: PlanoraColors.background,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // ── Sliding Sheet ─────────────────────────────────────────────
           Positioned.fill(
             top: MediaQuery.of(context).size.height * 0.35,
             child: Container(
               decoration: const BoxDecoration(
-                color: Colors.white,
+                color: PlanoraColors.background,
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
+                  topLeft: Radius.circular(28),
+                  topRight: Radius.circular(28),
                 ),
               ),
               child: Column(
@@ -223,42 +294,40 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
                 children: [
                   // Lokasi
                   Padding(
-                    padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
+                    padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
                           child: Row(
                             children: [
-                              const Icon(Icons.location_on, color: Colors.grey, size: 20),
-                              const SizedBox(width: 8),
+                              const Icon(Icons.location_on_outlined,
+                                  color: PlanoraColors.brandGray, size: 18),
+                              const SizedBox(width: 6),
                               Expanded(
-                                child: Text(
-                                  location,
-                                  style: const TextStyle(color: Colors.grey, fontSize: 14),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                                child: Text(location,
+                                    style: tt.bodySmall,
+                                    overflow: TextOverflow.ellipsis),
                               ),
                             ],
                           ),
                         ),
                         if (lat != null && lng != null)
-                          TextButton.icon(
-                            onPressed: () => _openMaps(lat, lng),
-                            icon: const Icon(Icons.map, size: 16, color: Color(0xFF00C48C)),
-                            label: const Text(
-                              'Buka Peta',
-                              style: TextStyle(
-                                color: Color(0xFF00C48C),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
+                          GestureDetector(
+                            onTap: () => _openMaps(lat, lng),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: PlanoraColors.brandAccent,
+                                borderRadius: BorderRadius.circular(20),
                               ),
-                            ),
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              backgroundColor: const Color(0xFFE8F5E9),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.map_outlined, size: 14, color: PlanoraColors.brandDark),
+                                  const SizedBox(width: 4),
+                                  Text('Buka Peta',
+                                      style: tt.labelSmall?.copyWith(color: PlanoraColors.brandDark)),
+                                ],
                               ),
                             ),
                           ),
@@ -266,8 +335,8 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
                     ),
                   ),
                   const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 16),
-                    child: Divider(height: 1, color: Colors.grey),
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    child: Divider(height: 1),
                   ),
 
                   // Scrollable content
@@ -277,47 +346,31 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // ── Deskripsi ──────────────────────────────────────
+                          // Deskripsi
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 24),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'Deskripsi Layanan',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  description,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.black54,
-                                    height: 1.5,
-                                  ),
-                                ),
+                                Text('Deskripsi Layanan', style: tt.titleMedium),
+                                const SizedBox(height: 10),
+                                Text(description,
+                                    style: tt.bodyMedium?.copyWith(
+                                      color: PlanoraColors.brandGray,
+                                      height: 1.6,
+                                    )),
                               ],
                             ),
                           ),
                           const SizedBox(height: 28),
 
-                          // ── T6: Paket Layanan ──────────────────────────────
+                          // Paket Layanan
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 24),
-                            child: const Text(
-                              'Paket Layanan',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
+                            child: Text('Paket Layanan', style: tt.titleMedium),
                           ),
                           const SizedBox(height: 12),
+
                           if (_isServicesLoading)
                             const Padding(
                               padding: EdgeInsets.symmetric(vertical: 24),
@@ -325,19 +378,16 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
                             )
                           else if (_services.isEmpty)
                             Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 24, vertical: 16),
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                               child: Container(
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFF9F9F9),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: const Color(0xFFEEEEEE)),
+                                  color: PlanoraColors.surface,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(color: PlanoraColors.divider),
                                 ),
-                                child: const Text(
-                                  'Belum ada paket layanan tersedia.',
-                                  style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
-                                ),
+                                child: Text('Belum ada paket layanan tersedia.',
+                                    style: tt.bodySmall),
                               ),
                             )
                           else
@@ -349,14 +399,10 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
                               itemBuilder: (context, index) {
                                 final svc = _services[index];
                                 final svcId = svc['id']?.toString() ?? '$index';
-                                final svcName = svc['namaLayanan'] ??
-                                    svc['name'] ??
-                                    'Paket ${index + 1}';
-                                final svcDesc = svc['deskripsi'] ??
-                                    svc['description'] ?? '';
+                                final svcName = svc['namaLayanan'] ?? svc['name'] ?? 'Paket ${index + 1}';
+                                final svcDesc = svc['deskripsi'] ?? svc['description'] ?? '';
                                 final svcPrice = svc['harga'] ?? svc['price'] ?? 0;
-                                final isSelected =
-                                    _selectedService?['id']?.toString() == svcId;
+                                final isSelected = _selectedService?['id']?.toString() == svcId;
 
                                 return GestureDetector(
                                   onTap: () {
@@ -375,71 +421,46 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
                                     padding: const EdgeInsets.all(16),
                                     decoration: BoxDecoration(
                                       color: isSelected
-                                          ? const Color(0xFFE8F5E9)
-                                          : Colors.white,
+                                          ? PlanoraColors.brandAccent
+                                          : PlanoraColors.surface,
                                       borderRadius: BorderRadius.circular(16),
                                       border: Border.all(
                                         color: isSelected
-                                            ? const Color(0xFF00C48C)
-                                            : const Color(0xFFEEEEEE),
+                                            ? PlanoraColors.brandAccentHover
+                                            : PlanoraColors.divider,
                                         width: isSelected ? 2 : 1,
                                       ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.grey.withAlpha(13),
-                                          blurRadius: 8,
-                                          offset: const Offset(0, 3),
-                                        ),
-                                      ],
                                     ),
                                     child: Row(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        // Pilih radio indicator
                                         Icon(
                                           isSelected
-                                              ? Icons.check_circle
-                                              : Icons.radio_button_unchecked,
+                                              ? Icons.check_circle_rounded
+                                              : Icons.radio_button_unchecked_rounded,
                                           color: isSelected
-                                              ? const Color(0xFF00C48C)
-                                              : Colors.grey,
+                                              ? PlanoraColors.brandDark
+                                              : PlanoraColors.brandGray,
                                           size: 22,
                                         ),
                                         const SizedBox(width: 12),
                                         Expanded(
                                           child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              Text(
-                                                svcName,
-                                                style: TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: isSelected
-                                                      ? const Color(0xFF00C48C)
-                                                      : Colors.black87,
-                                                ),
-                                              ),
+                                              Text(svcName,
+                                                  style: tt.titleSmall?.copyWith(
+                                                    color: isSelected
+                                                        ? PlanoraColors.brandDark
+                                                        : PlanoraColors.brandDark,
+                                                  )),
                                               if (svcDesc.isNotEmpty) ...[
                                                 const SizedBox(height: 4),
-                                                Text(
-                                                  svcDesc,
-                                                  style: const TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.grey,
-                                                  ),
-                                                ),
+                                                Text(svcDesc, style: tt.bodySmall),
                                               ],
                                               const SizedBox(height: 8),
-                                              Text(
-                                                _formatCurrency(svcPrice),
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Color(0xFF00C48C),
-                                                ),
-                                              ),
+                                              Text(_formatCurrency(svcPrice),
+                                                  style: tt.titleSmall),
                                             ],
                                           ),
                                         ),
@@ -457,79 +478,15 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
               ),
             ),
           ),
-
-          // ── Category + Title + Rating (over hero image) ──────────────────────
-          Positioned(
-            top: MediaQuery.of(context).size.height * 0.35 - 90,
-            left: 24,
-            right: 24,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF00C48C),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    category,
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          shadows: [Shadow(color: Colors.black45, blurRadius: 4)],
-                        ),
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.star, color: Colors.amber, size: 16),
-                          const SizedBox(width: 4),
-                          Text(rating,
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold)),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
         ],
       ),
 
-      // ── Bottom Sheet: Harga + Tombol Memesan ─────────────────────────────────
+      // ── Bottom Sheet: Harga + CTA ──────────────────────────────────────
       bottomSheet: Container(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.fromLTRB(24, 14, 24, 24),
         decoration: const BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, -2)),
-          ],
+          color: PlanoraColors.background,
+          border: Border(top: BorderSide(color: PlanoraColors.divider)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -540,51 +497,42 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
               children: [
                 Text(
                   _selectedService != null ? 'PAKET DIPILIH' : 'MULAI DARI',
-                  style: const TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey,
-                  ),
+                  style: tt.labelSmall?.copyWith(letterSpacing: 0.8),
                 ),
-                Text(
-                  _formatCurrency(displayPrice),
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF00C48C),
-                  ),
-                ),
+                Text(_formatCurrency(displayPrice), style: tt.headlineSmall),
               ],
             ),
             Row(
               children: [
+                // Bookmark
                 Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFF0ED),
-                    borderRadius: BorderRadius.circular(10),
+                    color: PlanoraColors.surface,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: PlanoraColors.divider),
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.bookmark_border, color: Colors.black54),
+                    icon: const Icon(Icons.bookmark_border_rounded,
+                        color: PlanoraColors.brandGray),
                     onPressed: () {},
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 12),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _selectedService != null
-                        ? const Color(0xFF00C48C)
-                        : Colors.grey,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 14),
+                        ? PlanoraColors.brandAccent
+                        : PlanoraColors.divider,
+                    foregroundColor: _selectedService != null
+                        ? PlanoraColors.brandDark
+                        : PlanoraColors.brandGray,
+                    minimumSize: const Size(120, 50),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                   ),
                   onPressed: _selectedService == null
                       ? () {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Silakan pilih paket layanan terlebih dahulu.'),
-                            ),
+                            const SnackBar(content: Text('Silakan pilih paket layanan terlebih dahulu.')),
                           );
                         }
                       : () {
@@ -593,24 +541,15 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
                             '/pemesanan_form',
                             arguments: {
                               'id': _selectedService!['id'],
-                              'name': _selectedService!['name'] ??
-                                  _selectedService!['namaLayanan'] ??
-                                  title,
+                              'name': _selectedService!['name'] ?? _selectedService!['namaLayanan'] ?? title,
                               'category': category,
-                              'price': _selectedService!['price'] ??
-                                  _selectedService!['harga']?.toString() ?? '0',
+                              'price': _selectedService!['price'] ?? _selectedService!['harga']?.toString() ?? '0',
                               'image': imagePath,
                               'vendorId': _vendorId,
                             },
                           );
                         },
-                  child: Text(
-                    _selectedService != null ? 'Memesan' : 'Pilih Paket',
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold),
-                  ),
+                  child: Text(_selectedService != null ? 'Memesan' : 'Pilih Paket'),
                 ),
               ],
             ),

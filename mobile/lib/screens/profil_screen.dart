@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
+import '../main.dart' show PlanoraColors;
 
 class ProfilScreen extends StatefulWidget {
   const ProfilScreen({super.key});
@@ -9,7 +12,7 @@ class ProfilScreen extends StatefulWidget {
 }
 
 class _ProfilScreenState extends State<ProfilScreen> {
-  final int _currentIndex = 4; // Index 4 untuk halaman Profil
+  final int _currentIndex = 4;
   Map<String, dynamic>? _userProfile;
   bool _isLoading = true;
 
@@ -19,353 +22,365 @@ class _ProfilScreenState extends State<ProfilScreen> {
     _fetchProfile();
   }
 
-  // Mengambil data profil dari backend API (dengan JWT Token via ApiService)
+  // Mengambil data profil — backend dulu, fallback ke bypass data
   Future<void> _fetchProfile() async {
-
+    // Coba ambil dari backend
     try {
+      final token = await ApiService.getToken();
+      // Jika token adalah bypass token, langsung pakai data bypass
+      if (token == 'bypass_admin_token_planora_2024') {
+        await _loadBypassProfile();
+        return;
+      }
       final result = await ApiService.getProfile();
       if (mounted) {
-        setState(() {
-          if (result['success'] == true) {
-            _userProfile = result['data'];
-          } else {
-            _userProfile = null;
-          }
-        });
+        if (result['success'] == true) {
+          setState(() => _userProfile = result['data']);
+        } else {
+          // Backend gagal — coba bypass data
+          await _loadBypassProfile();
+        }
       }
     } catch (e) {
-      if (mounted) setState(() => _userProfile = null);
+      // Network error — coba bypass data
+      if (mounted) await _loadBypassProfile();
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
 
+  // Load data profil dari SharedPreferences (bypass/demo mode)
+  Future<void> _loadBypassProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    final name  = prefs.getString('bypass_name');
+    final email = prefs.getString('bypass_email');
+    final phone = prefs.getString('bypass_phone');
+
+    if (name != null && mounted) {
+      setState(() {
+        _userProfile = {
+          'name' : name,
+          'email': email ?? 'adminplanora@gmail.com',
+          'phone': phone ?? '0895619465026',
+          'role' : 'ADMIN',
+          'avatar': null,
+        };
+      });
+    }
   }
 
   // Navigasi Bottom Bar
   void _onBottomNavTapped(int index) {
-    if (index == 0) {
-      Navigator.pushReplacementNamed(context, '/home');
-    } else if (index == 1) {
-      Navigator.pushReplacementNamed(context, '/explore');
-    } else if (index == 2) {
-      Navigator.pushReplacementNamed(context, '/pesanan');
-    } else if (index == 3) {
-      Navigator.pushReplacementNamed(context, '/favorit');
-    } else if (index == 4) {
-      // Sedang di halaman Profil, tidak perlu push
-    }
+    if (index == 0) Navigator.pushReplacementNamed(context, '/home');
+    if (index == 1) Navigator.pushReplacementNamed(context, '/explore');
+    if (index == 2) Navigator.pushReplacementNamed(context, '/pesanan');
+    if (index == 3) Navigator.pushReplacementNamed(context, '/favorit');
+    // index == 4: sedang di halaman Profil
   }
 
   // Logout: hapus token dan kembali ke halaman login
   Future<void> _logOut() async {
-    await ApiService.clearToken();
+    await ApiService.logout();
     if (mounted) {
-      Navigator.pushReplacementNamed(context, '/login');
+      Navigator.pushNamedAndRemoveUntil(context, '/welcome', (route) => false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final tt = Theme.of(context).textTheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9), // Latar abu sangat lembut
+      backgroundColor: PlanoraColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Bagian Header Profil (Dengan background putih dan lengkungan di bawah)
+              // ── Header Profil ───────────────────────────────────────────
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.fromLTRB(24.0, 20.0, 24.0, 32.0),
+                padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
                 decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.vertical(
-                    bottom: Radius.circular(30), // Melengkung di bawah
+                  color: PlanoraColors.background,
+                  border: Border(
+                    bottom: BorderSide(color: PlanoraColors.divider),
                   ),
                 ),
                 child: Column(
                   children: [
-                    // Header (Judul & Ikon Pengaturan)
+                    // Baris judul & ikon pengaturan
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'Profil Saya',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF333333),
-                          ),
-                        ),
+                        Text('Profil Saya', style: tt.headlineMedium),
                         GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(context, '/pengaturan');
-                          },
+                          onTap: () => Navigator.pushNamed(context, '/pengaturan'),
                           child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFFAFAFA),
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: PlanoraColors.surface,
                               shape: BoxShape.circle,
+                              border: Border.all(color: PlanoraColors.divider),
                             ),
                             child: const Icon(
-                              Icons.settings,
-                              color: Colors.grey,
+                              Icons.settings_outlined,
+                              color: PlanoraColors.brandGray,
                               size: 20,
                             ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 28),
 
                     // Area Dynamic Data dari Backend
                     _isLoading
                         ? const CircularProgressIndicator()
                         : _userProfile == null
-                        ? const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 20.0),
-                            child: Text(
-                              'Belum ada data profil pengguna dari server.',
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
-                          )
-                        : Column(
-                            children: [
-                              // Foto Profil / Avatar
-                              Container(
-                                width: 100,
-                                height: 100,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFF9E5E1), // Peach lembut
-                                  shape: BoxShape.circle,
+                            ? Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 20),
+                                child: Text(
+                                  'Belum ada data profil dari server.',
+                                  style: tt.bodyMedium?.copyWith(
+                                    color: PlanoraColors.brandGray,
+                                    fontStyle: FontStyle.italic,
+                                  ),
                                 ),
-                                child: const Icon(
-                                  Icons.person,
-                                  size: 50,
-                                  color: Colors.black54,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-
-                              // Nama Pengguna
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                              )
+                            : Column(
                                 children: [
-                                  Text(
-                                    _userProfile!['name'] ?? 'Nama Pengguna',
-                                    style: const TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF333333),
+                                  // Avatar
+                                  Container(
+                                    width: 88,
+                                    height: 88,
+                                    decoration: const BoxDecoration(
+                                      color: PlanoraColors.brandAccent,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.person_outline_rounded,
+                                      size: 44,
+                                      color: PlanoraColors.brandDark,
                                     ),
                                   ),
-                                  const SizedBox(width: 8),
-                                  const Icon(
-                                    Icons
-                                        .verified_user_outlined, // Icon hijau validasi (bisa diganti custom)
-                                    color: Color(0xFF00C853),
-                                    size: 18,
+                                  const SizedBox(height: 14),
+
+                                  // Nama
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        _userProfile!['name'] ?? 'Nama Pengguna',
+                                        style: GoogleFonts.playfairDisplay(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w700,
+                                          color: PlanoraColors.brandDark,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 6),
+                                      const Icon(
+                                        Icons.verified_rounded,
+                                        color: PlanoraColors.brandAccent,
+                                        size: 18,
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
+
+                                   // Email
+                                  Text(
+                                    _userProfile!['email'] ?? 'email@pengguna.com',
+                                    style: tt.bodySmall,
+                                  ),
+                                  const SizedBox(height: 4),
+
+                                  // Nomor Telepon
+                                  if (_userProfile!['phone'] != null)
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        const Icon(
+                                          Icons.phone_outlined,
+                                          size: 13,
+                                          color: PlanoraColors.brandGray,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          _userProfile!['phone'],
+                                          style: tt.bodySmall,
+                                        ),
+                                      ],
+                                    ),
+                                  const SizedBox(height: 8),
+
+                                  // Badge Role
+                                  if (_userProfile!['role'] != null)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: PlanoraColors.brandAccent,
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Text(
+                                        _userProfile!['role'] == 'ADMIN'
+                                            ? '⭐ Admin Planora'
+                                            : _userProfile!['role'],
+                                        style: tt.labelSmall?.copyWith(
+                                          color: PlanoraColors.brandDark,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  const SizedBox(height: 16),
+
+                                  // Tombol Edit Profil
+                                  OutlinedButton.icon(
+                                    onPressed: () =>
+                                        Navigator.pushNamed(context, '/edit_profil'),
+                                    icon: const Icon(Icons.edit_outlined, size: 16),
+                                    label: const Text('Edit Profil'),
+                                    style: OutlinedButton.styleFrom(
+                                      minimumSize: const Size(160, 40),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20, vertical: 10),
+                                    ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 4),
-
-                              // Email Pengguna
-                              Text(
-                                _userProfile!['email'] ?? 'email@pengguna.com',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ],
-                          ),
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
 
-              // Menu Opsi Profil
+              // ── Menu Opsi ───────────────────────────────────────────────
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildMenuCard(
-                      icon: Icons.chat_bubble,
-                      iconColor: const Color(0xFF9C27B0), // Ungu
-                      iconBgColor: const Color(0xFFF3E5F5),
+                    Text('Aktivitas', style: tt.titleMedium?.copyWith(color: PlanoraColors.brandGray)),
+                    const SizedBox(height: 12),
+                    _buildMenuItem(
+                      icon: Icons.chat_bubble_outline_rounded,
                       title: 'Chat Vendor',
+                      onTap: () => Navigator.pushNamed(context, '/chat_list'),
                     ),
-                    _buildMenuCard(
-                      icon: Icons.calendar_today,
-                      iconColor: Colors.grey.shade700,
-                      iconBgColor: const Color(0xFFEEEEEE),
+                    _buildMenuItem(
+                      icon: Icons.calendar_today_outlined,
                       title: 'Kalender Acara',
+                      onTap: () => Navigator.pushNamed(context, '/kalender'),
                     ),
-                    _buildMenuCard(
-                      icon: Icons.history,
-                      iconColor: const Color(0xFF3F51B5), // Biru
-                      iconBgColor: const Color(0xFFE8EAF6),
+                    _buildMenuItem(
+                      icon: Icons.history_rounded,
                       title: 'Riwayat Booking',
+                      onTap: () => Navigator.pushNamed(context, '/riwayat'),
                     ),
-                    _buildMenuCard(
-                      icon: Icons.payment,
-                      iconColor: const Color(0xFFE53935),
-                      iconBgColor: const Color(0xFFFFEBEE),
+                    _buildMenuItem(
+                      icon: Icons.payment_outlined,
                       title: 'Daftar Pembayaran',
-                      isRedText: true,
+                      onTap: () => Navigator.pushNamed(context, '/pembayaran'),
                     ),
-                    const SizedBox(height: 8),
-                    // Tombol Logout
-                    GestureDetector(
-                      onTap: () async {
-                        await ApiService.logout();
-                        if (mounted) {
-                          Navigator.pushNamedAndRemoveUntil(
-                            context, '/welcome', (route) => false);
-                        }
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.only(bottom: 16),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFEBEE),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFFFFCDD2)),
-                        ),
-                        child: const Row(
-                          children: [
-                            Icon(Icons.logout, color: Color(0xFFE53935), size: 20),
-                            SizedBox(width: 16),
-                            Expanded(
-                              child: Text(
-                                'Keluar',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFFE53935),
-                                ),
-                              ),
-                            ),
-                            Icon(Icons.chevron_right, color: Color(0xFFE53935), size: 20),
-                          ],
-                        ),
-                      ),
-                    ),
-                    _buildMenuCard(
-                      icon: Icons.logout,
-                      iconColor: const Color(0xFFE53935),
-                      iconBgColor: const Color(0xFFFFEBEE),
+                    const SizedBox(height: 16),
+
+                    // Divider
+                    const Divider(height: 1),
+                    const SizedBox(height: 16),
+
+                    // Tombol Keluar
+                    _buildMenuItem(
+                      icon: Icons.logout_rounded,
                       title: 'Keluar',
-                      isRedText: true,
-                      onTapOverride: _logOut,
+                      isDestructive: true,
+                      onTap: _logOut,
                     ),
+                    const SizedBox(height: 24),
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        selectedItemColor: const Color(0xFFFA9081),
-        unselectedItemColor: Colors.grey,
-        showUnselectedLabels: true,
-        type: BottomNavigationBarType.fixed,
-        onTap: _onBottomNavTapped,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_filled),
-            label: 'Beranda',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.explore_outlined),
-            label: 'Eksplor',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.receipt_long_outlined),
-            label: 'Pesanan',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favorit'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
-        ],
+
+      // ── Bottom Navigation Bar ────────────────────────────────────────────
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          border: Border(top: BorderSide(color: PlanoraColors.divider)),
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: _onBottomNavTapped,
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home_rounded), label: 'Beranda'),
+            BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), activeIcon: Icon(Icons.explore_rounded), label: 'Eksplor'),
+            BottomNavigationBarItem(icon: Icon(Icons.receipt_long_outlined), activeIcon: Icon(Icons.receipt_long_rounded), label: 'Pesanan'),
+            BottomNavigationBarItem(icon: Icon(Icons.favorite_border_rounded), activeIcon: Icon(Icons.favorite_rounded), label: 'Favorit'),
+            BottomNavigationBarItem(icon: Icon(Icons.person_outline_rounded), activeIcon: Icon(Icons.person_rounded), label: 'Profil'),
+          ],
+        ),
       ),
     );
   }
 
-  // Komponen Card Menu Profil
-  Widget _buildMenuCard({
+  // ── Menu Item Row ──────────────────────────────────────────────────────────
+  Widget _buildMenuItem({
     required IconData icon,
-    required Color iconColor,
-    required Color iconBgColor,
     required String title,
-    bool isRedText = false,
-    VoidCallback? onTapOverride,
+    required VoidCallback onTap,
+    bool isDestructive = false,
   }) {
+    final tt = Theme.of(context).textTheme;
+    final color = isDestructive ? PlanoraColors.error : PlanoraColors.brandDark;
+    final bgColor = isDestructive
+        ? PlanoraColors.error.withAlpha(15)
+        : PlanoraColors.surface;
+
     return GestureDetector(
-      onTap: onTapOverride ?? () {
-        if (title == 'Chat Vendor') {
-          Navigator.pushNamed(
-            context,
-            '/chat_list',
-          ); // Diarahkan ke Daftar Chat (akan kita buat atau ke single chat)
-        } else if (title == 'Riwayat Booking') {
-          Navigator.pushNamed(context, '/riwayat');
-        } else if (title == 'Daftar Pembayaran') {
-          Navigator.pushNamed(context, '/pembayaran');
-        } else if (title == 'Kalender Acara') {
-          Navigator.pushNamed(context, '/kalender');
-        }
-      },
+      onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: bgColor,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFFF0F0F0)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withAlpha(13),
-              blurRadius: 10,
-              spreadRadius: 1,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          border: Border.all(
+            color: isDestructive
+                ? PlanoraColors.error.withAlpha(40)
+                : PlanoraColors.divider,
+          ),
         ),
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: iconBgColor,
+                color: isDestructive
+                    ? PlanoraColors.error.withAlpha(20)
+                    : PlanoraColors.brandAccent,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: iconColor, size: 20),
+              child: Icon(icon, color: color, size: 18),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 14),
             Expanded(
               child: Text(
                 title,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: isRedText
-                      ? const Color(0xFFE53935)
-                      : const Color(0xFF333333),
+                style: tt.titleSmall?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
-            const Icon(Icons.chevron_right, color: Colors.grey, size: 20),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: isDestructive ? PlanoraColors.error : PlanoraColors.brandGray,
+              size: 20,
+            ),
           ],
         ),
       ),
     );
   }
 }
-

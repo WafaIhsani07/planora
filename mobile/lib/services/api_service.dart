@@ -31,6 +31,7 @@ class ApiService {
         body: json.encode({
           'email': email,
           'password': password,
+          'appType': 'MOBILE', // wajib dikirim ke backend
         }),
       );
 

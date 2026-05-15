@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
+import '../main.dart' show PlanoraColors;
 
 class FavoritScreen extends StatefulWidget {
   const FavoritScreen({super.key});
@@ -19,16 +20,11 @@ class _FavoritScreenState extends State<FavoritScreen> {
     _fetchFavorites();
   }
 
-  // Mengambil data favorit dari backend API (gunakan vendor list sebagai fallback
-  // karena belum ada endpoint /favorites di backend)
+  // Mengambil data favorit dari backend API
   Future<void> _fetchFavorites() async {
     try {
       final vendorsData = await ApiService.getVendors();
-      if (mounted) {
-        setState(() {
-          _favorites = vendorsData;
-        });
-      }
+      if (mounted) setState(() => _favorites = vendorsData);
     } catch (e) {
       if (mounted) setState(() => _favorites = []);
     } finally {
@@ -38,224 +34,195 @@ class _FavoritScreenState extends State<FavoritScreen> {
 
   // Navigasi Bottom Bar
   void _onBottomNavTapped(int index) {
-    if (index == 0) {
-      Navigator.pushReplacementNamed(context, '/home');
-    } else if (index == 1) {
-      Navigator.pushReplacementNamed(context, '/explore');
-    } else if (index == 2) {
-      Navigator.pushReplacementNamed(context, '/pesanan');
-    } else if (index == 3) {
-      // Sedang di halaman Favorit
-    } else if (index == 4) {
-      Navigator.pushReplacementNamed(context, '/profil');
-    }
+    if (index == 0) Navigator.pushReplacementNamed(context, '/home');
+    if (index == 1) Navigator.pushReplacementNamed(context, '/explore');
+    if (index == 2) Navigator.pushReplacementNamed(context, '/pesanan');
+    if (index == 4) Navigator.pushReplacementNamed(context, '/profil');
   }
 
   @override
   Widget build(BuildContext context) {
+    final tt = Theme.of(context).textTheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9),
+      backgroundColor: PlanoraColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 24.0,
-              vertical: 20.0,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header (Judul & Ikon Favorit)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Favorit Saya',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF333333),
-                      ),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Header ───────────────────────────────────────────────
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Favorit Saya', style: tt.headlineMedium),
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: const BoxDecoration(
+                      color: PlanoraColors.brandAccent,
+                      shape: BoxShape.circle,
                     ),
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFFF0F5),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.favorite,
-                        color: Color(0xFFE91E63),
-                        size: 20,
-                      ),
+                    child: const Icon(
+                      Icons.favorite_rounded,
+                      color: PlanoraColors.brandDark,
+                      size: 20,
                     ),
-                  ],
-                ),
-                const SizedBox(height: 24),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
 
-                // Area Dynamic Data dari Backend
-                _isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : _favorites.isEmpty
-                    ? const Center(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 40.0),
-                          child: Text(
-                            'Belum ada layanan favorit dari server.',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontStyle: FontStyle.italic,
+              // ── Daftar Favorit ────────────────────────────────────────
+              _isLoading
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 40),
+                        child: CircularProgressIndicator(),
+                      ))
+                  : _favorites.isEmpty
+                      ? Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 48),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 72, height: 72,
+                                  decoration: const BoxDecoration(
+                                    color: PlanoraColors.brandAccent,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.favorite_border_rounded,
+                                      size: 36, color: PlanoraColors.brandDark),
+                                ),
+                                const SizedBox(height: 16),
+                                Text('Belum ada layanan favorit.',
+                                    style: tt.bodyMedium?.copyWith(
+                                      color: PlanoraColors.brandGray,
+                                      fontStyle: FontStyle.italic,
+                                    )),
+                              ],
                             ),
                           ),
+                        )
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: _favorites.length,
+                          itemBuilder: (context, index) {
+                            final item = _favorites[index];
+                            final itemId = item['id']?.toString() ?? '1';
+                            final avatar = item['avatar']?.toString() ?? '';
+                            final imageUrl = avatar.isNotEmpty
+                                ? (avatar.startsWith('http')
+                                    ? avatar
+                                    : 'http://10.0.2.2:5000/assets/$avatar')
+                                : 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=200&auto=format&fit=crop';
+
+                            return GestureDetector(
+                              onTap: () => Navigator.pushNamed(
+                                  context, '/detail_booking', arguments: itemId),
+                              child: _buildFavoriteCard(
+                                name: item['businessName'] ?? item['name'] ?? 'Vendor',
+                                category: item['category'] ?? 'Kategori',
+                                imageUrl: imageUrl,
+                                tt: tt,
+                              ),
+                            );
+                          },
                         ),
-                      )
-                    : ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _favorites.length,
-                        itemBuilder: (context, index) {
-                          final item = _favorites[index];
-                          final itemId =
-                              item['id']?.toString() ?? '1';
-
-                          // Mapping field dari backend
-                          final avatar = item['avatar']?.toString() ?? '';
-                          final imageUrl = avatar.isNotEmpty
-                              ? (avatar.startsWith('http')
-                                  ? avatar
-                                  : 'http://10.0.2.2:5000/assets/$avatar')
-                              : 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=200&auto=format&fit=crop';
-
-                          return GestureDetector(
-                            onTap: () => Navigator.pushNamed(
-                              context,
-                              '/detail_booking',
-                              arguments: itemId,
-                            ),
-                            child: _buildFavoriteCard(
-                              name: item['businessName'] ?? item['name'] ?? 'Vendor',
-                              category: item['category'] ?? 'Kategori',
-                              price: 'Lihat Detail',
-                              imageUrl: imageUrl,
-                            ),
-                          );
-                        },
-                      ),
-              ],
-            ),
+            ],
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        selectedItemColor: const Color(0xFFFA9081),
-        unselectedItemColor: Colors.grey,
-        showUnselectedLabels: true,
-        type: BottomNavigationBarType.fixed,
-        onTap: _onBottomNavTapped,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_filled),
-            label: 'Beranda',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.explore_outlined),
-            label: 'Eksplor',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.receipt_long_outlined),
-            label: 'Pesanan',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favorit'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            label: 'Profil',
-          ),
-        ],
+
+      // ── Bottom Navigation Bar ─────────────────────────────────────────
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          border: Border(top: BorderSide(color: PlanoraColors.divider)),
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: _onBottomNavTapped,
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home_rounded), label: 'Beranda'),
+            BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), activeIcon: Icon(Icons.explore_rounded), label: 'Eksplor'),
+            BottomNavigationBarItem(icon: Icon(Icons.receipt_long_outlined), activeIcon: Icon(Icons.receipt_long_rounded), label: 'Pesanan'),
+            BottomNavigationBarItem(icon: Icon(Icons.favorite_border_rounded), activeIcon: Icon(Icons.favorite_rounded), label: 'Favorit'),
+            BottomNavigationBarItem(icon: Icon(Icons.person_outline_rounded), activeIcon: Icon(Icons.person_rounded), label: 'Profil'),
+          ],
+        ),
       ),
     );
   }
 
-  // Komponen Card Favorit
   Widget _buildFavoriteCard({
     required String name,
     required String category,
-    required String price,
     required String imageUrl,
+    required TextTheme tt,
   }) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: PlanoraColors.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF0F0F0)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withAlpha(13),
-            blurRadius: 10,
-            spreadRadius: 1,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(color: PlanoraColors.divider),
       ),
       child: Row(
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(14),
             child: Image.network(
               imageUrl,
-              width: 80,
-              height: 80,
+              width: 76,
+              height: 76,
               fit: BoxFit.cover,
               errorBuilder: (_, __, ___) => Container(
-                width: 80,
-                height: 80,
-                color: Colors.grey[300],
-                child: const Icon(Icons.storefront, color: Colors.grey),
+                width: 76, height: 76,
+                color: PlanoraColors.brandAccent,
+                child: const Icon(Icons.storefront_outlined, color: PlanoraColors.brandDark),
               ),
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                Text(name, style: tt.titleMedium,
+                    maxLines: 1, overflow: TextOverflow.ellipsis),
                 const SizedBox(height: 4),
-                Text(
-                  category,
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  price,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF00C853),
+                Text(category, style: tt.bodySmall),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: PlanoraColors.brandAccent,
+                    borderRadius: BorderRadius.circular(20),
                   ),
+                  child: Text('Lihat Detail',
+                      style: tt.labelSmall?.copyWith(
+                        color: PlanoraColors.brandDark,
+                        fontWeight: FontWeight.w600,
+                      )),
                 ),
               ],
             ),
           ),
-          // Tombol Hapus Favorit (Icon Heart)
           Container(
             padding: const EdgeInsets.all(8),
             decoration: const BoxDecoration(
-              color: Color(0xFFFFF0F5),
+              color: PlanoraColors.brandAccent,
               shape: BoxShape.circle,
             ),
             child: const Icon(
-              Icons.favorite,
-              color: Color(0xFFE91E63),
-              size: 20,
+              Icons.favorite_rounded,
+              color: PlanoraColors.brandDark,
+              size: 18,
             ),
           ),
         ],

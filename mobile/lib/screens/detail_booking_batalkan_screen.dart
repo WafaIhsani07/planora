@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'package:intl/intl.dart';
+import '../main.dart' show PlanoraColors;
 
 class DetailBookingBatalkanScreen extends StatefulWidget {
   const DetailBookingBatalkanScreen({super.key});
@@ -77,9 +78,11 @@ class _DetailBookingBatalkanScreenState
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Ya, Batalkan',
-                style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: PlanoraColors.error,
+              foregroundColor: PlanoraColors.background,
+            ),
+            child: const Text('Ya, Batalkan'),
           ),
         ],
       ),
@@ -89,7 +92,6 @@ class _DetailBookingBatalkanScreenState
 
     setState(() => _isLoading = true);
 
-    // Gunakan endpoint PATCH untuk update status menjadi CANCELLED
     final result = await ApiService.postRequest(
       '/bookings/$_bookingId/cancel',
       {'status': 'CANCELLED'},
@@ -127,10 +129,8 @@ class _DetailBookingBatalkanScreenState
 
     setState(() => _isSubmittingReview = true);
 
-    // Ambil vendorId dari data booking (relasi nested)
     final vendorId = _bookingDetails?['vendor']?['id']?.toString() ??
-        _bookingDetails?['vendorId']?.toString() ??
-        '';
+        _bookingDetails?['vendorId']?.toString() ?? '';
 
     if (vendorId.isEmpty) {
       setState(() => _isSubmittingReview = false);
@@ -155,10 +155,7 @@ class _DetailBookingBatalkanScreenState
         _showReviewForm = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Ulasan berhasil dikirim. Terima kasih!'),
-          backgroundColor: Color(0xFF00C48C),
-        ),
+        const SnackBar(content: Text('Ulasan berhasil dikirim. Terima kasih!')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -172,11 +169,8 @@ class _DetailBookingBatalkanScreenState
     try {
       final double amount =
           value is String ? double.parse(value) : value.toDouble();
-      return NumberFormat.currency(
-        locale: 'id_ID',
-        symbol: 'Rp ',
-        decimalDigits: 0,
-      ).format(amount);
+      return NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0)
+          .format(amount);
     } catch (_) {
       return 'Rp 0';
     }
@@ -184,8 +178,13 @@ class _DetailBookingBatalkanScreenState
 
   @override
   Widget build(BuildContext context) {
+    final tt = Theme.of(context).textTheme;
+
     if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(
+        backgroundColor: PlanoraColors.background,
+        body: Center(child: CircularProgressIndicator()),
+      );
     }
 
     if (_errorMessage != null || _bookingDetails == null) {
@@ -193,17 +192,22 @@ class _DetailBookingBatalkanScreenState
         appBar: AppBar(title: const Text('Detail Pesanan')),
         body: Center(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(24),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                const SizedBox(height: 16),
-                Text(
-                  _errorMessage ?? 'Pesanan tidak ditemukan.',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 16),
+                Container(
+                  width: 72, height: 72,
+                  decoration: BoxDecoration(
+                    color: PlanoraColors.error.withAlpha(15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.error_outline_rounded,
+                      size: 36, color: PlanoraColors.error),
                 ),
+                const SizedBox(height: 16),
+                Text(_errorMessage ?? 'Pesanan tidak ditemukan.',
+                    textAlign: TextAlign.center, style: tt.bodyMedium),
                 const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context),
@@ -217,8 +221,6 @@ class _DetailBookingBatalkanScreenState
     }
 
     final detail = _bookingDetails!;
-
-    // Mapping field dari response backend Prisma
     final vendorData = detail['vendor'] ?? detail['layanan']?['vendor'] ?? {};
     final layananData = detail['layanan'] ?? {};
 
@@ -230,113 +232,132 @@ class _DetailBookingBatalkanScreenState
             : 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=600&auto=format&fit=crop';
 
     final String category = vendorData['category'] ?? 'Wedding Organizer';
-    final String title =
-        vendorData['businessName'] ?? vendorData['name'] ?? 'Nama Vendor';
-    final String description =
-        layananData['deskripsi'] ??
-        layananData['description'] ??
-        vendorData['description'] ??
-        'Deskripsi belum tersedia.';
-    final String price =
-        layananData['harga']?.toString() ??
-        layananData['price']?.toString() ??
-        detail['totalPrice']?.toString() ?? '0';
-    final String scheduleDate =
-        detail['eventDate'] != null
-            ? detail['eventDate'].toString().substring(0, 10)
-            : 'Jadwal belum ditentukan';
+    final String title = vendorData['businessName'] ?? vendorData['name'] ?? 'Nama Vendor';
+    final String description = layananData['deskripsi'] ?? layananData['description'] ??
+        vendorData['description'] ?? 'Deskripsi belum tersedia.';
+    final String price = layananData['harga']?.toString() ??
+        layananData['price']?.toString() ?? detail['totalPrice']?.toString() ?? '0';
+    final String scheduleDate = detail['eventDate'] != null
+        ? detail['eventDate'].toString().substring(0, 10)
+        : 'Jadwal belum ditentukan';
     final String statusText = detail['status'] ?? 'PENDING';
-    final String pemesan =
-        detail['user']?['name'] ?? detail['userName'] ?? 'Pemesan';
-    final String alamat =
-        detail['eventAddress'] ?? detail['address'] ?? 'Alamat belum diisi';
+    final String pemesan = detail['user']?['name'] ?? detail['userName'] ?? 'Pemesan';
+    final String alamat = detail['eventAddress'] ?? detail['address'] ?? 'Alamat belum diisi';
 
-    // T11: Review form hanya tampil jika status COMPLETED
-    final bool isCompleted =
-        statusText.toUpperCase() == 'COMPLETED' ||
+    final bool isCompleted = statusText.toUpperCase() == 'COMPLETED' ||
         statusText.toUpperCase() == 'SELESAI';
 
-    // Warna badge status
-    Color statusColor;
+    // Status badge mapping ke palette
+    Color statusBg;
+    Color statusFg;
     switch (statusText.toUpperCase()) {
       case 'PAID':
       case 'LUNAS':
-        statusColor = Colors.green;
+      case 'CONFIRMED':
+        statusBg = PlanoraColors.brandAccent;
+        statusFg = PlanoraColors.brandDark;
         break;
       case 'CANCELLED':
       case 'DIBATALKAN':
-        statusColor = Colors.grey;
+        statusBg = PlanoraColors.divider;
+        statusFg = PlanoraColors.brandGray;
         break;
       case 'COMPLETED':
       case 'SELESAI':
-        statusColor = Colors.blue;
+        statusBg = PlanoraColors.brandAccent;
+        statusFg = PlanoraColors.brandDark;
         break;
       default:
-        statusColor = Colors.redAccent;
+        statusBg = const Color(0xFFFFF3CD);
+        statusFg = const Color(0xFF856404);
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: PlanoraColors.background,
       body: Stack(
         children: [
-          // ── Hero Image ──────────────────────────────────────────────────────
+          // ── Hero Image ──────────────────────────────────────────────
           Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
+            top: 0, left: 0, right: 0,
             height: MediaQuery.of(context).size.height * 0.45,
             child: Image.network(
               imagePath,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) =>
-                  Container(color: Colors.grey[300]),
+              errorBuilder: (_, __, ___) =>
+                  Container(color: PlanoraColors.brandAccent),
             ),
           ),
 
-          // ── Back Button ──────────────────────────────────────────────────────
+          // ── Back Button ─────────────────────────────────────────────
           Positioned(
-            top: 40,
-            left: 16,
-            child: CircleAvatar(
-              backgroundColor: Colors.white.withValues(alpha: 0.5),
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new,
-                    color: Colors.white, size: 20),
-                onPressed: () => Navigator.pop(context),
+            top: 48, left: 16,
+            child: GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                width: 40, height: 40,
+                decoration: BoxDecoration(
+                  color: PlanoraColors.brandDark.withAlpha(100),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.arrow_back_rounded,
+                    color: PlanoraColors.background, size: 20),
               ),
             ),
           ),
 
-          // ── Status Badge ────────────────────────────────────────────────────
+          // ── Status Badge ────────────────────────────────────────────
           Positioned(
-            top: 48,
-            right: 16,
+            top: 52, right: 16,
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
               decoration: BoxDecoration(
-                color: statusColor,
+                color: statusBg,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: Text(
-                statusText,
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold),
-              ),
+              child: Text(statusText,
+                  style: tt.labelSmall?.copyWith(
+                    color: statusFg, fontWeight: FontWeight.w700)),
             ),
           ),
 
-          // ── Sliding Sheet ────────────────────────────────────────────────────
+          // ── Category + Title (over hero) ────────────────────────────
+          Positioned(
+            top: MediaQuery.of(context).size.height * 0.35 - 90,
+            left: 24, right: 24,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: PlanoraColors.brandAccent,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(category,
+                      style: tt.labelSmall?.copyWith(
+                        color: PlanoraColors.brandDark, fontWeight: FontWeight.w700)),
+                ),
+                const SizedBox(height: 8),
+                Text(title,
+                    style: const TextStyle(
+                      color: PlanoraColors.background,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      shadows: [Shadow(color: Colors.black45, blurRadius: 6)],
+                    )),
+              ],
+            ),
+          ),
+
+          // ── Sliding Sheet ───────────────────────────────────────────
           Positioned.fill(
             top: MediaQuery.of(context).size.height * 0.35,
             child: Container(
               decoration: const BoxDecoration(
-                color: Colors.white,
+                color: PlanoraColors.background,
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
+                  topLeft: Radius.circular(28),
+                  topRight: Radius.circular(28),
                 ),
               ),
               child: Column(
@@ -344,67 +365,45 @@ class _DetailBookingBatalkanScreenState
                 children: [
                   // Jadwal header
                   Padding(
-                    padding: const EdgeInsets.only(
-                        top: 24, left: 24, right: 24),
+                    padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
                     child: Row(
                       children: [
-                        const Icon(Icons.calendar_today,
-                            color: Color(0xFF00C48C), size: 20),
+                        const Icon(Icons.calendar_today_rounded,
+                            color: PlanoraColors.brandDark, size: 18),
                         const SizedBox(width: 8),
-                        Text(
-                          'Jadwal: $scheduleDate',
-                          style: const TextStyle(
-                            color: Color(0xFF00C48C),
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        Text('Jadwal: $scheduleDate',
+                            style: tt.titleSmall),
                       ],
                     ),
                   ),
                   const Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 24.0, vertical: 16),
-                    child: Divider(height: 1, color: Colors.grey),
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    child: Divider(height: 1),
                   ),
 
                   Expanded(
                     child: SingleChildScrollView(
-                      padding: const EdgeInsets.only(
-                          left: 24, right: 24, bottom: 120),
+                      padding: const EdgeInsets.only(left: 24, right: 24, bottom: 120),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // ── Info Pemesan ─────────────────────────────────
-                          _buildInfoRow(Icons.person_outline, 'Pemesan', pemesan),
+                          // Info rows
+                          _buildInfoRow(Icons.person_outline_rounded, 'Pemesan', pemesan, tt),
                           const SizedBox(height: 8),
-                          _buildInfoRow(
-                              Icons.location_on_outlined, 'Alamat Acara', alamat),
+                          _buildInfoRow(Icons.location_on_outlined, 'Alamat Acara', alamat, tt),
                           const SizedBox(height: 20),
                           const Divider(),
                           const SizedBox(height: 12),
 
-                          // ── Deskripsi Layanan ─────────────────────────────
-                          const Text(
-                            'Deskripsi Layanan',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            description,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.black54,
-                              height: 1.5,
-                            ),
-                          ),
+                          // Deskripsi
+                          Text('Deskripsi Layanan', style: tt.titleMedium),
+                          const SizedBox(height: 10),
+                          Text(description,
+                              style: tt.bodyMedium?.copyWith(
+                                color: PlanoraColors.brandGray, height: 1.6)),
                           const SizedBox(height: 24),
 
-                          // ── T11: Form Ulasan (hanya jika COMPLETED) ───────
+                          // T11: Form Ulasan (hanya jika COMPLETED)
                           if (isCompleted) ...[
                             const Divider(),
                             const SizedBox(height: 16),
@@ -412,42 +411,28 @@ class _DetailBookingBatalkanScreenState
                               Container(
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFE8F5E9),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                      color: const Color(0xFF00C48C)),
+                                  color: PlanoraColors.brandAccent,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(color: PlanoraColors.brandAccentHover),
                                 ),
-                                child: const Row(
+                                child: Row(
                                   children: [
-                                    Icon(Icons.check_circle,
-                                        color: Color(0xFF00C48C)),
-                                    SizedBox(width: 12),
+                                    const Icon(Icons.check_circle_rounded,
+                                        color: PlanoraColors.brandDark),
+                                    const SizedBox(width: 12),
                                     Text('Ulasan sudah dikirim. Terima kasih!',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Color(0xFF00C48C))),
+                                        style: tt.titleSmall),
                                   ],
                                 ),
                               )
                             else if (!_showReviewForm)
                               ElevatedButton.icon(
-                                onPressed: () =>
-                                    setState(() => _showReviewForm = true),
-                                icon: const Icon(Icons.star_outline,
-                                    color: Colors.white),
-                                label: const Text('Beri Ulasan & Rating',
-                                    style: TextStyle(color: Colors.white)),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF00C48C),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 12, horizontal: 20),
-                                ),
+                                onPressed: () => setState(() => _showReviewForm = true),
+                                icon: const Icon(Icons.star_outline_rounded),
+                                label: const Text('Beri Ulasan & Rating'),
                               )
                             else
-                              _buildReviewForm(),
+                              _buildReviewForm(tt),
                           ],
                         ],
                       ),
@@ -457,55 +442,15 @@ class _DetailBookingBatalkanScreenState
               ),
             ),
           ),
-
-          // ── Category + Title ─────────────────────────────────────────────────
-          Positioned(
-            top: MediaQuery.of(context).size.height * 0.35 - 90,
-            left: 24,
-            right: 24,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF00C48C),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(category,
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold)),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    shadows: [Shadow(color: Colors.black45, blurRadius: 4)],
-                  ),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
 
-      // ── Bottom Sheet: Harga + Batalkan ────────────────────────────────────
+      // ── Bottom Sheet ─────────────────────────────────────────────────
       bottomSheet: Container(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.fromLTRB(24, 14, 24, 24),
         decoration: const BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-                color: Colors.black12,
-                blurRadius: 10,
-                offset: Offset(0, -2)),
-          ],
+          color: PlanoraColors.background,
+          border: Border(top: BorderSide(color: PlanoraColors.divider)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -514,53 +459,32 @@ class _DetailBookingBatalkanScreenState
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('TOTAL HARGA',
-                    style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey)),
-                Text(
-                  _formatCurrency(price),
-                  style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87),
-                ),
+                Text('TOTAL HARGA',
+                    style: tt.labelSmall?.copyWith(letterSpacing: 0.8)),
+                Text(_formatCurrency(price), style: tt.headlineSmall),
               ],
             ),
-            // Hanya tampilkan tombol batalkan jika status masih PENDING
             if (statusText.toUpperCase() == 'PENDING')
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  side: const BorderSide(color: Colors.redAccent),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 24, vertical: 14),
-                ),
+              OutlinedButton(
                 onPressed: _cancelBooking,
-                child: const Text('Batalkan',
-                    style: TextStyle(
-                        color: Colors.redAccent,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold)),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(0, 48),
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  side: const BorderSide(color: PlanoraColors.error),
+                  foregroundColor: PlanoraColors.error,
+                ),
+                child: const Text('Batalkan'),
               )
             else
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF0F0F0),
-                  borderRadius: BorderRadius.circular(10),
+                  color: statusBg,
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                child: Text(
-                  statusText,
-                  style: TextStyle(
-                      color: statusColor,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold),
-                ),
+                child: Text(statusText,
+                    style: tt.labelMedium?.copyWith(
+                      color: statusFg, fontWeight: FontWeight.w600)),
               ),
           ],
         ),
@@ -568,21 +492,18 @@ class _DetailBookingBatalkanScreenState
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value) {
+  Widget _buildInfoRow(IconData icon, String label, String value, TextTheme tt) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 18, color: Colors.grey),
+        Icon(icon, size: 18, color: PlanoraColors.brandGray),
         const SizedBox(width: 8),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label,
-                  style: const TextStyle(fontSize: 11, color: Colors.grey)),
-              Text(value,
-                  style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w600)),
+              Text(label, style: tt.bodySmall),
+              Text(value, style: tt.titleSmall),
             ],
           ),
         ),
@@ -590,22 +511,19 @@ class _DetailBookingBatalkanScreenState
     );
   }
 
-  // T11: Widget form bintang + teks ulasan
-  Widget _buildReviewForm() {
+  Widget _buildReviewForm(TextTheme tt) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFF9F9F9),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFEEEEEE)),
+        color: PlanoraColors.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: PlanoraColors.divider),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Beri Rating',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+          Text('Beri Rating', style: tt.titleMedium),
           const SizedBox(height: 12),
-          // Bintang interaktif
           Row(
             children: List.generate(5, (i) {
               return GestureDetector(
@@ -613,7 +531,7 @@ class _DetailBookingBatalkanScreenState
                 child: Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: Icon(
-                    i < _reviewRating ? Icons.star : Icons.star_border,
+                    i < _reviewRating ? Icons.star_rounded : Icons.star_outline_rounded,
                     color: const Color(0xFFFBC02D),
                     size: 36,
                   ),
@@ -622,54 +540,24 @@ class _DetailBookingBatalkanScreenState
             }),
           ),
           const SizedBox(height: 16),
-          const Text('Tulis Ulasan',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+          Text('Tulis Ulasan', style: tt.titleMedium),
           const SizedBox(height: 8),
           TextField(
             controller: _reviewController,
             maxLines: 3,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               hintText: 'Ceritakan pengalaman Anda dengan vendor ini...',
-              hintStyle:
-                  const TextStyle(color: Colors.grey, fontSize: 13),
-              filled: true,
-              fillColor: Colors.white,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    const BorderSide(color: Color(0xFFEEEEEE)),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    const BorderSide(color: Color(0xFFEEEEEE)),
-              ),
             ),
           ),
           const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _isSubmittingReview ? null : _submitReview,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00C48C),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                padding:
-                    const EdgeInsets.symmetric(vertical: 14),
-              ),
-              child: _isSubmittingReview
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                          color: Colors.white, strokeWidth: 2))
-                  : const Text('Kirim Ulasan',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15)),
-            ),
+          ElevatedButton(
+            onPressed: _isSubmittingReview ? null : _submitReview,
+            child: _isSubmittingReview
+                ? const SizedBox(
+                    width: 20, height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2.5,
+                        valueColor: AlwaysStoppedAnimation<Color>(PlanoraColors.brandDark)))
+                : const Text('Kirim Ulasan'),
           ),
         ],
       ),
