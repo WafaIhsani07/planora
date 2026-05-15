@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:intl/intl.dart';
 
 class ChatDetailScreen extends StatefulWidget {
@@ -15,74 +13,57 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
   final ScrollController _scrollController = ScrollController();
 
   Map<String, dynamic>? _vendorData;
-  List<dynamic> _messages = [];
-  bool _isLoading = true;
+
+  // Pesan disimpan secara lokal di session (belum ada endpoint backend)
+  final List<Map<String, dynamic>> _messages = [];
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final args = ModalRoute.of(context)?.settings.arguments;
     if (args != null && args is Map<String, dynamic>) {
-      _vendorData = args;
-      _fetchMessages();
+      setState(() {
+        _vendorData = args;
+      });
     }
   }
 
-  Future<void> _fetchMessages() async {
-    final vId = _vendorData!['id'];
-    try {
-      final response = await http.get(
-        Uri.parse('http://10.0.2.2:3000/api/messages?vendorId=$vId'),
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        setState(() {
-          _messages = data;
-          _isLoading = false;
-        });
-      } else {
-        // Fallback untuk mockup
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) setState(() => _isLoading = false);
-    }
+  @override
+  void dispose() {
+    _msgController.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 
-  Future<void> _sendMessage() async {
+  void _sendMessage() {
     final txt = _msgController.text.trim();
     if (txt.isEmpty) return;
 
     _msgController.clear();
 
     final newMsg = {
-      "id": DateTime.now().millisecondsSinceEpoch.toString(),
-      "text": txt,
-      "isMe": true,
-      "time": DateFormat('HH:mm').format(DateTime.now()),
-      "vendorId": _vendorData?['id'],
+      'id': DateTime.now().millisecondsSinceEpoch.toString(),
+      'text': txt,
+      'isMe': true,
+      'time': DateFormat('HH:mm').format(DateTime.now()),
     };
 
     setState(() => _messages.add(newMsg));
     _scrollToBottom();
 
-    try {
-      await http.post(
-        Uri.parse('http://10.0.2.2:3000/api/messages'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(newMsg),
-      );
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Koneksi terputus')));
-      }
-    }
+    // Simulasi balasan vendor setelah 1 detik
+    Future.delayed(const Duration(seconds: 1), () {
+      if (!mounted) return;
+      setState(() {
+        _messages.add({
+          'id': '${DateTime.now().millisecondsSinceEpoch}_reply',
+          'text': 'Terima kasih atas pesannya! Kami akan segera merespons.',
+          'isMe': false,
+          'time': DateFormat('HH:mm').format(DateTime.now()),
+        });
+      });
+      _scrollToBottom();
+    });
   }
 
   void _scrollToBottom() {
@@ -106,11 +87,11 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
       );
     }
 
-    final name = _vendorData!['name'] ?? "Vendor";
-    final imageUrl = _vendorData!['imageUrl'];
+    final name = _vendorData!['name'] ?? 'Vendor';
+    final imageUrl = _vendorData!['imageUrl'] ?? '';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9), // Latar abub soft
+      backgroundColor: const Color(0xFFF9F9F9),
       appBar: AppBar(
         titleSpacing: 0,
         backgroundColor: Colors.white,
@@ -125,7 +106,24 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
         ),
         title: Row(
           children: [
-            CircleAvatar(backgroundImage: NetworkImage(imageUrl), radius: 18),
+            imageUrl.isNotEmpty
+                ? CircleAvatar(
+                    backgroundImage: NetworkImage(imageUrl),
+                    radius: 18,
+                    backgroundColor: Colors.grey.shade200,
+                    onBackgroundImageError: (_, __) {},
+                  )
+                : CircleAvatar(
+                    radius: 18,
+                    backgroundColor: const Color(0xFFE8F5E9),
+                    child: Text(
+                      name.isNotEmpty ? name[0].toUpperCase() : 'V',
+                      style: const TextStyle(
+                        color: Color(0xFF00C48C),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
             const SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,11 +159,52 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
       body: Column(
         children: [
           const Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
+
+          // Banner info fitur chat
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            color: const Color(0xFFFFF8E1),
+            child: Row(
+              children: [
+                const Icon(Icons.info_outline, size: 14, color: Color(0xFFF9A825)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Percakapan tersimpan sementara di sesi ini.',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.amber.shade800,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Area pesan
           Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _messages.isEmpty
-                ? Center(child: Text("Mulai percakapan dengan $name"))
+            child: _messages.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.chat_bubble_outline,
+                          size: 48,
+                          color: Colors.grey.shade300,
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Mulai percakapan dengan $name',
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
                 : ListView.builder(
                     padding: const EdgeInsets.all(16.0),
                     controller: _scrollController,
@@ -182,7 +221,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                   ),
           ),
 
-          // Input Form Bawah
+          // Input Form
           SafeArea(
             child: Container(
               padding: const EdgeInsets.symmetric(
@@ -203,6 +242,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                       ),
                       child: TextField(
                         controller: _msgController,
+                        onSubmitted: (_) => _sendMessage(),
                         decoration: const InputDecoration(
                           hintText: 'Ketik pesan...',
                           border: InputBorder.none,
@@ -216,7 +256,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(12),
                       decoration: const BoxDecoration(
-                        color: Color(0xFF00C48C), // Warna hijau mockup
+                        color: Color(0xFF00C48C),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -253,12 +293,10 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
             topRight: const Radius.circular(16),
-            bottomLeft: isMe
-                ? const Radius.circular(16)
-                : const Radius.circular(0),
-            bottomRight: isMe
-                ? const Radius.circular(0)
-                : const Radius.circular(16),
+            bottomLeft:
+                isMe ? const Radius.circular(16) : const Radius.circular(0),
+            bottomRight:
+                isMe ? const Radius.circular(0) : const Radius.circular(16),
           ),
           boxShadow: isMe
               ? []
@@ -271,9 +309,8 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                 ],
         ),
         child: Column(
-          crossAxisAlignment: isMe
-              ? CrossAxisAlignment.end
-              : CrossAxisAlignment.start,
+          crossAxisAlignment:
+              isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
             Text(
               text,

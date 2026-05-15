@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../services/api_service.dart';
 
 class NotifikasiScreen extends StatefulWidget {
   const NotifikasiScreen({super.key});
@@ -19,34 +19,25 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
     _fetchNotifications();
   }
 
-  // Mengambil data notifikasi dari backend API
+  // Mengambil data notifikasi dari backend API via ApiService (JWT otomatis)
   Future<void> _fetchNotifications() async {
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
     try {
-      final response = await http.get(
-        Uri.parse('http://10.0.2.2:3000/api/notifications'),
-      );
-
+      final response = await ApiService.getRequest('/notifications');
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final body = json.decode(response.body);
+        // Backend mengembalikan { success: true, data: [...] }
+        final data = body['data'] ?? body;
         setState(() {
-          _notifications = data;
+          _notifications = data is List ? data : [];
         });
       } else {
-        setState(() {
-          _notifications = [];
-        });
+        setState(() => _notifications = []);
       }
     } catch (e) {
-      setState(() {
-        _notifications = [];
-      });
+      setState(() => _notifications = []);
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -134,9 +125,9 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
                             type: item['type'] ?? 'info',
                             title: item['title'] ?? 'Notifikasi',
                             description:
-                                item['description'] ?? 'Detail notifikasi',
-                            time: item['time'] ?? 'Baru saja',
-                            isUnread: item['isUnread'] ?? false,
+                                item['description'] ?? item['message'] ?? 'Detail notifikasi',
+                            time: item['time'] ?? item['createdAt'] ?? 'Baru saja',
+                            isUnread: item['isUnread'] ?? item['isRead'] == false,
                           ),
                         );
                       },
@@ -148,33 +139,31 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
     );
   }
 
-  // Komponen Card Notifikasi sesuai Mockup
   Widget _buildNotifikasiCard({
-    required String type, // 'success', 'promo', 'error'
+    required String type,
     required String title,
     required String description,
     required String time,
     required bool isUnread,
   }) {
-    // Menyesuaikan ikon & warna berdasarkan tipe (sesuai gambar)
     IconData iconData;
     Color iconColor;
     Color iconBgColor;
-    Color borderColor = const Color(0xFFF0F0F0); // Default bingkai abu halus
+    Color borderColor = const Color(0xFFF0F0F0);
 
     if (type == 'success') {
       iconData = Icons.check;
-      iconColor = const Color(0xFF00C853); // Hijau
+      iconColor = const Color(0xFF00C853);
       iconBgColor = const Color(0xFFE8F5E9);
-      borderColor = const Color(0xFFE0F2F1); // Hijau tipis di luarnya
+      borderColor = const Color(0xFFE0F2F1);
     } else if (type == 'promo') {
       iconData = Icons.local_offer;
       iconColor = Colors.grey.shade700;
-      iconBgColor = const Color(0xFFF5E6E6); // Coklat/merah sangat pudar
+      iconBgColor = const Color(0xFFF5E6E6);
     } else if (type == 'error' || type == 'info') {
-      iconData = Icons.event_busy; // Icon kalender 'X'
+      iconData = Icons.event_busy;
       iconColor = Colors.grey.shade600;
-      iconBgColor = const Color(0xFFF5F5F5); // Abu-abu terang
+      iconBgColor = const Color(0xFFF5F5F5);
     } else {
       iconData = Icons.notifications;
       iconColor = Colors.grey;
@@ -200,7 +189,6 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Icon Wrapper
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -210,7 +198,6 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
             child: Icon(iconData, color: iconColor, size: 20),
           ),
           const SizedBox(width: 16),
-          // Content
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -233,7 +220,7 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
                         width: 8,
                         height: 8,
                         decoration: const BoxDecoration(
-                          color: Color(0xFF00E676), // Dot hijau Unread
+                          color: Color(0xFF00E676),
                           shape: BoxShape.circle,
                         ),
                       ),

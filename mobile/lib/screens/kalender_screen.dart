@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import '../services/api_service.dart';
 
 class KalenderScreen extends StatefulWidget {
   const KalenderScreen({super.key});
@@ -27,73 +26,53 @@ class _KalenderScreenState extends State<KalenderScreen> {
   }
 
   Future<void> _fetchEvents() async {
-    try {
-      final response = await http.get(
-        Uri.parse('http://10.0.2.2:3000/api/orders'),
-      );
+    final result = await ApiService.getBookings();
+    if (!mounted) return;
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body) as List<dynamic>;
+    Map<DateTime, List<dynamic>> parsedEvents = {};
 
-        Map<DateTime, List<dynamic>> parsedEvents = {};
+    if (result['success'] == true) {
+      final data = (result['data'] as List?) ?? [];
 
-        for (var order in data) {
-          if (order['date'] != null) {
-            try {
-              // Asumsi format tanggal dari backend adalah MM/dd/yyyy atau yyyy-MM-dd
-              // Kita coba parse. Kalau gagal, kita abaikan.
-              DateTime rawDate;
-              // Jika formatnya 'MM/dd/yyyy' seperti hasil _dateController
-              if (order['date'].toString().contains('/')) {
-                List<String> parts = order['date'].split('/');
-                if (parts.length == 3) {
-                  rawDate = DateTime(
-                    int.parse(parts[2]),
-                    int.parse(parts[0]),
-                    int.parse(parts[1]),
-                  );
-                } else {
-                  rawDate = DateTime.parse(order['date']);
-                }
-              } else {
-                rawDate = DateTime.parse(order['date']);
-              }
+      for (var order in data) {
+        // Coba baca eventDate dari response backend
+        final rawDateStr = order['eventDate']?.toString() ?? order['date']?.toString();
+        if (rawDateStr == null) continue;
 
-              // Normalisasi ke midnight
-              final date = DateTime.utc(
-                rawDate.year,
-                rawDate.month,
-                rawDate.day,
+        try {
+          DateTime rawDate;
+          if (rawDateStr.contains('/')) {
+            final parts = rawDateStr.split('/');
+            if (parts.length == 3) {
+              rawDate = DateTime(
+                int.parse(parts[2]),
+                int.parse(parts[0]),
+                int.parse(parts[1]),
               );
-
-              if (parsedEvents[date] == null) {
-                parsedEvents[date] = [];
-              }
-              parsedEvents[date]!.add(order);
-            } catch (e) {
-              // lewati jika parse gagal
+            } else {
+              rawDate = DateTime.parse(rawDateStr);
             }
+          } else {
+            rawDate = DateTime.parse(rawDateStr);
           }
-        }
 
-        setState(() {
-          _events = parsedEvents;
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _isLoading = false;
-        });
+          // Normalisasi ke midnight UTC
+          final date = DateTime.utc(rawDate.year, rawDate.month, rawDate.day);
+
+          parsedEvents[date] = [...(parsedEvents[date] ?? []), order];
+        } catch (e) {
+          // lewati jika parse gagal
+        }
       }
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
     }
+
+    setState(() {
+      _events = parsedEvents;
+      _isLoading = false;
+    });
   }
 
   List<dynamic> _getEventsForDay(DateTime day) {
-    // Cari di map event
     final normalizedDay = DateTime.utc(day.year, day.month, day.day);
     return _events[normalizedDay] ?? [];
   }
@@ -172,13 +151,11 @@ class _KalenderScreenState extends State<KalenderScreen> {
                           eventLoader: _getEventsForDay,
                           calendarStyle: CalendarStyle(
                             selectedDecoration: const BoxDecoration(
-                              color: Color(0xFF00C48C), // Warna hijau UI mockup
+                              color: Color(0xFF00C48C),
                               shape: BoxShape.circle,
                             ),
                             todayDecoration: BoxDecoration(
-                              color: const Color(
-                                0xFFFA9081,
-                              ).withValues(alpha: 0.5), // Soft pastel
+                              color: const Color(0xFFFA9081).withValues(alpha: 0.5),
                               shape: BoxShape.circle,
                             ),
                             markerDecoration: const BoxDecoration(
@@ -233,12 +210,22 @@ class _KalenderScreenState extends State<KalenderScreen> {
   }
 
   Widget _buildAgendaCard(dynamic event) {
-    final String title = event['name'] ?? 'Ceria\'s WO'; // Fallback
-    // Memecah notes untuk mencari jam jika memungkinkan, jika tidak fallback manual
+    final vendorData = event['vendor'] ?? {};
+    final layananData = event['layanan'] ?? {};
+    final String title =
+        vendorData['businessName'] ??
+        vendorData['name'] ??
+        layananData['namaLayanan'] ??
+        'Acara';
+
+    final avatar = vendorData['avatar']?.toString() ?? '';
+    final String imageUrl = avatar.isNotEmpty
+        ? (avatar.startsWith('http')
+            ? avatar
+            : 'http://10.0.2.2:5000/assets/$avatar')
+        : 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=300&auto=format&fit=crop';
+
     final String timeInfo = 'Jadwal Mulai Persiapan (08:00 WIB)';
-    final String imageUrl =
-        event['imageUrl'] ??
-        'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=300&auto=format&fit=crop';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16.0),
@@ -266,6 +253,10 @@ class _KalenderScreenState extends State<KalenderScreen> {
               height: 150,
               width: double.infinity,
               fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(
+                height: 150,
+                color: Colors.grey[300],
+              ),
             ),
           ),
           Padding(

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import '../dummy_data.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import '../services/api_service.dart';
 
 class FavoritScreen extends StatefulWidget {
   const FavoritScreen({super.key});
@@ -11,8 +9,8 @@ class FavoritScreen extends StatefulWidget {
 }
 
 class _FavoritScreenState extends State<FavoritScreen> {
-  final int _currentIndex = 3; // Index 3 untuk halaman Favorit
-  List<dynamic> _favorites = DummyData.vendors;
+  final int _currentIndex = 3;
+  List<dynamic> _favorites = [];
   bool _isLoading = true;
 
   @override
@@ -21,31 +19,20 @@ class _FavoritScreenState extends State<FavoritScreen> {
     _fetchFavorites();
   }
 
-  // Mengambil data favorit dari backend API
+  // Mengambil data favorit dari backend API (gunakan vendor list sebagai fallback
+  // karena belum ada endpoint /favorites di backend)
   Future<void> _fetchFavorites() async {
     try {
-      final response = await http.get(
-        Uri.parse('http://10.0.2.2:3000/api/favorites'),
-      );
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+      final vendorsData = await ApiService.getVendors();
+      if (mounted) {
         setState(() {
-          _favorites = data;
-        });
-      } else {
-        setState(() {
-          _favorites = DummyData.vendors;
+          _favorites = vendorsData;
         });
       }
     } catch (e) {
-      setState(() {
-        _favorites = DummyData.vendors;
-      });
+      if (mounted) setState(() => _favorites = []);
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -58,7 +45,7 @@ class _FavoritScreenState extends State<FavoritScreen> {
     } else if (index == 2) {
       Navigator.pushReplacementNamed(context, '/pesanan');
     } else if (index == 3) {
-      // Sedang di halaman Favorit, tidak perlu push
+      // Sedang di halaman Favorit
     } else if (index == 4) {
       Navigator.pushReplacementNamed(context, '/profil');
     }
@@ -93,12 +80,12 @@ class _FavoritScreenState extends State<FavoritScreen> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: const BoxDecoration(
-                        color: Color(0xFFFFF0F5), // Pink sangat memudar
+                        color: Color(0xFFFFF0F5),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
                         Icons.favorite,
-                        color: Color(0xFFE91E63), // Pink
+                        color: Color(0xFFE91E63),
                         size: 20,
                       ),
                     ),
@@ -129,9 +116,16 @@ class _FavoritScreenState extends State<FavoritScreen> {
                         itemBuilder: (context, index) {
                           final item = _favorites[index];
                           final itemId =
-                              item['id']?.toString() ??
-                              item['_id']?.toString() ??
-                              '1';
+                              item['id']?.toString() ?? '1';
+
+                          // Mapping field dari backend
+                          final avatar = item['avatar']?.toString() ?? '';
+                          final imageUrl = avatar.isNotEmpty
+                              ? (avatar.startsWith('http')
+                                  ? avatar
+                                  : 'http://10.0.2.2:5000/assets/$avatar')
+                              : 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=200&auto=format&fit=crop';
+
                           return GestureDetector(
                             onTap: () => Navigator.pushNamed(
                               context,
@@ -139,12 +133,10 @@ class _FavoritScreenState extends State<FavoritScreen> {
                               arguments: itemId,
                             ),
                             child: _buildFavoriteCard(
-                              name: item['name'] ?? 'Vendor Name',
+                              name: item['businessName'] ?? item['name'] ?? 'Vendor',
                               category: item['category'] ?? 'Kategori',
-                              price: 'Rp ${item['price'] ?? 0}',
-                              imageUrl:
-                                  item['imageUrl'] ??
-                                  'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=200&auto=format&fit=crop',
+                              price: 'Lihat Detail',
+                              imageUrl: imageUrl,
                             ),
                           );
                         },
@@ -216,6 +208,12 @@ class _FavoritScreenState extends State<FavoritScreen> {
               width: 80,
               height: 80,
               fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(
+                width: 80,
+                height: 80,
+                color: Colors.grey[300],
+                child: const Icon(Icons.storefront, color: Colors.grey),
+              ),
             ),
           ),
           const SizedBox(width: 16),

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import '../dummy_data.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import '../services/api_service.dart';
 
 class RiwayatScreen extends StatefulWidget {
   const RiwayatScreen({super.key});
@@ -11,7 +9,7 @@ class RiwayatScreen extends StatefulWidget {
 }
 
 class _RiwayatScreenState extends State<RiwayatScreen> {
-  List<dynamic> _histories = DummyData.orders.where((o) => o['isPaid'] == true).toList();
+  List<dynamic> _histories = [];
   bool _isLoading = true;
 
   @override
@@ -21,41 +19,33 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
   }
 
   Future<void> _fetchHistory() async {
-    try {
-      final response = await http.get(
-        Uri.parse('http://10.0.2.2:3000/api/orders'),
-      );
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body) as List;
-        if (mounted) {
-          setState(() {
-            // Untuk history, ambil semua pesanan yang lunas (isPaid==true) atau berstatus selesai.
-            // Namun jika datanya kosong saat dicoba, kita ambil semua saja untuk memperlihatkan form history.
-            // Di sini kita kombinasikan filter.
-            _histories = data
-                .where(
-                  (o) =>
-                      o['isPaid'] == true ||
-                      o['status']?.toString().toLowerCase() == 'lunas' ||
-                      o['status']?.toString().toLowerCase() == 'selesai',
-                )
-                .toList();
+    setState(() => _isLoading = true);
+    final result = await ApiService.getBookings();
+    if (!mounted) return;
+    setState(() {
+      if (result['success'] == true) {
+        final data = (result['data'] as List?) ?? [];
+        // Filter pesanan yang sudah selesai / lunas
+        _histories = data
+            .where(
+              (o) =>
+                  o['isPaid'] == true ||
+                  o['status']?.toString().toUpperCase() == 'LUNAS' ||
+                  o['status']?.toString().toUpperCase() == 'SELESAI' ||
+                  o['status']?.toString().toUpperCase() == 'COMPLETED' ||
+                  o['status']?.toString().toUpperCase() == 'PAID',
+            )
+            .toList();
 
-            // Jika array kosong setelah disaring (misal belum ada yang lunas), tampilkan semua saja
-            // namun statusnya dicetak mengikuti database untuk mencegah layar kosong jika database direset.
-            if (_histories.isEmpty) {
-              _histories = data;
-            }
-
-            _isLoading = false;
-          });
+        // Jika tidak ada yang selesai, tampilkan semua agar layar tidak kosong
+        if (_histories.isEmpty) {
+          _histories = data;
         }
       } else {
-        if (mounted) setState(() => _isLoading = false);
+        _histories = [];
       }
-    } catch (e) {
-      if (mounted) setState(() => _isLoading = false);
-    }
+      _isLoading = false;
+    });
   }
 
   Future<void> _deleteHistory(String id) async {
@@ -92,11 +82,12 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final response = await http.delete(
-        Uri.parse('http://10.0.2.2:3000/api/orders/$id'),
+      // Gunakan endpoint cancel booking (PATCH /bookings/:id/cancel)
+      final response = await ApiService.postRequest(
+        '/bookings/$id/cancel',
+        {'status': 'CANCELLED'},
       );
 
-      // Bisa 200 (OK) atau 204 (No Content) jika backend berhasil delete
       if (response.statusCode == 200 ||
           response.statusCode == 204 ||
           response.statusCode == 202) {
@@ -149,23 +140,48 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _histories.isEmpty
-          ? const Center(child: Text("Riwayat kosong."))
+          ? const Center(
+              child: Padding(
+                padding: EdgeInsets.all(32.0),
+                child: Text(
+                  'Belum ada riwayat booking.',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontStyle: FontStyle.italic,
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+            )
           : ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
               itemCount: _histories.length,
               itemBuilder: (context, index) {
                 final item = _histories[index];
-                final String id = item['id'].toString();
-                final String name = item['name'] ?? 'Vendor Name';
-                final String imageUrl =
-                    item['imageUrl'] ??
-                    'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=200&auto=format&fit=crop';
+                final String id = item['id']?.toString() ?? '';
 
-                // Untuk style text "Selesai", kita asumsikan 'isPaid' == true berarti Selesai.
+                // Mapping field dari response backend
+                final vendorData = item['vendor'] ?? {};
+                final layananData = item['layanan'] ?? {};
+                final String vendorName =
+                    vendorData['businessName'] ??
+                    vendorData['name'] ??
+                    layananData['namaLayanan'] ??
+                    'Vendor';
+
+                final avatar = vendorData['avatar']?.toString() ?? '';
+                final String imageUrl = avatar.isNotEmpty
+                    ? (avatar.startsWith('http')
+                        ? avatar
+                        : 'http://10.0.2.2:5000/assets/$avatar')
+                    : 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=200&auto=format&fit=crop';
+
                 final bool isSelesai =
                     item['isPaid'] == true ||
-                    item['status']?.toString().toLowerCase() == 'lunas' ||
-                    item['status']?.toString().toLowerCase() == 'selesai';
+                    item['status']?.toString().toUpperCase() == 'LUNAS' ||
+                    item['status']?.toString().toUpperCase() == 'SELESAI' ||
+                    item['status']?.toString().toUpperCase() == 'COMPLETED' ||
+                    item['status']?.toString().toUpperCase() == 'PAID';
                 final String statusText = isSelesai
                     ? 'Selesai'
                     : 'Berjalan / Tertunda';
@@ -213,7 +229,7 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              name,
+                              vendorName,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
@@ -233,12 +249,13 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
                         ),
                       ),
                       IconButton(
-                        // Ikon hapus (Tong sampah) dari mockup 17
                         icon: const Icon(
                           Icons.delete_outline,
                           color: Colors.grey,
                         ),
-                        onPressed: () => _deleteHistory(id),
+                        onPressed: id.isNotEmpty
+                            ? () => _deleteHistory(id)
+                            : null,
                       ),
                     ],
                   ),

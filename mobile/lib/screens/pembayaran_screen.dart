@@ -266,7 +266,7 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
                                           ? Image.network(
                                               imageUrl.startsWith('http')
                                                   ? imageUrl
-                                                  : 'http://10.0.2.2:3000/assets/$imageUrl',
+                                                  : 'http://10.0.2.2:5000/assets/$imageUrl',
                                               width: 60,
                                               height: 60,
                                               fit: BoxFit.cover,
