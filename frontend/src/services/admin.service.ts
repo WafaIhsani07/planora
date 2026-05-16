@@ -1,22 +1,47 @@
 import api from "@/lib/api";
 
 export async function getDashboardStats() {
-  const { data } = await api.get("/admin/stats");
-  return data.data; // Response formatter backend returns { success, data, message }
+  try {
+    const response = await api.get("/admin/dashboard/stats");
+    return response.data.data;
+  } catch (error) {
+    console.error("API Error (getDashboardStats):", error);
+    return null;
+  }
 }
 
 export async function getPendingVendors() {
-  const { data } = await api.get("/admin/vendors/pending");
-  return data.data;
+  try {
+    const response = await api.get("/admin/vendors/pending");
+    return response.data.data || [];
+  } catch (error) {
+    console.error("API Error (getPendingVendors):", error);
+    return [];
+  }
 }
 
-export async function getAllBookings(params?: any) {
-  const { data } = await api.get("/admin/bookings", { params });
-  return data.data;
+export async function getAllUsers(params?: any) {
+  try {
+    const response = await api.get("/admin/users", { params });
+    return response.data.data || { users: [] };
+  } catch (error) {
+    console.error("API Error (getAllUsers):", error);
+    return { users: [] };
+  }
 }
 
-export async function getAllPayments(params?: any) {
-  const { data } = await api.get("/admin/payments", { params });
+export async function getAllKategori() {
+  try {
+    const response = await api.get("/kategori");
+    return response.data.data || [];
+  } catch (error) {
+    console.error("API Error (getAllKategori):", error);
+    return [];
+  }
+}
+
+export async function createKategori(payload: { name: string; description?: string }) {
+  const { data } = await api.post("/kategori", payload);
   return data.data;
 }
 

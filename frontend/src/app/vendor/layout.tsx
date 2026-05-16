@@ -4,13 +4,9 @@ import type { ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getSession } from 'next-auth/react';
-import AdminSidebar from '@/components/admin/AdminSidebar';
+import VendorSidebar from '@/components/vendor/VendorSidebar';
 
-type AdminLayoutProps = {
-  children: ReactNode;
-};
-
-export default function AdminLayout({ children }: AdminLayoutProps) {
+export default function VendorLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [ready, setReady] = useState(false);
 
@@ -22,8 +18,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         router.replace('/login');
         return;
       }
-      // Hanya ADMIN yang boleh masuk ke area ini
-      if ((session.user as { role?: string })?.role !== 'ADMIN') {
+      // Hanya vendor yang boleh masuk ke area ini
+      if ((session.user as { role?: string })?.role !== 'VENDOR') {
         router.replace('/login');
         return;
       }
@@ -36,7 +32,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     return (
       <div className="grid h-screen place-items-center bg-[#FDF1F0]">
         <span className="text-[10px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">
-          MEMUAT DASHBOARD ADMIN...
+          MEMUAT DASHBOARD VENDOR...
         </span>
       </div>
     );
@@ -44,8 +40,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <div className="min-h-screen bg-[#FDF1F0] flex font-sans text-[#2A2A2A]">
-      <AdminSidebar />
-      <div className="ml-[280px] flex-1 flex flex-col min-h-screen overflow-hidden">
+      <VendorSidebar />
+      <div className="flex-1 ml-64 flex flex-col min-h-screen overflow-hidden">
         <main className="flex-1 overflow-y-auto bg-[#FDF1F0]">
           {children}
         </main>

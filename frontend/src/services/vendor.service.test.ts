@@ -39,9 +39,10 @@ describe('Vendor Service', () => {
       expect(result.businessName).toBe('Toko A');
     });
 
-    it('[NEGATIF] harus melempar error jika server mengembalikan 401', async () => {
+    it('[NEGATIF] harus mengembalikan null jika server mengembalikan 401', async () => {
       (api.get as any).mockRejectedValueOnce(new Error('Unauthorized'));
-      await expect(getMyVendorProfile()).rejects.toThrow('Unauthorized');
+      const result = await getMyVendorProfile();
+      expect(result).toBeNull();
     });
   });
 
@@ -82,9 +83,10 @@ describe('Vendor Service', () => {
       expect(result[0].name).toBe('Paket Foto');
     });
 
-    it('[NEGATIF] harus melempar error jika network bermasalah', async () => {
+    it('[NEGATIF] harus mengembalikan list kosong jika network bermasalah', async () => {
       (api.get as any).mockRejectedValueOnce(new Error('Network Error'));
-      await expect(getMyLayanan()).rejects.toThrow('Network Error');
+      const result = await getMyLayanan();
+      expect(result).toEqual([]);
     });
   });
 

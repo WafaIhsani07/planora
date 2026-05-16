@@ -6,6 +6,7 @@ type AuthState = {
   token: string | null;
   isAuthenticated: boolean;
   setSession: (user: User, token: string) => void;
+  setToken: (token: string) => void;
   clearSession: () => void;
 };
 
@@ -19,6 +20,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       token,
       isAuthenticated: true,
     }),
+  setToken: (token) => set({ token }),
   clearSession: () =>
     set({
       user: null,

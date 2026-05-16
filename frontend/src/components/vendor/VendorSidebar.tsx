@@ -11,6 +11,8 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 
+import { signOut } from 'next-auth/react';
+
 const navItems = [
   { href: '/vendor/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/vendor/layanan', label: 'Kelola Layanan', icon: Package },
@@ -21,9 +23,9 @@ export default function VendorSidebar() {
   const pathname = usePathname();
   const { clearSession, user } = useAuthStore();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     clearSession();
-    window.location.href = '/login';
+    await signOut({ callbackUrl: '/login' });
   };
 
   return (
