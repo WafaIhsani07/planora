@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../main.dart' show PlanoraColors;
 
 class PengaturanScreen extends StatefulWidget {
   const PengaturanScreen({super.key});
@@ -9,30 +10,19 @@ class PengaturanScreen extends StatefulWidget {
 }
 
 class _PengaturanScreenState extends State<PengaturanScreen> {
-  // Untuk keperluan simulasi integrasi logika,
-  // Jika ini diklik bisa disalurkan ke fungsi API logout atau clear local storage.
   bool _isLoggingOut = false;
 
   Future<void> _handleLogout() async {
     setState(() => _isLoggingOut = true);
 
     try {
-      // Dummy API integrasi buat membersihkan sesi di server (opsional)
-      await http.post(Uri.parse('http://10.0.2.2:3000/api/auth/logout'));
-
-      // Jika butuh Clear SharedPreferences, jalankan di sini...
-      // misal:
-      // final prefs = await SharedPreferences.getInstance();
-      // await prefs.clear();
-
-      // Delay sedikit agar kelihatan ada proses network
+      // Coba hit endpoint logout di server (opsional)
+      await http.post(Uri.parse('http://10.0.2.2:5000/api/v1/auth/logout'));
       await Future.delayed(const Duration(seconds: 1));
 
       if (mounted) {
-        // Hapus SEMUA routing stack dan kembali ke login
-        Navigator.of(
-          context,
-        ).pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
+        Navigator.of(context)
+            .pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
       }
     } catch (e) {
       if (mounted) {
@@ -47,155 +37,108 @@ class _PengaturanScreenState extends State<PengaturanScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final tt = Theme.of(context).textTheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9), // Latar abu sangat lembut
+      backgroundColor: PlanoraColors.background,
       appBar: AppBar(
-        title: const Text(
-          'Pengaturan',
-          style: TextStyle(
-            color: Color(
-              0xFF8B8B8B,
-            ), // Warna header pada UI seperti kecoklatan / abu muda // Dari Mockup
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        title: const Text('Pengaturan'),
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            color: Color(0xFF8B8B8B),
-            size: 20,
-          ),
+          icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => Navigator.pop(context),
         ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           child: Column(
             children: [
-              // Wadah List Putih
+              // ── Menu List ─────────────────────────────────────────────
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: PlanoraColors.surface,
                   borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.03),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+                  border: Border.all(color: PlanoraColors.divider),
                 ),
                 child: Column(
                   children: [
                     _buildSettingsTile(
-                      icon: Icons.person_outline,
+                      icon: Icons.person_outline_rounded,
                       title: 'Edit Profil',
-                      onTap: () {
-                        // Navigator.pushNamed(context, '/edit_profil');
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Menu Edit Profil ditekuk (Mock)'),
-                          ),
-                        );
-                      },
+                      onTap: () => Navigator.pushNamed(context, '/edit_profil'),
+                      tt: tt,
                     ),
                     _buildDivider(),
                     _buildSettingsTile(
-                      icon: Icons.lock_outline,
+                      icon: Icons.lock_outline_rounded,
                       title: 'Keamanan Akun',
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Menu Keamanan ditekuk (Mock)'),
-                          ),
+                          const SnackBar(content: Text('Fitur segera hadir.')),
                         );
                       },
+                      tt: tt,
                     ),
                     _buildDivider(),
                     _buildSettingsTile(
-                      icon: Icons.notifications_none,
+                      icon: Icons.notifications_none_rounded,
                       title: 'Notifikasi',
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Menu Notif ditekuk (Mock)'),
-                          ),
+                          const SnackBar(content: Text('Fitur segera hadir.')),
                         );
                       },
+                      tt: tt,
                     ),
                     _buildDivider(),
                     _buildSettingsTile(
-                      icon: Icons.language,
+                      icon: Icons.language_rounded,
                       title: 'Bahasa',
                       trailingText: 'ID',
-                      trailingTextColor: const Color(0xFF00C48C), // Hijau ID
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Menu Bahasa ditekuk (Mock)'),
-                          ),
+                          const SnackBar(content: Text('Fitur segera hadir.')),
                         );
                       },
+                      tt: tt,
                     ),
                     _buildDivider(),
                     _buildSettingsTile(
-                      icon: Icons.help_outline,
+                      icon: Icons.help_outline_rounded,
                       title: 'Pusat Bantuan',
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Menu Pusat Bantuan ditekuk (Mock)'),
-                          ),
+                          const SnackBar(content: Text('Fitur segera hadir.')),
                         );
                       },
+                      tt: tt,
                     ),
                   ],
                 ),
               ),
 
-              const SizedBox(height: 32),
+              const SizedBox(height: 28),
 
-              // Tombol Keluar Akun
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: _isLoggingOut ? null : _handleLogout,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    side: const BorderSide(
-                      color: Color(0xFFFFECEE),
-                      width: 1.5,
-                    ),
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
+              // ── Tombol Logout ─────────────────────────────────────────
+              OutlinedButton(
+                onPressed: _isLoggingOut ? null : _handleLogout,
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: PlanoraColors.error, width: 1.5),
+                  foregroundColor: PlanoraColors.error,
+                  minimumSize: const Size(double.infinity, 52),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(32),
                   ),
-                  child: _isLoggingOut
-                      ? const SizedBox(
-                          height: 24,
-                          width: 24,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.red,
-                            ),
-                          ),
-                        )
-                      : const Text(
-                          'Keluar Akun',
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
                 ),
+                child: _isLoggingOut
+                    ? SizedBox(
+                        height: 22, width: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                              PlanoraColors.error),
+                        ))
+                    : const Text('Keluar Akun'),
               ),
             ],
           ),
@@ -205,12 +148,9 @@ class _PengaturanScreenState extends State<PengaturanScreen> {
   }
 
   Widget _buildDivider() {
-    return Divider(
-      height: 1,
-      thickness: 1,
-      color: Colors.grey.withValues(alpha: 0.1),
-      indent: 16,
-      endIndent: 16,
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Divider(height: 1),
     );
   }
 
@@ -218,42 +158,33 @@ class _PengaturanScreenState extends State<PengaturanScreen> {
     required IconData icon,
     required String title,
     required VoidCallback onTap,
+    required TextTheme tt,
     String? trailingText,
-    Color? trailingTextColor,
   }) {
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 20.0,
-        vertical: 8.0,
-      ),
-      leading: Icon(icon, color: const Color(0xFF8B8B8B), size: 24),
-      title: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          color: Color(0xFF333333),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+      leading: Container(
+        width: 36, height: 36,
+        decoration: const BoxDecoration(
+          color: PlanoraColors.brandAccent,
+          shape: BoxShape.circle,
         ),
+        child: Icon(icon, color: PlanoraColors.brandDark, size: 18),
       ),
+      title: Text(title, style: tt.titleSmall),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (trailingText != null) ...[
-            Text(
-              trailingText,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: trailingTextColor ?? Colors.grey,
-              ),
-            ),
-            const SizedBox(width: 8),
+            Text(trailingText,
+                style: tt.labelMedium?.copyWith(
+                  color: PlanoraColors.brandDark,
+                  fontWeight: FontWeight.w700,
+                )),
+            const SizedBox(width: 6),
           ],
-          const Icon(
-            Icons.arrow_forward_ios,
-            size: 16,
-            color: Color(0xFFC7C7C7),
-          ),
+          const Icon(Icons.chevron_right_rounded,
+              color: PlanoraColors.brandGray, size: 20),
         ],
       ),
       onTap: onTap,
