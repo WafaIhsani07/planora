@@ -179,10 +179,10 @@ export default function PortfolioPage() {
       {view === 'list' ? (
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div>
-            <h1 className="text-4xl md:text-[2.75rem] leading-[1.05] font-black italic tracking-tighter text-[#2A2A2A]">
-              PORTOFOLIO BISNIS
+            <h1 className="text-3xl md:text-[2rem] font-extrabold tracking-tight leading-tight text-[#2A2A2A]">
+              Portofolio Bisnis
             </h1>
-            <p className="mt-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#2A2A2A]/40">PAMERKAN HASIL KARYA TERBAIK ANDA UNTUK CALON KLIEN.</p>
+            <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.18em] text-[#2A2A2A]/35">PAMERKAN HASIL KARYA TERBAIK ANDA UNTUK CALON KLIEN.</p>
           </div>
           <button
             onClick={handleAddNew}
@@ -200,10 +200,10 @@ export default function PortfolioPage() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-4xl md:text-[2.75rem] leading-[1.05] font-black italic tracking-tighter text-[#2A2A2A]">
-              {editingId ? 'EDIT PORTOFOLIO' : 'TAMBAH KARYA'}
+            <h1 className="text-3xl md:text-[2rem] font-extrabold tracking-tight leading-tight text-[#2A2A2A]">
+              {editingId ? 'Edit Portofolio' : 'Tambah Karya'}
             </h1>
-            <p className="mt-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#2A2A2A]/40">UNGGAH HASIL KERJA ANDA UNTUK DIPAMERKAN KE PELANGGAN.</p>
+            <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.18em] text-[#2A2A2A]/35">UNGGAH HASIL KERJA ANDA UNTUK DIPAMERKAN KE PELANGGAN.</p>
           </div>
         </div>
       )}

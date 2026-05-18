@@ -74,7 +74,7 @@ export default function DashboardClient() {
       {/* Welcome Section */}
       <div className="flex flex-col mb-3">
         <h1 className="text-3xl md:text-[2rem] font-extrabold tracking-tight leading-tight text-[#2A2A2A]">
-          Selamat datang, {vendorName}! 👋
+          Selamat datang, {vendorName}!
         </h1>
         <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.18em] text-[#2A2A2A]/35">
           Kelola bisnis dan pesanan Anda dengan mudah.
