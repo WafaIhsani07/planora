@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import '../services/api_service.dart';
 import 'package:intl/intl.dart';
+import '../main.dart' show PlanoraColors;
 
 class ChatListScreen extends StatefulWidget {
   const ChatListScreen({super.key});
@@ -21,113 +21,158 @@ class _ChatListScreenState extends State<ChatListScreen> {
   }
 
   Future<void> _fetchVendorsFromOrders() async {
-    try {
-      final response = await http.get(
-        Uri.parse('http://10.0.2.2:3000/api/orders'),
-      );
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as List;
+    final result = await ApiService.getBookings();
+    if (!mounted) return;
 
-        // Extract unique vendors based on orders
-        Map<String, dynamic> uniqueVendors = {};
-        for (var order in data) {
-          final vid =
-              order['vendorId']?.toString() ?? order['id']?.toString() ?? '1';
-          final vname = order['name'] ?? "Vendor Name";
-          final img =
-              order['imageUrl'] ??
-              'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=200&auto=format&fit=crop';
-          if (!uniqueVendors.containsKey(vid)) {
-            uniqueVendors[vid] = {
-              'id': vid,
-              'name': vname,
-              'imageUrl': img,
-              'lastMessage': "Tekan untuk melihat percakapan",
-              'lastTime': DateFormat('HH:mm').format(DateTime.now()),
-            };
-          }
+    if (result['success'] == true) {
+      final data = (result['data'] as List?) ?? [];
+
+      // Extract unique vendors dari daftar booking
+      Map<String, dynamic> uniqueVendors = {};
+      for (var order in data) {
+        final vendorData = order['vendor'] ?? {};
+        final vid = vendorData['id']?.toString() ?? order['id']?.toString() ?? '';
+        if (vid.isEmpty) continue;
+
+        final vname = vendorData['businessName'] ?? vendorData['name'] ?? 'Vendor';
+        final avatar = vendorData['avatar']?.toString() ?? '';
+        final imageUrl = avatar.isNotEmpty
+            ? (avatar.startsWith('http')
+                ? avatar
+                : 'http://10.0.2.2:5000/assets/$avatar')
+            : 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=200&auto=format&fit=crop';
+
+        if (!uniqueVendors.containsKey(vid)) {
+          uniqueVendors[vid] = {
+            'id': vid,
+            'name': vname,
+            'imageUrl': imageUrl,
+            'lastMessage': 'Tekan untuk melihat percakapan',
+            'lastTime': DateFormat('HH:mm').format(DateTime.now()),
+          };
         }
-
-        setState(() {
-          _vendors = uniqueVendors.values.toList();
-          _isLoading = false;
-        });
-      } else {
-        setState(() => _isLoading = false);
       }
-    } catch (e) {
-      if (mounted) setState(() => _isLoading = false);
+
+      setState(() {
+        _vendors = uniqueVendors.values.toList();
+        _isLoading = false;
+      });
+    } else {
+      setState(() {
+        _vendors = [];
+        _isLoading = false;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final tt = Theme.of(context).textTheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9),
+      backgroundColor: PlanoraColors.background,
       appBar: AppBar(
-        title: const Text(
-          'Chat Vendor',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
+        title: const Text('Chat Vendor'),
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            color: Colors.black87,
-            size: 20,
-          ),
+          icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => Navigator.pop(context),
         ),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _vendors.isEmpty
-          ? const Center(
-              child: Text(
-                "Belum ada riwayat pesanan (vendor) untuk dihubungi.",
-              ),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              itemCount: _vendors.length,
-              itemBuilder: (context, index) {
-                final v = _vendors[index];
-                return ListTile(
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 8,
-                  ),
-                  leading: CircleAvatar(
-                    backgroundImage: NetworkImage(v['imageUrl']),
-                    backgroundColor: Colors.grey.shade300,
-                    radius: 26,
-                  ),
-                  title: Text(
-                    v['name'],
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 72, height: 72,
+                          decoration: const BoxDecoration(
+                            color: PlanoraColors.brandAccent,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.chat_bubble_outline_rounded,
+                              size: 36, color: PlanoraColors.brandDark),
+                        ),
+                        const SizedBox(height: 16),
+                        Text('Belum ada riwayat pesanan untuk dihubungi.',
+                            style: tt.bodyMedium?.copyWith(
+                              color: PlanoraColors.brandGray,
+                              fontStyle: FontStyle.italic,
+                            ),
+                            textAlign: TextAlign.center),
+                      ],
                     ),
                   ),
-                  subtitle: Text(
-                    v['lastMessage'],
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  trailing: Text(
-                    v['lastTime'],
-                    style: TextStyle(
-                      color: Colors.green.shade600,
-                      fontSize: 12,
-                    ),
-                  ),
-                  onTap: () {
-                    Navigator.pushNamed(context, '/chat_detail', arguments: v);
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  itemCount: _vendors.length,
+                  itemBuilder: (context, index) {
+                    final v = _vendors[index];
+                    return GestureDetector(
+                      onTap: () => Navigator.pushNamed(context, '/chat_detail', arguments: v),
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: PlanoraColors.surface,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: PlanoraColors.divider),
+                        ),
+                        child: Row(
+                          children: [
+                            // Avatar
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: Image.network(
+                                v['imageUrl'],
+                                width: 52, height: 52,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Container(
+                                  width: 52, height: 52,
+                                  decoration: const BoxDecoration(
+                                    color: PlanoraColors.brandAccent,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      v['name'].isNotEmpty
+                                          ? v['name'][0].toUpperCase()
+                                          : 'V',
+                                      style: tt.titleLarge?.copyWith(
+                                          color: PlanoraColors.brandDark),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            // Info
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(v['name'], style: tt.titleSmall,
+                                      maxLines: 1, overflow: TextOverflow.ellipsis),
+                                  const SizedBox(height: 4),
+                                  Text(v['lastMessage'], style: tt.bodySmall,
+                                      maxLines: 1, overflow: TextOverflow.ellipsis),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            // Waktu
+                            Text(v['lastTime'],
+                                style: tt.labelSmall?.copyWith(
+                                    color: PlanoraColors.brandGray)),
+                          ],
+                        ),
+                      ),
+                    );
                   },
-                );
-              },
-            ),
+                ),
     );
   }
 }

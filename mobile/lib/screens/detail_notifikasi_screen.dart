@@ -33,7 +33,7 @@ class _DetailNotifikasiScreenState extends State<DetailNotifikasiScreen> {
   Future<void> _fetchDetail() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:3000/api/notifications/$_id'),
+        Uri.parse('http://10.0.2.2:5000/api/v1/notifications/$_id'),
       );
 
       if (response.statusCode == 200) {

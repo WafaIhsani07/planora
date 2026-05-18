@@ -1,92 +1,69 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../main.dart' show PlanoraColors;
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
+      backgroundColor: PlanoraColors.background,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
+          padding: const EdgeInsets.symmetric(horizontal: 32.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Spacer(),
-              // Render Logo Utama
-              Image.asset('assets/images/logo.png', height: 120),
-              const SizedBox(height: 24),
-              // Teks Identitas
-              const Text(
-                'PLANORA',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 4.0,
-                  color: Color(0xFF4A4A4A),
+              const Spacer(flex: 2),
+
+              // ── Logo + Brand ──────────────────────────────────────────
+              Image.asset(
+                'assets/images/logo.png',
+                height: size.height * 0.13,
+              ),
+              const SizedBox(height: 20),
+
+              // Brand name — Playfair Display (identik dengan web)
+              Text(
+                'Planora',
+                style: GoogleFonts.playfairDisplay(
+                  fontSize: 40,
+                  fontWeight: FontWeight.w700,
+                  color: PlanoraColors.brandDark,
+                  letterSpacing: -0.5,
                 ),
               ),
-              const SizedBox(height: 8),
-              // Teks Slogan (Tagline)
-              const Text(
+              const SizedBox(height: 10),
+
+              // Tagline — Plus Jakarta Sans
+              Text(
                 'Wujudkan Momen Terbaikmu',
-                style: TextStyle(fontSize: 16, color: Colors.grey),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: PlanoraColors.brandGray,
+                      fontSize: 15,
+                    ),
+                textAlign: TextAlign.center,
               ),
-              const Spacer(),
-              // Tombol Tindakan 1: Daftar (Outlined)
-              SizedBox(
-                width: double.infinity,
-                height: 55,
-                child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(
-                      color: Color(0xFF7A6A58),
-                      width: 1.5,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onPressed: () {
-                    // Merujuk aplikasi ke layar pendaftaran (Register)
-                    Navigator.pushNamed(context, '/register');
-                  },
-                  child: const Text(
-                    'Daftar Sekarang',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Color(0xFF7A6A58),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
+
+              const Spacer(flex: 3),
+
+              // ── Tombol Daftar Sekarang (Outlined) ────────────────────
+              OutlinedButton(
+                onPressed: () => Navigator.pushNamed(context, '/register'),
+                child: const Text('Daftar Sekarang'),
               ),
-              const SizedBox(height: 16),
-              // Tombol Tindakan 2: Masuk (Elevated)
-              SizedBox(
-                width: double.infinity,
-                height: 55,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF7A6A58),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/login');
-                  },
-                  child: const Text(
-                    'Sudah Punya Akun',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
+              const SizedBox(height: 14),
+
+              // ── Tombol Sudah Punya Akun (Elevated / Primary CTA) ─────
+              ElevatedButton(
+                onPressed: () => Navigator.pushNamed(context, '/login'),
+                child: const Text('Sudah Punya Akun'),
               ),
+
+              const SizedBox(height: 40),
             ],
           ),
         ),

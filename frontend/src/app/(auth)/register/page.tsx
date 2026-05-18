@@ -85,7 +85,7 @@ export default function RegisterPage() {
     setIsSubmitting(true);
 
     try {
-      const registerResponse = await api.post("/api/v1/auth/register", {
+      const registerResponse = await api.post("/auth/register", {
         name: ownerName.trim(),
         email,
         password,
@@ -101,7 +101,7 @@ export default function RegisterPage() {
       }
 
       await api.post(
-        "/api/v1/vendors/profile",
+        "/vendors/profile",
         {
           businessName: businessName.trim(),
           ...(city.trim() ? { city: city.trim() } : {}),
@@ -128,7 +128,7 @@ export default function RegisterPage() {
         return;
       }
 
-      router.replace("/dashboard");
+      router.replace("/vendor/dashboard");
       router.refresh();
     } catch (error) {
       const message = (error as { response?: { data?: { message?: string } } })

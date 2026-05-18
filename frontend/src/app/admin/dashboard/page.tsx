@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from 'react';
 import {
   TrendingUp,
   UserCheck,
@@ -9,9 +12,49 @@ import {
   Clock,
   Terminal,
 } from 'lucide-react';
-import { getCategoryById } from '../../../lib/categories';
+import { getDashboardStats, getPendingVendors } from '@/services/admin.service';
 
 export default function AdminDashboardPage() {
+  const [stats, setStats] = useState<any>(null);
+  const [pendingVendors, setPendingVendors] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [statsData, vendorsData] = await Promise.all([
+          getDashboardStats(),
+          getPendingVendors()
+        ]);
+        setStats(statsData);
+        setPendingVendors(vendorsData);
+      } catch (error) {
+        console.error("Gagal mengambil data dashboard:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF9A9E]"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-8 p-8 py-6">
 
@@ -52,10 +95,10 @@ export default function AdminDashboardPage() {
           </div>
           <div>
             <span className="text-3xl font-black italic tracking-tighter text-[#2A2A2A]">
-              Rp 2.4M
+              {stats?.totalRevenue ? formatCurrency(stats.totalRevenue) : 'Rp 0'}
             </span>
             <p className="text-[10px] font-semibold text-emerald-500 mt-1 flex items-center gap-1">
-              ↑ 12% dari bulan lalu
+              Data Real-time
             </p>
           </div>
         </div>
@@ -73,7 +116,7 @@ export default function AdminDashboardPage() {
           </div>
           <div>
             <span className="text-3xl font-black italic tracking-tighter text-[#2A2A2A]">
-              08 Vendor
+              {stats?.pendingVendors ?? 0} Vendor
             </span>
             <p className="text-[10px] font-semibold text-[#FF9A9E] mt-1">
               Menunggu persetujuan
@@ -93,10 +136,10 @@ export default function AdminDashboardPage() {
           </div>
           <div>
             <span className="text-3xl font-black italic tracking-tighter text-[#2A2A2A]">
-              2,840
+              {stats?.totalUsers ?? 0}
             </span>
             <p className="text-[10px] font-semibold text-emerald-500 mt-1">
-              ↑ 8% dari bulan lalu
+              Pengguna Terdaftar
             </p>
           </div>
         </div>
@@ -113,10 +156,10 @@ export default function AdminDashboardPage() {
           </div>
           <div>
             <span className="text-3xl font-black italic tracking-tighter text-[#2A2A2A]">
-              425
+              {stats?.totalBookings ?? 0}
             </span>
             <p className="text-[10px] font-semibold text-emerald-500 mt-1">
-              ↑ 15% dari bulan lalu
+              Total Pemesanan
             </p>
           </div>
         </div>
@@ -149,32 +192,34 @@ export default function AdminDashboardPage() {
               <div className="w-[20%] text-[9px] font-bold tracking-[0.15em] text-[#2A2A2A]/30 uppercase text-right">Aksi</div>
             </div>
 
-            {[
-              { nama: 'Wafa Media Studio', owner: 'Wahidah Wafa Ihsani', kategori: 'fotografi', lokasi: 'Padang' },
-              { nama: 'Catering Jaya Raya', owner: 'Budi Santoso', kategori: 'katering', lokasi: 'Bukittinggi' },
-              { nama: 'Dekor Elegan', owner: 'Siti Rahayu', kategori: 'dekorasi', lokasi: 'Padang' },
-            ].map((vendor, i, arr) => (
-              <div
-                key={vendor.nama}
-                className={`flex items-center py-4 ${i < arr.length - 1 ? 'border-b border-gray-50' : ''}`}
-              >
-                <div className="w-[40%] flex flex-col">
-                  <span className="text-[11px] font-extrabold text-[#2A2A2A] mb-0.5">{vendor.nama}</span>
-                  <span className="text-[9px] font-medium text-[#2A2A2A]/40">{vendor.owner}</span>
-                </div>
-                <div className="w-[20%]">
-                  <span className="text-[10px] font-bold text-[#2A2A2A]/50">{getCategoryById(vendor.kategori)?.name ?? vendor.kategori}</span>
-                </div>
-                <div className="w-[20%]">
-                  <span className="text-[10px] font-bold text-[#2A2A2A]/50">{vendor.lokasi}</span>
-                </div>
-                <div className="w-[20%] flex justify-end">
-                  <button className="px-4 py-2 bg-[#2A2A2A] text-white text-[9px] font-bold tracking-widest uppercase rounded-xl hover:bg-[#FF9A9E] hover:text-white transition-colors">
-                    PERIKSA
-                  </button>
-                </div>
+            {pendingVendors.length === 0 ? (
+              <div className="py-8 text-center text-xs text-gray-400 font-medium">
+                Tidak ada vendor yang menunggu verifikasi saat ini.
               </div>
-            ))}
+            ) : (
+              pendingVendors.slice(0, 5).map((vendor, i, arr) => (
+                <div
+                  key={vendor.id}
+                  className={`flex items-center py-4 ${i < arr.length - 1 ? 'border-b border-gray-50' : ''}`}
+                >
+                  <div className="w-[40%] flex flex-col">
+                    <span className="text-[11px] font-extrabold text-[#2A2A2A] mb-0.5">{vendor.businessName}</span>
+                    <span className="text-[9px] font-medium text-[#2A2A2A]/40">{vendor.user?.name ?? 'Tanpa Nama'}</span>
+                  </div>
+                  <div className="w-[20%]">
+                    <span className="text-[10px] font-bold text-[#2A2A2A]/50">{vendor.status}</span>
+                  </div>
+                  <div className="w-[20%]">
+                    <span className="text-[10px] font-bold text-[#2A2A2A]/50">{vendor.city ?? 'Belum diset'}</span>
+                  </div>
+                  <div className="w-[20%] flex justify-end">
+                    <a href={`/admin/verifikasi`} className="px-4 py-2 bg-[#2A2A2A] text-white text-[9px] font-bold tracking-widest uppercase rounded-xl hover:bg-[#FF9A9E] hover:text-white transition-colors">
+                      PERIKSA
+                    </a>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 

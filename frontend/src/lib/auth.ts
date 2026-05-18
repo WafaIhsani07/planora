@@ -23,7 +23,6 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
-        role: { label: "Role", type: "text" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials.password) {
@@ -40,6 +39,7 @@ export const authOptions: NextAuthOptions = {
           body: JSON.stringify({
             email: credentials.email,
             password: credentials.password,
+            appType: "WEB",
           }),
         });
 
@@ -50,16 +50,8 @@ export const authOptions: NextAuthOptions = {
         const payload = (await response.json()) as LoginResponse;
         const user = payload.data?.user;
         const role = user?.role;
-        const requestedRole =
-          typeof credentials.role === "string"
-            ? credentials.role.toUpperCase()
-            : undefined;
 
         if (!user?.id || !user.email || !role) {
-          return null;
-        }
-
-        if (requestedRole && role !== requestedRole) {
           return null;
         }
 

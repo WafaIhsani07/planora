@@ -15,35 +15,11 @@ import {
 } from 'lucide-react';
 
 export default function LoginPage() {
-  const [userType, setUserType] = useState<'vendor' | 'admin'>('vendor');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState('');
   const router = useRouter();
 
-  const handleQuickLogin = async (type: 'vendor' | 'admin') => {
-    if (isLoading) return;
-
-    setUserType(type);
-    setIsLoading(true);
-    setAuthError('');
-
-    const result = await signIn('credentials', {
-      redirect: false,
-      email: type === 'admin' ? 'admin@planora.dev' : 'vendor@planora.dev',
-      password: type === 'admin' ? 'devadmin123' : 'devvendor123',
-      role: type,
-    });
-
-    if (result?.error) {
-      setAuthError('Login gagal. Coba lagi dengan akun demo yang tersedia.');
-      setIsLoading(false);
-      return;
-    }
-
-    router.replace(type === 'admin' ? '/admin/dashboard' : '/dashboard');
-    router.refresh();
-  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -51,24 +27,37 @@ export default function LoginPage() {
     setAuthError('');
 
     const formData = new FormData(e.currentTarget);
-    const email = String(formData.get('email') ?? '').trim() || (userType === 'admin' ? 'admin@planora.dev' : 'vendor@planora.dev');
-    const password = String(formData.get('password') ?? '').trim() || (userType === 'admin' ? 'devadmin123' : 'devvendor123');
-    const role = userType === 'admin' ? 'ADMIN' : 'VENDOR';
+    const email = String(formData.get('email') ?? '').trim();
+    const password = String(formData.get('password') ?? '').trim();
+
+    if (!email || !password) {
+      setAuthError('Email dan kata sandi wajib diisi.');
+      setIsLoading(false);
+      return;
+    }
 
     const result = await signIn('credentials', {
       redirect: false,
       email,
       password,
-      role,
     });
 
     if (result?.error) {
-      setAuthError('Login gagal. Coba lagi dengan akun demo yang tersedia.');
+      setAuthError('Email atau kata sandi salah.');
       setIsLoading(false);
       return;
     }
 
-    router.replace(userType === 'admin' ? '/admin/dashboard' : '/dashboard');
+    // Ambil session untuk mengecek role
+    const { getSession } = await import('next-auth/react');
+    const session = await getSession();
+    
+    if ((session?.user as any)?.role === 'ADMIN') {
+      router.replace('/admin/dashboard');
+    } else {
+      router.replace('/vendor/dashboard');
+    }
+    
     router.refresh();
   };
 
@@ -163,7 +152,7 @@ export default function LoginPage() {
               Selamat Datang ✨
             </p>
             <h2 className="text-3xl md:text-[2rem] font-extrabold text-[#0D121F] mb-3 tracking-tight leading-tight">
-              Masuk sebagai {userType === 'admin' ? 'Admin' : 'Vendor'}
+              Masuk ke Planora
             </h2>
             <p className="text-slate-400 text-sm font-medium">
               Belum punya akun?{' '}
@@ -176,36 +165,6 @@ export default function LoginPage() {
               </Link>
             </p>
           </div>
-
-          {/* Quick Login Options */}
-          <div className="mb-8 flex gap-3 flex-col sm:flex-row">
-            <button
-              type="button"
-              onClick={() => handleQuickLogin('admin')}
-              disabled={isLoading}
-              className={`flex-1 rounded-xl border px-4 py-3 text-center font-bold transition text-sm md:text-base ${
-                userType === 'admin'
-                  ? 'border-[#FF9A9E] bg-[#FFE6E1] text-[#FF4F79] shadow-sm'
-                  : 'border-[#E5E7EB] bg-white text-[#94A3B8] hover:border-[#FF9A9E]/50 hover:bg-[#FFF7F8] hover:text-[#FF7B93]'
-              }`}
-            >
-              {isLoading && userType === 'admin' ? 'Memproses...' : 'Masuk Admin'}
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickLogin('vendor')}
-              disabled={isLoading}
-              className={`flex-1 rounded-xl border px-4 py-3 text-center font-bold transition text-sm md:text-base ${
-                userType === 'vendor'
-                  ? 'border-[#FF9A9E] bg-[#FFE6E1] text-[#FF4F79] shadow-sm'
-                  : 'border-[#E5E7EB] bg-white text-[#94A3B8] hover:border-[#FF9A9E]/50 hover:bg-[#FFF7F8] hover:text-[#FF7B93]'
-              }`}
-            >
-              {isLoading && userType === 'vendor' ? 'Memproses...' : 'Masuk Vendor'}
-            </button>
-          </div>
-
-          {/* Vendor-only login (customer accounts handled in mobile app) */}
 
           {/* Form Inputs */}
           <form className="space-y-6" onSubmit={handleSubmit}>
