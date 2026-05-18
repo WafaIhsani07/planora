@@ -15,6 +15,7 @@ import paymentsRoutes from "./modules/payments/payments.routes.js"
 import reviewRoutes from "./modules/reviews/reviews.routes.js"
 import notificationRoutes from "./modules/notifications/notifications.routes.js"
 import adminRoutes from "./modules/admin/admin.routes.js"
+import uploadsRoutes from "./modules/uploads/uploads.routes.js"
 
 const app = express()
 
@@ -27,6 +28,7 @@ app.use(
 )
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+app.use("/uploads", express.static("uploads"))
 
 // ─── Health Check ─────────────────────────────────────────────────────────────
 app.get("/", (_req: Request, res: Response) => {
@@ -49,6 +51,7 @@ app.use("/api/v1/payments", paymentsRoutes)
 app.use("/api/v1/reviews", reviewRoutes)
 app.use("/api/v1/notifications", notificationRoutes)
 app.use("/api/v1/admin", adminRoutes)
+app.use("/api/v1/uploads", uploadsRoutes)
 
 // ─── 404 Handler ──────────────────────────────────────────────────────────────
 app.use((req: Request, res: Response) => {

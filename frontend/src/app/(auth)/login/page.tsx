@@ -183,6 +183,7 @@ export default function LoginPage() {
                   placeholder="Masukkan email atau nomor HP"
                   className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400"
                   required
+                  suppressHydrationWarning
                 />
               </div>
             </div>
@@ -202,6 +203,7 @@ export default function LoginPage() {
                   placeholder="Masukkan kata sandi"
                   className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-12 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400"
                   required
+                  suppressHydrationWarning
                 />
                 <button
                   type="button"

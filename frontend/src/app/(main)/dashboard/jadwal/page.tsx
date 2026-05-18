@@ -4,7 +4,10 @@ import React, { useState, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import DashboardLayout from '../DashboardLayout';
-import { vendorOrders, type Order, type OrderStatus } from '@/lib/orders';
+import { type Order, type OrderStatus } from '@/lib/orders';
+import { getVendorBookings } from '@/services/vendor.service';
+import { format } from 'date-fns';
+import { id as localeId } from 'date-fns/locale';
 import {
   ShoppingBag,
   List,
@@ -12,6 +15,42 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
+
+function mapBackendBookingToOrder(b: any): Order {
+  let formattedDate = 'N/A';
+  if (b.eventDate) {
+    try {
+      const date = new Date(b.eventDate);
+      formattedDate = format(date, 'd MMMM yyyy', { locale: localeId });
+    } catch (e) {
+      formattedDate = b.eventDate.toString();
+    }
+  }
+
+  let uiStatus: OrderStatus = 'Menunggu';
+  if (b.status === 'CONFIRMED' || b.status === 'IN_PROGRESS') {
+    uiStatus = 'Dikonfirmasi';
+  } else if (b.status === 'COMPLETED') {
+    uiStatus = 'Selesai';
+  } else if (b.status === 'PENDING') {
+    uiStatus = 'Menunggu';
+  }
+
+  return {
+    id: b.id,
+    name: b.notes || `Acara ${b.customer?.name || ''}`,
+    client: b.customer?.name || 'Klien',
+    date: formattedDate,
+    time: '08.00 - 16.00',
+    package: b.layanan?.name || 'Paket Layanan',
+    type: 'Premium',
+    status: uiStatus,
+    paymentStatus: b.status === 'COMPLETED' ? 'selesai' : b.status === 'PENDING' ? 'menunggu' : 'dikonfirmasi',
+    amount: `Rp ${Number(b.totalPrice || 0).toLocaleString('id-ID')}`,
+    location: b.eventAddress || 'Lokasi Acara',
+    img: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=100',
+  };
+}
 
 const ChevronLeftIcon = ({ className }: { className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m15 18-6-6 6-6" /></svg>
@@ -144,17 +183,35 @@ export default function PesananPage() {
   const [filterStatus, setFilterStatus] = useState('Semua');
   const [currentPage, setCurrentPage] = useState(1);
   const [calendarCursor, setCalendarCursor] = useState(() => new Date(2026, 4, 1));
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  React.useEffect(() => {
+    async function loadData() {
+      try {
+        const data = await getVendorBookings();
+        if (data && Array.isArray(data)) {
+          setOrders(data.map(mapBackendBookingToOrder));
+        }
+      } catch (error) {
+        console.error("Gagal load vendor bookings:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadData();
+  }, []);
 
   const calendarDays = useMemo(
-    () => buildCalendarDays(calendarCursor, vendorOrders),
-    [calendarCursor],
+    () => buildCalendarDays(calendarCursor, orders),
+    [calendarCursor, orders],
   );
 
   const calendarTitle = `${MONTH_NAMES[calendarCursor.getMonth()]} ${calendarCursor.getFullYear()}`;
 
   const filteredOrders = filterStatus === 'Semua'
-    ? vendorOrders
-    : vendorOrders.filter((order) => order.status === filterStatus);
+    ? orders
+    : orders.filter((order) => order.status === filterStatus);
 
   React.useEffect(() => {
     if (viewParam === 'calendar') {
@@ -220,9 +277,9 @@ export default function PesananPage() {
             <div className="flex items-center gap-3 overflow-x-auto no-scrollbar">
               {[
                 { name: 'Semua', count: null },
-                { name: 'Menunggu', count: vendorOrders.filter((o) => o.status === 'Menunggu').length },
-                { name: 'Dikonfirmasi', count: vendorOrders.filter((o) => o.status === 'Dikonfirmasi').length },
-                { name: 'Selesai', count: vendorOrders.filter((o) => o.status === 'Selesai').length },
+                { name: 'Menunggu', count: orders.filter((o) => o.status === 'Menunggu').length },
+                { name: 'Dikonfirmasi', count: orders.filter((o) => o.status === 'Dikonfirmasi').length },
+                { name: 'Selesai', count: orders.filter((o) => o.status === 'Selesai').length },
               ].map((status) => (
                 <button
                   key={status.name}
@@ -417,7 +474,7 @@ export default function PesananPage() {
               </h3>
 
               <div className="space-y-4">
-                {vendorOrders
+                {orders
                   .filter((o) => o.status === 'Dikonfirmasi')
                   .sort((a, b) => {
                     const monthMap: Record<string, number> = { 'Januari': 0, 'Februari': 1, 'Maret': 2, 'April': 3, 'Mei': 4, 'Juni': 5, 'Juli': 6, 'Agustus': 7, 'September': 8, 'Oktober': 9, 'November': 10, 'Desember': 11 };
@@ -458,7 +515,7 @@ export default function PesananPage() {
                   ))}
               </div>
 
-              {vendorOrders.filter((o) => o.status === 'Dikonfirmasi').length === 0 && (
+              {orders.filter((o) => o.status === 'Dikonfirmasi').length === 0 && (
                 <div className="py-8 text-center">
                   <p className="text-[10px] font-bold text-[#2A2A2A]/40">Tidak ada pesanan yang dikonfirmasi</p>
                 </div>

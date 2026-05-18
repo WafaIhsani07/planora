@@ -230,12 +230,14 @@ describe("Reviews Service", () => {
           rating: 5,
           comment: "Bagus",
           customer: { id: "c1", name: "Andi", avatar: null },
+          booking: { id: "b1", layanan: { name: "Paket A" } },
         },
         {
           id: "review-2",
           rating: 4,
           comment: "Oke",
           customer: { id: "c2", name: "Budi", avatar: null },
+          booking: { id: "b2", layanan: { name: "Paket B" } },
         },
       ]
       mockDb.review.findMany.mockResolvedValue(mockReviews)
@@ -249,6 +251,16 @@ describe("Reviews Service", () => {
         include: {
           customer: {
             select: { id: true, name: true, avatar: true },
+          },
+          booking: {
+            select: {
+              id: true,
+              layanan: {
+                select: {
+                  name: true,
+                },
+              },
+            },
           },
         },
         orderBy: { createdAt: "desc" },
@@ -311,6 +323,58 @@ describe("Reviews Service", () => {
       const result = await reviewService.getMyReviews("customer-no-reviews")
 
       expect(result).toEqual([])
+    })
+  })
+
+  // ──────────────────────────────────────────────────────────────
+  // replyToReview
+  // ──────────────────────────────────────────────────────────────
+  describe("replyToReview", () => {
+    const userId = "user-vendor-1"
+    const vendorId = "vendor-1"
+    const reviewId = "review-1"
+    const reply = "Terima kasih banyak!"
+
+    it("should save vendor reply to review successfully", async () => {
+      mockDb.vendor.findUnique.mockResolvedValue({ id: vendorId, userId })
+      mockDb.review.findUnique.mockResolvedValue({ id: reviewId, vendorId })
+      mockDb.review.update.mockResolvedValue({ id: reviewId, reply })
+
+      const result = await reviewService.replyToReview(userId, reviewId, reply)
+
+      expect(result).toEqual({ id: reviewId, reply })
+      expect(mockDb.vendor.findUnique).toHaveBeenCalledWith({ where: { userId } })
+      expect(mockDb.review.findUnique).toHaveBeenCalledWith({ where: { id: reviewId } })
+      expect(mockDb.review.update).toHaveBeenCalledWith({
+        where: { id: reviewId },
+        data: { reply },
+      })
+    })
+
+    it("should throw 404 if vendor profile not found", async () => {
+      mockDb.vendor.findUnique.mockResolvedValue(null)
+
+      await expect(
+        reviewService.replyToReview(userId, reviewId, reply)
+      ).rejects.toThrow("Profil vendor tidak ditemukan")
+    })
+
+    it("should throw 404 if review not found", async () => {
+      mockDb.vendor.findUnique.mockResolvedValue({ id: vendorId, userId })
+      mockDb.review.findUnique.mockResolvedValue(null)
+
+      await expect(
+        reviewService.replyToReview(userId, reviewId, reply)
+      ).rejects.toThrow("Review tidak ditemukan")
+    })
+
+    it("should throw 403 if review vendorId does not match current vendor", async () => {
+      mockDb.vendor.findUnique.mockResolvedValue({ id: vendorId, userId })
+      mockDb.review.findUnique.mockResolvedValue({ id: reviewId, vendorId: "other-vendor" })
+
+      await expect(
+        reviewService.replyToReview(userId, reviewId, reply)
+      ).rejects.toThrow("Kamu tidak memiliki akses untuk membalas review ini")
     })
   })
 })

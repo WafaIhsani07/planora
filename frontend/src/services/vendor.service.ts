@@ -77,3 +77,64 @@ export async function updateBookingStatus(id: string, status: string) {
   const { data } = await api.patch(`/bookings/${id}/status`, { status });
   return data.data;
 }
+
+// ─── Portofolio (Galeri Karya Vendor) ─────────────────────────────────────────
+export async function getMyPortfolio() {
+  try {
+    const response = await api.get("/vendors/me/portfolio");
+    return response.data.data || [];
+  } catch (error) {
+    console.error("Gagal mengambil portofolio:", error);
+    return [];
+  }
+}
+
+export async function createPortfolio(payload: any) {
+  try {
+    const response = await api.post("/vendors/me/portfolio", payload);
+    return response.data.data;
+  } catch (error) {
+    console.error("Gagal menambahkan portofolio:", error);
+    return null;
+  }
+}
+
+export async function deletePortfolio(id: string) {
+  const { data } = await api.delete(`/vendors/me/portfolio/${id}`);
+  return data.data;
+}
+
+// ─── Upload File Gambar ───────────────────────────────────────────────────────
+export async function uploadImage(file: File): Promise<string | null> {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await api.post("/uploads", formData);
+    return response.data.data.imageUrl;
+  } catch (error) {
+    console.error("Gagal mengunggah gambar:", error);
+    return null;
+  }
+}
+
+// ─── Ulasan / Reviews ────────────────────────────────────────────────────────
+export async function getVendorReviews(vendorId: string) {
+  try {
+    const response = await api.get(`/reviews/vendor/${vendorId}`);
+    return response.data.data || [];
+  } catch (error) {
+    console.error("Gagal mengambil ulasan vendor:", error);
+    return [];
+  }
+}
+
+export async function replyToReview(reviewId: string, reply: string) {
+  try {
+    const response = await api.put(`/reviews/${reviewId}/reply`, { reply });
+    return response.data.data;
+  } catch (error) {
+    console.error("Gagal membalas ulasan:", error);
+    return null;
+  }
+}

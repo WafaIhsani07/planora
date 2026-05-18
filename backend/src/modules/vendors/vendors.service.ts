@@ -7,6 +7,7 @@ import type {
   CreateLayananInput,
   UpdateLayananInput,
   GetVendorsQuery,
+  CreatePortfolioInput,
 } from "./vendors.validation.js"
 
 // ─── Get All Vendors (Public) ─────────────────────────────────────────────────
@@ -377,5 +378,48 @@ export const rejectVendor = async (id: string, input: RejectVendorInput) => {
       rejectedReason: true,
       updatedAt: true,
     },
+  })
+}
+
+// ─── Get My Portfolio ─────────────────────────────────────────────────────────
+export const getMyPortfolio = async (userId: string) => {
+  const vendor = await db.vendor.findUnique({ where: { userId } })
+  if (!vendor) throw new AppError("Profil vendor tidak ditemukan", 404)
+
+  return db.portfolio.findMany({
+    where: { vendorId: vendor.id },
+    orderBy: { createdAt: "desc" },
+  })
+}
+
+// ─── Create Portfolio ──────────────────────────────────────────────────────────
+export const createPortfolio = async (userId: string, input: CreatePortfolioInput) => {
+  const vendor = await db.vendor.findUnique({ where: { userId } })
+  if (!vendor)
+    throw new AppError("Profil vendor tidak ditemukan, buat profil vendor terlebih dahulu", 404)
+
+  return db.portfolio.create({
+    data: {
+      vendorId: vendor.id,
+      title: input.title,
+      description: input.description ?? null,
+      imageUrl: input.imageUrl,
+      eventDate: input.eventDate ? new Date(input.eventDate) : null,
+    },
+  })
+}
+
+// ─── Delete Portfolio ──────────────────────────────────────────────────────────
+export const deletePortfolio = async (userId: string, portfolioId: string) => {
+  const vendor = await db.vendor.findUnique({ where: { userId } })
+  if (!vendor) throw new AppError("Profil vendor tidak ditemukan", 404)
+
+  const portfolio = await db.portfolio.findUnique({ where: { id: portfolioId } })
+  if (!portfolio) throw new AppError("Item portofolio tidak ditemukan", 404)
+  if (portfolio.vendorId !== vendor.id)
+    throw new AppError("Kamu tidak punya akses ke item portofolio ini", 403)
+
+  await db.portfolio.delete({
+    where: { id: portfolioId },
   })
 }

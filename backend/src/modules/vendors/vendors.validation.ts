@@ -50,6 +50,17 @@ export const getVendorsQuerySchema = z.object({
   city: z.string().optional(),
 })
 
+// ─── Portfolio ────────────────────────────────────────────────────────────────
+export const createPortfolioSchema = z.object({
+  title: z
+    .string({ required_error: "Judul portofolio wajib diisi" })
+    .min(2, "Judul portofolio minimal 2 karakter")
+    .max(100),
+  description: z.string().max(1000).optional(),
+  imageUrl: z.string({ required_error: "Foto portofolio wajib diunggah" }).url("Format URL gambar tidak valid"),
+  eventDate: z.string().optional(),
+})
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 export type CreateVendorProfileInput = z.infer<typeof createVendorProfileSchema>
 export type UpdateVendorProfileInput = z.infer<typeof updateVendorProfileSchema>
@@ -57,3 +68,4 @@ export type RejectVendorInput = z.infer<typeof rejectVendorSchema>
 export type CreateLayananInput = z.infer<typeof createLayananSchema>
 export type UpdateLayananInput = z.infer<typeof updateLayananSchema>
 export type GetVendorsQuery = z.infer<typeof getVendorsQuerySchema>
+export type CreatePortfolioInput = z.infer<typeof createPortfolioSchema>
