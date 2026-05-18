@@ -136,10 +136,10 @@ export default function UlasanPage() {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div className="space-y-1">
-          <h1 className="text-4xl md:text-[2.75rem] leading-[1.05] font-black italic tracking-tighter text-[#2A2A2A]">
-            ULASAN PELANGGAN
+          <h1 className="text-3xl md:text-[2rem] font-extrabold tracking-tight leading-tight text-[#2A2A2A]">
+            Ulasan Pelanggan
           </h1>
-          <p className="mt-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#2A2A2A]/40">
+          <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.18em] text-[#2A2A2A]/35">
             PANTAU FEEDBACK DAN REPUTASI BISNIS ANDA.
           </p>
         </div>

@@ -254,8 +254,8 @@ export default function PengaturanVendorPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-10 pb-20 p-8 py-6">
       <div className="space-y-1">
-        <h1 className="text-4xl md:text-[2.75rem] leading-[1.05] font-black italic tracking-tighter text-[#2A2A2A]">PENGATURAN</h1>
-        <p className="text-sm font-medium uppercase tracking-widest text-[#2A2A2A]/40">
+        <h1 className="text-3xl md:text-[2rem] font-extrabold tracking-tight leading-tight text-[#2A2A2A]">Pengaturan</h1>
+        <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.18em] text-[#2A2A2A]/35">
           KELOLA INFORMASI AKUN DAN PREFERENSI TOKO ANDA
         </p>
       </div>
