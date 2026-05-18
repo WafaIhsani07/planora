@@ -8,6 +8,10 @@ import {
   ClipboardList,
   LogOut,
   Store,
+  Image as ImageIcon,
+  Star,
+  Wallet,
+  Settings,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 
@@ -15,8 +19,12 @@ import { signOut } from 'next-auth/react';
 
 const navItems = [
   { href: '/vendor/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/vendor/layanan', label: 'Kelola Layanan', icon: Package },
-  { href: '/vendor/pesanan', label: 'Pesanan Masuk', icon: ClipboardList },
+  { href: '/vendor/pesanan', label: 'Pesanan', icon: ClipboardList },
+  { href: '/vendor/layanan', label: 'Paket Layanan', icon: Package },
+  { href: '/vendor/portofolio', label: 'Portofolio', icon: ImageIcon },
+  { href: '/vendor/ulasan', label: 'Ulasan', icon: Star },
+  { href: '/vendor/keuangan', label: 'Keuangan', icon: Wallet },
+  { href: '/vendor/pengaturan', label: 'Pengaturan', icon: Settings },
 ];
 
 export default function VendorSidebar() {
