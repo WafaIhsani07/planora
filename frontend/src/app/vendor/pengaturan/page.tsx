@@ -191,31 +191,54 @@ export default function PengaturanVendorPage() {
 
   const handleSave = async () => {
     if (isSavingProfile) return;
+    
+    if (!form.businessName || form.businessName.trim().length < 2) {
+      pushNotice('error', 'Nama Bisnis wajib diisi minimal 2 karakter!');
+      return;
+    }
+    
     setIsSavingProfile(true);
     
     try {
       let finalAvatarUrl = avatarUrl;
+      let avatarChanged = false;
       
-      // Handle avatar upload or removal
+      // Handle avatar upload atau penghapusan
       if (avatarFile) {
         const uploadedUrl = await uploadImage(avatarFile);
-        if (uploadedUrl) finalAvatarUrl = uploadedUrl;
+        if (uploadedUrl) {
+          finalAvatarUrl = uploadedUrl;
+          avatarChanged = true;
+        } else {
+          // Upload gagal, hentikan proses
+          setIsSavingProfile(false);
+          return;
+        }
       } else if (isRemovingAvatar) {
-        finalAvatarUrl = ''; 
+        finalAvatarUrl = '';
+        avatarChanged = true;
       }
       
-      // Update User fields
+      // Update User fields (avatar + phone)
       await updateUserProfile({
         phone: form.phone,
-        ...(finalAvatarUrl !== avatarUrl || isRemovingAvatar ? { avatar: finalAvatarUrl || '' } : {})
+        ...(avatarChanged ? { avatar: finalAvatarUrl || '' } : {}),
       });
       
       // Update Vendor fields
       await updateVendorProfile({
         businessName: form.businessName,
         description: form.description,
+        city: form.city,
+        address: form.address,
       });
       
+      // Perbarui state avatar agar tampilan langsung berubah
+      if (avatarChanged) {
+        setAvatarUrl(finalAvatarUrl || null);
+        // Kirim event ke layout agar topbar langsung refresh avatar
+        window.dispatchEvent(new CustomEvent('vendor-avatar-updated', { detail: { avatarUrl: finalAvatarUrl } }));
+      }
       setAvatarFile(null);
       setIsRemovingAvatar(false);
       pushNotice('success', 'Profil bisnis berhasil disimpan.');

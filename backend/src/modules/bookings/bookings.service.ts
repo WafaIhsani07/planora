@@ -46,7 +46,14 @@ export const createBooking = async (customerId: string, input: CreateBookingInpu
 }
 
 // ─── Get My Bookings (Bisa diakses Customer & Vendor) ────────────────────
-export const getMyBookings = async (userId: string, role: string) => {
+export const getMyBookings = async (
+  userId: string, 
+  role: string, 
+  query?: { page?: number; limit?: number; status?: string }
+) => {
+  const page = query?.page || 1
+  const limit = query?.limit || 50
+  const skip = (page - 1) * limit
   let whereClause: any = {}
 
   if (role === "CUSTOMER") {
@@ -61,15 +68,34 @@ export const getMyBookings = async (userId: string, role: string) => {
     throw new AppError("Akses Role tidak diizinkan", 403)
   }
 
-  return db.booking.findMany({
-    where: whereClause,
-    include: {
-      layanan: { select: { name: true, price: true } },
-      customer: { select: { name: true, phone: true } },
-      vendor: { select: { businessName: true } },
-    },
-    orderBy: { createdAt: "desc" },
-  })
+  if (query?.status) {
+    whereClause.status = query.status
+  }
+
+  const [data, total] = await Promise.all([
+    db.booking.findMany({
+      where: whereClause,
+      include: {
+        layanan: { select: { name: true, price: true } },
+        customer: { select: { name: true, phone: true } },
+        vendor: { select: { businessName: true } },
+      },
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: limit,
+    }),
+    db.booking.count({ where: whereClause })
+  ])
+
+  return {
+    data,
+    meta: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit)
+    }
+  }
 }
 
 // ─── Update Booking Status ───────────────────────────────────────────────
@@ -106,4 +132,60 @@ export const updateBookingStatus = async (
       cancelReason: input.cancelReason ?? null,
     },
   })
+}
+
+// ─── Get Booking By ID (Otorisasi Customer & Vendor) ─────────────────────
+export const getBookingById = async (userId: string, role: string, bookingId: string) => {
+  const booking = await db.booking.findUnique({
+    where: { id: bookingId },
+    include: {
+      layanan: {
+        select: {
+          id: true,
+          name: true,
+          price: true,
+          description: true,
+        },
+      },
+      customer: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+        },
+      },
+      vendor: {
+        select: {
+          id: true,
+          userId: true,
+          businessName: true,
+          description: true,
+          city: true,
+          rating: true,
+          user: {
+            select: {
+              avatar: true,
+            },
+          },
+        },
+      },
+    },
+  })
+
+  if (!booking) {
+    throw new AppError("Pesanan tidak ditemukan", 404)
+  }
+
+  // Otorisasi: Customer hanya boleh melihat pesanan miliknya sendiri
+  if (role === "CUSTOMER" && booking.customerId !== userId) {
+    throw new AppError("Akses ditolak", 403)
+  }
+
+  // Otorisasi: Vendor hanya boleh melihat pesanan yang diajukan ke tokonya sendiri
+  if (role === "VENDOR" && booking.vendor.userId !== userId) {
+    throw new AppError("Akses ditolak", 403)
+  }
+
+  return booking
 }

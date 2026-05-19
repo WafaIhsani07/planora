@@ -16,12 +16,15 @@ type RootLayoutProps = {
   children: React.ReactNode;
 };
 
+import { Toaster } from "react-hot-toast";
+
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="id" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className="font-sans antialiased" suppressHydrationWarning>
         {children}
         <ScrollObserver />
+        <Toaster position="bottom-right" toastOptions={{ duration: 4000, style: { background: '#2A2A2A', color: '#fff', borderRadius: '12px', fontSize: '13px', fontWeight: 'bold' } }} />
       </body>
     </html>
   );

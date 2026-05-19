@@ -14,17 +14,31 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   List<dynamic> _vendors = [];
   bool _isLoading = true;
+  String _userName = 'Pengguna';
 
   @override
   void initState() {
     super.initState();
+    _fetchUserProfile();
     _fetchVendors();
+  }
+
+  // Ambil nama user yang login
+  Future<void> _fetchUserProfile() async {
+    final result = await ApiService.getProfile();
+    if (!mounted) return;
+    if (result['success'] == true && result['data'] != null) {
+      setState(() {
+        _userName = result['data']['name'] ?? 'Pengguna';
+      });
+    }
   }
 
   // Fungsi untuk menarik data aktual dari Backend
   Future<void> _fetchVendors() async {
     setState(() => _isLoading = true);
     final vendorsData = await ApiService.getVendors();
+    if (!mounted) return;
     setState(() {
       _vendors = vendorsData;
       _isLoading = false;
@@ -48,7 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Hai, Pengguna ✨',
+                    'Hai, $_userName ✨',
                     style: tt.headlineMedium,
                   ),
                   // Tombol notifikasi

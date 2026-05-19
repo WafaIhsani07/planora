@@ -54,6 +54,58 @@ class PlanoraColors {
   static const Color error = Color(0xFFD94F4F);
 }
 
+// ============================================================
+// PLANORA SNACKBAR — Premium Glassmorphism Style Floating Bar
+// ============================================================
+class PlanoraSnackBar {
+  PlanoraSnackBar._();
+
+  static void show(
+    BuildContext context, {
+    required String message,
+    bool isError = false,
+    IconData? icon,
+  }) {
+    final theme = Theme.of(context);
+    final accentColor = isError ? PlanoraColors.error : const Color(0xFFFFDED7);
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              icon ?? (isError ? Icons.error_outline_rounded : Icons.check_circle_outline_rounded),
+              color: accentColor,
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: const Color(0xFF2C2D2A).withAlpha(235), // Dark sleek with transparency
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: Color(0xFFEEECE9), width: 0.5),
+        ),
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        duration: const Duration(seconds: 3),
+        elevation: 8,
+      ),
+    );
+  }
+}
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 

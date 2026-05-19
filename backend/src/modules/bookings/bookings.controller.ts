@@ -1,7 +1,7 @@
 // backend/src/modules/bookings/bookings.controller.ts
 import type { Request, Response, NextFunction } from "express"
 import * as bookingsService from "./bookings.service.js"
-import { createBookingSchema, updateStatusSchema } from "./bookings.validation.js"
+import { createBookingSchema, updateStatusSchema, getBookingsQuerySchema } from "./bookings.validation.js"
 import { sendSuccess, sendCreated, sendValidationError } from "../../utils/response.js"
 
 export const createBooking = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -16,10 +16,15 @@ export const createBooking = async (req: Request, res: Response, next: NextFunct
 }
 
 export const getMyBookings = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  // Cast (req as any) untuk baca properti custom dari middleware
   const role = req.userRole
+  const parsedQuery = getBookingsQuerySchema.safeParse(req.query)
   
-  const result = await bookingsService.getMyBookings(req.userId, role)
+  if (!parsedQuery.success) {
+    sendValidationError(res, parsedQuery.error.flatten().fieldErrors)
+    return
+  }
+
+  const result = await bookingsService.getMyBookings(req.userId, role, parsedQuery.data)
   sendSuccess(res, result, "Daftar pesanan berhasil diambil")
 }
 
@@ -35,4 +40,12 @@ export const updateStatus = async (req: Request, res: Response, next: NextFuncti
 
   const result = await bookingsService.updateBookingStatus(req.userId, role, bookingId, parsed.data)
   sendSuccess(res, result, "Status pesanan berhasil diperbarui")
+}
+
+export const getBookingById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const role = req.userRole
+  const bookingId = req.params.id as string
+
+  const result = await bookingsService.getBookingById(req.userId, role, bookingId)
+  sendSuccess(res, result, "Detail pesanan berhasil diambil")
 }

@@ -1,12 +1,26 @@
 import api from "@/lib/api";
+import toast from "react-hot-toast";
+
+const handleApiError = (error: any, defaultMsg: string) => {
+  console.error(defaultMsg, error);
+  const serverMsg = error?.response?.data?.message;
+  if (serverMsg) {
+    toast.error(serverMsg);
+  } else {
+    toast.error(defaultMsg);
+  }
+};
 
 // ─── Profile ──────────────────────────────────────────────────────────────────
 export async function getMyVendorProfile() {
   try {
     const response = await api.get("/vendors/me");
     return response.data.data;
-  } catch (error) {
-    console.error("Gagal mengambil profil vendor:", error);
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      return null; // Wajar jika profil belum dibuat
+    }
+    handleApiError(error, "Gagal mengambil profil vendor");
     return null;
   }
 }
@@ -16,7 +30,7 @@ export async function createVendorProfile(payload: any) {
     const response = await api.post("/vendors/profile", payload);
     return response.data.data;
   } catch (error) {
-    console.error("Gagal membuat profil vendor:", error);
+    handleApiError(error, "Gagal membuat profil vendor");
     return null;
   }
 }
@@ -26,7 +40,7 @@ export async function updateVendorProfile(payload: any) {
     const response = await api.put("/vendors/profile", payload);
     return response.data.data;
   } catch (error) {
-    console.error("Gagal update profil vendor:", error);
+    handleApiError(error, "Gagal update profil vendor");
     return null;
   }
 }
@@ -36,8 +50,11 @@ export async function getMyLayanan() {
   try {
     const response = await api.get("/vendors/me/layanan");
     return response.data.data || [];
-  } catch (error) {
-    console.error("Gagal mengambil layanan vendor:", error);
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      return []; // Wajar jika profil belum dibuat
+    }
+    handleApiError(error, "Gagal mengambil layanan vendor");
     return [];
   }
 }
@@ -47,7 +64,7 @@ export async function createLayanan(payload: any) {
     const response = await api.post("/vendors/me/layanan", payload);
     return response.data.data;
   } catch (error) {
-    console.error("Gagal membuat layanan:", error);
+    handleApiError(error, "Gagal membuat layanan");
     return null;
   }
 }
@@ -57,7 +74,7 @@ export async function updateLayanan(id: string, payload: any) {
     const response = await api.put(`/vendors/me/layanan/${id}`, payload);
     return response.data.data;
   } catch (error) {
-    console.error("Gagal update layanan:", error);
+    handleApiError(error, "Gagal update layanan");
     return null;
   }
 }
@@ -68,9 +85,19 @@ export async function deleteLayanan(id: string) {
 }
 
 // ─── Pesanan Masuk (Vendor melihat booking yg masuk) ─────────────────────────
-export async function getVendorBookings(params?: { status?: string }) {
-  const { data } = await api.get("/bookings", { params });
-  return data.data;
+export async function getVendorBookings(params?: { status?: string; page?: number; limit?: number }) {
+  try {
+    const { data } = await api.get("/bookings", { params });
+    // Karena backend sekarang mereturn { data, meta } di dalam data.data
+    return data.data; // { data: [...], meta: {...} }
+  } catch (error: any) {
+    // Jika 404 (profil belum ada), return data kosong secara diam-diam
+    if (error.response?.status === 404) {
+      return { data: [], meta: { total: 0 } };
+    }
+    handleApiError(error, "Gagal mengambil pesanan vendor");
+    return { data: [] };
+  }
 }
 
 export async function updateBookingStatus(id: string, status: string) {
@@ -84,7 +111,7 @@ export async function getMyPortfolio() {
     const response = await api.get("/vendors/me/portfolio");
     return response.data.data || [];
   } catch (error) {
-    console.error("Gagal mengambil portofolio:", error);
+    handleApiError(error, "Gagal mengambil portofolio");
     return [];
   }
 }
@@ -94,7 +121,7 @@ export async function createPortfolio(payload: any) {
     const response = await api.post("/vendors/me/portfolio", payload);
     return response.data.data;
   } catch (error) {
-    console.error("Gagal menambahkan portofolio:", error);
+    handleApiError(error, "Gagal menambahkan portofolio");
     return null;
   }
 }
@@ -113,7 +140,7 @@ export async function uploadImage(file: File): Promise<string | null> {
     const response = await api.post("/uploads", formData);
     return response.data.data.imageUrl;
   } catch (error) {
-    console.error("Gagal mengunggah gambar:", error);
+    handleApiError(error, "Gagal mengunggah gambar");
     return null;
   }
 }
@@ -124,7 +151,7 @@ export async function getVendorReviews(vendorId: string) {
     const response = await api.get(`/reviews/vendor/${vendorId}`);
     return response.data.data || [];
   } catch (error) {
-    console.error("Gagal mengambil ulasan vendor:", error);
+    handleApiError(error, "Gagal mengambil ulasan vendor");
     return [];
   }
 }
@@ -134,7 +161,7 @@ export async function replyToReview(reviewId: string, reply: string) {
     const response = await api.put(`/reviews/${reviewId}/reply`, { reply });
     return response.data.data;
   } catch (error) {
-    console.error("Gagal membalas ulasan:", error);
+    handleApiError(error, "Gagal membalas ulasan");
     return null;
   }
 }

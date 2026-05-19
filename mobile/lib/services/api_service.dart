@@ -1,10 +1,17 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  // 10.0.2.2 adalah localhost untuk emulator Android
-  static const String baseUrl = 'http://10.0.2.2:5000/api/v1';
+  static String get baseUrl {
+    if (kIsWeb) {
+      return 'http://localhost:5000/api/v1';
+    }
+    return defaultTargetPlatform == TargetPlatform.android
+        ? 'http://10.0.2.2:5000/api/v1'
+        : 'http://localhost:5000/api/v1';
+  }
 
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
@@ -121,7 +128,16 @@ class ApiService {
       final response = await getRequest('/vendors', client: client);
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return data['data'] ?? [];
+        final rawData = data['data'];
+        
+        if (rawData is Map && rawData['vendors'] is List) {
+          return rawData['vendors'];
+        } else if (rawData is List) {
+          return rawData;
+        } else if (rawData is Map && rawData['data'] is List) {
+          return rawData['data'];
+        }
+        return [];
       }
       return [];
     } catch (e) {
@@ -158,7 +174,16 @@ class ApiService {
       final data = json.decode(response.body);
 
       if (response.statusCode == 200 && data['success'] == true) {
-        return {'success': true, 'data': data['data']};
+        final rawData = data['data'];
+        List<dynamic> bookingsList = [];
+        
+        if (rawData is Map && rawData['data'] is List) {
+          bookingsList = rawData['data'];
+        } else if (rawData is List) {
+          bookingsList = rawData;
+        }
+        
+        return {'success': true, 'data': bookingsList};
       } else {
         return {'success': false, 'message': data['message'] ?? 'Gagal mengambil pesanan'};
       }
@@ -171,7 +196,7 @@ class ApiService {
   // Menyatukan rute /users/me dari main dan implementasi dari branch kita
   static Future<Map<String, dynamic>> getProfile({http.Client? client}) async {
     try {
-      final response = await getRequest('/users/me', client: client);
+      final response = await getRequest('/users/profile', client: client);
       final data = json.decode(response.body);
 
       if (response.statusCode == 200 && data['success'] == true) {
@@ -206,11 +231,11 @@ class ApiService {
   // Ambil daftar paket/layanan milik satu vendor
   static Future<Map<String, dynamic>> getVendorServices(String vendorId, {http.Client? client}) async {
     try {
-      final response = await getRequest('/vendors/$vendorId/services', client: client);
+      final response = await getRequest('/vendors/$vendorId', client: client);
       final data = json.decode(response.body);
 
       if (response.statusCode == 200 && data['success'] == true) {
-        return {'success': true, 'data': data['data'] ?? []};
+        return {'success': true, 'data': data['data']['layanan'] ?? []};
       } else {
         return {'success': false, 'data': [], 'message': data['message'] ?? 'Gagal mengambil paket layanan'};
       }
@@ -305,22 +330,27 @@ class ApiService {
     }
   }
 
-  // T12: Update profil pengguna (nama, nomor telepon)
+  // T12: Update profil pengguna (nama, nomor telepon, avatar)
   static Future<Map<String, dynamic>> updateProfile(
     String name,
     String phone, {
+    String? avatar,
     http.Client? client,
   }) async {
     final httpClient = client ?? http.Client();
     final token = await getToken();
     try {
-      final response = await httpClient.patch(
-        Uri.parse('$baseUrl/users/me'),
+      final response = await httpClient.put(
+        Uri.parse('$baseUrl/users/profile'),
         headers: {
           'Content-Type': 'application/json',
           if (token != null) 'Authorization': 'Bearer $token',
         },
-        body: json.encode({'name': name, 'phone': phone}),
+        body: json.encode({
+          'name': name,
+          'phone': phone,
+          if (avatar != null) 'avatar': avatar,
+        }),
       );
       final data = json.decode(response.body);
       if (response.statusCode == 200 && data['success'] == true) {

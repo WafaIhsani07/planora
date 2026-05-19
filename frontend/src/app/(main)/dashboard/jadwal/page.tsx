@@ -190,8 +190,9 @@ export default function PesananPage() {
     async function loadData() {
       try {
         const data = await getVendorBookings();
-        if (data && Array.isArray(data)) {
-          setOrders(data.map(mapBackendBookingToOrder));
+        const arrayData = Array.isArray(data) ? data : data?.data || [];
+        if (arrayData && Array.isArray(arrayData)) {
+          setOrders(arrayData.map(mapBackendBookingToOrder));
         }
       } catch (error) {
         console.error("Gagal load vendor bookings:", error);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
-import '../main.dart' show PlanoraColors;
+import '../main.dart' show PlanoraColors, PlanoraSnackBar;
 
 class FavoritScreen extends StatefulWidget {
   const FavoritScreen({super.key});
@@ -20,16 +21,45 @@ class _FavoritScreenState extends State<FavoritScreen> {
     _fetchFavorites();
   }
 
-  // Mengambil data favorit dari backend API
+  // Mengambil data favorit dari backend API disaring dengan SharedPreferences
   Future<void> _fetchFavorites() async {
     try {
       final vendorsData = await ApiService.getVendors();
-      if (mounted) setState(() => _favorites = vendorsData);
+      final prefs = await SharedPreferences.getInstance();
+      final favList = prefs.getStringList('favorite_vendors') ?? [];
+      
+      final filtered = vendorsData.where((vendor) => favList.contains(vendor['id']?.toString())).toList();
+      
+      if (mounted) {
+        setState(() {
+          _favorites = filtered;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
-      if (mounted) setState(() => _favorites = []);
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() {
+          _favorites = [];
+          _isLoading = false;
+        });
+      }
     }
+  }
+
+  Future<void> _removeFromFavorites(String id) async {
+    try {
+       final prefs = await SharedPreferences.getInstance();
+       final favList = prefs.getStringList('favorite_vendors') ?? [];
+       favList.remove(id);
+       await prefs.setStringList('favorite_vendors', favList);
+       PlanoraSnackBar.show(
+         context,
+         message: 'Dihapus dari Favorit',
+         isError: true,
+         icon: Icons.favorite_border_rounded,
+       );
+       _fetchFavorites();
+     } catch (_) {}
   }
 
   // Navigasi Bottom Bar
@@ -121,14 +151,28 @@ class _FavoritScreenState extends State<FavoritScreen> {
                                     : 'http://10.0.2.2:5000/assets/$avatar')
                                 : 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=200&auto=format&fit=crop';
 
+                            // Resolve category secara dinamis
+                            String catName = 'Vendor';
+                            final layananList = item['layanan'];
+                            if (item['category'] != null && item['category'].toString().isNotEmpty) {
+                              catName = item['category'].toString();
+                            } else if (layananList is List && layananList.isNotEmpty) {
+                              final firstLayanan = layananList[0];
+                              if (firstLayanan is Map && firstLayanan['kategori'] is Map) {
+                                catName = firstLayanan['kategori']['name'] ?? 'Vendor';
+                              }
+                            }
+
                             return GestureDetector(
                               onTap: () => Navigator.pushNamed(
                                   context, '/detail_booking', arguments: itemId),
                               child: _buildFavoriteCard(
+                                id: itemId,
                                 name: item['businessName'] ?? item['name'] ?? 'Vendor',
-                                category: item['category'] ?? 'Kategori',
+                                category: catName,
                                 imageUrl: imageUrl,
                                 tt: tt,
+                                onRemove: () => _removeFromFavorites(itemId),
                               ),
                             );
                           },
@@ -159,10 +203,12 @@ class _FavoritScreenState extends State<FavoritScreen> {
   }
 
   Widget _buildFavoriteCard({
+    required String id,
     required String name,
     required String category,
     required String imageUrl,
     required TextTheme tt,
+    required VoidCallback onRemove,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
@@ -174,17 +220,20 @@ class _FavoritScreenState extends State<FavoritScreen> {
       ),
       child: Row(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(14),
-            child: Image.network(
-              imageUrl,
-              width: 76,
-              height: 76,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                width: 76, height: 76,
-                color: PlanoraColors.brandAccent,
-                child: const Icon(Icons.storefront_outlined, color: PlanoraColors.brandDark),
+          Hero(
+            tag: 'vendor-img-$id',
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: Image.network(
+                imageUrl,
+                width: 76,
+                height: 76,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  width: 76, height: 76,
+                  color: PlanoraColors.brandAccent,
+                  child: const Icon(Icons.storefront_outlined, color: PlanoraColors.brandDark),
+                ),
               ),
             ),
           ),
@@ -213,16 +262,19 @@ class _FavoritScreenState extends State<FavoritScreen> {
               ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: const BoxDecoration(
-              color: PlanoraColors.brandAccent,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.favorite_rounded,
-              color: PlanoraColors.brandDark,
-              size: 18,
+          GestureDetector(
+            onTap: onRemove,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                color: PlanoraColors.brandAccent,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.favorite_rounded,
+                color: PlanoraColors.brandDark,
+                size: 18,
+              ),
             ),
           ),
         ],

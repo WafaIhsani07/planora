@@ -28,10 +28,12 @@ export default function DashboardClient() {
     async function loadDashboardData() {
       try {
         setLoading(true);
-        const [profile, bookings] = await Promise.all([
+        const [profile, bookingsData] = await Promise.all([
           getMyVendorProfile(),
           getVendorBookings(),
         ]);
+        
+        const bookings = Array.isArray(bookingsData) ? bookingsData : bookingsData?.data || [];
 
         if (profile?.businessName) {
           setVendorName(profile.businessName);

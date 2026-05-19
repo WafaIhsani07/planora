@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
-import '../main.dart' show PlanoraColors;
+import '../main.dart' show PlanoraColors, PlanoraSnackBar;
 
 class EditProfilScreen extends StatefulWidget {
   const EditProfilScreen({super.key});
@@ -16,6 +16,7 @@ class _EditProfilScreenState extends State<EditProfilScreen> {
   bool _isLoading = true;
   bool _isSaving = false;
   String? _email;
+  String? _selectedAvatarUrl;
 
   @override
   void initState() {
@@ -40,9 +41,113 @@ class _EditProfilScreenState extends State<EditProfilScreen> {
         _nameController.text = data['name'] ?? '';
         _phoneController.text = data['phone'] ?? data['phoneNumber'] ?? '';
         _email = data['email'] ?? '';
+        _selectedAvatarUrl = data['avatar']?.toString();
       }
       _isLoading = false;
     });
+  }
+
+  void _showAvatarPicker() {
+    final List<String> avatars = [
+      'https://api.dicebear.com/7.x/lorelei/png?seed=John',
+      'https://api.dicebear.com/7.x/lorelei/png?seed=Sasha',
+      'https://api.dicebear.com/7.x/lorelei/png?seed=Leo',
+      'https://api.dicebear.com/7.x/lorelei/png?seed=Maria',
+      'https://api.dicebear.com/7.x/lorelei/png?seed=Max',
+      'https://api.dicebear.com/7.x/lorelei/png?seed=Luna',
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: PlanoraColors.surface,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(32),
+              topRight: Radius.circular(32),
+            ),
+          ),
+          padding: const EdgeInsets.all(28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 48,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: PlanoraColors.divider,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Pilih Avatar Keren Kamu ✨',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: PlanoraColors.brandDark,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Ekspresikan dirimu dengan avatar pilihan!',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: PlanoraColors.brandGray,
+                    ),
+              ),
+              const SizedBox(height: 24),
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                ),
+                itemCount: avatars.length,
+                itemBuilder: (context, index) {
+                  final url = avatars[index];
+                  final isSelected = _selectedAvatarUrl == url;
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedAvatarUrl = url;
+                      });
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: isSelected
+                              ? PlanoraColors.brandAccent
+                              : PlanoraColors.divider,
+                          width: isSelected ? 3 : 1.5,
+                        ),
+                        color: PlanoraColors.divider.withAlpha(20),
+                      ),
+                      padding: const EdgeInsets.all(4),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: Image.network(
+                          url,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => const Icon(
+                            Icons.person_rounded,
+                            color: PlanoraColors.brandGray,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   // T12: Simpan perubahan profil via ApiService.updateProfile()
@@ -51,28 +156,33 @@ class _EditProfilScreenState extends State<EditProfilScreen> {
     final phone = _phoneController.text.trim();
 
     if (name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nama tidak boleh kosong.')),
+      PlanoraSnackBar.show(
+        context,
+        message: 'Nama tidak boleh kosong.',
+        isError: true,
       );
       return;
     }
 
     setState(() => _isSaving = true);
 
-    final result = await ApiService.updateProfile(name, phone);
+    final result = await ApiService.updateProfile(name, phone, avatar: _selectedAvatarUrl);
 
     if (!mounted) return;
     setState(() => _isSaving = false);
 
     if (result['success'] == true) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profil berhasil diperbarui!')),
+      PlanoraSnackBar.show(
+        context,
+        message: 'Profil berhasil diperbarui!',
       );
       // Pop dengan membawa data baru supaya profil screen bisa refresh
-      Navigator.pop(context, {'name': name, 'phone': phone});
+      Navigator.pop(context, {'name': name, 'phone': phone, 'avatar': _selectedAvatarUrl});
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result['message'] ?? 'Gagal memperbarui profil.')),
+      PlanoraSnackBar.show(
+        context,
+        message: result['message'] ?? 'Gagal memperbarui profil.',
+        isError: true,
       );
     }
   }
@@ -96,39 +206,59 @@ class _EditProfilScreenState extends State<EditProfilScreen> {
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
-                  // ── Avatar placeholder ────────────────────────────────
+                   // ── Avatar placeholder ────────────────────────────────
                   Center(
-                    child: Stack(
-                      children: [
-                        Container(
-                          width: 100,
-                          height: 100,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: PlanoraColors.brandAccent,
-                          ),
-                          child: const Icon(
-                            Icons.person_rounded,
-                            size: 52,
-                            color: PlanoraColors.brandDark,
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 0, right: 0,
-                          child: Container(
-                            padding: const EdgeInsets.all(7),
+                    child: GestureDetector(
+                      onTap: _showAvatarPicker,
+                      behavior: HitTestBehavior.opaque,
+                      child: Stack(
+                        children: [
+                          Container(
+                            width: 100,
+                            height: 100,
                             decoration: const BoxDecoration(
-                              color: PlanoraColors.brandDark,
                               shape: BoxShape.circle,
+                              color: PlanoraColors.brandAccent,
                             ),
-                            child: const Icon(
-                              Icons.camera_alt_rounded,
-                              size: 16,
-                              color: PlanoraColors.background,
+                            child: _selectedAvatarUrl != null &&
+                                    _selectedAvatarUrl!.isNotEmpty
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(50),
+                                    child: Image.network(
+                                      _selectedAvatarUrl!,
+                                      width: 100,
+                                      height: 100,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) => const Icon(
+                                        Icons.person_rounded,
+                                        size: 52,
+                                        color: PlanoraColors.brandDark,
+                                      ),
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.person_rounded,
+                                    size: 52,
+                                    color: PlanoraColors.brandDark,
+                                  ),
+                          ),
+                          Positioned(
+                            bottom: 0, right: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(7),
+                              decoration: const BoxDecoration(
+                                color: PlanoraColors.brandDark,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.camera_alt_rounded,
+                                size: 16,
+                                color: PlanoraColors.background,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 28),

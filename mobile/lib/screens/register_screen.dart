@@ -12,13 +12,16 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   bool _isPasswordHidden = true;
+  bool _isConfirmPasswordHidden = true;
   bool _isLoading = false;
+  bool _agreeTerms = false;
 
-  // Controller untuk menangkap input pendaftaran
   final TextEditingController _namaController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
 
   @override
   void dispose() {
@@ -26,19 +29,39 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _emailController.dispose();
     _phoneController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  // Logika registrasi terhubung ke backend
   Future<void> _handleRegister() async {
     final nama = _namaController.text.trim();
     final email = _emailController.text.trim();
     final phone = _phoneController.text.trim();
     final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
 
-    if (nama.isEmpty || email.isEmpty || phone.isEmpty || password.isEmpty) {
+    if (nama.isEmpty ||
+        email.isEmpty ||
+        phone.isEmpty ||
+        password.isEmpty ||
+        confirmPassword.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Semua kolom wajib diisi')),
+      );
+      return;
+    }
+
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password dan konfirmasi tidak cocok')),
+      );
+      return;
+    }
+
+    if (!_agreeTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Anda harus menyetujui syarat dan ketentuan')),
       );
       return;
     }
@@ -48,7 +71,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final result = await ApiService.register(nama, email, password, phone);
 
     if (!mounted) return;
-
     setState(() => _isLoading = false);
 
     if (result['success'] == true) {
@@ -63,187 +85,322 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final tt = Theme.of(context).textTheme;
-
-    return Scaffold(
-      backgroundColor: PlanoraColors.background,
-      // ── AppBar tipis dengan tombol back ──────────────────────────────────
-      appBar: AppBar(
-        title: const Text('Buat Akun'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // ── Avatar Ilustrasi ────────────────────────────────────────
-              Center(
-                child: Stack(
-                  alignment: Alignment.bottomRight,
-                  children: [
-                    Container(
-                      width: 96,
-                      height: 96,
-                      decoration: const BoxDecoration(
-                        color: PlanoraColors.brandAccent,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.person_outline_rounded,
-                        size: 48,
-                        color: PlanoraColors.brandDark,
-                      ),
-                    ),
-                    // Badge tambah kecil
-                    Container(
-                      padding: const EdgeInsets.all(2),
-                      decoration: const BoxDecoration(
-                        color: PlanoraColors.background,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: PlanoraColors.brandDark,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.add_rounded,
-                          color: PlanoraColors.background,
-                          size: 14,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // ── Heading ─────────────────────────────────────────────────
-              Text(
-                'Buat Akun Baru',
-                style: GoogleFonts.playfairDisplay(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w700,
-                  color: PlanoraColors.brandDark,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'Isi data diri Anda untuk memulai',
-                style: tt.bodyMedium?.copyWith(color: PlanoraColors.brandGray),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 32),
-
-              // ── Field: Nama Lengkap ──────────────────────────────────────
-              TextFormField(
-                controller: _namaController,
-                textCapitalization: TextCapitalization.words,
-                decoration: const InputDecoration(
-                  hintText: 'Nama Lengkap',
-                  prefixIcon: Icon(Icons.badge_outlined),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // ── Field: Email ─────────────────────────────────────────────
-              TextFormField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  hintText: 'Email',
-                  prefixIcon: Icon(Icons.email_outlined),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // ── Field: Nomor Telepon ─────────────────────────────────────
-              TextFormField(
-                controller: _phoneController,
-                keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(
-                  hintText: 'Nomor Telepon',
-                  prefixIcon: Icon(Icons.phone_outlined),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // ── Field: Password ──────────────────────────────────────────
-              TextFormField(
-                controller: _passwordController,
-                obscureText: _isPasswordHidden,
-                decoration: InputDecoration(
-                  hintText: 'Password',
-                  prefixIcon: const Icon(Icons.lock_outline_rounded),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _isPasswordHidden
-                          ? Icons.visibility_rounded
-                          : Icons.visibility_off_rounded,
-                    ),
-                    onPressed: () => setState(
-                        () => _isPasswordHidden = !_isPasswordHidden),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              // ── Tombol Daftar ────────────────────────────────────────────
-              ElevatedButton(
-                onPressed: _isLoading ? null : _handleRegister,
-                child: _isLoading
-                    ? const SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.5,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            PlanoraColors.brandDark,
-                          ),
-                        ),
-                      )
-                    : const Text('Daftar'),
-              ),
-              const SizedBox(height: 20),
-
-              // ── Link ke Login ────────────────────────────────────────────
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Sudah punya akun? ',
-                    style: tt.bodySmall?.copyWith(
-                      color: PlanoraColors.brandGray,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () =>
-                        Navigator.pushReplacementNamed(context, '/login'),
-                    child: Text(
-                      'Masuk di sini',
-                      style: tt.bodySmall?.copyWith(
-                        color: PlanoraColors.brandDark,
-                        fontWeight: FontWeight.w600,
-                        decoration: TextDecoration.underline,
-                        decorationColor: PlanoraColors.brandDark,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-            ],
+  // Helper: Build a labeled text field
+  Widget _buildField({
+    required String label,
+    required TextEditingController controller,
+    TextInputType keyboardType = TextInputType.text,
+    bool obscureText = false,
+    Widget? suffixIcon,
+    String? hintText,
+    TextCapitalization textCapitalization = TextCapitalization.none,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: PlanoraColors.brandDark,
           ),
         ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          keyboardType: keyboardType,
+          obscureText: obscureText,
+          textCapitalization: textCapitalization,
+          decoration: InputDecoration(
+            hintText: hintText,
+            filled: true,
+            fillColor: PlanoraColors.surface,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: PlanoraColors.divider),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: PlanoraColors.divider),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide:
+                  const BorderSide(color: PlanoraColors.brandDark, width: 1.5),
+            ),
+            suffixIcon: suffixIcon,
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: PlanoraColors.background,
+      body: Column(
+        children: [
+          // ── Header bar berwarna brand ──────────────────────────────
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top + 8,
+              bottom: 16,
+            ),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0xFFFFDED7),
+                  Color(0xFFFFC9BD),
+                ],
+              ),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(32),
+                bottomRight: Radius.circular(32),
+              ),
+            ),
+          ),
+
+          // ── Content ───────────────────────────────────────────────
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Back + Title row
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: const Icon(
+                          Icons.arrow_back_rounded,
+                          color: PlanoraColors.brandDark,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Text(
+                        'Buat Akun',
+                        style: GoogleFonts.playfairDisplay(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                          color: PlanoraColors.brandDark,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 28),
+
+                  // ── Nama Lengkap ────────────────────────────────────
+                  _buildField(
+                    label: 'Nama Lengkap',
+                    controller: _namaController,
+                    hintText: 'Masukkan nama lengkap',
+                    textCapitalization: TextCapitalization.words,
+                  ),
+                  const SizedBox(height: 18),
+
+                  // ── Email ───────────────────────────────────────────
+                  _buildField(
+                    label: 'Email',
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    hintText: 'contoh@email.com',
+                  ),
+                  const SizedBox(height: 18),
+
+                  // ── Nomor Telepon ────────────────────────────────────
+                  _buildField(
+                    label: 'Nomor Telepon',
+                    controller: _phoneController,
+                    keyboardType: TextInputType.phone,
+                    hintText: '08xxxxxxxxxx',
+                  ),
+                  const SizedBox(height: 18),
+
+                  // ── Password ────────────────────────────────────────
+                  _buildField(
+                    label: 'Password',
+                    controller: _passwordController,
+                    obscureText: _isPasswordHidden,
+                    hintText: '••••••••',
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isPasswordHidden
+                            ? Icons.visibility_off_rounded
+                            : Icons.visibility_rounded,
+                        color: PlanoraColors.brandGray,
+                        size: 20,
+                      ),
+                      onPressed: () => setState(
+                          () => _isPasswordHidden = !_isPasswordHidden),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+
+                  // ── Konfirmasi Password ─────────────────────────────
+                  _buildField(
+                    label: 'Konfirmasi Password',
+                    controller: _confirmPasswordController,
+                    obscureText: _isConfirmPasswordHidden,
+                    hintText: '••••••••',
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isConfirmPasswordHidden
+                            ? Icons.visibility_off_rounded
+                            : Icons.visibility_rounded,
+                        color: PlanoraColors.brandGray,
+                        size: 20,
+                      ),
+                      onPressed: () => setState(() =>
+                          _isConfirmPasswordHidden =
+                              !_isConfirmPasswordHidden),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // ── Checkbox Syarat & Ketentuan ──────────────────────
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: Checkbox(
+                          value: _agreeTerms,
+                          onChanged: (val) =>
+                              setState(() => _agreeTerms = val ?? false),
+                          activeColor: PlanoraColors.brandAccent,
+                          checkColor: PlanoraColors.brandDark,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          side: const BorderSide(
+                            color: PlanoraColors.brandDark,
+                            width: 1.5,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text.rich(
+                          TextSpan(
+                            text: 'Saya menyetujui ',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 12,
+                              color: PlanoraColors.brandGray,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: 'Syarat & Ketentuan',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: PlanoraColors.brandDark,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                              TextSpan(
+                                text: ' dan ',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 12,
+                                  color: PlanoraColors.brandGray,
+                                ),
+                              ),
+                              TextSpan(
+                                text: 'Kebijakan Privasi',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: PlanoraColors.brandDark,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 28),
+
+                  // ── Tombol Buat Akun ─────────────────────────────────
+                  SizedBox(
+                    width: double.infinity,
+                    height: 54,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _handleRegister,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: PlanoraColors.brandAccent,
+                        foregroundColor: PlanoraColors.brandDark,
+                        disabledBackgroundColor:
+                            PlanoraColors.brandAccent.withValues(alpha: 0.5),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    PlanoraColors.brandDark),
+                              ),
+                            )
+                          : Text(
+                              'Buat Akun',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // ── Link ke Login ────────────────────────────────────
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Sudah punya akun?  ',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 13,
+                          color: PlanoraColors.brandGray,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () =>
+                            Navigator.pushReplacementNamed(context, '/login'),
+                        child: Text(
+                          'Masuk',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: PlanoraColors.brandDark,
+                            decoration: TextDecoration.underline,
+                            decorationColor: PlanoraColors.brandDark,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

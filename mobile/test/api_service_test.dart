@@ -176,7 +176,7 @@ void main() {
       SharedPreferences.setMockInitialValues({'access_token': 'valid-token'});
 
       final mockClient = MockClient((request) async {
-        expect(request.url.toString(), '${ApiService.baseUrl}/users/me');
+        expect(request.url.toString(), '${ApiService.baseUrl}/users/profile');
         expect(request.headers['Authorization'], 'Bearer valid-token');
 
         return http.Response(

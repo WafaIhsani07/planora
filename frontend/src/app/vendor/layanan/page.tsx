@@ -80,6 +80,18 @@ export default function VendorLayananPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Validasi Ukuran (Maksimal 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Ukuran gambar terlalu besar! Maksimal 5MB.");
+      return;
+    }
+    
+    // Validasi Tipe File
+    if (!file.type.startsWith("image/")) {
+      alert("Format file tidak didukung! Harus berupa gambar.");
+      return;
+    }
+
     setIsUploading(true);
     try {
       const url = await uploadImage(file);

@@ -187,12 +187,9 @@ export const updateVendorProfile = async (
   userId: string,
   input: UpdateVendorProfileInput
 ) => {
-  const vendor = await db.vendor.findUnique({ where: { userId } })
-  if (!vendor) throw new AppError("Profil vendor tidak ditemukan", 404)
-
-  return db.vendor.update({
+  return db.vendor.upsert({
     where: { userId },
-    data: {
+    update: {
       ...(input.businessName !== undefined && { businessName: input.businessName }),
       ...(input.description !== undefined && { description: input.description ?? null }),
       ...(input.address !== undefined && { address: input.address ?? null }),
@@ -202,6 +199,17 @@ export const updateVendorProfile = async (
       ...(input.bankAccount !== undefined && { bankAccount: input.bankAccount ?? null }),
       ...(input.bankHolder !== undefined && { bankHolder: input.bankHolder ?? null }),
     },
+    create: {
+      userId,
+      businessName: input.businessName ?? "Bisnis Baru",
+      description: input.description ?? null,
+      address: input.address ?? null,
+      city: input.city ?? null,
+      province: input.province ?? null,
+      bankName: input.bankName ?? null,
+      bankAccount: input.bankAccount ?? null,
+      bankHolder: input.bankHolder ?? null,
+    }
   })
 }
 

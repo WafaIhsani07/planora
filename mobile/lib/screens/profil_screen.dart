@@ -159,11 +159,27 @@ class _ProfilScreenState extends State<ProfilScreen> {
                                       color: PlanoraColors.brandAccent,
                                       shape: BoxShape.circle,
                                     ),
-                                    child: const Icon(
-                                      Icons.person_outline_rounded,
-                                      size: 44,
-                                      color: PlanoraColors.brandDark,
-                                    ),
+                                    child: _userProfile!['avatar'] != null &&
+                                            _userProfile!['avatar'].toString().isNotEmpty
+                                        ? ClipRRect(
+                                            borderRadius: BorderRadius.circular(44),
+                                            child: Image.network(
+                                              _userProfile!['avatar'].toString(),
+                                              width: 88,
+                                              height: 88,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (_, __, ___) => const Icon(
+                                                Icons.person_outline_rounded,
+                                                size: 44,
+                                                color: PlanoraColors.brandDark,
+                                              ),
+                                            ),
+                                          )
+                                        : const Icon(
+                                            Icons.person_outline_rounded,
+                                            size: 44,
+                                            color: PlanoraColors.brandDark,
+                                          ),
                                   ),
                                   const SizedBox(height: 14),
 
@@ -238,8 +254,12 @@ class _ProfilScreenState extends State<ProfilScreen> {
 
                                   // Tombol Edit Profil
                                   OutlinedButton.icon(
-                                    onPressed: () =>
-                                        Navigator.pushNamed(context, '/edit_profil'),
+                                    onPressed: () async {
+                                      final result = await Navigator.pushNamed(context, '/edit_profil');
+                                      if (result != null) {
+                                        _fetchProfile();
+                                      }
+                                    },
                                     icon: const Icon(Icons.edit_outlined, size: 16),
                                     label: const Text('Edit Profil'),
                                     style: OutlinedButton.styleFrom(

@@ -61,7 +61,8 @@ export default function KeuanganPage() {
           getVendorBookings(),
           getMyVendorProfile(),
         ]);
-        setBookings(fetchedBookings || []);
+        const finalBookings = Array.isArray(fetchedBookings) ? fetchedBookings : fetchedBookings?.data || [];
+        setBookings(finalBookings);
         setProfile(fetchedProfile || null);
       } catch (error) {
         console.error('Gagal mengambil data keuangan:', error);

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../main.dart' show PlanoraColors;
+import 'package:shared_preferences/shared_preferences.dart';
+import '../main.dart' show PlanoraColors, PlanoraSnackBar;
 
 class DetailBookingScreen extends StatefulWidget {
   const DetailBookingScreen({super.key});
@@ -18,6 +19,7 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
   bool _isServicesLoading = true;
   String? _errorMessage;
   String _vendorId = '';
+  bool _isFavorite = false;
 
   // Paket layanan yang dipilih user
   Map<String, dynamic>? _selectedService;
@@ -32,6 +34,7 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
         _vendorId = newId;
         _fetchVendorDetail();
         _fetchVendorServices();
+        _checkIfFavorite();
       }
     } else {
       setState(() {
@@ -40,6 +43,43 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
         _isServicesLoading = false;
       });
     }
+  }
+
+  Future<void> _checkIfFavorite() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final favList = prefs.getStringList('favorite_vendors') ?? [];
+      setState(() {
+        _isFavorite = favList.contains(_vendorId);
+      });
+    } catch (_) {}
+  }
+
+  Future<void> _toggleFavorite() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final favList = prefs.getStringList('favorite_vendors') ?? [];
+      if (favList.contains(_vendorId)) {
+        favList.remove(_vendorId);
+        PlanoraSnackBar.show(
+          context,
+          message: 'Dihapus dari Favorit',
+          isError: true,
+          icon: Icons.favorite_border_rounded,
+        );
+      } else {
+        favList.add(_vendorId);
+        PlanoraSnackBar.show(
+          context,
+          message: 'Ditambahkan ke Favorit',
+          icon: Icons.favorite_rounded,
+        );
+      }
+      await prefs.setStringList('favorite_vendors', favList);
+      setState(() {
+        _isFavorite = favList.contains(_vendorId);
+      });
+    } catch (_) {}
   }
 
   Future<void> _fetchVendorDetail() async {
@@ -179,18 +219,21 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
           Positioned(
             top: 0, left: 0, right: 0,
             height: MediaQuery.of(context).size.height * 0.45,
-            child: imagePath.isNotEmpty
-                ? Image.network(
-                    imagePath,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(color: PlanoraColors.brandAccent),
-                  )
-                : Container(
-                    color: PlanoraColors.brandAccent,
-                    child: const Center(
-                      child: Icon(Icons.storefront_outlined, size: 60, color: PlanoraColors.brandDark),
+            child: Hero(
+              tag: 'vendor-img-$_vendorId',
+              child: imagePath.isNotEmpty
+                  ? Image.network(
+                      imagePath,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(color: PlanoraColors.brandAccent),
+                    )
+                  : Container(
+                      color: PlanoraColors.brandAccent,
+                      child: const Center(
+                        child: Icon(Icons.storefront_outlined, size: 60, color: PlanoraColors.brandDark),
+                      ),
                     ),
-                  ),
+            ),
           ),
 
           // ── Back Button ───────────────────────────────────────────────
@@ -512,9 +555,11 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
                     border: Border.all(color: PlanoraColors.divider),
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.bookmark_border_rounded,
-                        color: PlanoraColors.brandGray),
-                    onPressed: () {},
+                    icon: Icon(
+                      _isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                      color: _isFavorite ? PlanoraColors.error : PlanoraColors.brandGray,
+                    ),
+                    onPressed: _toggleFavorite,
                   ),
                 ),
                 const SizedBox(width: 12),

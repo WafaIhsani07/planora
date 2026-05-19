@@ -8,6 +8,7 @@ import { Bell, Menu } from 'lucide-react';
 import VendorSidebar from '@/components/vendor/VendorSidebar';
 import { useAuthStore } from '@/store/authStore';
 import { getMyVendorProfile } from '@/services/vendor.service';
+import { getUserProfile } from '@/services/user.service';
 
 export default function VendorLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -15,6 +16,8 @@ export default function VendorLayout({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [businessName, setBusinessName] = useState('Vendor Toko');
+  const [isPendingStatus, setIsPendingStatus] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
     // Muat status terlipat dari localStorage jika ada
@@ -22,6 +25,16 @@ export default function VendorLayout({ children }: { children: ReactNode }) {
     if (saved === 'true') {
       setIsCollapsed(true);
     }
+  }, []);
+
+  // Dengarkan event saat avatar diperbarui dari halaman Pengaturan
+  useEffect(() => {
+    const handleAvatarUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<{ avatarUrl: string | null }>;
+      setAvatarUrl(customEvent.detail.avatarUrl || null);
+    };
+    window.addEventListener('vendor-avatar-updated', handleAvatarUpdate);
+    return () => window.removeEventListener('vendor-avatar-updated', handleAvatarUpdate);
   }, []);
 
   const toggleSidebar = () => {
@@ -46,12 +59,17 @@ export default function VendorLayout({ children }: { children: ReactNode }) {
         return;
       }
       
-      // Ambil profil vendor asli untuk nama bisnis
-      getMyVendorProfile().then((profile) => {
-        if (profile && mounted) {
+      // Ambil profil vendor + profil user secara paralel
+      Promise.all([getMyVendorProfile(), getUserProfile()]).then(([profile, userProfile]) => {
+        if (!mounted) return;
+        if (profile) {
           setBusinessName(profile.businessName);
-        } else if (mounted) {
-          setBusinessName(session.user?.name || 'Wafa Decoration');
+          setIsPendingStatus(profile.status === 'PENDING');
+        } else {
+          setBusinessName(session.user?.name || 'Vendor');
+        }
+        if (userProfile?.avatar) {
+          setAvatarUrl(userProfile.avatar);
         }
       });
       
@@ -96,9 +114,18 @@ export default function VendorLayout({ children }: { children: ReactNode }) {
             </button>
 
             <div className="flex items-center gap-3 pl-5 border-l border-[#F1D7D3] group">
-              <div className="w-9 h-9 rounded-xl bg-[#FF9A9E]/20 text-[#FF9A9E] flex items-center justify-center font-bold text-sm border border-[#FF9A9E]/10">
-                {businessName.charAt(0).toUpperCase()}
-              </div>
+              {/* Avatar: tampilkan foto jika ada, fallback ke inisial */}
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={businessName}
+                  className="w-9 h-9 rounded-xl object-cover border border-[#FF9A9E]/20"
+                />
+              ) : (
+                <div className="w-9 h-9 rounded-xl bg-[#FF9A9E]/20 text-[#FF9A9E] flex items-center justify-center font-bold text-sm border border-[#FF9A9E]/10">
+                  {businessName.charAt(0).toUpperCase()}
+                </div>
+              )}
               <div className="flex flex-col text-left">
                 <p className="text-xs font-black text-[#2A2A2A] tracking-tight leading-none mb-1">
                   {businessName}
@@ -111,6 +138,21 @@ export default function VendorLayout({ children }: { children: ReactNode }) {
 
         {/* PAGE CONTENT */}
         <main className="flex-1 overflow-y-auto bg-[#FDF1F0]">
+          {isPendingStatus && (
+            <div className="bg-[#FFF9E5] border-b border-[#F59E0B]/20 p-4 px-8 flex items-center justify-between shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-[#F59E0B]/10 flex items-center justify-center">
+                  <span className="text-[#F59E0B] text-sm">⏳</span>
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-[#D97706]">Akun Sedang Diverifikasi</h4>
+                  <p className="text-[11px] font-medium text-[#D97706]/70 mt-0.5">
+                    Mohon tunggu hingga Admin menyetujui akun Anda. Anda tidak bisa menambah layanan selama proses ini.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
           {children}
         </main>
       </div>

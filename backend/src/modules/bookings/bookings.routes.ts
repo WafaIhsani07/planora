@@ -14,6 +14,9 @@ router.post("/", authorize("CUSTOMER"), bookingsController.createBooking)
 // Customer & Vendor bisa melihat daftar pesanan mereka masing-masing
 router.get("/", bookingsController.getMyBookings)
 
+// Mengambil detail pesanan tunggal berdasarkan ID
+router.get("/:id", bookingsController.getBookingById)
+
 // Customer bisa batalkan pesanan, Vendor bisa ubah status (CONFIRMED, COMPLETED, dll)
 router.patch("/:id/status", bookingsController.updateStatus)
 
