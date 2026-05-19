@@ -45,6 +45,11 @@ export async function createKategori(payload: { name: string; description?: stri
   return data.data;
 }
 
+export async function updateKategori(id: string, payload: { name?: string; description?: string; slug?: string; icon?: string; isActive?: boolean }) {
+  const { data } = await api.patch(`/kategori/${id}`, payload);
+  return data.data;
+}
+
 export async function verifyVendor(id: string) {
   const { data } = await api.patch(`/admin/vendors/${id}/verify`);
   return data.data;

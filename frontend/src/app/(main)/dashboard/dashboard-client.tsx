@@ -73,7 +73,7 @@ export default function DashboardClient() {
     <div className="space-y-6">
       {/* Welcome Section */}
       <div className="flex flex-col mb-3">
-        <h1 className="text-3xl md:text-[2rem] font-extrabold tracking-tight leading-tight text-[#2A2A2A]">
+        <h1 className="text-3xl md:text-[2rem] font-black tracking-[-0.04em] leading-[1.05] text-[#2A2A2A]">
           Selamat datang, {vendorName}!
         </h1>
         <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.18em] text-[#2A2A2A]/35">

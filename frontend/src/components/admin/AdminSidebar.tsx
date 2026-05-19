@@ -137,13 +137,13 @@ export default function AdminSidebar() {
           )}
         </div>
 
-        <nav className="flex-1 px-6 overflow-hidden flex flex-col gap-4">
+        <nav className="flex-1 px-6 overflow-hidden flex flex-col gap-2.5">
           {navGroups.map((group) => (
-            <div key={group.title} className="mb-6">
-              <span className="text-[9px] font-bold tracking-[0.2em] text-white/40 uppercase px-3 mb-2 block">
+            <div key={group.title} className="mb-3">
+              <span className="text-[9px] font-bold tracking-[0.2em] text-white/40 uppercase px-3 mb-1.5 block">
                 {group.title}
               </span>
-              <ul className="space-y-1">
+              <ul className="space-y-0.5">
                 {group.items.map((item) => {
                   const active = isActive(item);
                   const Icon = item.icon;
@@ -151,7 +151,7 @@ export default function AdminSidebar() {
                     <li key={item.href}>
                       <Link
                         href={item.href}
-                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg font-semibold text-xs transition-all group cursor-pointer ${
+                        className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-lg font-semibold text-xs transition-all group cursor-pointer ${
                           active ? 'bg-[#FF9A9E] hover:bg-[#FF9A9E]/90' : 'hover:bg-white/5'
                         }`}
                       >
@@ -188,19 +188,14 @@ export default function AdminSidebar() {
         </nav>
 
         <div className="p-3 border-t border-white/5">
-          <div className="flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/5">
-            <div className="w-8 h-8 rounded-md bg-[#FF9A9E] flex items-center justify-center font-bold text-white text-sm flex-shrink-0">
-              A
-            </div>
-            <div className="overflow-hidden text-left min-w-0">
-              <p className="text-xs font-semibold truncate text-white">Admin Planora</p>
-              <button
-                onClick={() => setShowLogoutModal(true)}
-                className="flex items-center gap-1 text-[8px] text-[#FF9A9E] font-bold uppercase tracking-tight hover:text-[#FF9A9E]/90 transition-colors whitespace-nowrap"
-              >
-                <LogOut className="w-3 h-3" /> KELUAR
-              </button>
-            </div>
+          <div className="flex items-center justify-center px-3 py-2">
+            <button
+              onClick={() => setShowLogoutModal(true)}
+              className="flex w-full items-center justify-center gap-2 rounded-lg border border-white/5 bg-[#151515] px-5 py-3 text-[11px] font-bold uppercase tracking-widest text-[#FF9A9E] transition-colors hover:bg-[#1B1B1B] whitespace-nowrap"
+            >
+              <LogOut className="w-4 h-4 shrink-0" />
+              KELUAR
+            </button>
           </div>
         </div>
       </aside>

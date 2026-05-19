@@ -62,7 +62,12 @@ export default function VendorSidebar({ isCollapsed, toggleSidebar }: VendorSide
         {isCollapsed ? (
           <img src="/images/logogmbr.png" alt="Planora" className="h-8 w-8 object-contain" />
         ) : (
-          <img src="/images/logogmbr.png" alt="Planora" className="h-9 w-auto object-contain" />
+          <>
+            <img src="/images/logogmbr.png" alt="Planora" className="h-9 w-auto object-contain" />
+            <span className="text-xl font-bold italic tracking-tight text-white truncate font-logo">
+              Planora
+            </span>
+          </>
         )}
       </div>
 
@@ -116,32 +121,25 @@ export default function VendorSidebar({ isCollapsed, toggleSidebar }: VendorSide
       {/* Footer Profile with Logout */}
       <div className="p-3 border-t border-white/5">
         {isCollapsed ? (
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#FF9A9E]/20 text-[#FF9A9E] flex items-center justify-center font-bold text-sm">
-              {user?.name?.charAt(0).toUpperCase() ?? 'V'}
-            </div>
+          <div className="flex justify-center">
             <button
               onClick={handleLogout}
-              className="w-9 h-9 rounded-xl bg-white/5 border border-white/5 hover:bg-red-500 hover:border-red-500 text-white/60 hover:text-white flex items-center justify-center transition-all cursor-pointer"
+              className="flex w-full items-center justify-center gap-2 rounded-lg border border-white/5 bg-[#151515] px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#FF9A9E] transition-colors hover:bg-[#1B1B1B] cursor-pointer"
               title="Keluar"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-3.5 h-3.5 shrink-0" />
+              KELUAR
             </button>
           </div>
         ) : (
-          <div className="flex items-center gap-2 p-2.5 rounded-lg bg-white/5 border border-white/5">
-            <div className="w-8 h-8 rounded-md bg-[#FF9A9E] flex items-center justify-center font-bold text-white text-sm flex-shrink-0">
-              {user?.name?.charAt(0).toUpperCase() ?? 'V'}
-            </div>
-            <div className="overflow-hidden text-left min-w-0 flex-1">
-              <p className="text-xs font-semibold truncate text-white">{user?.name ?? 'Vendor'}</p>
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-1.5 text-[8px] text-[#FF9A9E] font-bold uppercase tracking-widest hover:text-[#FF527B] transition-colors mt-0.5"
-              >
-                <LogOut className="w-2.5 h-2.5" /> KELUAR
-              </button>
-            </div>
+          <div className="flex items-center px-3 py-2">
+            <button
+              onClick={handleLogout}
+              className="flex w-full items-center justify-center gap-2 rounded-lg border border-white/5 bg-[#151515] px-5 py-3 text-[11px] font-bold uppercase tracking-widest text-[#FF9A9E] transition-colors hover:bg-[#1B1B1B]"
+            >
+              <LogOut className="w-4 h-4 shrink-0" />
+              KELUAR
+            </button>
           </div>
         )}
       </div>

@@ -1,114 +1,382 @@
 'use client';
 
+import { useMemo, useState } from 'react';
 import AdminHeader from '@/components/admin/AdminHeader';
 import AdminPagination from '@/components/admin/AdminPagination';
-import AdminStatCard from '@/components/admin/AdminStatCard';
 import StatusBadge from '@/components/admin/StatusBadge';
 
-const HandCoinsIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 11h.01" /><path d="M14 16h1" /><path d="M8 18h.01" /><path d="M12 2v4" /><path d="M6 6l-2 2" /><path d="M18 6l2 2" /><path d="M12 22v-4" /><path d="M3 12h18" /><path d="M12 12a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z" /></svg>
-);
-const WalletIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 7V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-1" /><path d="M16 12h5" /><circle cx="18" cy="12" r="1" /></svg>
-);
-const ClockIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-);
-const CheckCircleIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><path d="m9 11 3 3L22 4" /></svg>
-);
+type WithdrawalStatus = 'menunggu' | 'diproses' | 'selesai' | 'ditolak';
 
-const withdrawals = [
-  { vendor: 'Wafa Media Studio', bank: 'BCA • 1234567890', amount: 'Rp 8.250.000', status: 'menunggu', date: '14 APR 2026' },
-  { vendor: 'Catering Jaya Raya', bank: 'Mandiri • 0987654321', amount: 'Rp 12.500.000', status: 'diproses', date: '13 APR 2026' },
-  { vendor: 'Dekor Elegan', bank: 'BNI • 1122334455', amount: 'Rp 6.000.000', status: 'selesai', date: '12 APR 2026' },
-];
-
-const statusMap: Record<string, 'blue' | 'emerald' | 'red'> = {
-  menunggu: 'blue',
-  diproses: 'red',
-  selesai: 'emerald',
+type WithdrawalItem = {
+  id: string;
+  vendor: string;
+  vendorCode: string;
+  category: string;
+  bank: string;
+  accountNumber: string;
+  accountName: string;
+  amount: string;
+  balance: string;
+  commission: string;
+  requestDate: string;
+  requestTime: string;
+  status: WithdrawalStatus;
+  note: string;
+  timeline: Array<{ time: string; title: string; description: string }>;
 };
 
-export default function AdminPencairanDanaPage() {
+const DUMMY_WITHDRAWALS: WithdrawalItem[] = [
+  {
+    id: 'WD/2026/05/018',
+    vendor: 'Wafa Decoration',
+    vendorCode: 'VDR-240518-001',
+    category: 'Dekorasi',
+    bank: 'BCA',
+    accountNumber: '8832 **** 1290',
+    accountName: 'Wafa Decoration',
+    amount: 'Rp 4.250.000',
+    balance: 'Rp 4.450.000',
+    commission: '- Rp 200.000',
+    requestDate: '18 Mei 2026',
+    requestTime: '10:30 WIB',
+    status: 'menunggu',
+    note: 'Menunggu konfirmasi transfer dari admin.',
+    timeline: [{ time: '18 Mei 2026, 10:30 WIB', title: 'Pengajuan masuk', description: 'Vendor mengajukan pencairan dana.' }],
+  },
+  {
+    id: 'WD/2026/05/017',
+    vendor: 'Lumière Decoration',
+    vendorCode: 'VDR-240518-002',
+    category: 'Dekorasi',
+    bank: 'BNI',
+    accountNumber: '4567 **** 7890',
+    accountName: 'Lumière Decoration',
+    amount: 'Rp 8.500.000',
+    balance: 'Rp 9.000.000',
+    commission: '- Rp 500.000',
+    requestDate: '18 Mei 2026',
+    requestTime: '09:15 WIB',
+    status: 'diproses',
+    note: 'Sedang dalam proses pengecekan rekening tujuan.',
+    timeline: [
+      { time: '18 Mei 2026, 09:15 WIB', title: 'Pengajuan masuk', description: 'Vendor mengajukan pencairan dana.' },
+      { time: '18 Mei 2026, 11:00 WIB', title: 'Diverifikasi admin', description: 'Data rekening sedang diproses.' },
+    ],
+  },
+  {
+    id: 'WD/2026/05/016',
+    vendor: 'Eterna Photography',
+    vendorCode: 'VDR-240517-003',
+    category: 'Fotografi',
+    bank: 'MANDIRI',
+    accountNumber: '7890 **** 1122',
+    accountName: 'Eterna Photography',
+    amount: 'Rp 3.200.000',
+    balance: 'Rp 3.360.000',
+    commission: '- Rp 160.000',
+    requestDate: '17 Mei 2026',
+    requestTime: '16:45 WIB',
+    status: 'selesai',
+    note: 'Dana sudah berhasil ditransfer ke vendor.',
+    timeline: [
+      { time: '17 Mei 2026, 16:45 WIB', title: 'Pengajuan masuk', description: 'Vendor mengajukan pencairan dana.' },
+      { time: '18 Mei 2026, 09:00 WIB', title: 'Selesai diproses', description: 'Dana berhasil dikirim ke rekening tujuan.' },
+    ],
+  },
+];
+
+const statusMap: Record<WithdrawalStatus, 'blue' | 'emerald' | 'red'> = {
+  menunggu: 'blue',
+  diproses: 'blue',
+  selesai: 'emerald',
+  ditolak: 'red',
+};
+
+function SearchIcon({ className }: { className?: string }) {
   return (
-    <>
-      <AdminHeader searchPlaceholder="CARI NAMA VENDOR ATAU NOMINAL PENCAIRAN..." />
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-3.5-3.5" />
+    </svg>
+  );
+}
 
-      <div className="p-8 pb-16">
-        <div className="max-w-[1300px] mx-auto flex flex-col gap-8">
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6">
+function formatWithdrawalNumber(id: string) {
+  const last = id.split('/').pop();
+  return last ? `WD-${last}` : id;
+}
+
+export default function AdminPencairanDanaPage() {
+  const [items, setItems] = useState<WithdrawalItem[]>(DUMMY_WITHDRAWALS);
+  const [activeFilter, setActiveFilter] = useState<'semua' | 'menunggu' | 'diproses' | 'selesai'>('semua');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [perPage, setPerPage] = useState<number>(10);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const counts = useMemo(
+    () => ({
+      semua: items.length,
+      menunggu: items.filter((i) => i.status === 'menunggu').length,
+      diproses: items.filter((i) => i.status === 'diproses').length,
+      selesai: items.filter((i) => i.status === 'selesai').length,
+      ditolak: items.filter((i) => i.status === 'ditolak').length,
+    }),
+    [items]
+  );
+
+  const filteredItems = useMemo(() => {
+    const base = activeFilter === 'semua' ? items : items.filter((i) => i.status === activeFilter);
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return base;
+    return base.filter(
+      (i) => i.vendor.toLowerCase().includes(q) || i.accountNumber.toLowerCase().includes(q) || i.amount.toLowerCase().includes(q) || i.id.toLowerCase().includes(q)
+    );
+  }, [items, activeFilter, searchQuery]);
+
+  const total = items.length;
+  const shown = filteredItems.length;
+  const start = shown > 0 ? 1 : 0;
+  const end = shown;
+
+  const updateStatus = (id: string, status: WithdrawalStatus) => {
+    setItems((prev) => prev.map((p) => (p.id === id ? { ...p, status } : p)));
+  };
+
+  const selected = selectedId ? items.find((i) => i.id === selectedId) ?? null : null;
+  const selectedTotals = selected
+    ? (() => {
+        const parseNumber = (s: string) => Number(String(s).replace(/[^0-9]/g, '')) || 0;
+        const totalNum = parseNumber(selected.amount);
+        const commission = Math.round(totalNum * 0.05);
+        const danaDicairkan = totalNum - commission;
+        const fmt = (n: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n);
+        return { totalNum, commission, danaDicairkan, fmt };
+      })()
+    : null;
+
+  return (
+    <div>
+      <AdminHeader hideSearch />
+
+      <div className="min-h-screen bg-[#FDF1F0] px-8 py-5 text-[#2A2A2A]">
+        <div className="mx-auto flex max-w-[1300px] flex-col gap-6">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <span className="text-[10px] font-bold tracking-[0.2em] text-[#2A2A2A]/40 uppercase mb-2 block">
-                ALUR PENYALURAN DANA MITRA
-              </span>
-              <h1 className="text-4xl md:text-[2.75rem] leading-[1.05] font-black italic tracking-tighter text-[#2A2A2A]">
-                PENCAIRAN <br /> DANA.
-              </h1>
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#2A2A2A]/40">Pantau proses pencairan mitra</span>
+              <h1 className="text-2xl xl:text-3xl font-black tracking-tight text-[#2A2A2A]">Pencairan Dana</h1>
             </div>
 
-            <div className="flex items-center bg-white rounded-full px-8 py-2 border border-gray-100 shadow-sm h-14">
-              <div className="flex flex-col items-center justify-center pr-8 border-r border-gray-100">
-                <span className="text-[8px] font-bold tracking-widest text-[#A8A8A8] uppercase">PENDING</span>
-                <span className="text-base font-black text-[#FF9A9E] leading-none mt-1">08</span>
-              </div>
-              <div className="flex flex-col items-center justify-center pl-8">
-                <span className="text-[8px] font-bold tracking-widest text-[#A8A8A8] uppercase">TOTAL CAIR HARI INI</span>
-                <span className="text-base font-black text-emerald-500 leading-none mt-1">Rp 42.5M</span>
-              </div>
-            </div>
+            <div />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <AdminStatCard icon={<WalletIcon className="w-4 h-4" />} label="Saldo Escrow" value="Rp 840.2M" />
-            <AdminStatCard icon={<ClockIcon className="w-4 h-4" />} label="Menunggu Proses" value="8 Request" valueClassName="text-[#FF9A9E]" iconWrapClassName="bg-[#FDF1F0] text-[#FF9A9E]" cardBorderClassName="border-[#FCE6E3]" />
-            <AdminStatCard icon={<CheckCircleIcon className="w-4 h-4" />} label="Selesai Hari Ini" value="Rp 42.5M" valueClassName="text-emerald-500" iconWrapClassName="bg-emerald-50 text-emerald-500" cardBorderClassName="border-emerald-100/50" />
-          </div>
-
-          <div className="bg-white rounded-[2rem] shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] border border-gray-100 p-8 flex flex-col gap-6">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <h2 className="text-base font-black italic tracking-tighter text-[#2A2A2A] uppercase mb-1">Daftar Request Pencairan</h2>
-                <p className="text-[10px] font-bold tracking-[0.15em] text-[#A8A8A8] uppercase">Validasi rekening dan status payout vendor</p>
-              </div>
-              <StatusBadge text="08 MENUNGGU" variant="blue" rounded="md" />
+          <div className="space-y-5">
+            <div className="flex flex-wrap items-center gap-4 lg:gap-5 rounded-[2rem] bg-[#FDF1F0] p-0">
+              {[
+                { key: 'semua', label: 'SEMUA', value: counts.semua },
+                { key: 'menunggu', label: 'MENUNGGU', value: counts.menunggu },
+                { key: 'diproses', label: 'DALAM PROSES', value: counts.diproses },
+                { key: 'selesai', label: 'SELESAI', value: counts.selesai },
+              ].map((tab) => {
+                const active = activeFilter === tab.key;
+                return (
+                  <button
+                    key={tab.key}
+                    onClick={() => {
+                      setActiveFilter(tab.key as typeof activeFilter);
+                    }}
+                    className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all ${
+                      active ? 'bg-[#FF9A9E] text-white shadow-[0_8px_24px_-6px_rgba(255,94,126,0.24)]' : 'bg-white text-[#A8A8A8] border border-[#F4D7D4]'
+                    }`}
+                  >
+                    <span>{tab.label}</span>
+                    <span className={`${active ? 'bg-white text-[#FF5E7E]' : 'bg-[#F4F4F6] text-[#A8A8A8]'} w-5 h-5 flex items-center justify-center rounded-full text-[9px] font-bold`}>{tab.value}</span>
+                  </button>
+                );
+              })}
             </div>
 
-            <div className="flex flex-col w-full mb-8">
-              <div className="flex items-center pb-5 border-b border-gray-100">
-                <div className="w-[28%] text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">Vendor</div>
-                <div className="w-[22%] text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">Rekening</div>
-                <div className="w-[18%] text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">Nominal</div>
-                <div className="w-[16%] text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">Tanggal</div>
-                <div className="w-[16%] text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase text-right pr-2">Aksi</div>
+            <div className="mt-2">
+              <div className="flex h-12 items-center gap-3 rounded-xl border border-[#F4D7D4] bg-white px-4 shadow-sm">
+                <SearchIcon className="h-4 w-4 shrink-0 text-[#A8A8A8]" />
+                <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Cari vendor..." className="w-full bg-transparent text-sm font-semibold text-[#2A2A2A] placeholder:text-[#A8A8A8] focus:outline-none" />
               </div>
+            </div>
 
-              {withdrawals.map((item, index, arr) => (
-                <div key={`${item.vendor}-${item.date}`} className={`flex items-center py-5 ${index < arr.length - 1 ? 'border-b border-gray-50' : ''} hover:bg-[#FDF1F0]/30 transition-colors rounded-xl px-2`}>
-                  <div className="w-[28%] flex flex-col">
-                    <span className="text-[11px] font-extrabold text-[#2A2A2A] mb-0.5 tracking-tight">{item.vendor}</span>
-                    <span className="text-[8px] font-medium text-[#2A2A2A]/30 uppercase tracking-wider">Diajukan vendor</span>
+            <div className="mt-2 grid gap-3 lg:grid-cols-12 items-start">
+              <div id="table-panel" className={`self-start overflow-hidden rounded-2xl border border-[#F4D7D4] bg-white shadow-[0_10px_30px_-5px_rgba(0,0,0,0.02)] ${selectedId ? 'lg:col-span-8' : 'lg:col-span-12'}`}>
+                <table className="w-full table-fixed border-collapse text-left" style={{ willChange: 'transform', borderSpacing: 0 }}>
+                  <thead>
+                    <tr className="border-b border-[#F4D7D4]/60 bg-[#FAFAFC] text-[10px] font-black uppercase tracking-widest text-[#A8A8A8]">
+                      <th className="px-6 py-5">No. Pencairan</th>
+                      <th className="px-6 py-5">Vendor</th>
+                      <th className="px-6 py-5">Total Pencairan</th>
+                      <th className="px-6 py-5">Metode</th>
+                      <th className="px-6 py-5">Rekening Tujuan</th>
+                      <th className="px-6 py-5">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#F4D7D4]/40">
+                    {filteredItems.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="px-6 py-20 text-center text-xs font-bold uppercase tracking-widest text-slate-300">Tidak ada antrean pencairan dalam kategori ini</td>
+                      </tr>
+                    ) : (
+                      filteredItems.map((item) => (
+                        <tr key={item.id} onClick={() => setSelectedId(item.id)} className={`cursor-pointer bg-white hover:bg-[#FAFAFC] transition-none ${selectedId === item.id ? 'bg-[#FFF5F6]' : ''}`}>
+                          <td className="px-6 py-3 align-middle">
+                            <div className="break-words text-xs font-black leading-tight tracking-widest uppercase text-[#2A2A2A]" title={item.id}>
+                              {formatWithdrawalNumber(item.id)}
+                            </div>
+                            <div className="mt-1 text-[8px] font-medium uppercase tracking-wider text-[#2A2A2A]/30">{item.vendorCode}</div>
+                          </td>
+
+                          <td className="px-6 py-3 align-middle">
+                            <div className="flex items-center gap-2">
+                              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#0A0A0A] text-[10px] font-extrabold text-white">{item.vendor.split(' ').slice(0, 2).map((w) => w.charAt(0)).join('')}</div>
+                              <div className="overflow-hidden">
+                                <div className="break-words text-xs font-black leading-tight text-[#2A2A2A]">{item.vendor}</div>
+                                <div className="mt-0.5 break-words text-[9px] font-bold leading-tight text-slate-400">{item.category}</div>
+                              </div>
+                            </div>
+                          </td>
+
+                          <td className="px-6 py-3 align-middle">
+                            <div className="whitespace-nowrap text-sm font-black text-[#2A2A2A]">{item.amount}</div>
+                            <div className="mt-0.5 text-[9px] font-bold text-[#A8A8A8]">Komisi {item.commission}</div>
+                          </td>
+
+                          <td className="px-6 py-3 align-middle">
+                            <div className="text-[10px] font-bold uppercase tracking-wider text-[#2A2A2A]/60">Transfer Bank</div>
+                          </td>
+
+                          <td className="px-6 py-3 align-middle">
+                            <div className="text-xs font-black text-[#2A2A2A]">{item.accountNumber}</div>
+                            <div className="mt-0.5 text-[9px] font-bold text-slate-400">a.n {item.accountName}</div>
+                          </td>
+
+                          <td className="w-[96px] px-2 py-3 align-middle">
+                            <span
+                              className={`rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wider ${
+                                statusMap[item.status] === 'blue'
+                                  ? 'bg-orange-50 text-orange-600 border border-orange-100'
+                                  : statusMap[item.status] === 'emerald'
+                                  ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
+                                  : 'bg-rose-50 text-rose-600 border border-rose-100'
+                              }`}
+                            >
+                              {item.status === 'menunggu' ? 'Menunggu' : item.status === 'diproses' ? 'Diproses' : 'Selesai'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+
+                <div className="flex flex-col items-center justify-between gap-4 border-t border-[#F4D7D4] bg-white p-6 sm:flex-row">
+                  <span className="text-xs font-bold text-slate-400">Menampilkan 1 - {filteredItems.length} dari {filteredItems.length} data</span>
+                  <div className="flex items-center gap-1.5">
+                    <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-400 transition-all hover:bg-slate-50">‹</button>
+                    <button className="h-8 w-8 rounded-lg bg-[#FF9A9E] text-xs font-black text-white">1</button>
+                    <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-xs font-black text-slate-400 transition-all hover:bg-slate-50">2</button>
+                    <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-xs font-black text-slate-400 transition-all hover:bg-slate-50">3</button>
+                    <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-400 transition-all hover:bg-slate-50">›</button>
                   </div>
-                  <div className="w-[22%] flex flex-col">
-                    <span className="text-[10px] font-bold text-[#2A2A2A]/60 uppercase tracking-wider">{item.bank}</span>
-                  </div>
-                  <div className="w-[18%]">
-                    <span className="text-[11px] font-bold text-[#2A2A2A] tracking-wider">{item.amount}</span>
-                  </div>
-                  <div className="w-[16%]">
-                    <span className="text-[10px] font-bold text-[#2A2A2A]/60 uppercase tracking-wider">{item.date}</span>
-                  </div>
-                  <div className="w-[16%] flex justify-end gap-2">
-                    <StatusBadge text={item.status === 'menunggu' ? 'MENUNGGU' : item.status === 'diproses' ? 'DIPROSES' : 'SELESAI'} variant={statusMap[item.status]} rounded="md" />
+                  <div className="relative">
+                    <select className="appearance-none rounded-xl border border-slate-200 bg-white py-2 pl-4 pr-10 text-xs font-semibold text-slate-500 focus:outline-none">
+                      <option>10 / halaman</option>
+                    </select>
+                    <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">▾</div>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
 
-            <AdminPagination pages={[1, 2]} currentPage={1} />
+              <div id="detail-panel" className={`self-start overflow-hidden rounded-2xl border border-[#F4D7D4] bg-white shadow-[0_10px_30px_-5px_rgba(0,0,0,0.02)] ${selectedId ? 'block lg:col-span-4' : 'hidden'}`}>
+                {selectedId && (() => {
+                  const sel = items.find((i) => i.id === selectedId)!;
+                  const parseNumber = (s: string) => Number(String(s).replace(/[^0-9]/g, '')) || 0;
+                  const totalNum = parseNumber(sel.amount);
+                  const commission = Math.round(totalNum * 0.05);
+                  const danaDicairkan = totalNum - commission;
+                  const fmt = (n: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n);
+
+                  return (
+                    <div className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h4 className="text-lg font-black">Detail Pencairan</h4>
+                        </div>
+                        <button onClick={() => setSelectedId(null)} className="rounded-full p-2 text-slate-400 hover:bg-slate-50">✕</button>
+                      </div>
+
+                      <div className="mt-4 flex items-center gap-3">
+                        <div className="h-12 w-12 rounded-lg bg-[#0A0A0A] flex items-center justify-center text-white font-black">{sel.vendor.split(' ').slice(0,2).map(w => w.charAt(0)).join('')}</div>
+                        <div>
+                          <div className="text-sm font-black">{sel.vendor}</div>
+                          <div className="mt-1 text-[10px] text-slate-400">{sel.vendorCode}</div>
+                        </div>
+                        <div className="ml-auto">
+                          <StatusBadge text={sel.status === 'menunggu' ? 'Siap Dicairkan' : sel.status === 'diproses' ? 'Diproses' : 'Selesai'} variant={sel.status === 'selesai' ? 'emerald' : 'blue'} rounded="md" />
+                        </div>
+                      </div>
+
+                      <hr className="my-5 border-t border-[#F4F4F6]" />
+
+                      <SectionTitle title="Informasi Pencairan" />
+                      <div className="mt-3 space-y-3">
+                        <DetailRow label="No. Pencairan" value={formatWithdrawalNumber(sel.id)} />
+                        <DetailRow label="Vendor" value={sel.vendor} />
+                        <DetailRow label="Total Pencairan" value={fmt(totalNum)} />
+                        <DetailRow label="Saldo Vendor" value={sel.balance} />
+                        <DetailRow label="Metode Pencairan" value={sel.bank} />
+                      </div>
+
+                      <div className="mt-5">
+                        <h5 className="text-sm font-black">Rekening Tujuan</h5>
+                        <div className="mt-2 rounded-lg border border-slate-200 bg-white p-3 text-sm">
+                          <div className="font-bold">{sel.bank} - {sel.accountNumber.replace(/\s\*/g, '')}</div>
+                          <div className="text-xs text-slate-500 mt-1">a.n {sel.accountName}</div>
+                        </div>
+                      </div>
+
+                      <div className="mt-5">
+                        <h5 className="text-sm font-black">Rincian Pesanan</h5>
+                        <div className="mt-3 space-y-2 text-sm">
+                          <DetailRow label="Total Pesanan" value={fmt(totalNum)} />
+                          <DetailRow label="Komisi Platform (5%)" value={fmt(commission)} />
+                          <DetailRow label="Dana Dicairkan" value={fmt(danaDicairkan)} highlight={true} />
+                        </div>
+                      </div>
+
+                      <div className="mt-6 flex gap-3">
+                        <button onClick={() => { updateStatus(sel.id, 'ditolak'); setSelectedId(null); }} className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-bold">Batalkan</button>
+                        <button onClick={() => { updateStatus(sel.id, 'selesai'); setSelectedId(null); }} className="ml-auto rounded-full bg-emerald-500 px-4 py-2 text-sm font-black text-white">Proses Pencairan</button>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </>
+    </div>
+  );
+}
+
+function SectionTitle({ title }: { title: string }) {
+  return (
+    <div className="pt-1">
+      <h5 className="text-[10px] font-black uppercase tracking-[0.22em] text-[#A8A8A8]">{title}</h5>
+    </div>
+  );
+}
+
+function DetailRow({ label, value, highlight = false, danger = false }: { label: string; value: string; highlight?: boolean; danger?: boolean }) {
+  return (
+    <div className="grid grid-cols-[120px_1fr] gap-3 text-xs">
+      <span className="font-bold text-[#A8A8A8]">{label}</span>
+      <span className={`text-right font-black ${highlight ? 'text-[#FF9A9E]' : danger ? 'text-red-500' : 'text-[#2A2A2A]'}`}>{value}</span>
+    </div>
   );
 }
