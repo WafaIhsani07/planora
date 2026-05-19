@@ -340,7 +340,7 @@ export default function KatalogPage() {
                   )}
 
                   {/* Harga Akhir */}
-                  <div className="bg-slate-50 p-6 rounded-[28px] border border-slate-100 flex items-center justify-between">
+                  <div className="bg-slate-50 p-6 rounded-xl border border-slate-100 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-slate-300">
                         <Calculator className="w-5 h-5" />

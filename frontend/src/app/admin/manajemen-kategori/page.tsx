@@ -271,10 +271,6 @@ export default function AdminManajemenKategoriPage() {
               </form>
             </div>
           )}
-
-          <div className="mt-16 pb-4 text-center">
-            <p className="text-[8px] font-bold tracking-[0.3em] text-[#A8A8A8] uppercase">PLANORA ECOSYSTEM • MODUL STRUKTUR JASA • 2026</p>
-          </div>
         </div>
       </div>
     </>

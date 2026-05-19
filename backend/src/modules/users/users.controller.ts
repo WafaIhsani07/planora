@@ -76,7 +76,7 @@ export const getUserById = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const user = String(req.params["id"] ?? "")
+  const user = await usersService.getUserById(String(req.params["id"] ?? ""))
   sendSuccess(res, user, "Data user berhasil diambil")
 }
 

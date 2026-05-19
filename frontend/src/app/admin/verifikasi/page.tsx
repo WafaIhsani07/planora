@@ -70,7 +70,7 @@ export default function AdminVerifikasiVendorPage() {
     const [vendors, setVendors] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [processingId, setProcessingId] = useState<string | null>(null);
-    const [useMock, setUseMock] = useState(true);
+    const [useMock, setUseMock] = useState(false);
     const [activeTab, setActiveTab] = useState<string>('Semua');
     const [selectedVendorId, setSelectedVendorId] = useState<string | null>(null);
     // pagination
@@ -81,6 +81,7 @@ export default function AdminVerifikasiVendorPage() {
     const [searchQuery, setSearchQuery] = useState<string>('');
 
     const fetchVendors = async () => {
+        setIsLoading(true);
         try {
             if (useMock) {
                 setVendors(DUMMY_VENDORS);
@@ -101,11 +102,13 @@ export default function AdminVerifikasiVendorPage() {
         // Respect ?mock only if parameter is present; otherwise keep default (mock mode on)
         const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
         if (params?.has('mock')) {
-            const mockFlag = params.get('mock') === '1';
-            setUseMock(Boolean(mockFlag));
+            setUseMock(params.get('mock') === '1');
         }
-        fetchVendors();
     }, []);
+
+    useEffect(() => {
+        fetchVendors();
+    }, [useMock]);
 
     const handleVerify = async (id: string) => {
         setProcessingId(id);
@@ -159,7 +162,7 @@ export default function AdminVerifikasiVendorPage() {
                             <span className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-[#A8A8A8]">
                                 PENYARINGAN KUALITAS MITRA
                             </span>
-                            <h1 className="text-3xl font-black leading-[1.05] tracking-[-0.04em] text-[#2A2A2A] md:text-[2rem] whitespace-nowrap">
+                            <h1 className="text-4xl md:text-[2.75rem] leading-[1.05] font-black tracking-tighter text-[#2A2A2A] whitespace-nowrap">
                                 Verifikasi Vendor Baru
                             </h1>
                         </div>
@@ -229,7 +232,9 @@ export default function AdminVerifikasiVendorPage() {
                                                 <th className="px-6 py-5">Tanggal Daftar</th>
                                                 {/* Kontak column removed per design */}
                                                 <th className="px-6 py-5 text-center">Status</th>
-                                                <th className="px-6 py-5 text-center">Aksi</th>
+                                                <th className="px-6 py-5 text-center align-middle">
+                                                    <span className="block w-full text-center">Aksi</span>
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-[#F4D7D4]/50">

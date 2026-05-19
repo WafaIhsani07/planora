@@ -296,7 +296,7 @@ export default function AdminPaymentVerificationPage() {
 											<th className="px-6 py-5">Total Pembayaran</th>
 											<th className="px-6 py-5">Metode</th>
 											<th className="px-6 py-5">Status</th>
-											<th className="px-6 py-5 text-left">Aksi</th>
+											<th className="px-6 py-5 text-center align-middle">Aksi</th>
 											</tr>
 										</thead>
 										<tbody className="divide-y divide-[#F4D7D4]/40">

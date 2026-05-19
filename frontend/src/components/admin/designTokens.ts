@@ -6,7 +6,7 @@ export const adminTokens = {
   accent: '#FF9A9E',
   accentTextClass: 'text-[#FF9A9E]',
   accentBgClass: 'bg-[#FF9A9E]',
-  cardRadius: 'rounded-[28px]',
+  cardRadius: 'rounded-xl',
   cardShadow: 'shadow-[0_28px_90px_-36px_rgba(255,154,158,0.85)]',
   cardBg: 'bg-white',
   subtleBg: 'bg-[#FAFAFB]',

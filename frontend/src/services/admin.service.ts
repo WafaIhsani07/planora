@@ -20,6 +20,26 @@ export async function getPendingVendors() {
   }
 }
 
+export async function getMonitoringStats() {
+  try {
+    const response = await api.get("/admin/monitoring/stats");
+    return response.data.data || null;
+  } catch (error) {
+    console.error("API Error (getMonitoringStats):", error);
+    return null;
+  }
+}
+
+export async function getAllPayments(params?: any) {
+  try {
+    const response = await api.get("/admin/payments", { params });
+    return response.data.data || { payments: [] };
+  } catch (error) {
+    console.error("API Error (getAllPayments):", error);
+    return { payments: [] };
+  }
+}
+
 export async function getAllUsers(params?: any) {
   try {
     const response = await api.get("/admin/users", { params });
@@ -28,6 +48,21 @@ export async function getAllUsers(params?: any) {
     console.error("API Error (getAllUsers):", error);
     return { users: [] };
   }
+}
+
+export async function getUserById(id: string) {
+  try {
+    const response = await api.get(`/admin/users/${id}`);
+    return response.data.data;
+  } catch (error) {
+    console.error("API Error (getUserById):", error);
+    return null;
+  }
+}
+
+export async function updateUserStatus(id: string, isActive: boolean) {
+  const { data } = await api.patch(`/admin/users/${id}/status`, { isActive });
+  return data.data;
 }
 
 export async function getAllKategori() {

@@ -16,18 +16,18 @@ const ChevronRightIcon = ({ className }: { className?: string }) => (
 
 export default function AdminPagination({ pages, currentPage, prevLabel = 'SEBELUMNYA', nextLabel = 'SELANJUTNYA' }: AdminPaginationProps) {
     return (
-        <div className="flex items-center justify-between mt-auto">
-            <button type="button" className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-full text-[9px] font-bold tracking-widest text-[#A8A8A8] hover:text-[#2A2A2A] uppercase transition-colors">
+        <div className="mt-auto grid grid-cols-[1fr_auto_1fr] items-center gap-4 px-4 py-3 sm:px-6">
+            <button type="button" className="flex h-10 w-fit items-center gap-2 whitespace-nowrap rounded-full border border-gray-200 bg-white px-4 text-[9px] font-bold tracking-widest text-[#A8A8A8] uppercase transition-colors hover:bg-gray-50 hover:text-[#2A2A2A] justify-self-start">
                 <ChevronLeftIcon className="w-3.5 h-3.5" />
                 {prevLabel}
             </button>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center gap-2">
                 {pages.map((page) => (
                     <button
                         key={page}
                         type="button"
-                        className={`w-8 h-8 rounded-full text-[10px] font-bold flex items-center justify-center transition-colors ${page === currentPage
+                        className={`flex h-10 w-10 items-center justify-center rounded-full text-[10px] font-bold leading-none transition-colors ${page === currentPage
                                 ? 'bg-[#2A2A2A] text-white shadow-md'
                                 : 'bg-white border border-gray-100 text-[#A8A8A8] hover:bg-gray-50'
                             }`}
@@ -37,7 +37,7 @@ export default function AdminPagination({ pages, currentPage, prevLabel = 'SEBEL
                 ))}
             </div>
 
-            <button type="button" className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-full text-[9px] font-bold tracking-widest text-[#A8A8A8] hover:text-[#2A2A2A] uppercase transition-colors">
+            <button type="button" className="flex h-10 w-fit items-center gap-2 whitespace-nowrap rounded-full border border-gray-200 bg-white px-4 text-[9px] font-bold tracking-widest text-[#A8A8A8] uppercase transition-colors hover:bg-gray-50 hover:text-[#2A2A2A] justify-self-end">
                 {nextLabel}
                 <ChevronRightIcon className="w-3.5 h-3.5" />
             </button>

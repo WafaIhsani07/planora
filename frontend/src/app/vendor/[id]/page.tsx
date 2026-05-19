@@ -29,7 +29,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
         <div className="mt-4 grid gap-8 xl:grid-cols-[1.45fr_0.95fr]">
           <section>
             <div className="grid gap-4 lg:grid-cols-[1fr_180px]">
-              <div className="overflow-hidden rounded-[28px] bg-white shadow-sm">
+              <div className="overflow-hidden rounded-xl bg-white shadow-sm">
                 <img src={vendor.cover} alt={vendor.name} className="h-[340px] w-full object-cover" />
               </div>
               <div className="grid gap-4">
@@ -44,7 +44,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
               </div>
             </div>
 
-            <div className="mt-10 rounded-[28px] bg-white p-6 shadow-sm">
+            <div className="mt-10 rounded-xl bg-white p-6 shadow-sm">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-black">Layanan</h2>
                 <span className="text-xs font-bold uppercase tracking-widest text-[#FF9A9E]">Lihat Semua</span>
@@ -60,7 +60,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
           </section>
 
           <aside className="space-y-6 xl:sticky xl:top-6 self-start">
-            <div className="rounded-[28px] bg-white p-6 shadow-sm">
+            <div className="rounded-xl bg-white p-6 shadow-sm">
               <div className="flex flex-wrap items-center gap-3">
                 <h1 className="text-3xl font-black md:text-4xl">{vendor.name}</h1>
                 <span className="inline-flex items-center gap-2 rounded-full bg-[#EAF4FF] px-3 py-1 text-xs font-bold text-sky-700">
@@ -90,7 +90,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
               </div>
             </div>
 
-            <div className="rounded-[28px] bg-white p-6 shadow-sm">
+            <div className="rounded-xl bg-white p-6 shadow-sm">
               <h2 className="text-lg font-black">Ulasan Customer</h2>
               <div className="mt-4 flex items-end gap-4">
                 <div>
@@ -110,7 +110,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
               </div>
             </div>
 
-            <div className="rounded-[28px] bg-white p-6 shadow-sm">
+            <div className="rounded-xl bg-white p-6 shadow-sm">
               <h2 className="text-lg font-black">Ulasan Terbaru</h2>
               <div className="mt-4 space-y-4">
                 {vendor.reviewsList.map((review) => (
