@@ -202,31 +202,35 @@ export default function AdminSidebar() {
 
       {showLogoutModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#2A2A2A]/80 backdrop-blur-sm">
-          <div className="bg-white rounded-[2rem] p-8 md:p-10 w-full max-w-[380px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] flex flex-col items-center text-center">
-            <div className="w-16 h-16 bg-[#FDF1F0] border border-[#FCE6E3] rounded-[1.25rem] flex items-center justify-center mb-6">
-              <LogOut className="w-6 h-6 text-[#EF4444] ml-1" />
-            </div>
-            <h3 className="text-2xl font-black italic tracking-tighter text-[#2A2A2A] uppercase mb-2">
-              Keluar Akun
-            </h3>
-            <p className="text-[10px] font-bold tracking-wider text-[#A8A8A8] uppercase mb-8 leading-relaxed">
-              Apakah Anda yakin ingin keluar dari <br /> Admin Planora?
-            </p>
-            <div className="flex flex-col w-full gap-3">
+          <div className="w-full max-w-md rounded-[2rem] border border-white/10 bg-white p-8 shadow-2xl">
+            <div className="mb-4 flex items-center justify-between gap-4">
+              <h2 className="text-xl font-black text-[#2A2A2A]">Keluar dari akun?</h2>
               <button
-                type="button"
-                onClick={handleConfirmLogout}
-                disabled={isLoggingOut}
-                className="w-full flex justify-center items-center py-4 rounded-xl bg-[#EF4444] text-white text-[10px] font-bold tracking-widest uppercase hover:bg-red-600 transition-colors shadow-lg shadow-red-500/20 disabled:opacity-75 disabled:cursor-not-allowed"
+                onClick={() => setShowLogoutModal(false)}
+                className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-50 text-[#2A2A2A]/40 transition-all hover:bg-[#FCE6E3] hover:text-[#FF527B] cursor-pointer"
+                aria-label="Tutup dialog logout"
               >
-                {isLoggingOut ? 'MEMPROSES...' : 'YA, KELUAR SEKARANG'}
+                ×
+              </button>
+            </div>
+
+            <p className="text-sm text-[#2A2A2A]/70">
+              Kamu yakin ingin keluar dari akun admin sekarang?
+            </p>
+
+            <div className="mt-8 flex gap-3">
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="flex-1 rounded-xl border border-gray-200 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-[#2A2A2A]/50 transition-all hover:bg-gray-50 cursor-pointer"
+              >
+                Batal
               </button>
               <button
-                type="button"
-                onClick={() => setShowLogoutModal(false)}
-                className="w-full py-4 rounded-xl bg-white border-2 border-gray-100 text-[#A8A8A8] hover:text-[#2A2A2A] hover:border-gray-300 text-[10px] font-bold tracking-widest uppercase transition-colors"
+                onClick={handleConfirmLogout}
+                disabled={isLoggingOut}
+                className="flex-1 rounded-xl bg-[#FF527B] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-all hover:bg-[#ff3f6d] cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
               >
-                BATAL
+                {isLoggingOut ? 'Memproses...' : 'Ya, Keluar'}
               </button>
             </div>
           </div>
