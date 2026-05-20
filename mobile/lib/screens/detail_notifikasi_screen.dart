@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import '../services/api_service.dart';
 
 class DetailNotifikasiScreen extends StatefulWidget {
   const DetailNotifikasiScreen({super.key});
@@ -32,15 +31,14 @@ class _DetailNotifikasiScreenState extends State<DetailNotifikasiScreen> {
   // Mengambil data detail spesifik dari backend (No Dummy Data)
   Future<void> _fetchDetail() async {
     try {
-      final response = await http.get(
-        Uri.parse('http://10.0.2.2:5000/api/v1/notifications/$_id'),
-      );
+      final result = await ApiService.getNotificationById(_id!);
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+      if (result['success'] == true) {
         setState(() {
-          _detail = data;
+          _detail = result['data'];
         });
+        // Tandai sebagai dibaca secara background
+        await ApiService.markNotificationAsRead(_id!);
       } else {
         setState(() {
           _detail = null;

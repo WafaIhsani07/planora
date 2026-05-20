@@ -230,10 +230,9 @@ class _KalenderScreenState extends State<KalenderScreen> {
         'Acara';
 
     final avatar = vendorData['avatar']?.toString() ?? '';
-    final String imageUrl = avatar.isNotEmpty
-        ? (avatar.startsWith('http')
-            ? avatar
-            : 'http://10.0.2.2:5000/assets/$avatar')
+    final assetUrl = ApiService.getAssetUrl(avatar);
+    final String imageUrl = assetUrl.isNotEmpty
+        ? assetUrl
         : 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=300&auto=format&fit=crop';
 
     return Container(

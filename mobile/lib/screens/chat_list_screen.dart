@@ -32,22 +32,30 @@ class _ChatListScreenState extends State<ChatListScreen> {
       for (var order in data) {
         final vendorData = order['vendor'] ?? {};
         final vid = vendorData['id']?.toString() ?? order['id']?.toString() ?? '';
-        if (vid.isEmpty) continue;
+        final bid = order['id']?.toString() ?? '';
+        if (vid.isEmpty || bid.isEmpty) continue;
 
         final vname = vendorData['businessName'] ?? vendorData['name'] ?? 'Vendor';
         final avatar = vendorData['avatar']?.toString() ?? '';
-        final imageUrl = avatar.isNotEmpty
-            ? (avatar.startsWith('http')
-                ? avatar
-                : 'http://10.0.2.2:5000/assets/$avatar')
+        final assetUrl = ApiService.getAssetUrl(avatar);
+        final imageUrl = assetUrl.isNotEmpty
+            ? assetUrl
             : 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=200&auto=format&fit=crop';
 
+        // Ambil preview pesan terakhir dari order jika tersedia
+        final lastMsgList = order['messages'] as List? ?? [];
+        final lastMsg = lastMsgList.isNotEmpty
+            ? lastMsgList.last['content']?.toString() ?? 'Tekan untuk melihat percakapan'
+            : 'Tekan untuk melihat percakapan';
+
+        // Gunakan bookingId terbaru jika vendor sama
         if (!uniqueVendors.containsKey(vid)) {
           uniqueVendors[vid] = {
             'id': vid,
+            'bookingId': bid,
             'name': vname,
             'imageUrl': imageUrl,
-            'lastMessage': 'Tekan untuk melihat percakapan',
+            'lastMessage': lastMsg,
             'lastTime': DateFormat('HH:mm').format(DateTime.now()),
           };
         }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../services/api_service.dart';
 import '../main.dart' show PlanoraColors;
 
 class ChatDetailScreen extends StatefulWidget {
@@ -14,54 +16,103 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
   final ScrollController _scrollController = ScrollController();
 
   Map<String, dynamic>? _vendorData;
+  String? _bookingId;
+  String? _currentUserId;
 
-  // Pesan disimpan secara lokal di session (belum ada endpoint backend)
-  final List<Map<String, dynamic>> _messages = [];
+  List<Map<String, dynamic>> _messages = [];
+  bool _isLoading = true;
+  bool _isSending = false;
+  String? _error;
+
+  // Polling interval
+  static const _pollInterval = Duration(seconds: 5);
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final args = ModalRoute.of(context)?.settings.arguments;
     if (args != null && args is Map<String, dynamic>) {
-      setState(() => _vendorData = args);
+      _vendorData = args;
+      _bookingId = args['bookingId']?.toString();
+      _loadCurrentUser();
+      _fetchMessages();
     }
   }
 
-  @override
-  void dispose() {
-    _msgController.dispose();
-    _scrollController.dispose();
-    super.dispose();
+  Future<void> _loadCurrentUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('user_id');
+    if (mounted) setState(() => _currentUserId = userId);
   }
 
-  void _sendMessage() {
-    final txt = _msgController.text.trim();
-    if (txt.isEmpty) return;
-
-    _msgController.clear();
-    setState(() {
-      _messages.add({
-        'id': DateTime.now().millisecondsSinceEpoch.toString(),
-        'text': txt,
-        'isMe': true,
-        'time': DateFormat('HH:mm').format(DateTime.now()),
+  Future<void> _fetchMessages({bool silent = false}) async {
+    if (_bookingId == null) {
+      setState(() {
+        _error = 'Booking ID tidak ditemukan';
+        _isLoading = false;
       });
+      return;
+    }
+    if (!silent) setState(() => _isLoading = true);
+    final result = await ApiService.getMessages(_bookingId!);
+    if (!mounted) return;
+    setState(() {
+      if (result['success'] == true) {
+        final rawList = result['data'] as List<dynamic>;
+        _messages = rawList.map((m) {
+          final senderId = m['sender']?['id']?.toString() ?? m['senderId']?.toString() ?? '';
+          final isMe = senderId == _currentUserId;
+          return {
+            'id': m['id'],
+            'text': m['content'] ?? '',
+            'isMe': isMe,
+            'isRead': m['isRead'] ?? false,
+            'senderId': senderId,
+            'senderName': m['sender']?['name'] ?? 'Vendor',
+            'time': _formatTime(m['createdAt']?.toString()),
+          };
+        }).toList();
+        _error = null;
+      } else {
+        _error = result['message'] ?? 'Gagal memuat pesan';
+      }
+      _isLoading = false;
     });
     _scrollToBottom();
+  }
 
-    // Simulasi balasan vendor setelah 1 detik
-    Future.delayed(const Duration(seconds: 1), () {
-      if (!mounted) return;
-      setState(() {
-        _messages.add({
-          'id': '${DateTime.now().millisecondsSinceEpoch}_reply',
-          'text': 'Terima kasih atas pesannya! Kami akan segera merespons.',
-          'isMe': false,
-          'time': DateFormat('HH:mm').format(DateTime.now()),
-        });
-      });
-      _scrollToBottom();
-    });
+  String _formatTime(String? rawDate) {
+    if (rawDate == null) return '';
+    try {
+      final dt = DateTime.parse(rawDate).toLocal();
+      return DateFormat('HH:mm').format(dt);
+    } catch (_) {
+      return '';
+    }
+  }
+
+  Future<void> _sendMessage() async {
+    final txt = _msgController.text.trim();
+    if (txt.isEmpty || _bookingId == null || _isSending) return;
+
+    _msgController.clear();
+    setState(() => _isSending = true);
+
+    final result = await ApiService.sendMessage(_bookingId!, txt);
+    if (!mounted) return;
+
+    if (result['success'] == true) {
+      // Segera fetch ulang untuk memastikan konsisten dengan backend
+      await _fetchMessages(silent: true);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result['message'] ?? 'Gagal mengirim pesan'),
+          backgroundColor: PlanoraColors.error,
+        ),
+      );
+    }
+    if (mounted) setState(() => _isSending = false);
   }
 
   void _scrollToBottom() {
@@ -74,6 +125,13 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
         );
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _msgController.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -119,83 +177,106 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                 Text(name,
                     style: tt.titleSmall?.copyWith(color: PlanoraColors.brandDark)),
                 const SizedBox(height: 1),
-                Text('Online',
-                    style: tt.labelSmall?.copyWith(
-                      color: PlanoraColors.brandGray,
-                      fontWeight: FontWeight.w600,
-                    )),
+                Text(
+                  _bookingId != null ? 'Booking #${_bookingId!.substring(0, 6)}' : 'Chat',
+                  style: tt.labelSmall?.copyWith(
+                    color: PlanoraColors.brandGray,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ),
           ],
         ),
         actions: [
+          // Refresh manual
           Padding(
             padding: const EdgeInsets.only(right: 8),
             child: IconButton(
-              icon: const Icon(Icons.more_vert_rounded,
-                  color: PlanoraColors.brandGray),
-              onPressed: () {},
+              icon: const Icon(Icons.refresh_rounded, color: PlanoraColors.brandGray),
+              onPressed: () => _fetchMessages(silent: true),
             ),
           ),
         ],
       ),
       body: Column(
         children: [
-          // ── Banner Info ──────────────────────────────────────────────
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: const BoxDecoration(
-              color: PlanoraColors.brandAccent,
-              border: Border(bottom: BorderSide(color: PlanoraColors.divider)),
+          // ── Info Bar ──────────────────────────────────────────────
+          if (_bookingId != null)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: const BoxDecoration(
+                color: PlanoraColors.brandAccent,
+                border: Border(bottom: BorderSide(color: PlanoraColors.divider)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.lock_outline_rounded,
+                      size: 13, color: PlanoraColors.brandDark),
+                  const SizedBox(width: 8),
+                  Text('Percakapan tersimpan & terenkripsi.',
+                      style: tt.labelSmall?.copyWith(color: PlanoraColors.brandDark)),
+                ],
+              ),
             ),
-            child: Row(
-              children: [
-                const Icon(Icons.info_outline_rounded,
-                    size: 14, color: PlanoraColors.brandDark),
-                const SizedBox(width: 8),
-                Text('Percakapan tersimpan sementara di sesi ini.',
-                    style: tt.labelSmall?.copyWith(color: PlanoraColors.brandDark)),
-              ],
-            ),
-          ),
 
           // ── Area Pesan ──────────────────────────────────────────────
           Expanded(
-            child: _messages.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 64, height: 64,
-                          decoration: const BoxDecoration(
-                            color: PlanoraColors.brandAccent,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.chat_bubble_outline_rounded,
-                              size: 30, color: PlanoraColors.brandDark),
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _error != null && _messages.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.cloud_off_rounded,
+                                size: 40, color: PlanoraColors.brandGray),
+                            const SizedBox(height: 10),
+                            Text(_error!, style: tt.bodySmall),
+                            const SizedBox(height: 12),
+                            ElevatedButton(
+                              onPressed: _fetchMessages,
+                              child: const Text('Coba Lagi'),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 12),
-                        Text('Mulai percakapan dengan $name',
-                            style: tt.bodySmall),
-                      ],
-                    ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    controller: _scrollController,
-                    itemCount: _messages.length,
-                    itemBuilder: (context, index) {
-                      final m = _messages[index];
-                      return _buildChatBubble(
-                        text: m['text'],
-                        time: m['time'],
-                        isMe: m['isMe'] == true,
-                        tt: tt,
-                      );
-                    },
-                  ),
+                      )
+                    : _messages.isEmpty
+                        ? Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 64, height: 64,
+                                  decoration: const BoxDecoration(
+                                    color: PlanoraColors.brandAccent,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.chat_bubble_outline_rounded,
+                                      size: 30, color: PlanoraColors.brandDark),
+                                ),
+                                const SizedBox(height: 12),
+                                Text('Mulai percakapan dengan $name',
+                                    style: tt.bodySmall),
+                              ],
+                            ),
+                          )
+                        : ListView.builder(
+                            padding: const EdgeInsets.all(16),
+                            controller: _scrollController,
+                            itemCount: _messages.length,
+                            itemBuilder: (context, index) {
+                              final m = _messages[index];
+                              return _buildChatBubble(
+                                text: m['text'],
+                                time: m['time'],
+                                isMe: m['isMe'] == true,
+                                isRead: m['isRead'] == true,
+                                tt: tt,
+                              );
+                            },
+                          ),
           ),
 
           // ── Input Bar ────────────────────────────────────────────────
@@ -208,19 +289,6 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
               ),
               child: Row(
                 children: [
-                  // Tombol lampiran
-                  Container(
-                    width: 40, height: 40,
-                    decoration: BoxDecoration(
-                      color: PlanoraColors.surface,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: PlanoraColors.divider),
-                    ),
-                    child: const Icon(Icons.add_rounded,
-                        color: PlanoraColors.brandGray, size: 22),
-                  ),
-                  const SizedBox(width: 10),
-
                   // Input text
                   Expanded(
                     child: Container(
@@ -233,7 +301,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                       child: TextField(
                         controller: _msgController,
                         onSubmitted: (_) => _sendMessage(),
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: PlanoraColors.brandDark,
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
@@ -253,15 +321,27 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
 
                   // Tombol kirim
                   GestureDetector(
-                    onTap: _sendMessage,
-                    child: Container(
+                    onTap: _isSending ? null : _sendMessage,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
                       width: 44, height: 44,
-                      decoration: const BoxDecoration(
-                        color: PlanoraColors.brandDark,
+                      decoration: BoxDecoration(
+                        color: _isSending
+                            ? PlanoraColors.brandGray
+                            : PlanoraColors.brandDark,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.send_rounded,
-                          color: PlanoraColors.background, size: 20),
+                      child: _isSending
+                          ? const Padding(
+                              padding: EdgeInsets.all(10),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    PlanoraColors.background),
+                              ),
+                            )
+                          : const Icon(Icons.send_rounded,
+                              color: PlanoraColors.background, size: 20),
                     ),
                   ),
                 ],
@@ -273,7 +353,6 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
     );
   }
 
-  // Fallback avatar saat gambar gagal dimuat
   Widget _buildAvatarFallback(String name, TextTheme tt) {
     return Container(
       width: 38, height: 38,
@@ -296,6 +375,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
     required String text,
     required String time,
     required bool isMe,
+    required bool isRead,
     required TextTheme tt,
   }) {
     return Align(
@@ -307,7 +387,6 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          // Bubble saya: brandDark; Bubble vendor: surface
           color: isMe ? PlanoraColors.brandDark : PlanoraColors.surface,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(18),
@@ -315,12 +394,11 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
             bottomLeft: isMe ? const Radius.circular(18) : const Radius.circular(4),
             bottomRight: isMe ? const Radius.circular(4) : const Radius.circular(18),
           ),
-          border: isMe
-              ? null
-              : Border.all(color: PlanoraColors.divider),
+          border: isMe ? null : Border.all(color: PlanoraColors.divider),
         ),
         child: Column(
-          crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment:
+              isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
             Text(
               text,
@@ -343,8 +421,13 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                 ),
                 if (isMe) ...[
                   const SizedBox(width: 4),
-                  Icon(Icons.done_all_rounded,
-                      color: PlanoraColors.background.withAlpha(170), size: 12),
+                  Icon(
+                    isRead ? Icons.done_all_rounded : Icons.done_rounded,
+                    color: isRead
+                        ? const Color(0xFF64B5F6)
+                        : PlanoraColors.background.withAlpha(170),
+                    size: 12,
+                  ),
                 ],
               ],
             ),

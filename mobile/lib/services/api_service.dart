@@ -13,6 +13,20 @@ class ApiService {
         : 'http://localhost:5000/api/v1';
   }
 
+  // Alamat dasar host (tanpa /api/v1), untuk membangun URL aset gambar
+  static String get baseHost => baseUrl.replaceAll('/api/v1', '');
+
+  /// Menghasilkan URL gambar/aset yang benar berdasarkan platform.
+  /// - Jika [path] sudah berupa URL lengkap (http...), langsung dikembalikan.
+  /// - Jika [path] adalah nama file relatif, URL dibangun menggunakan [baseHost].
+  /// - Jika [path] kosong/null, string kosong dikembalikan.
+  static String getAssetUrl(String? path) {
+    if (path == null || path.trim().isEmpty) return '';
+    if (path.startsWith('http')) return path;
+    return '$baseHost/uploads/$path';
+  }
+
+
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('access_token');
@@ -48,6 +62,12 @@ class ApiService {
         // Simpan token
         final token = data['data']['accessToken'];
         await saveToken(token);
+        // Simpan user_id
+        final userId = data['data']['user']['id'];
+        if (userId != null) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('user_id', userId.toString());
+        }
         return {'success': true, 'data': data['data']};
       } else {
         return {'success': false, 'message': data['message'] ?? 'Login gagal'};
@@ -365,8 +385,198 @@ class ApiService {
     }
   }
 
+  // --- Notifications API ---
+  static Future<Map<String, dynamic>> getNotifications({
+    int page = 1,
+    int limit = 20,
+    String? type,
+    http.Client? client,
+  }) async {
+    try {
+      final queryParams = 'page=$page&limit=$limit${type != null ? '&type=$type' : ''}';
+      final response = await getRequest('/notifications?$queryParams', client: client);
+      final data = json.decode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {'success': true, 'data': data['data']['notifications'] ?? []};
+      } else {
+        return {'success': false, 'message': data['message'] ?? 'Gagal mengambil notifikasi'};
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Gagal terhubung ke server'};
+    }
+  }
+
+  static Future<Map<String, dynamic>> getNotificationById(String id, {http.Client? client}) async {
+    try {
+      final response = await getRequest('/notifications/$id', client: client);
+      final data = json.decode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {'success': true, 'data': data['data']};
+      } else {
+        return {'success': false, 'message': data['message'] ?? 'Notifikasi tidak ditemukan'};
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Gagal terhubung ke server'};
+    }
+  }
+
+  static Future<Map<String, dynamic>> getUnreadNotificationCount({http.Client? client}) async {
+    try {
+      final response = await getRequest('/notifications/unread-count', client: client);
+      final data = json.decode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {'success': true, 'data': data['data']};
+      } else {
+        return {'success': false, 'message': data['message'] ?? 'Gagal mengambil jumlah notifikasi'};
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Gagal terhubung ke server'};
+    }
+  }
+
+  static Future<Map<String, dynamic>> markNotificationAsRead(String id, {http.Client? client}) async {
+    final httpClient = client ?? http.Client();
+    final token = await getToken();
+    try {
+      final response = await httpClient.patch(
+        Uri.parse('$baseUrl/notifications/$id/read'),
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      );
+      final data = json.decode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {'success': true, 'data': data['data']};
+      } else {
+        return {'success': false, 'message': data['message'] ?? 'Gagal menandai notifikasi'};
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Gagal terhubung ke server'};
+    } finally {
+      if (client == null) httpClient.close();
+    }
+  }
+
+  static Future<Map<String, dynamic>> markAllNotificationsAsRead({http.Client? client}) async {
+    final httpClient = client ?? http.Client();
+    final token = await getToken();
+    try {
+      final response = await httpClient.patch(
+        Uri.parse('$baseUrl/notifications/read-all'),
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      );
+      final data = json.decode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {'success': true, 'data': data['data']};
+      } else {
+        return {'success': false, 'message': data['message'] ?? 'Gagal menandai semua notifikasi'};
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Gagal terhubung ke server'};
+    } finally {
+      if (client == null) httpClient.close();
+    }
+  }
+
   // Hapus token (Logout) - Dari upstream/main
   static Future<void> logout() async {
     await clearToken();
+  }
+
+  // ── Chat / Messages API ──────────────────────────────────────────────────
+
+  /// Mengambil semua pesan dalam sebuah booking.
+  static Future<Map<String, dynamic>> getMessages(
+    String bookingId, {
+    http.Client? client,
+  }) async {
+    final httpClient = client ?? http.Client();
+    final token = await getToken();
+    try {
+      final response = await httpClient.get(
+        Uri.parse('$baseUrl/bookings/$bookingId/messages'),
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      );
+      final data = json.decode(response.body);
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {'success': true, 'data': data['data'] as List<dynamic>};
+      } else {
+        return {'success': false, 'message': data['message'] ?? 'Gagal memuat pesan'};
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Gagal terhubung ke server'};
+    } finally {
+      if (client == null) httpClient.close();
+    }
+  }
+
+  /// Mengirim pesan baru dalam sebuah booking.
+  static Future<Map<String, dynamic>> sendMessage(
+    String bookingId,
+    String content, {
+    http.Client? client,
+  }) async {
+    final httpClient = client ?? http.Client();
+    final token = await getToken();
+    try {
+      final response = await httpClient.post(
+        Uri.parse('$baseUrl/bookings/$bookingId/messages'),
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+        body: json.encode({'content': content}),
+      );
+      final data = json.decode(response.body);
+      if ((response.statusCode == 200 || response.statusCode == 201) &&
+          data['success'] == true) {
+        return {'success': true, 'data': data['data']};
+      } else {
+        return {'success': false, 'message': data['message'] ?? 'Gagal mengirim pesan'};
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Gagal terhubung ke server'};
+    } finally {
+      if (client == null) httpClient.close();
+    }
+  }
+
+  /// Mendapatkan jumlah pesan belum dibaca untuk booking tertentu.
+  static Future<int> getUnreadMessageCount(
+    String bookingId, {
+    http.Client? client,
+  }) async {
+    final httpClient = client ?? http.Client();
+    final token = await getToken();
+    try {
+      final response = await httpClient.get(
+        Uri.parse('$baseUrl/bookings/$bookingId/messages/unread-count'),
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      );
+      final data = json.decode(response.body);
+      if (response.statusCode == 200 && data['success'] == true) {
+        return (data['data']?['count'] as int?) ?? 0;
+      }
+      return 0;
+    } catch (e) {
+      return 0;
+    } finally {
+      if (client == null) httpClient.close();
+    }
   }
 }

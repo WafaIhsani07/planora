@@ -16,6 +16,7 @@ import reviewRoutes from "./modules/reviews/reviews.routes.js"
 import notificationRoutes from "./modules/notifications/notifications.routes.js"
 import adminRoutes from "./modules/admin/admin.routes.js"
 import uploadsRoutes from "./modules/uploads/uploads.routes.js"
+import messagesRoutes from "./modules/messages/messages.routes.js"
 
 const app = express()
 
@@ -57,6 +58,7 @@ app.use("/api/v1/vendors",  vendorsRoutes)
 app.use("/api/v1/kategori", kategoriRoutes)   
 app.use("/api/v1/jadwal", jadwalRoutes)
 app.use("/api/v1/bookings", bookingsRoutes)
+app.use("/api/v1/bookings/:bookingId/messages", messagesRoutes)
 app.use("/api/v1/payments", paymentsRoutes)
 app.use("/api/v1/reviews", reviewRoutes)
 app.use("/api/v1/notifications", notificationRoutes)

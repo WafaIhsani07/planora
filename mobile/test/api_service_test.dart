@@ -299,4 +299,295 @@ void main() {
       expect(result['message'], 'Gagal terhubung ke server');
     });
   });
+
+  group('ApiService Notification Tests', () {
+    test('[POSITIF] getNotifications mengembalikan list notifikasi', () async {
+      SharedPreferences.setMockInitialValues({'access_token': 'valid-token'});
+
+      final mockClient = MockClient((request) async {
+        expect(request.url.toString(), contains('${ApiService.baseUrl}/notifications'));
+        expect(request.headers['Authorization'], 'Bearer valid-token');
+
+        return http.Response(
+          json.encode({
+            'success': true,
+            'data': {
+              'notifications': [
+                {'id': 'n-1', 'title': 'Notif 1', 'message': 'Detail 1', 'type': 'SYSTEM'}
+              ]
+            }
+          }),
+          200,
+        );
+      });
+
+      final result = await ApiService.getNotifications(client: mockClient);
+
+      expect(result['success'], true);
+      expect(result['data'].length, 1);
+      expect(result['data'][0]['id'], 'n-1');
+    });
+
+    test('[NEGATIF] getNotifications gagal mengembalikan error', () async {
+      final mockClient = MockClient((request) async {
+        return http.Response(
+          json.encode({'success': false, 'message': 'Gagal mengambil data'}),
+          400,
+        );
+      });
+
+      final result = await ApiService.getNotifications(client: mockClient);
+
+      expect(result['success'], false);
+      expect(result['message'], 'Gagal mengambil data');
+    });
+
+    test('[POSITIF] getNotificationById mengembalikan detail', () async {
+      final mockClient = MockClient((request) async {
+        expect(request.url.toString(), '${ApiService.baseUrl}/notifications/n-1');
+        return http.Response(
+          json.encode({
+            'success': true,
+            'data': {'id': 'n-1', 'title': 'Notif 1', 'vendorName': 'Beautiful Wedding'}
+          }),
+          200,
+        );
+      });
+
+      final result = await ApiService.getNotificationById('n-1', client: mockClient);
+
+      expect(result['success'], true);
+      expect(result['data']['vendorName'], 'Beautiful Wedding');
+    });
+
+    test('[POSITIF] getUnreadNotificationCount mengembalikan jumlah', () async {
+      final mockClient = MockClient((request) async {
+        expect(request.url.toString(), '${ApiService.baseUrl}/notifications/unread-count');
+        return http.Response(
+          json.encode({
+            'success': true,
+            'data': {'count': 5}
+          }),
+          200,
+        );
+      });
+
+      final result = await ApiService.getUnreadNotificationCount(client: mockClient);
+
+      expect(result['success'], true);
+      expect(result['data']['count'], 5);
+    });
+
+    test('[POSITIF] markNotificationAsRead berhasil', () async {
+      final mockClient = MockClient((request) async {
+        expect(request.url.toString(), '${ApiService.baseUrl}/notifications/n-1/read');
+        expect(request.method, 'PATCH');
+        return http.Response(
+          json.encode({'success': true, 'data': null}),
+          200,
+        );
+      });
+
+      final result = await ApiService.markNotificationAsRead('n-1', client: mockClient);
+
+      expect(result['success'], true);
+    });
+
+    test('[POSITIF] markAllNotificationsAsRead berhasil', () async {
+      final mockClient = MockClient((request) async {
+        expect(request.url.toString(), '${ApiService.baseUrl}/notifications/read-all');
+        expect(request.method, 'PATCH');
+        return http.Response(
+          json.encode({'success': true, 'data': null}),
+          200,
+        );
+      });
+
+      final result = await ApiService.markAllNotificationsAsRead(client: mockClient);
+
+      expect(result['success'], true);
+    });
+  });
+
+  // ─── Chat / Messages API Tests ───────────────────────────────────────────
+  group('ApiService Chat Tests', () {
+    const bookingId = 'booking-abc-123';
+
+    final mockMessagesList = [
+      {
+        'id': 'msg-001',
+        'bookingId': bookingId,
+        'senderId': 'user-cust-1',
+        'content': 'Halo vendor!',
+        'isRead': false,
+        'createdAt': '2026-05-20T10:00:00Z',
+        'sender': {'id': 'user-cust-1', 'name': 'Pelanggan A', 'avatar': null, 'role': 'CUSTOMER'},
+      },
+      {
+        'id': 'msg-002',
+        'bookingId': bookingId,
+        'senderId': 'user-vendor-1',
+        'content': 'Halo! Ada yang bisa kami bantu?',
+        'isRead': true,
+        'createdAt': '2026-05-20T10:01:00Z',
+        'sender': {'id': 'user-vendor-1', 'name': 'Wedding Pro', 'avatar': null, 'role': 'VENDOR'},
+      },
+    ];
+
+    // ── getMessages ────────────────────────────────────────────────────────
+    test('getMessages success returns list of messages', () async {
+      final mockClient = MockClient((request) async {
+        expect(
+          request.url.toString(),
+          '${ApiService.baseUrl}/bookings/$bookingId/messages',
+        );
+        expect(request.method, 'GET');
+        return http.Response(
+          json.encode({'success': true, 'data': mockMessagesList}),
+          200,
+        );
+      });
+
+      SharedPreferences.setMockInitialValues({'access_token': 'test-token'});
+      final result = await ApiService.getMessages(bookingId, client: mockClient);
+
+      expect(result['success'], true);
+      final data = result['data'] as List<dynamic>;
+      expect(data.length, 2);
+      expect(data[0]['content'], 'Halo vendor!');
+      expect(data[1]['sender']['name'], 'Wedding Pro');
+    });
+
+    test('getMessages fails gracefully on server error', () async {
+      final mockClient = MockClient((request) async {
+        return http.Response(
+          json.encode({'success': false, 'message': 'Booking tidak ditemukan'}),
+          404,
+        );
+      });
+
+      final result = await ApiService.getMessages(bookingId, client: mockClient);
+
+      expect(result['success'], false);
+      expect(result['message'], 'Booking tidak ditemukan');
+    });
+
+    test('getMessages fails gracefully on network error', () async {
+      final mockClient = MockClient((request) async {
+        throw Exception('Network error');
+      });
+
+      final result = await ApiService.getMessages(bookingId, client: mockClient);
+
+      expect(result['success'], false);
+      expect(result['message'], contains('Gagal'));
+    });
+
+    // ── sendMessage ────────────────────────────────────────────────────────
+    test('sendMessage success returns created message', () async {
+      final mockClient = MockClient((request) async {
+        expect(
+          request.url.toString(),
+          '${ApiService.baseUrl}/bookings/$bookingId/messages',
+        );
+        expect(request.method, 'POST');
+        final body = json.decode(request.body) as Map;
+        expect(body['content'], 'Pesan test dari pelanggan');
+
+        return http.Response(
+          json.encode({'success': true, 'data': mockMessagesList[0]}),
+          201,
+        );
+      });
+
+      SharedPreferences.setMockInitialValues({'access_token': 'test-token'});
+      final result = await ApiService.sendMessage(
+        bookingId,
+        'Pesan test dari pelanggan',
+        client: mockClient,
+      );
+
+      expect(result['success'], true);
+      final data = result['data'] as Map<String, dynamic>;
+      expect(data['content'], 'Halo vendor!');
+    });
+
+    test('sendMessage mengirim Authorization header jika token ada', () async {
+      SharedPreferences.setMockInitialValues({'access_token': 'my-secret-token'});
+      String? capturedAuthHeader;
+
+      final mockClient = MockClient((request) async {
+        capturedAuthHeader = request.headers['Authorization'];
+        return http.Response(
+          json.encode({'success': true, 'data': mockMessagesList[0]}),
+          201,
+        );
+      });
+
+      await ApiService.sendMessage(bookingId, 'Test', client: mockClient);
+
+      expect(capturedAuthHeader, 'Bearer my-secret-token');
+    });
+
+    test('sendMessage fails gracefully on server error', () async {
+      final mockClient = MockClient((request) async {
+        return http.Response(
+          json.encode({'success': false, 'message': 'Akses ditolak'}),
+          403,
+        );
+      });
+
+      final result = await ApiService.sendMessage(bookingId, 'Test', client: mockClient);
+
+      expect(result['success'], false);
+      expect(result['message'], 'Akses ditolak');
+    });
+
+    // ── getUnreadMessageCount ────────────────────────────────────────────
+    test('getUnreadMessageCount returns correct count', () async {
+      final mockClient = MockClient((request) async {
+        expect(
+          request.url.toString(),
+          '${ApiService.baseUrl}/bookings/$bookingId/messages/unread-count',
+        );
+        return http.Response(
+          json.encode({'success': true, 'data': {'count': 5}}),
+          200,
+        );
+      });
+
+      final count = await ApiService.getUnreadMessageCount(
+        bookingId,
+        client: mockClient,
+      );
+      expect(count, 5);
+    });
+
+    test('getUnreadMessageCount returns 0 on error', () async {
+      final mockClient = MockClient((request) async {
+        throw Exception('Network error');
+      });
+
+      final count = await ApiService.getUnreadMessageCount(
+        bookingId,
+        client: mockClient,
+      );
+      expect(count, 0);
+    });
+
+    test('getUnreadMessageCount returns 0 when count key missing', () async {
+      final mockClient = MockClient((request) async {
+        return http.Response(
+          json.encode({'success': true, 'data': {}}),
+          200,
+        );
+      });
+
+      final count = await ApiService.getUnreadMessageCount(
+        bookingId,
+        client: mockClient,
+      );
+      expect(count, 0);
+    });
+  });
 }

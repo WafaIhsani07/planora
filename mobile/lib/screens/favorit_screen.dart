@@ -145,10 +145,9 @@ class _FavoritScreenState extends State<FavoritScreen> {
                             final item = _favorites[index];
                             final itemId = item['id']?.toString() ?? '1';
                             final avatar = item['avatar']?.toString() ?? '';
-                            final imageUrl = avatar.isNotEmpty
-                                ? (avatar.startsWith('http')
-                                    ? avatar
-                                    : 'http://10.0.2.2:5000/assets/$avatar')
+                            final assetUrl = ApiService.getAssetUrl(avatar);
+                            final imageUrl = assetUrl.isNotEmpty
+                                ? assetUrl
                                 : 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=200&auto=format&fit=crop';
 
                             // Resolve category secara dinamis

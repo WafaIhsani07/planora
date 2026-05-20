@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt"
+import bcrypt from "bcryptjs"
 import { db } from "../../config/database.js"
 import { AppError } from "../../utils/error.js"
 import type {

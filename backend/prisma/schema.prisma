@@ -64,6 +64,7 @@ model User {
   notifications Notification[]
   refreshTokens RefreshToken[]
   passwordResetTokens PasswordResetToken[]
+  messages      Message[]
 
   @@map("users")
 }
@@ -209,6 +210,7 @@ model Booking {
   jadwal   Jadwal?  @relation(fields: [jadwalId], references: [id])
   payment  Payment?
   review   Review?
+  messages Message[]
 
   @@index([customerId])
   @@index([vendorId])
@@ -267,3 +269,21 @@ model Notification {
   @@index([userId])
   @@map("notifications")
 }
+
+// ─── Chat Message ─────────────────────────────────────────────────────────────
+
+model Message {
+  id        String   @id @default(cuid())
+  bookingId String
+  senderId  String
+  content   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  sender  User    @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+  @@index([senderId])
+  @@map("messages")
+}

@@ -186,11 +186,8 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
     }
 
     final vendor = _vendorDetails!;
-    final String imagePath = vendor['avatar'] != null
-        ? (vendor['avatar'].toString().startsWith('http')
-            ? vendor['avatar']
-            : 'http://10.0.2.2:5000/assets/${vendor['avatar']}')
-        : '';
+    final String imagePath = ApiService.getAssetUrl(vendor['avatar']?.toString());
+
     final String category = vendor['category'] ?? 'Vendor';
     final String title = vendor['businessName'] ?? vendor['name'] ?? 'Vendor';
     final String rating = vendor['rating']?.toString() ?? '0.0';
