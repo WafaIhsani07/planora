@@ -43,7 +43,7 @@ export const getFavorites = async (userId: string) => {
     orderBy: { createdAt: "desc" },
   })
 
-  return favorites.map((fav) => {
+  return favorites.map((fav: any) => {
     // Map data agar sesuai format yang diharapkan aplikasi mobile
     const vendorData = fav.vendor
     return {

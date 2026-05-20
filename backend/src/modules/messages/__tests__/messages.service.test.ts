@@ -54,7 +54,7 @@ describe("messagesService", () => {
       const result = await getMessagesByBooking(BOOKING_ID, CUSTOMER_ID)
 
       expect(result).toHaveLength(1)
-      expect(result[0].content).toBe("Halo, apakah tersedia tanggal 5 Desember?")
+      expect(result[0]!.content).toBe("Halo, apakah tersedia tanggal 5 Desember?")
       expect(mockDb.message.updateMany).toHaveBeenCalledWith({
         where: {
           bookingId: BOOKING_ID,
