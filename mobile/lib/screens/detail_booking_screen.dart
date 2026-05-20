@@ -59,8 +59,30 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final favList = prefs.getStringList('favorite_vendors') ?? [];
-      if (favList.contains(_vendorId)) {
-        favList.remove(_vendorId);
+      
+      // 1. Panggil API ke backend (non-blocking untuk UX cepat, tapi tetap ditunggu untuk sinkronisasi)
+      final result = await ApiService.toggleFavorite(_vendorId);
+      final bool isFavApi = result['success'] == true ? (result['data']['isFavorite'] == true) : false;
+
+      // 2. Jika sukses API, gunakan status dari backend. Jika gagal, gunakan toggle lokal.
+      if (result['success'] == true) {
+        if (isFavApi && !favList.contains(_vendorId)) {
+          favList.add(_vendorId);
+        } else if (!isFavApi && favList.contains(_vendorId)) {
+          favList.remove(_vendorId);
+        }
+      } else {
+        // Fallback lokal jika offline
+        if (favList.contains(_vendorId)) {
+          favList.remove(_vendorId);
+        } else {
+          favList.add(_vendorId);
+        }
+      }
+
+      final isFavoriteNow = favList.contains(_vendorId);
+
+      if (!isFavoriteNow) {
         PlanoraSnackBar.show(
           context,
           message: 'Dihapus dari Favorit',
@@ -68,16 +90,16 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
           icon: Icons.favorite_border_rounded,
         );
       } else {
-        favList.add(_vendorId);
         PlanoraSnackBar.show(
           context,
           message: 'Ditambahkan ke Favorit',
           icon: Icons.favorite_rounded,
         );
       }
+      
       await prefs.setStringList('favorite_vendors', favList);
       setState(() {
-        _isFavorite = favList.contains(_vendorId);
+        _isFavorite = isFavoriteNow;
       });
     } catch (_) {}
   }

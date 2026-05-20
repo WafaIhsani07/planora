@@ -17,6 +17,7 @@ import notificationRoutes from "./modules/notifications/notifications.routes.js"
 import adminRoutes from "./modules/admin/admin.routes.js"
 import uploadsRoutes from "./modules/uploads/uploads.routes.js"
 import messagesRoutes from "./modules/messages/messages.routes.js"
+import favoritesRoutes from "./modules/favorites/favorites.routes.js"
 
 const app = express()
 
@@ -64,6 +65,7 @@ app.use("/api/v1/reviews", reviewRoutes)
 app.use("/api/v1/notifications", notificationRoutes)
 app.use("/api/v1/admin", adminRoutes)
 app.use("/api/v1/uploads", uploadsRoutes)
+app.use("/api/v1/favorites", favoritesRoutes)
 
 // ─── 404 Handler ──────────────────────────────────────────────────────────────
 app.use((req: Request, res: Response) => {

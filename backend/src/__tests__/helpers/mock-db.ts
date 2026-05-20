@@ -38,6 +38,7 @@ export const mockDb = {
   message: createModelMock(),
   refreshToken: createModelMock(),
   passwordResetToken: createModelMock(),
+  favorite: createModelMock(),
   $transaction: vi.fn(),
 }
 

@@ -65,6 +65,7 @@ model User {
   refreshTokens RefreshToken[]
   passwordResetTokens PasswordResetToken[]
   messages      Message[]
+  favorites     Favorite[]
 
   @@map("users")
 }
@@ -119,6 +120,7 @@ model Vendor {
   jadwal    Jadwal[]
   bookings  Booking[]
   reviews   Review[]
+  favorites Favorite[]
 
   @@map("vendors")
 }
@@ -286,4 +288,19 @@ model Message {
   @@index([bookingId])
   @@index([senderId])
   @@map("messages")
+}
+
+// ─── Favorites ────────────────────────────────────────────────────────────────
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  vendorId  String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, vendorId])
+  @@map("favorites")
 }

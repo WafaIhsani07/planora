@@ -590,4 +590,68 @@ void main() {
       expect(count, 0);
     });
   });
+
+  // ─── Favorites API Tests ───────────────────────────────────────────────
+  group('ApiService Favorites Tests', () {
+    test('[POSITIF] getFavorites mengembalikan list vendor favorit', () async {
+      SharedPreferences.setMockInitialValues({'access_token': 'valid-token'});
+
+      final mockClient = MockClient((request) async {
+        expect(request.url.toString(), '${ApiService.baseUrl}/favorites');
+        expect(request.headers['Authorization'], 'Bearer valid-token');
+
+        return http.Response(
+          json.encode({
+            'success': true,
+            'data': [
+              {'id': 'v-1', 'businessName': 'Vendor A', 'rating': 4.5}
+            ]
+          }),
+          200,
+        );
+      });
+
+      final result = await ApiService.getFavorites(client: mockClient);
+
+      expect(result['success'], true);
+      expect(result['data'].length, 1);
+      expect(result['data'][0]['id'], 'v-1');
+    });
+
+    test('[POSITIF] toggleFavorite berhasil mengubah status favorit', () async {
+      final mockClient = MockClient((request) async {
+        expect(request.url.toString(), '${ApiService.baseUrl}/favorites/toggle');
+        expect(request.method, 'POST');
+        final body = json.decode(request.body);
+        expect(body['vendorId'], 'v-1');
+
+        return http.Response(
+          json.encode({
+            'success': true,
+            'data': {'isFavorite': true}
+          }),
+          200,
+        );
+      });
+
+      final result = await ApiService.toggleFavorite('v-1', client: mockClient);
+
+      expect(result['success'], true);
+      expect(result['data']['isFavorite'], true);
+    });
+
+    test('[NEGATIF] toggleFavorite mengembalikan pesan error saat gagal', () async {
+      final mockClient = MockClient((request) async {
+        return http.Response(
+          json.encode({'success': false, 'message': 'Vendor tidak ditemukan'}),
+          404,
+        );
+      });
+
+      final result = await ApiService.toggleFavorite('v-999', client: mockClient);
+
+      expect(result['success'], false);
+      expect(result['message'], 'Vendor tidak ditemukan');
+    });
+  });
 }

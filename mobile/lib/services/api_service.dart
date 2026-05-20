@@ -579,4 +579,41 @@ class ApiService {
       if (client == null) httpClient.close();
     }
   }
+  // ── Favorites API ─────────────────────────────────────────────────────────
+
+  /// Mengambil daftar vendor favorit pengguna
+  static Future<Map<String, dynamic>> getFavorites({http.Client? client}) async {
+    try {
+      final response = await getRequest('/favorites', client: client);
+      final data = json.decode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {'success': true, 'data': data['data'] ?? []};
+      } else {
+        return {'success': false, 'message': data['message'] ?? 'Gagal mengambil favorit'};
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Gagal terhubung ke server'};
+    }
+  }
+
+  /// Menambah atau menghapus vendor dari favorit
+  static Future<Map<String, dynamic>> toggleFavorite(String vendorId, {http.Client? client}) async {
+    try {
+      final response = await postRequest(
+        '/favorites/toggle',
+        {'vendorId': vendorId},
+        client: client,
+      );
+      final data = json.decode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {'success': true, 'data': data['data']};
+      } else {
+        return {'success': false, 'message': data['message'] ?? 'Gagal memproses favorit'};
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Gagal terhubung ke server'};
+    }
+  }
 }

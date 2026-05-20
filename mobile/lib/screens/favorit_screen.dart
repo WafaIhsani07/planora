@@ -24,17 +24,37 @@ class _FavoritScreenState extends State<FavoritScreen> {
   // Mengambil data favorit dari backend API disaring dengan SharedPreferences
   Future<void> _fetchFavorites() async {
     try {
-      final vendorsData = await ApiService.getVendors();
       final prefs = await SharedPreferences.getInstance();
-      final favList = prefs.getStringList('favorite_vendors') ?? [];
       
-      final filtered = vendorsData.where((vendor) => favList.contains(vendor['id']?.toString())).toList();
+      // 1. Coba fetch dari backend
+      final apiResult = await ApiService.getFavorites();
       
-      if (mounted) {
-        setState(() {
-          _favorites = filtered;
-          _isLoading = false;
-        });
+      if (apiResult['success'] == true) {
+        final List<dynamic> backendFavs = apiResult['data'];
+        
+        // Sinkronkan ke shared preferences (timpa dengan data backend yang otentik)
+        final List<String> serverFavIds = backendFavs.map((fav) => fav['id'].toString()).toList();
+        await prefs.setStringList('favorite_vendors', serverFavIds);
+
+        if (mounted) {
+          setState(() {
+            _favorites = backendFavs;
+            _isLoading = false;
+          });
+        }
+      } else {
+        // 2. Fallback: ambil dari data vendors biasa disaring dengan shared preferences (offline/belum login)
+        final vendorsData = await ApiService.getVendors();
+        final favList = prefs.getStringList('favorite_vendors') ?? [];
+        
+        final filtered = vendorsData.where((vendor) => favList.contains(vendor['id']?.toString())).toList();
+        
+        if (mounted) {
+          setState(() {
+            _favorites = filtered;
+            _isLoading = false;
+          });
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -52,6 +72,10 @@ class _FavoritScreenState extends State<FavoritScreen> {
        final favList = prefs.getStringList('favorite_vendors') ?? [];
        favList.remove(id);
        await prefs.setStringList('favorite_vendors', favList);
+       
+       // Panggil API untuk sinkronisasi backend
+       await ApiService.toggleFavorite(id);
+       
        PlanoraSnackBar.show(
          context,
          message: 'Dihapus dari Favorit',
