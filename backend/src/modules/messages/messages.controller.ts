@@ -11,10 +11,10 @@ import { AppError } from "../../utils/error.js"
 // ─── GET /bookings/:bookingId/messages ─────────────────────────────────────
 export const getMessages = async (req: Request, res: Response) => {
   try {
-    const { bookingId } = req.params
+    const bookingId = req.params.bookingId as string
     const messages = await messagesService.getMessagesByBooking(
       bookingId,
-      req.userId
+      req.userId as string
     )
     sendSuccess(res, messages, "Pesan berhasil diambil")
   } catch (err) {
@@ -29,12 +29,12 @@ export const getMessages = async (req: Request, res: Response) => {
 // ─── POST /bookings/:bookingId/messages ────────────────────────────────────
 export const createMessage = async (req: Request, res: Response) => {
   try {
-    const { bookingId } = req.params
+    const bookingId = req.params.bookingId as string
     const { content } = req.body as { content: string }
 
     const message = await messagesService.sendMessage(
       bookingId,
-      req.userId,
+      req.userId as string,
       content
     )
     sendCreated(res, message, "Pesan berhasil dikirim")
@@ -50,8 +50,8 @@ export const createMessage = async (req: Request, res: Response) => {
 // ─── GET /bookings/:bookingId/messages/unread-count ───────────────────────
 export const getUnreadCount = async (req: Request, res: Response) => {
   try {
-    const { bookingId } = req.params
-    const count = await messagesService.getUnreadCount(bookingId, req.userId)
+    const bookingId = req.params.bookingId as string
+    const count = await messagesService.getUnreadCount(bookingId, req.userId as string)
     sendSuccess(res, { count }, "Berhasil")
   } catch (err) {
     if (err instanceof AppError) {
