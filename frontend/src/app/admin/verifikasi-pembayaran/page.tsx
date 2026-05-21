@@ -2,8 +2,9 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import AdminHeader from '@/components/admin/AdminHeader';
+import { getAllPayments, verifyPayment } from '@/services/admin.service';
 
-type PaymentStatus = 'menunggu' | 'valid' | 'ditolak';
+type PaymentStatus = 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED';
 type FilterTab = 'semua' | PaymentStatus;
 
 type PaymentItem = {
@@ -28,84 +29,14 @@ type PaymentItem = {
 	reviewedAt?: string | null;
 	status: PaymentStatus;
 	note: string;
+    proofUrl: string;
 };
 
-const DUMMY_PAYMENTS: PaymentItem[] = [
-	{
-		id: 'INV/2026/04/021',
-		customerName: 'Andi Pratama',
-		customerEmail: 'andi.pratama@email.com',
-		customerPhone: '0812-3456-7890',
-		vendorName: 'Wafa Media Studio',
-		vendorCategory: 'Dekorasi',
-		vendorInit: 'WM',
-		transferDate: '14 APR 2026',
-		transferTime: '10:30 WIB',
-		amount: 'Rp 5.500.000',
-		type: 'DP (50%)',
-		packageName: 'Paket Dekorasi Premium',
-		totalOrder: 'Rp 11.000.000',
-		paymentMethod: 'Transfer Bank',
-		bankName: 'BCA',
-		targetAccount: '8832 **** 1290',
-		accountName: 'Planora Escrow',
-		actualTransferTime: '14 APR 2026, 10:28 WIB',
-		reviewedAt: null,
-		status: 'valid',
-		note: 'Pembayaran DP untuk dekorasi acara.',
-	},
-	{
-		id: 'INV/2026/04/022',
-		customerName: 'Siti Aminah',
-		customerEmail: 'siti.aminah@email.com',
-		customerPhone: '0813-1122-3344',
-		vendorName: 'Catering Jaya Raya',
-		vendorCategory: 'Katering',
-		vendorInit: 'CJ',
-		transferDate: '14 APR 2026',
-		transferTime: '12:15 WIB',
-		amount: 'Rp 12.000.000',
-		type: 'LUNAS',
-		packageName: 'Buffet Menu Premium',
-		totalOrder: 'Rp 12.000.000',
-		paymentMethod: 'Transfer Bank',
-		bankName: 'MANDIRI',
-		targetAccount: '4321 **** 5678',
-		accountName: 'Planora Escrow',
-		actualTransferTime: '14 APR 2026, 12:12 WIB',
-		reviewedAt: new Date().toISOString(),
-		status: 'menunggu',
-		note: 'Menunggu pengecekan bukti transfer oleh admin.',
-	},
-	{
-		id: 'INV/2026/04/023',
-		customerName: 'Budi Santoso',
-		customerEmail: 'budi.santoso@email.com',
-		customerPhone: '0821-5566-7788',
-		vendorName: 'Dekor Elegan',
-		vendorCategory: 'Dekorasi',
-		vendorInit: 'DE',
-		transferDate: '13 APR 2026',
-		transferTime: '15:40 WIB',
-		amount: 'Rp 7.500.000',
-		type: 'DP (50%)',
-		packageName: 'Paket Akad Elegan',
-		totalOrder: 'Rp 15.000.000',
-		paymentMethod: 'Transfer Bank',
-		bankName: 'BRI',
-		targetAccount: '9876 **** 3344',
-		accountName: 'Planora Escrow',
-		actualTransferTime: '13 APR 2026, 15:35 WIB',
-		reviewedAt: new Date().toISOString(),
-		status: 'ditolak',
-		note: 'Bukti transfer tidak jelas dan nominal tidak sesuai.',
-	},
-];
-
 const statusBadgeClasses: Record<PaymentStatus, string> = {
-	menunggu: 'bg-orange-50 text-orange-600 border border-orange-100',
-	valid: 'bg-emerald-50 text-emerald-600 border border-emerald-100',
-	ditolak: 'bg-rose-50 text-rose-600 border border-rose-100',
+	PENDING: 'bg-orange-50 text-orange-600 border border-orange-100',
+	PAID: 'bg-emerald-50 text-emerald-600 border border-emerald-100',
+	FAILED: 'bg-rose-50 text-rose-600 border border-rose-100',
+    REFUNDED: 'bg-slate-50 text-slate-600 border border-slate-200'
 };
 
 function ClockIcon({ className }: { className?: string }) {
@@ -171,23 +102,74 @@ function FunnelIcon({ className }: { className?: string }) {
 }
 
 export default function AdminPaymentVerificationPage() {
-	const [payments, setPayments] = useState<PaymentItem[]>([...DUMMY_PAYMENTS]);
+	const [payments, setPayments] = useState<PaymentItem[]>([]);
 	const [activeTab, setActiveTab] = useState<FilterTab>('semua');
 	const [selectedInvoice, setSelectedInvoice] = useState<string | null>(null);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [methodFilter, setMethodFilter] = useState('semua');
 	const [dateFrom, setDateFrom] = useState('');
 	const [dateTo, setDateTo] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
+    const [successModal, setSuccessModal] = useState<{show: boolean, message: string}>({ show: false, message: '' });
+
+    const loadPayments = async () => {
+        setIsLoading(true);
+        const data = await getAllPayments();
+        const mapped: PaymentItem[] = (data.payments || []).map((p: any) => {
+            const date = new Date(p.createdAt);
+            return {
+                id: p.id,
+                customerName: p.booking?.customer?.name || '-',
+                customerEmail: p.booking?.customer?.email || '-',
+                customerPhone: p.booking?.customer?.phone || '-',
+                vendorName: p.booking?.vendor?.businessName || '-',
+                vendorCategory: '-',
+                vendorInit: p.booking?.vendor?.businessName?.charAt(0) || 'V',
+                transferDate: date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase(),
+                transferTime: date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB',
+                amount: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(p.amount),
+                type: 'PEMBAYARAN',
+                packageName: p.booking?.layanan?.name || '-',
+                totalOrder: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(p.amount),
+                paymentMethod: p.method === 'BANK_TRANSFER' ? 'Transfer Bank' : p.method || '-',
+                bankName: '-',
+                targetAccount: '-',
+                accountName: '-',
+                actualTransferTime: date.toLocaleDateString('id-ID') + ' ' + date.toLocaleTimeString('id-ID'),
+                reviewedAt: p.verifiedAt,
+                status: p.status,
+                note: p.note || '',
+                proofUrl: p.proofUrl || ''
+            };
+        });
+        setPayments(mapped);
+        setIsLoading(false);
+    };
+
+    useEffect(() => {
+        loadPayments();
+    }, []);
 
 	const counts = useMemo(() => ({
-		menunggu: payments.filter(p => p.status === 'menunggu').length,
-		valid: payments.filter(p => p.status === 'valid').length,
-		ditolak: payments.filter(p => p.status === 'ditolak').length,
+		PENDING: payments.filter(p => p.status === 'PENDING').length,
+		PAID: payments.filter(p => p.status === 'PAID').length,
+		FAILED: payments.filter(p => p.status === 'FAILED').length,
 	}), [payments]);
 
 	const filteredPayments = useMemo(() => {
-		return payments.filter(payment => activeTab === 'semua' ? true : payment.status === activeTab);
-	}, [payments, activeTab]);
+		return payments.filter(payment => {
+            if (activeTab !== 'semua' && payment.status !== activeTab) return false;
+            if (searchQuery) {
+                const query = searchQuery.toLowerCase();
+                if (!payment.id.toLowerCase().includes(query) && 
+                    !payment.customerName.toLowerCase().includes(query) && 
+                    !payment.vendorName.toLowerCase().includes(query)) {
+                    return false;
+                }
+            }
+            return true;
+        });
+	}, [payments, activeTab, searchQuery]);
 
 	const selectedPayment = payments.find(p => p.id === selectedInvoice) ?? null;
 	const formatOrderNumber = (id: string) => `INV-${id.split('/').pop() ?? id}`;
@@ -195,22 +177,39 @@ export default function AdminPaymentVerificationPage() {
 		left.getFullYear() === right.getFullYear() &&
 		left.getMonth() === right.getMonth() &&
 		left.getDate() === right.getDate();
-	const pendingCount = payments.filter(payment => payment.status === 'menunggu').length;
-	const receivedTodayCount = payments.filter(payment => payment.reviewedAt && isSameDay(new Date(payment.reviewedAt), new Date()) && payment.status !== 'ditolak').length;
+	const pendingCount = counts.PENDING;
+	const receivedTodayCount = payments.filter(payment => payment.reviewedAt && isSameDay(new Date(payment.reviewedAt), new Date()) && payment.status !== 'FAILED').length;
 	const tabFilters = [
 		{ key: 'semua', label: 'SEMUA', value: payments.length },
-		{ key: 'menunggu', label: 'MENUNGGU', value: counts.menunggu },
-		{ key: 'valid', label: 'VERIFIKASI', value: counts.valid },
-		{ key: 'ditolak', label: 'DITOLAK', value: counts.ditolak },
+		{ key: 'PENDING', label: 'MENUNGGU', value: counts.PENDING },
+		{ key: 'PAID', label: 'VERIFIKASI', value: counts.PAID },
+		{ key: 'FAILED', label: 'DITOLAK', value: counts.FAILED },
 	] as const;
 
 	const handleSelect = (invoice: string) => setSelectedInvoice(invoice);
 	const handleClose = () => setSelectedInvoice(null);
 
-	const handleUpdateStatus = (invoice: string, status: PaymentStatus) => {
-		setPayments(prev => prev.map(p => (p.id === invoice ? { ...p, status } : p)));
-		const next = filteredPayments.find(p => p.id !== invoice);
-		setSelectedInvoice(next ? next.id : null);
+	const handleUpdateStatus = async (invoice: string, status: 'PAID' | 'FAILED') => {
+        let note = '';
+        if (status === 'FAILED') {
+            const reason = window.prompt("Masukkan alasan penolakan:");
+            if (reason === null) return;
+            note = reason;
+        }
+
+        try {
+            await verifyPayment(invoice, { status, note });
+            await loadPayments();
+            setSuccessModal({ 
+                show: true, 
+                message: `Pembayaran ${formatOrderNumber(invoice)} berhasil ${status === 'PAID' ? 'diverifikasi' : 'ditolak'}.` 
+            });
+            const next = payments.find(p => p.id !== invoice && p.status === 'PENDING');
+		    setSelectedInvoice(next ? next.id : null);
+        } catch (error) {
+            console.error(error);
+            alert("Gagal memverifikasi pembayaran.");
+        }
 	};
 
 	return (
@@ -347,10 +346,10 @@ export default function AdminPaymentVerificationPage() {
 															<div className="text-[10px] font-bold uppercase tracking-wider text-[#2A2A2A]/60">{payment.paymentMethod}</div>
 														</td>
 														<td className="w-[96px] px-2 py-3 align-middle">
-															<span className={`rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wider ${statusBadgeClasses[payment.status]}`}>{payment.status === 'menunggu' ? 'Menunggu' : payment.status === 'valid' ? 'Valid' : 'Ditolak'}</span>
+															<span className={`rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wider ${statusBadgeClasses[payment.status]}`}>{payment.status === 'PENDING' ? 'Menunggu' : payment.status === 'PAID' ? 'Valid' : payment.status === 'FAILED' ? 'Ditolak' : 'Kembali'}</span>
 														</td>
 														<td className="w-[120px] px-2 py-3 text-left align-middle" onClick={(e) => e.stopPropagation()}>
-															{payment.status === 'menunggu' ? (
+															{payment.status === 'PENDING' ? (
 																<div className="flex justify-start">
 																	<button
 																		type="button"
@@ -361,7 +360,7 @@ export default function AdminPaymentVerificationPage() {
 																		Verifikasi
 																	</button>
 																</div>
-															) : payment.status === 'valid' ? (
+															) : payment.status === 'PAID' ? (
 																<div className="flex items-center gap-2">
 																	<span className="text-[10px] font-black text-emerald-600">Terverifikasi</span>
 																	<button type="button" onClick={() => handleSelect(payment.id)} className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-bold text-slate-600">Lihat</button>
@@ -412,7 +411,7 @@ export default function AdminPaymentVerificationPage() {
 												<p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{selectedPayment.transferDate} • {selectedPayment.transferTime}</p>
 												<div className="mt-3">
 													<span className={`rounded-full px-3 py-1 text-[10px] font-black uppercase ${statusBadgeClasses[selectedPayment.status]}`}>
-														{selectedPayment.status === 'menunggu' ? 'Menunggu Verifikasi' : selectedPayment.status === 'valid' ? 'Terverifikasi' : 'Ditolak'}
+														{selectedPayment.status === 'PENDING' ? 'Menunggu Verifikasi' : selectedPayment.status === 'PAID' ? 'Terverifikasi' : selectedPayment.status === 'FAILED' ? 'Ditolak' : 'Dikembalikan'}
 													</span>
 												</div>
 											</div>
@@ -443,8 +442,8 @@ export default function AdminPaymentVerificationPage() {
 											<div className="space-y-3 border-t border-[#F4D7D4] pt-6">
 												<h5 className="text-[11px] font-black uppercase tracking-widest text-slate-400">Bukti Pembayaran</h5>
 												<div className="flex flex-col items-center rounded-2xl border border-[#F4D7D4] bg-[#FDF1F0] p-3">
-													<img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=200" className="mb-3 h-28 object-contain opacity-70" alt="Struk Pembayaran" />
-													<a href="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=1200" target="_blank" className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-[#F4D7D4] bg-white py-2.5 text-[10px] font-black uppercase tracking-widest text-[#2A2A2A] shadow-sm transition-all hover:bg-[#FDF1F0]">
+													<img src={selectedPayment.proofUrl || "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=200"} className="mb-3 h-28 object-contain opacity-70" alt="Struk Pembayaran" />
+													<a href={selectedPayment.proofUrl || "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=1200"} target="_blank" className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-[#F4D7D4] bg-white py-2.5 text-[10px] font-black uppercase tracking-widest text-[#2A2A2A] shadow-sm transition-all hover:bg-[#FDF1F0]">
 														Lihat Gambar Penuh
 													</a>
 												</div>
@@ -456,17 +455,17 @@ export default function AdminPaymentVerificationPage() {
 											</div>
 
 											<div className="flex gap-4 border-t border-[#F4D7D4] pt-6">
-												{selectedPayment.status === 'menunggu' && (
+												{selectedPayment.status === 'PENDING' && (
 													<>
-														<button onClick={() => handleUpdateStatus(selectedPayment.id, 'ditolak')} className="flex-1 rounded-2xl border border-red-200 py-3.5 text-xs font-black uppercase tracking-widest text-red-500 transition-all hover:bg-red-50">Tolak</button>
-														<button onClick={() => handleUpdateStatus(selectedPayment.id, 'valid')} className="flex-1 rounded-2xl bg-[#10B981] py-3.5 text-xs font-black uppercase tracking-widest text-white shadow-md shadow-emerald-100 transition-all hover:bg-[#059669]">Verifikasi</button>
+														<button onClick={() => handleUpdateStatus(selectedPayment.id, 'FAILED')} className="flex-1 rounded-2xl border border-red-200 py-3.5 text-xs font-black uppercase tracking-widest text-red-500 transition-all hover:bg-red-50">Tolak</button>
+														<button onClick={() => handleUpdateStatus(selectedPayment.id, 'PAID')} className="flex-1 rounded-2xl bg-[#10B981] py-3.5 text-xs font-black uppercase tracking-widest text-white shadow-md shadow-emerald-100 transition-all hover:bg-[#059669]">Verifikasi</button>
 													</>
 												)}
-												{selectedPayment.status === 'valid' && (
-													<button onClick={() => handleUpdateStatus(selectedPayment.id, 'menunggu')} className="flex-1 rounded-2xl border border-[#F4D7D4] py-3.5 text-xs font-black uppercase tracking-widest text-slate-600">Batalkan Verifikasi</button>
+												{selectedPayment.status === 'PAID' && (
+													<button onClick={() => handleUpdateStatus(selectedPayment.id, 'PENDING')} className="flex-1 rounded-2xl border border-[#F4D7D4] py-3.5 text-xs font-black uppercase tracking-widest text-slate-600">Batalkan Verifikasi</button>
 												)}
-												{selectedPayment.status === 'ditolak' && (
-													<button onClick={() => handleUpdateStatus(selectedPayment.id, 'valid')} className="flex-1 rounded-2xl bg-[#10B981] py-3.5 text-xs font-black uppercase tracking-widest text-white shadow-md shadow-emerald-100 transition-all hover:bg-[#059669]">Verifikasi</button>
+												{selectedPayment.status === 'FAILED' && (
+													<button onClick={() => handleUpdateStatus(selectedPayment.id, 'PAID')} className="flex-1 rounded-2xl bg-[#10B981] py-3.5 text-xs font-black uppercase tracking-widest text-white shadow-md shadow-emerald-100 transition-all hover:bg-[#059669]">Verifikasi</button>
 												)}
 											</div>
 										</div>
@@ -476,7 +475,20 @@ export default function AdminPaymentVerificationPage() {
 						</div>
 					</div>
 				</div>
-				</div>
+            </div>
+
+            {successModal.show && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-xl">
+                        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
+                            <svg className="h-8 w-8 text-emerald-500" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                        </div>
+                        <h3 className="mb-2 text-xl font-black text-[#2A2A2A]">Berhasil!</h3>
+                        <p className="mb-6 text-sm font-semibold text-slate-500">{successModal.message}</p>
+                        <button onClick={() => setSuccessModal({ show: false, message: '' })} className="w-full rounded-2xl bg-[#FF9A9E] py-3 text-sm font-black uppercase tracking-widest text-white shadow-md shadow-pink-100 transition-colors hover:bg-[#FF5E7E]">Tutup</button>
+                    </div>
+                </div>
+            )}
 		</>
 	);
 }

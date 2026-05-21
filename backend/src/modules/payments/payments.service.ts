@@ -51,6 +51,7 @@ export const verifyPayment = async (userId: string, userRole: string, paymentId:
       verifiedAt: new Date(),
       verifiedBy: userId,
       paidAt: input.status === "PAID" ? new Date() : null,
+      note: input.note ?? null,
     },
   })
 

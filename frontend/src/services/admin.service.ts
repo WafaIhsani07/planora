@@ -30,6 +30,16 @@ export async function getMonitoringStats() {
   }
 }
 
+export async function getAllBookings(params?: any) {
+  try {
+    const response = await api.get("/admin/bookings", { params });
+    return response.data.data || { bookings: [], total: 0 };
+  } catch (error) {
+    console.error("API Error (getAllBookings):", error);
+    return { bookings: [], total: 0 };
+  }
+}
+
 export async function getAllPayments(params?: any) {
   try {
     const response = await api.get("/admin/payments", { params });
@@ -47,6 +57,37 @@ export async function getAllUsers(params?: any) {
   } catch (error) {
     console.error("API Error (getAllUsers):", error);
     return { users: [] };
+  }
+}
+
+export async function verifyPayment(paymentId: string, data: { status: 'PAID' | 'FAILED', note?: string }) {
+  try {
+    const response = await api.patch(`/admin/payments/${paymentId}/verify`, data);
+    return response.data;
+  } catch (error) {
+    console.error("API Error (verifyPayment):", error);
+    throw error;
+  }
+}
+
+// Withdrawals (Pencairan Dana)
+export async function getAllWithdrawals() {
+  try {
+    const response = await api.get("/withdrawals");
+    return response.data.data.withdrawals || [];
+  } catch (error) {
+    console.error("API Error (getAllWithdrawals):", error);
+    return [];
+  }
+}
+
+export async function processWithdrawal(id: string, data: { status: 'PROCESSING' | 'COMPLETED' | 'REJECTED', proofUrl?: string, note?: string }) {
+  try {
+    const response = await api.patch(`/withdrawals/${id}/process`, data);
+    return response.data;
+  } catch (error) {
+    console.error("API Error (processWithdrawal):", error);
+    throw error;
   }
 }
 
@@ -92,5 +133,10 @@ export async function verifyVendor(id: string) {
 
 export async function rejectVendor(id: string, reason: string) {
   const { data } = await api.patch(`/admin/vendors/${id}/reject`, { reason });
+  return data.data;
+}
+
+export async function verifyPayment(id: string, payload: { status: 'PAID' | 'FAILED' | 'REFUNDED', note?: string }) {
+  const { data } = await api.patch(`/payments/${id}/verify`, payload);
   return data.data;
 }

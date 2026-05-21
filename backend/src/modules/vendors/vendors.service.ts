@@ -145,6 +145,9 @@ export const getMyVendorProfile = async (userId: string) => {
       bankName: true,
       bankAccount: true,
       bankHolder: true,
+      ktpUrl: true,
+      bankBookUrl: true,
+      businessLicenseUrl: true,
       createdAt: true,
       updatedAt: true,
     },
@@ -178,6 +181,9 @@ export const createVendorProfile = async (
       bankName: input.bankName ?? null,
       bankAccount: input.bankAccount ?? null,
       bankHolder: input.bankHolder ?? null,
+      ktpUrl: input.ktpUrl ?? null,
+      bankBookUrl: input.bankBookUrl ?? null,
+      businessLicenseUrl: input.businessLicenseUrl ?? null,
     },
   })
 }
@@ -198,6 +204,9 @@ export const updateVendorProfile = async (
       ...(input.bankName !== undefined && { bankName: input.bankName ?? null }),
       ...(input.bankAccount !== undefined && { bankAccount: input.bankAccount ?? null }),
       ...(input.bankHolder !== undefined && { bankHolder: input.bankHolder ?? null }),
+      ...(input.ktpUrl !== undefined && { ktpUrl: input.ktpUrl ?? null }),
+      ...(input.bankBookUrl !== undefined && { bankBookUrl: input.bankBookUrl ?? null }),
+      ...(input.businessLicenseUrl !== undefined && { businessLicenseUrl: input.businessLicenseUrl ?? null }),
     },
     create: {
       userId,
@@ -209,6 +218,9 @@ export const updateVendorProfile = async (
       bankName: input.bankName ?? null,
       bankAccount: input.bankAccount ?? null,
       bankHolder: input.bankHolder ?? null,
+      ktpUrl: input.ktpUrl ?? null,
+      bankBookUrl: input.bankBookUrl ?? null,
+      businessLicenseUrl: input.businessLicenseUrl ?? null,
     }
   })
 }
@@ -345,6 +357,9 @@ export const getPendingVendors = async () => {
       city: true,
       province: true,
       status: true,
+      ktpUrl: true,
+      bankBookUrl: true,
+      businessLicenseUrl: true,
       createdAt: true,
       user: {
         select: { id: true, name: true, email: true, phone: true },

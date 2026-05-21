@@ -429,10 +429,16 @@ export default function AdminVerifikasiVendorPage() {
                                                                 <span className="text-xs font-bold text-[#6B6B6B]">KTP</span>
                                                             </div>
                                                             <div className="flex items-center gap-2">
-                                                                <span className="bg-emerald-50 text-emerald-600 text-[8px] font-black px-2 py-0.5 rounded uppercase border border-emerald-100">Terverifikasi</span>
-                                                                <button aria-label="Preview KTP" onClick={() => setDocViewer({ open: true, title: 'KTP', url: 'https://via.placeholder.com/900x600?text=KTP' })} className="text-[#6B6B6B] hover:text-[#2A2A2A]">
-                                                                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
-                                                                </button>
+                                                                {v.ktpUrl ? (
+                                                                    <>
+                                                                        <span className="bg-emerald-50 text-emerald-600 text-[8px] font-black px-2 py-0.5 rounded uppercase border border-emerald-100">Diunggah</span>
+                                                                        <button aria-label="Preview KTP" onClick={() => setDocViewer({ open: true, title: 'KTP', url: v.ktpUrl! })} className="text-[#6B6B6B] hover:text-[#2A2A2A]">
+                                                                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                                                                        </button>
+                                                                    </>
+                                                                ) : (
+                                                                    <span className="bg-slate-100 text-slate-500 text-[8px] font-black px-2 py-0.5 rounded uppercase border border-slate-200">Belum Diunggah</span>
+                                                                )}
                                                             </div>
                                                         </div>
 
@@ -442,10 +448,35 @@ export default function AdminVerifikasiVendorPage() {
                                                                 <span className="text-xs font-bold text-[#6B6B6B]">Rekening Bank</span>
                                                             </div>
                                                             <div className="flex items-center gap-2">
-                                                                <span className="bg-emerald-50 text-emerald-600 text-[8px] font-black px-2 py-0.5 rounded uppercase border border-emerald-100">Terverifikasi</span>
-                                                                <button aria-label="Preview Rekening Bank" onClick={() => setDocViewer({ open: true, title: 'Rekening Bank', url: 'https://via.placeholder.com/900x600?text=Rekening+Bank' })} className="text-[#6B6B6B] hover:text-[#2A2A2A]">
-                                                                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
-                                                                </button>
+                                                                {v.bankBookUrl ? (
+                                                                    <>
+                                                                        <span className="bg-emerald-50 text-emerald-600 text-[8px] font-black px-2 py-0.5 rounded uppercase border border-emerald-100">Diunggah</span>
+                                                                        <button aria-label="Preview Rekening Bank" onClick={() => setDocViewer({ open: true, title: 'Rekening Bank', url: v.bankBookUrl! })} className="text-[#6B6B6B] hover:text-[#2A2A2A]">
+                                                                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                                                                        </button>
+                                                                    </>
+                                                                ) : (
+                                                                    <span className="bg-slate-100 text-slate-500 text-[8px] font-black px-2 py-0.5 rounded uppercase border border-slate-200">Belum Diunggah</span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="flex items-center justify-between p-3 bg-[#FAFAFC] rounded-xl border border-[#F4F4F5]">
+                                                            <div className="flex items-center gap-3">
+                                                                <svg className="w-5 h-5 text-[#6B6B6B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></svg>
+                                                                <span className="text-xs font-bold text-[#6B6B6B]">Surat Izin Usaha</span>
+                                                            </div>
+                                                            <div className="flex items-center gap-2">
+                                                                {v.businessLicenseUrl ? (
+                                                                    <>
+                                                                        <span className="bg-emerald-50 text-emerald-600 text-[8px] font-black px-2 py-0.5 rounded uppercase border border-emerald-100">Diunggah</span>
+                                                                        <button aria-label="Preview Surat Izin Usaha" onClick={() => setDocViewer({ open: true, title: 'Surat Izin Usaha', url: v.businessLicenseUrl! })} className="text-[#6B6B6B] hover:text-[#2A2A2A]">
+                                                                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                                                                        </button>
+                                                                    </>
+                                                                ) : (
+                                                                    <span className="bg-slate-100 text-slate-500 text-[8px] font-black px-2 py-0.5 rounded uppercase border border-slate-200">Belum Diunggah</span>
+                                                                )}
                                                             </div>
                                                         </div>
 

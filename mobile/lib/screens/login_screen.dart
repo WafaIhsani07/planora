@@ -248,6 +248,58 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                     ),
                   ),
+                  const SizedBox(height: 20),
+
+                  // ── [TESTING ONLY] Quick Login ────────────────────────
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF8E1),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: const Color(0xFFFFD54F),
+                        width: 1.2,
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.science_rounded,
+                              size: 14,
+                              color: Color(0xFFF57F17),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              'QUICK LOGIN (TESTING)',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: const Color(0xFFF57F17),
+                                letterSpacing: 0.8,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        _QuickLoginButton(
+                          label: '👤 Masuk sebagai Pelanggan',
+                          email: 'customer@planora.com',
+                          password: 'password123',
+                          color: const Color(0xFF1565C0),
+                          onTap: (email, password) {
+                            _emailController.text = email;
+                            _passwordController.text = password;
+                            _handleLogin();
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  // ── [END TESTING] ─────────────────────────────────────
+
                   const SizedBox(height: 28),
 
                   // ── Link ke Register ─────────────────────────────────
@@ -295,6 +347,60 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ── Quick Login Button Widget ─────────────────────────────────────────────────
+class _QuickLoginButton extends StatelessWidget {
+  final String label;
+  final String email;
+  final String password;
+  final Color color;
+  final void Function(String email, String password) onTap;
+
+  const _QuickLoginButton({
+    required this.label,
+    required this.email,
+    required this.password,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => onTap(email, password),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          children: [
+            Text(
+              label,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 3),
+            Text(
+              email,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 9,
+                color: Colors.white.withValues(alpha: 0.75),
+              ),
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,5 +1,5 @@
 import { db as prisma } from '../src/config/database.js';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 async function main() {
   console.log('🧹 Membersihkan sisa data lama untuk menghindari bentrokan...');
@@ -127,6 +127,7 @@ async function main() {
       bankName: 'BANK BCA',
       bankAccount: '8123456789',
       bankHolder: 'Feri Wafa',
+      balance: 15500000.00
     }
   });
 
@@ -145,6 +146,7 @@ async function main() {
       bankName: 'BANK Mandiri',
       bankAccount: '1230099887766',
       bankHolder: 'Sarah Ritz',
+      balance: 22000000.00
     }
   });
 
@@ -181,6 +183,7 @@ async function main() {
       bankName: 'BANK BNI',
       bankAccount: '0987654321',
       bankHolder: 'Amelia Rosella',
+      balance: 8500000.00
     }
   });
 
@@ -371,7 +374,7 @@ async function main() {
   });
 
   // D. BOOKING 4: CANCELLED (Dibatalkan)
-  await prisma.booking.create({
+  const bookingCancelled = await prisma.booking.create({
     data: {
       customerId: customer.id,
       vendorId: vendorCatering.id,
@@ -411,6 +414,31 @@ async function main() {
       proofUrl: 'https://placehold.co/600x400/png?text=Bukti+Transfer+Sarah+WO',
       paidAt: new Date(completedEventDate.getTime() - 2 * 24 * 60 * 60 * 1000), // 2 hari sebelum acara
       verifiedAt: new Date(completedEventDate.getTime() - 2 * 24 * 60 * 60 * 1000),
+      verifiedBy: 'Super Admin Planora'
+    }
+  });
+
+  // Pembayaran untuk Booking 1: PENDING (Menunggu Verifikasi Admin)
+  await prisma.payment.create({
+    data: {
+      bookingId: bookingPending.id,
+      amount: 18500000.00,
+      status: 'PENDING',
+      method: 'BANK_TRANSFER',
+      proofUrl: 'https://placehold.co/600x400/png?text=Bukti+Transfer+Pending'
+    }
+  });
+
+  // Pembayaran untuk Booking 4: CANCELLED (Ditolak / FAILED)
+  await prisma.payment.create({
+    data: {
+      bookingId: bookingCancelled.id,
+      amount: 45000000.00,
+      status: 'FAILED',
+      method: 'BANK_TRANSFER',
+      proofUrl: 'https://placehold.co/600x400/png?text=Bukti+Transfer+Palsu',
+      note: 'Bukti transfer buram dan tidak valid.',
+      verifiedAt: new Date(),
       verifiedBy: 'Super Admin Planora'
     }
   });
@@ -461,6 +489,43 @@ async function main() {
     }
   });
   console.log('✅ Data Notifikasi simulasi berhasil dibuat.');
+
+  // 12. BUAT DATA PENCAIRAN DANA (WITHDRAWALS)
+  await prisma.withdrawal.create({
+    data: {
+      vendorId: vendorPhoto.id,
+      amount: 4250000.00,
+      status: 'PENDING',
+      bankName: 'BANK BCA',
+      bankAccount: '8123456789',
+      bankHolder: 'Feri Wafa',
+    }
+  });
+
+  await prisma.withdrawal.create({
+    data: {
+      vendorId: vendorWO.id,
+      amount: 8500000.00,
+      status: 'PROCESSING',
+      bankName: 'BANK Mandiri',
+      bankAccount: '1230099887766',
+      bankHolder: 'Sarah Ritz',
+    }
+  });
+
+  await prisma.withdrawal.create({
+    data: {
+      vendorId: vendorDeco.id,
+      amount: 3200000.00,
+      status: 'COMPLETED',
+      bankName: 'BANK BNI',
+      bankAccount: '0987654321',
+      bankHolder: 'Amelia Rosella',
+      proofUrl: 'https://placehold.co/600x400/png?text=Bukti+Transfer+Pencairan',
+    }
+  });
+
+  console.log('✅ Data Pencairan Dana berhasil dibuat.');
 
   console.log('🚀🌟 SEED SINKRONISASI DATABASE BERHASIL PENUH & SIAP DIGUNAKAN! 🌟🚀');
 }
