@@ -49,7 +49,7 @@ export const createBooking = async (customerId: string, input: CreateBookingInpu
 export const getMyBookings = async (
   userId: string, 
   role: string, 
-  query?: { page?: number; limit?: number; status?: string }
+  query?: { page?: number; limit?: number; status?: string | undefined }
 ) => {
   const page = query?.page || 1
   const limit = query?.limit || 50

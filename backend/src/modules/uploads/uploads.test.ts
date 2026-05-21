@@ -10,7 +10,7 @@ describe("Uploads Module (Unit Tests)", () => {
 
   it("should have POST / route registered", () => {
     const postRoute = router.stack.find(
-      (layer) => layer.route && layer.route.path === "/" && layer.route.methods.post
+      (layer: any) => layer.route && layer.route.path === "/" && layer.route.methods?.post
     )
     expect(postRoute).toBeDefined()
   })

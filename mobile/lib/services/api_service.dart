@@ -327,15 +327,19 @@ class ApiService {
 
   // T11: Tambah ulasan untuk vendor
   static Future<Map<String, dynamic>> addReview(
-    String vendorId,
+    String bookingId,
     int rating,
     String comment, {
     http.Client? client,
   }) async {
     try {
       final response = await postRequest(
-        '/vendors/$vendorId/reviews',
-        {'rating': rating, 'comment': comment},
+        '/reviews',
+        {
+          'bookingId': bookingId,
+          'rating': rating,
+          'comment': comment,
+        },
         client: client,
       );
       final data = json.decode(response.body);

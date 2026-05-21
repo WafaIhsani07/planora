@@ -39,6 +39,6 @@ export const replyToReview = async (req: Request, res: Response) => {
     return
   }
 
-  const result = await reviewService.replyToReview(req.userId, reviewId, reply)
+  const result = await reviewService.replyToReview(req.userId, reviewId as string, reply)
   sendSuccess(res, result, "Balasan review berhasil disimpan")
 }

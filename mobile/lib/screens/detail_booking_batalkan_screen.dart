@@ -129,19 +129,16 @@ class _DetailBookingBatalkanScreenState
 
     setState(() => _isSubmittingReview = true);
 
-    final vendorId = _bookingDetails?['vendor']?['id']?.toString() ??
-        _bookingDetails?['vendorId']?.toString() ?? '';
-
-    if (vendorId.isEmpty) {
+    if (_bookingId.isEmpty) {
       setState(() => _isSubmittingReview = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vendor ID tidak ditemukan.')),
+        const SnackBar(content: Text('Booking ID tidak ditemukan.')),
       );
       return;
     }
 
     final result = await ApiService.addReview(
-      vendorId,
+      _bookingId,
       _reviewRating,
       _reviewController.text.trim(),
     );

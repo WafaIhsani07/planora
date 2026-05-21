@@ -63,8 +63,8 @@ describe("favoritesService", () => {
 
       const result = await getFavorites(USER_ID)
       expect(result).toHaveLength(1)
-      expect(result[0].id).toBe(VENDOR_ID)
-      expect(result[0].businessName).toBe("Vendor Test")
+      expect(result[0]?.id).toBe(VENDOR_ID)
+      expect(result[0]?.businessName).toBe("Vendor Test")
     })
   })
 })
