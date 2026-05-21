@@ -15,7 +15,7 @@ export default function RegisterPage() {
   const role = "VENDOR";
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const [agreed, setAgreed] = useState(true);
+  const [agreed, setAgreed] = useState(false);
   const [ownerName, setOwnerName] = useState("");
   const [ownerContact, setOwnerContact] = useState("");
   const [businessName, setBusinessName] = useState("");

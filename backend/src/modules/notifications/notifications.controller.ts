@@ -45,3 +45,19 @@ export const markAllAsRead = async (req: Request, res: Response) => {
     "Semua notifikasi ditandai sudah dibaca"
   )
 }
+
+// ─── GET /notifications/:id ──────────────────────────────────────────────────
+export const getNotificationById = async (req: Request, res: Response) => {
+  const parsed = markAsReadSchema.safeParse(req.params)
+  if (!parsed.success) {
+    sendValidationError(res, parsed.error.flatten().fieldErrors)
+    return
+  }
+
+  const notification = await notifService.getNotificationById(
+    req.userId,
+    parsed.data.id
+  )
+  sendSuccess(res, notification, "Berhasil mengambil detail notifikasi")
+}
+

@@ -129,19 +129,16 @@ class _DetailBookingBatalkanScreenState
 
     setState(() => _isSubmittingReview = true);
 
-    final vendorId = _bookingDetails?['vendor']?['id']?.toString() ??
-        _bookingDetails?['vendorId']?.toString() ?? '';
-
-    if (vendorId.isEmpty) {
+    if (_bookingId.isEmpty) {
       setState(() => _isSubmittingReview = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vendor ID tidak ditemukan.')),
+        const SnackBar(content: Text('Booking ID tidak ditemukan.')),
       );
       return;
     }
 
     final result = await ApiService.addReview(
-      vendorId,
+      _bookingId,
       _reviewRating,
       _reviewController.text.trim(),
     );
@@ -224,12 +221,10 @@ class _DetailBookingBatalkanScreenState
     final vendorData = detail['vendor'] ?? detail['layanan']?['vendor'] ?? {};
     final layananData = detail['layanan'] ?? {};
 
-    final String imagePath =
-        vendorData['avatar']?.toString().isNotEmpty == true
-            ? (vendorData['avatar'].toString().startsWith('http')
-                ? vendorData['avatar']
-                : 'http://10.0.2.2:5000/assets/${vendorData['avatar']}')
-            : 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=600&auto=format&fit=crop';
+    final String imagePath = ApiService.getAssetUrl(vendorData['avatar']?.toString()).isNotEmpty
+        ? ApiService.getAssetUrl(vendorData['avatar']?.toString())
+        : 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=600&auto=format&fit=crop';
+
 
     final String category = vendorData['category'] ?? 'Wedding Organizer';
     final String title = vendorData['businessName'] ?? vendorData['name'] ?? 'Nama Vendor';

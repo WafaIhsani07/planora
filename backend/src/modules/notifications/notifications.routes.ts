@@ -20,4 +20,8 @@ router.patch("/read-all", notifController.markAllAsRead)
 // PATCH /api/v1/notifications/:id/read      — tandai satu notifikasi sebagai dibaca
 router.patch("/:id/read", notifController.markAsRead)
 
+// GET  /api/v1/notifications/:id             — detail satu notifikasi
+router.get("/:id", notifController.getNotificationById)
+
 export default router
+

@@ -15,6 +15,9 @@ router.get("/me/layanan", authenticate, authorize("VENDOR"), vendorsController.g
 router.post("/me/layanan", authenticate, authorize("VENDOR"), vendorsController.createLayanan)
 router.put("/me/layanan/:id", authenticate, authorize("VENDOR"), vendorsController.updateLayanan)
 router.delete("/me/layanan/:id", authenticate, authorize("VENDOR"), vendorsController.deleteLayanan)
+router.get("/me/portfolio", authenticate, authorize("VENDOR"), vendorsController.getMyPortfolio)
+router.post("/me/portfolio", authenticate, authorize("VENDOR"), vendorsController.createPortfolio)
+router.delete("/me/portfolio/:id", authenticate, authorize("VENDOR"), vendorsController.deletePortfolio)
 
 // ─── Admin — SPESIFIK DULU sebelum /:id ──────────────────────────────────────
 router.get("/pending", authenticate, authorize("ADMIN"), vendorsController.getPendingVendors)

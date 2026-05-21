@@ -9,6 +9,12 @@ import {
   deleteLayanan,
   getVendorBookings,
   updateBookingStatus,
+  getMyPortfolio,
+  createPortfolio,
+  deletePortfolio,
+  uploadImage,
+  getVendorReviews,
+  replyToReview,
 } from './vendor.service';
 import api from '@/lib/api';
 
@@ -155,6 +161,115 @@ describe('Vendor Service', () => {
     it('[NEGATIF] harus melempar error jika booking tidak ditemukan', async () => {
       (api.patch as any).mockRejectedValueOnce(new Error('Not Found'));
       await expect(updateBookingStatus('invalid-id', 'CONFIRMED')).rejects.toThrow('Not Found');
+    });
+  });
+
+  // ─── Portofolio ──────────────────────────────────────────────────────────────
+  describe('getMyPortfolio', () => {
+    it('[POSITIF] harus memanggil GET /vendors/me/portfolio dan mengembalikan list', async () => {
+      const mockList = [{ id: 'p1', title: 'Wedding A' }];
+      (api.get as any).mockResolvedValueOnce({ data: { data: mockList } });
+
+      const result = await getMyPortfolio();
+
+      expect(api.get).toHaveBeenCalledWith('/vendors/me/portfolio');
+      expect(result.length).toBe(1);
+    });
+
+    it('[NEGATIF] harus mengembalikan list kosong jika terjadi error', async () => {
+      (api.get as any).mockRejectedValueOnce(new Error('Server Error'));
+      const result = await getMyPortfolio();
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('createPortfolio', () => {
+    it('[POSITIF] harus memanggil POST /vendors/me/portfolio dengan payload yang benar', async () => {
+      const payload = { title: 'Project X', imageUrl: 'http://foo' };
+      (api.post as any).mockResolvedValueOnce({ data: { data: { id: 'p1', ...payload } } });
+
+      const result = await createPortfolio(payload);
+
+      expect(api.post).toHaveBeenCalledWith('/vendors/me/portfolio', payload);
+      expect(result.title).toBe('Project X');
+    });
+
+    it('[NEGATIF] harus mengembalikan null jika terjadi error', async () => {
+      (api.post as any).mockRejectedValueOnce(new Error('Bad Request'));
+      const result = await createPortfolio({});
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('deletePortfolio', () => {
+    it('[POSITIF] harus memanggil DELETE /vendors/me/portfolio/:id', async () => {
+      (api.delete as any).mockResolvedValueOnce({ data: { data: { success: true } } });
+
+      const result = await deletePortfolio('p1');
+
+      expect(api.delete).toHaveBeenCalledWith('/vendors/me/portfolio/p1');
+      expect(result.success).toBe(true);
+    });
+  });
+
+  // ─── Upload Image ────────────────────────────────────────────────────────────
+  describe('uploadImage', () => {
+    it('[POSITIF] harus memanggil POST /uploads dengan FormData dan mengembalikan URL', async () => {
+      const mockFile = new File(['foo'], 'image.jpg', { type: 'image/jpeg' });
+      (api.post as any).mockResolvedValueOnce({ data: { data: { imageUrl: 'http://localhost:3000/uploads/image.jpg' } } });
+
+      const result = await uploadImage(mockFile);
+
+      expect(api.post).toHaveBeenCalledWith('/uploads', expect.any(FormData));
+      expect(result).toBe('http://localhost:3000/uploads/image.jpg');
+    });
+
+    it('[NEGATIF] harus mengembalikan null jika unggah gambar gagal', async () => {
+      const mockFile = new File(['foo'], 'image.jpg', { type: 'image/jpeg' });
+      (api.post as any).mockRejectedValueOnce(new Error('Network Error'));
+
+      const result = await uploadImage(mockFile);
+      expect(result).toBeNull();
+    });
+  });
+
+  // ─── Get Vendor Reviews ──────────────────────────────────────────────────────
+  describe('getVendorReviews', () => {
+    it('[POSITIF] harus memanggil GET /reviews/vendor/:id dan mengembalikan list ulasan', async () => {
+      const mockReviews = [{ id: 'r1', rating: 5, comment: 'Bagus sekali!' }];
+      (api.get as any).mockResolvedValueOnce({ data: { data: mockReviews } });
+
+      const result = await getVendorReviews('v123');
+
+      expect(api.get).toHaveBeenCalledWith('/reviews/vendor/v123');
+      expect(result).toEqual(mockReviews);
+    });
+
+    it('[NEGATIF] harus mengembalikan list kosong jika terjadi error', async () => {
+      (api.get as any).mockRejectedValueOnce(new Error('Fetch Error'));
+
+      const result = await getVendorReviews('v123');
+      expect(result).toEqual([]);
+    });
+  });
+
+  // ─── Reply to Review ────────────────────────────────────────────────────────
+  describe('replyToReview', () => {
+    it('[POSITIF] harus memanggil PUT /reviews/:id/reply dan mengembalikan data balasan', async () => {
+      const mockResult = { id: 'r1', reply: 'Makasih!' };
+      (api.put as any).mockResolvedValueOnce({ data: { data: mockResult } });
+
+      const result = await replyToReview('r1', 'Makasih!');
+
+      expect(api.put).toHaveBeenCalledWith('/reviews/r1/reply', { reply: 'Makasih!' });
+      expect(result).toEqual(mockResult);
+    });
+
+    it('[NEGATIF] harus mengembalikan null jika terjadi error', async () => {
+      (api.put as any).mockRejectedValueOnce(new Error('Update Error'));
+
+      const result = await replyToReview('r1', 'Makasih!');
+      expect(result).toBeNull();
     });
   });
 });

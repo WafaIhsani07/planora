@@ -183,6 +183,7 @@ export default function LoginPage() {
                   placeholder="Masukkan email atau nomor HP"
                   className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400"
                   required
+                  suppressHydrationWarning
                 />
               </div>
             </div>
@@ -202,6 +203,7 @@ export default function LoginPage() {
                   placeholder="Masukkan kata sandi"
                   className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-12 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400"
                   required
+                  suppressHydrationWarning
                 />
                 <button
                   type="button"
@@ -221,7 +223,7 @@ export default function LoginPage() {
             <div className="flex items-center justify-between px-1">
               <label className="flex items-center gap-2 cursor-pointer group">
                 <div className="relative flex items-center">
-                  <input type="checkbox" className="peer sr-only" defaultChecked />
+                  <input type="checkbox" className="peer sr-only" />
                   <div className="w-5 h-5 bg-slate-100 border border-slate-300 rounded-md peer-checked:bg-[#FF9A9E] peer-checked:border-[#FF9A9E] transition-all" />
                   <svg
                     className="absolute w-3 h-3 text-white left-1 opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none"

@@ -29,3 +29,16 @@ export const getMyReviews = async (req: Request, res: Response) => {
   const result = await reviewService.getMyReviews(req.userId)
   sendSuccess(res, result, "Berhasil mengambil daftar review kamu")
 }
+
+export const replyToReview = async (req: Request, res: Response) => {
+  const { reviewId } = req.params
+  const { reply } = req.body
+
+  if (!reply) {
+    sendValidationError(res, { reply: ["Balasan wajib diisi"] })
+    return
+  }
+
+  const result = await reviewService.replyToReview(req.userId, reviewId as string, reply)
+  sendSuccess(res, result, "Balasan review berhasil disimpan")
+}

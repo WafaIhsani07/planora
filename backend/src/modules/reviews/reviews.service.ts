@@ -62,8 +62,39 @@ export const getVendorReviews = async (vendorId: string) => {
           avatar: true,
         },
       },
+      booking: {
+        select: {
+          id: true,
+          layanan: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
     },
     orderBy: { createdAt: "desc" },
+  })
+}
+
+// ─── Reply to Review (Vendor Only) ────────────────────────────────────────────
+export const replyToReview = async (userId: string, reviewId: string, reply: string) => {
+  const vendor = await db.vendor.findUnique({
+    where: { userId },
+  })
+
+  if (!vendor) throw new AppError("Profil vendor tidak ditemukan", 404)
+
+  const review = await db.review.findUnique({
+    where: { id: reviewId },
+  })
+
+  if (!review) throw new AppError("Review tidak ditemukan", 404)
+  if (review.vendorId !== vendor.id) throw new AppError("Kamu tidak memiliki akses untuk membalas review ini", 403)
+
+  return db.review.update({
+    where: { id: reviewId },
+    data: { reply },
   })
 }
 

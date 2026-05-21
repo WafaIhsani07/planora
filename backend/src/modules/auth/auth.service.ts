@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt"
+import bcrypt from "bcryptjs"
 import { randomBytes } from "node:crypto"
 import { db } from "../../config/database.js"
 import { AppError } from "../../utils/error.js"

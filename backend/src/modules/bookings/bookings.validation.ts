@@ -17,3 +17,10 @@ export const updateStatusSchema = z.object({
 
 export type CreateBookingInput = z.infer<typeof createBookingSchema>
 export type UpdateStatusInput = z.infer<typeof updateStatusSchema>
+
+export const getBookingsQuerySchema = z.object({
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(1).max(500).default(50),
+  status: z.string().optional(),
+})
+export type GetBookingsQuery = z.infer<typeof getBookingsQuerySchema>

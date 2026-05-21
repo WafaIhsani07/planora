@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import '../services/api_service.dart';
 import '../main.dart' show PlanoraColors;
 
 class PengaturanScreen extends StatefulWidget {
@@ -16,8 +16,8 @@ class _PengaturanScreenState extends State<PengaturanScreen> {
     setState(() => _isLoggingOut = true);
 
     try {
-      // Coba hit endpoint logout di server (opsional)
-      await http.post(Uri.parse('http://10.0.2.2:5000/api/v1/auth/logout'));
+      // Keluar akun via ApiService (hapus token lokal)
+      await ApiService.logout();
       await Future.delayed(const Duration(seconds: 1));
 
       if (mounted) {

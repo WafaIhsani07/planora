@@ -19,9 +19,38 @@ class _ExploreScreenState extends State<ExploreScreen> {
   List<dynamic> get _filteredRecommendations {
     return _recommendations.where((item) {
       final name = (item['businessName'] ?? item['name'] ?? '').toString().toLowerCase();
-      final category = (item['category'] ?? '').toString().toLowerCase();
+      
+      // Resolve category secara dinamis dari relasi backend
+      String catName = 'Vendor';
+      final layananList = item['layanan'];
+      if (item['category'] != null && item['category'].toString().isNotEmpty) {
+        catName = item['category'].toString();
+      } else if (layananList is List && layananList.isNotEmpty) {
+        final firstLayanan = layananList[0];
+        if (firstLayanan is Map && firstLayanan['kategori'] is Map) {
+          catName = firstLayanan['kategori']['name'] ?? 'Vendor';
+        }
+      }
+      
+      final category = catName.toLowerCase();
       final matchesSearch = _searchQuery.isEmpty || name.contains(_searchQuery.toLowerCase());
-      final matchesCategory = _selectedCategory.isEmpty || category == _selectedCategory.toLowerCase();
+      
+      bool matchesCategory = _selectedCategory.isEmpty;
+      if (_selectedCategory.isNotEmpty) {
+        final selCat = _selectedCategory.toLowerCase();
+        if (category == selCat) {
+          matchesCategory = true;
+        } else if (selCat == 'foto' && category.contains('foto')) {
+          matchesCategory = true;
+        } else if (selCat == 'katering' && (category.contains('catering') || category.contains('sajian') || category.contains('katering'))) {
+          matchesCategory = true;
+        } else if (selCat == 'dekorasi' && category.contains('dekor')) {
+          matchesCategory = true;
+        } else if (selCat == 'gedung' && (category.contains('wedding') || category.contains('organizer') || category.contains('gedung'))) {
+          matchesCategory = true;
+        }
+      }
+      
       return matchesSearch && matchesCategory;
     }).toList();
   }
@@ -97,16 +126,30 @@ class _ExploreScreenState extends State<ExploreScreen> {
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: _filteredRecommendations.length,
-                          itemBuilder: (context, index) {
+                        itemBuilder: (context, index) {
                             final item = _filteredRecommendations[index];
                             final avatar = item['avatar']?.toString() ?? '';
-                            final imageUrl = avatar.isNotEmpty
-                                ? (avatar.startsWith('http') ? avatar : 'http://10.0.2.2:5000/assets/$avatar')
+                            final assetUrl = ApiService.getAssetUrl(avatar);
+                            final imageUrl = assetUrl.isNotEmpty
+                                ? assetUrl
                                 : 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=200&auto=format&fit=crop';
+                            
+                            // Resolve category secara dinamis
+                            String catName = 'Vendor';
+                            final layananList = item['layanan'];
+                            if (item['category'] != null && item['category'].toString().isNotEmpty) {
+                              catName = item['category'].toString();
+                            } else if (layananList is List && layananList.isNotEmpty) {
+                              final firstLayanan = layananList[0];
+                              if (firstLayanan is Map && firstLayanan['kategori'] is Map) {
+                                catName = firstLayanan['kategori']['name'] ?? 'Vendor';
+                              }
+                            }
+
                             return _buildCard(
                               id: item['id']?.toString() ?? '1',
                               name: item['businessName'] ?? item['name'] ?? 'Layanan',
-                              category: item['category'] ?? 'Kategori',
+                              category: catName,
                               rating: item['rating']?.toString() ?? '0.0',
                               imageUrl: imageUrl,
                             );
@@ -201,11 +244,14 @@ class _ExploreScreenState extends State<ExploreScreen> {
         ),
         child: Row(
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(14),
-              child: Image.network(imageUrl, width: 80, height: 80, fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(width: 80, height: 80, color: PlanoraColors.brandAccent,
-                      child: const Icon(Icons.storefront_outlined, color: PlanoraColors.brandDark))),
+            Hero(
+              tag: 'vendor-img-$id',
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: Image.network(imageUrl, width: 80, height: 80, fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(width: 80, height: 80, color: PlanoraColors.brandAccent,
+                        child: const Icon(Icons.storefront_outlined, color: PlanoraColors.brandDark))),
+              ),
             ),
             const SizedBox(width: 14),
             Expanded(

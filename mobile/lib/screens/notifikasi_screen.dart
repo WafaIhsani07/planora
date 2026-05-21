@@ -24,12 +24,10 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
   Future<void> _fetchNotifications() async {
     setState(() => _isLoading = true);
     try {
-      final response = await ApiService.getRequest('/notifications');
-      if (response.statusCode == 200) {
-        final body = json.decode(response.body);
-        final data = body['data'] ?? body;
+      final result = await ApiService.getNotifications();
+      if (result['success'] == true) {
         setState(() {
-          _notifications = data is List ? data : [];
+          _notifications = result['data'] is List ? result['data'] : [];
         });
       } else {
         setState(() => _notifications = []);
@@ -40,6 +38,7 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
       if (mounted) setState(() => _isLoading = false);
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

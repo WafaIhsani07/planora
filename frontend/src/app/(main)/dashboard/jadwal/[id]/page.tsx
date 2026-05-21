@@ -3,8 +3,47 @@
 import React from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import DashboardLayout from '../../DashboardLayout';
-import { vendorOrders, type OrderStatus } from '@/lib/orders';
+import { type Order, type OrderStatus } from '@/lib/orders';
+import { getVendorBookings } from '@/services/vendor.service';
+import { format } from 'date-fns';
+import { id as localeId } from 'date-fns/locale';
 import Link from 'next/link';
+
+function mapBackendBookingToOrder(b: any): Order {
+  let formattedDate = 'N/A';
+  if (b.eventDate) {
+    try {
+      const date = new Date(b.eventDate);
+      formattedDate = format(date, 'd MMMM yyyy', { locale: localeId });
+    } catch (e) {
+      formattedDate = b.eventDate.toString();
+    }
+  }
+
+  let uiStatus: OrderStatus = 'Menunggu';
+  if (b.status === 'CONFIRMED' || b.status === 'IN_PROGRESS') {
+    uiStatus = 'Dikonfirmasi';
+  } else if (b.status === 'COMPLETED') {
+    uiStatus = 'Selesai';
+  } else if (b.status === 'PENDING') {
+    uiStatus = 'Menunggu';
+  }
+
+  return {
+    id: b.id,
+    name: b.notes || `Acara ${b.customer?.name || ''}`,
+    client: b.customer?.name || 'Klien',
+    date: formattedDate,
+    time: '08.00 - 16.00',
+    package: b.layanan?.name || 'Paket Layanan',
+    type: 'Premium',
+    status: uiStatus,
+    paymentStatus: b.status === 'COMPLETED' ? 'selesai' : b.status === 'PENDING' ? 'menunggu' : 'dikonfirmasi',
+    amount: `Rp ${Number(b.totalPrice || 0).toLocaleString('id-ID')}`,
+    location: b.eventAddress || 'Lokasi Acara',
+    img: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=100',
+  };
+}
 import {
   ArrowLeft,
   Briefcase,
@@ -36,12 +75,42 @@ function getStatusColor(status: OrderStatus) {
 export default function PesananDetailPage() {
   const params = useParams();
   const searchParams = useSearchParams();
-  const orderId = params.id as string;
+  const orderId = params?.id as string;
   const decodedOrderId = typeof orderId === 'string' ? decodeURIComponent(orderId) : orderId;
-  const viewParam = searchParams.get('view');
+  const viewParam = searchParams?.get('view');
   const backHref = viewParam === 'calendar' ? '/dashboard/jadwal?view=calendar' : '/dashboard/jadwal?view=list';
 
-  const order = vendorOrders.find((o) => o.id === decodedOrderId);
+  const [orders, setOrders] = React.useState<Order[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    async function loadData() {
+      try {
+        const data = await getVendorBookings();
+        const arrayData = Array.isArray(data) ? data : data?.data || [];
+        if (arrayData && Array.isArray(arrayData)) {
+          setOrders(arrayData.map(mapBackendBookingToOrder));
+        }
+      } catch (error) {
+        console.error("Gagal load bookings:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
+  const order = orders.find((o) => o.id === decodedOrderId);
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex h-screen items-center justify-center" data-testid="loading-spinner">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF9A9E]"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   if (!order) {
     return (

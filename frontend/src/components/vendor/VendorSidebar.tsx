@@ -43,9 +43,9 @@ export default function VendorSidebar({ isCollapsed, toggleSidebar }: VendorSide
   // Fetch real-time pending bookings count for badge
   useEffect(() => {
     getVendorBookings({ status: 'PENDING' })
-      .then((data) => {
-        if (data) {
-          setPendingCount(data.length);
+      .then((res) => {
+        if (res && res.data) {
+          setPendingCount(res.data.length);
         }
       })
       .catch((err) => console.error('Gagal mengambil jumlah pesanan tertunda:', err));

@@ -7,6 +7,7 @@ import type {
   CreateLayananInput,
   UpdateLayananInput,
   GetVendorsQuery,
+  CreatePortfolioInput,
 } from "./vendors.validation.js"
 
 // ─── Get All Vendors (Public) ─────────────────────────────────────────────────
@@ -186,12 +187,9 @@ export const updateVendorProfile = async (
   userId: string,
   input: UpdateVendorProfileInput
 ) => {
-  const vendor = await db.vendor.findUnique({ where: { userId } })
-  if (!vendor) throw new AppError("Profil vendor tidak ditemukan", 404)
-
-  return db.vendor.update({
+  return db.vendor.upsert({
     where: { userId },
-    data: {
+    update: {
       ...(input.businessName !== undefined && { businessName: input.businessName }),
       ...(input.description !== undefined && { description: input.description ?? null }),
       ...(input.address !== undefined && { address: input.address ?? null }),
@@ -201,6 +199,17 @@ export const updateVendorProfile = async (
       ...(input.bankAccount !== undefined && { bankAccount: input.bankAccount ?? null }),
       ...(input.bankHolder !== undefined && { bankHolder: input.bankHolder ?? null }),
     },
+    create: {
+      userId,
+      businessName: input.businessName ?? "Bisnis Baru",
+      description: input.description ?? null,
+      address: input.address ?? null,
+      city: input.city ?? null,
+      province: input.province ?? null,
+      bankName: input.bankName ?? null,
+      bankAccount: input.bankAccount ?? null,
+      bankHolder: input.bankHolder ?? null,
+    }
   })
 }
 
@@ -377,5 +386,48 @@ export const rejectVendor = async (id: string, input: RejectVendorInput) => {
       rejectedReason: true,
       updatedAt: true,
     },
+  })
+}
+
+// ─── Get My Portfolio ─────────────────────────────────────────────────────────
+export const getMyPortfolio = async (userId: string) => {
+  const vendor = await db.vendor.findUnique({ where: { userId } })
+  if (!vendor) throw new AppError("Profil vendor tidak ditemukan", 404)
+
+  return db.portfolio.findMany({
+    where: { vendorId: vendor.id },
+    orderBy: { createdAt: "desc" },
+  })
+}
+
+// ─── Create Portfolio ──────────────────────────────────────────────────────────
+export const createPortfolio = async (userId: string, input: CreatePortfolioInput) => {
+  const vendor = await db.vendor.findUnique({ where: { userId } })
+  if (!vendor)
+    throw new AppError("Profil vendor tidak ditemukan, buat profil vendor terlebih dahulu", 404)
+
+  return db.portfolio.create({
+    data: {
+      vendorId: vendor.id,
+      title: input.title,
+      description: input.description ?? null,
+      imageUrl: input.imageUrl,
+      eventDate: input.eventDate ? new Date(input.eventDate) : null,
+    },
+  })
+}
+
+// ─── Delete Portfolio ──────────────────────────────────────────────────────────
+export const deletePortfolio = async (userId: string, portfolioId: string) => {
+  const vendor = await db.vendor.findUnique({ where: { userId } })
+  if (!vendor) throw new AppError("Profil vendor tidak ditemukan", 404)
+
+  const portfolio = await db.portfolio.findUnique({ where: { id: portfolioId } })
+  if (!portfolio) throw new AppError("Item portofolio tidak ditemukan", 404)
+  if (portfolio.vendorId !== vendor.id)
+    throw new AppError("Kamu tidak punya akses ke item portofolio ini", 403)
+
+  await db.portfolio.delete({
+    where: { id: portfolioId },
   })
 }

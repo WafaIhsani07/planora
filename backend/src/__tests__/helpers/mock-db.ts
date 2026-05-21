@@ -35,8 +35,10 @@ export const mockDb = {
   payment: createModelMock(),
   review: createModelMock(),
   notification: createModelMock(),
+  message: createModelMock(),
   refreshToken: createModelMock(),
   passwordResetToken: createModelMock(),
+  favorite: createModelMock(),
   $transaction: vi.fn(),
 }
 

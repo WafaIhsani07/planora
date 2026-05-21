@@ -229,4 +229,73 @@ describe("Notifications Service", () => {
       expect(result).toBe(0)
     })
   })
+
+  // ──────────────────────────────────────────────────────────────
+  // getNotificationById
+  // ──────────────────────────────────────────────────────────────
+  describe("getNotificationById", () => {
+    it("should successfully retrieve a notification by ID", async () => {
+      const mockResult = {
+        id: "notif-1",
+        userId: "user-1",
+        title: "Test Notification",
+        message: "Test Message",
+        type: "SYSTEM",
+        data: null,
+        isRead: false,
+        createdAt: new Date(),
+      }
+      mockDb.notification.findFirst.mockResolvedValue(mockResult)
+
+      const result = await notifService.getNotificationById("user-1", "notif-1")
+
+      expect(result.id).toBe("notif-1")
+      expect(result.vendorName).toBe("Planora Vendor")
+      expect(result.fullMessage).toBe("Test Message")
+      expect(mockDb.notification.findFirst).toHaveBeenCalledWith({
+        where: { id: "notif-1", userId: "user-1" },
+      })
+    })
+
+    it("should throw AppError 404 if notification not found", async () => {
+      mockDb.notification.findFirst.mockResolvedValue(null)
+
+      await expect(
+        notifService.getNotificationById("user-1", "nonexistent-id")
+      ).rejects.toThrow("Notifikasi tidak ditemukan")
+    })
+
+    it("should fetch real booking and vendor details if bookingId is in data", async () => {
+      const mockResult = {
+        id: "notif-1",
+        userId: "user-1",
+        title: "Pesanan Baru",
+        message: "Kamu mendapat pesanan baru",
+        type: "BOOKING",
+        data: { bookingId: "b1" },
+        isRead: false,
+        createdAt: new Date(),
+      }
+      mockDb.notification.findFirst.mockResolvedValue(mockResult)
+
+      const mockBooking = {
+        id: "b1",
+        vendor: {
+          businessName: "Beautiful Weddings",
+          user: { avatar: "https://avatar.url" }
+        },
+        layanan: {
+          kategori: { name: "Wedding Planner" }
+        }
+      }
+      mockDb.booking.findUnique.mockResolvedValue(mockBooking)
+
+      const result = await notifService.getNotificationById("user-1", "notif-1")
+
+      expect(result.vendorName).toBe("Beautiful Weddings")
+      expect(result.vendorCategory).toBe("Wedding Planner")
+      expect(result.vendorImageUrl).toBe("https://avatar.url")
+    })
+  })
 })
+

@@ -1,4 +1,5 @@
 import { db } from "../../config/database.js"
+import { AppError } from "../../utils/error.js"
 import type {
   CreateNotificationInput,
   GetNotificationsQuery,
@@ -76,4 +77,59 @@ export const getUnreadCount = async (userId: string) => {
   return db.notification.count({
     where: { userId, isRead: false },
   })
+}
+
+// ─── Get Notification By ID ───────────────────────────────────────────────────
+export const getNotificationById = async (userId: string, id: string) => {
+  const notification = await db.notification.findFirst({
+    where: { id, userId },
+  })
+
+  if (!notification) {
+    throw new AppError("Notifikasi tidak ditemukan", 404)
+  }
+
+  // default vendor details
+  let vendorName = "Planora Vendor"
+  let vendorCategory = "Layanan Vendor"
+  let vendorImageUrl = "https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=150&auto=format&fit=crop"
+
+  if (notification.data && typeof notification.data === "object") {
+    const data = notification.data as Record<string, any>
+    if (data.bookingId) {
+      try {
+        const booking = await db.booking.findUnique({
+          where: { id: data.bookingId },
+          include: {
+            vendor: {
+              include: {
+                user: { select: { avatar: true } }
+              }
+            },
+            layanan: {
+              include: { kategori: { select: { name: true } } }
+            }
+          }
+        })
+        if (booking) {
+          vendorName = booking.vendor.businessName
+          vendorCategory = booking.layanan.kategori.name
+          if (booking.vendor.user.avatar) {
+            vendorImageUrl = booking.vendor.user.avatar
+          }
+        }
+      } catch (e) {
+        // ignore and fallback
+      }
+    }
+  }
+
+  return {
+    ...notification,
+    vendorName,
+    vendorCategory,
+    vendorImageUrl,
+    fullMessage: notification.message,
+    time: notification.createdAt,
+  }
 }

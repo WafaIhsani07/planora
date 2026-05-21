@@ -7,6 +7,7 @@ import {
   createLayananSchema,
   updateLayananSchema,
   getVendorsQuerySchema,
+  createPortfolioSchema,
 } from "./vendors.validation.js"
 import { sendSuccess, sendCreated, sendValidationError } from "../../utils/response.js"
 
@@ -129,4 +130,31 @@ export const rejectVendor = async (
     parsed.data
   )
   sendSuccess(res, vendor, "Vendor berhasil ditolak")
+}
+
+// ─── Get My Portfolio ─────────────────────────────────────────────────────────
+export const getMyPortfolio = async (
+  req: Request, res: Response, next: NextFunction
+): Promise<void> => {
+  const portfolio = await vendorsService.getMyPortfolio(req.userId)
+  sendSuccess(res, portfolio, "Data portofolio berhasil diambil")
+}
+
+// ─── Create Portfolio ──────────────────────────────────────────────────────────
+export const createPortfolio = async (
+  req: Request, res: Response, next: NextFunction
+): Promise<void> => {
+  const parsed = createPortfolioSchema.safeParse(req.body)
+  if (!parsed.success) { sendValidationError(res, parsed.error.flatten().fieldErrors); return }
+
+  const portfolio = await vendorsService.createPortfolio(req.userId, parsed.data)
+  sendCreated(res, portfolio, "Item portofolio berhasil ditambahkan")
+}
+
+// ─── Delete Portfolio ──────────────────────────────────────────────────────────
+export const deletePortfolio = async (
+  req: Request, res: Response, next: NextFunction
+): Promise<void> => {
+  await vendorsService.deletePortfolio(req.userId, String(req.params["id"] ?? ""))
+  sendSuccess(res, null, "Item portofolio berhasil dihapus")
 }

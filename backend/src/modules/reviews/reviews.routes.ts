@@ -22,4 +22,12 @@ router.get(
   reviewController.getMyReviews
 )
 
+// Protected Routes (Vendor Only)
+router.put(
+  "/:reviewId/reply",
+  authenticate,
+  authorize("VENDOR"),
+  reviewController.replyToReview
+)
+
 export default router

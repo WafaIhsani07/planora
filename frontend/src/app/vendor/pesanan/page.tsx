@@ -139,7 +139,7 @@ export default function VendorPesananPage() {
   const fetchBookings = async () => {
     try {
       const data = await getVendorBookings();
-      const bookingList = Array.isArray(data) ? data : data?.bookings ?? [];
+      const bookingList = Array.isArray(data) ? data : data?.data ?? data?.bookings ?? [];
       setBookings(bookingList);
     } catch (err) {
       console.error('Gagal memuat pesanan:', err);

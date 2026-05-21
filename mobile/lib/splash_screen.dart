@@ -1,7 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:async';
 import 'main.dart' show PlanoraColors;
+import 'services/api_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -35,13 +36,15 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller.forward();
 
-    // Navigasi bypass ke Home setelah 3 detik
-    Timer(const Duration(seconds: 3), () {
+    // Navigasi pintar berdasarkan status login setelah 3 detik
+    Timer(const Duration(seconds: 3), () async {
       if (mounted) {
-        Navigator.pushReplacementNamed(
-          context,
-          '/home',
-        ); // Bypass: Ganti '/welcome' dengan '/home'
+        final token = await ApiService.getToken();
+        if (token != null && token.isNotEmpty) {
+          Navigator.pushReplacementNamed(context, '/home');
+        } else {
+          Navigator.pushReplacementNamed(context, '/welcome');
+        }
       }
     });
   }

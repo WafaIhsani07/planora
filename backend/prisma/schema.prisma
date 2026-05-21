@@ -64,6 +64,8 @@ model User {
   notifications Notification[]
   refreshTokens RefreshToken[]
   passwordResetTokens PasswordResetToken[]
+  messages      Message[]
+  favorites     Favorite[]
 
   @@map("users")
 }
@@ -118,6 +120,7 @@ model Vendor {
   jadwal    Jadwal[]
   bookings  Booking[]
   reviews   Review[]
+  favorites Favorite[]
 
   @@map("vendors")
 }
@@ -209,6 +212,7 @@ model Booking {
   jadwal   Jadwal?  @relation(fields: [jadwalId], references: [id])
   payment  Payment?
   review   Review?
+  messages Message[]
 
   @@index([customerId])
   @@index([vendorId])
@@ -240,6 +244,7 @@ model Review {
   vendorId   String
   rating     Int
   comment    String?
+  reply      String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -266,3 +271,36 @@ model Notification {
   @@index([userId])
   @@map("notifications")
 }
+
+// ─── Chat Message ─────────────────────────────────────────────────────────────
+
+model Message {
+  id        String   @id @default(cuid())
+  bookingId String
+  senderId  String
+  content   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  sender  User    @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+  @@index([senderId])
+  @@map("messages")
+}
+
+// ─── Favorites ────────────────────────────────────────────────────────────────
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  vendorId  String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, vendorId])
+  @@map("favorites")
+}

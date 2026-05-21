@@ -15,18 +15,32 @@ import paymentsRoutes from "./modules/payments/payments.routes.js"
 import reviewRoutes from "./modules/reviews/reviews.routes.js"
 import notificationRoutes from "./modules/notifications/notifications.routes.js"
 import adminRoutes from "./modules/admin/admin.routes.js"
+import uploadsRoutes from "./modules/uploads/uploads.routes.js"
+import messagesRoutes from "./modules/messages/messages.routes.js"
+import favoritesRoutes from "./modules/favorites/favorites.routes.js"
 
 const app = express()
 
 // ─── Middleware ──────────────────────────────────────────────────────────────
 app.use(
   cors({
-    origin: env.FRONTEND_URL,
+    origin: (origin, callback) => {
+      // Izinkan request tanpa origin (seperti mobile app native, curl, postman)
+      if (!origin) return callback(null, true);
+      
+      const isLocalhost = origin.startsWith("http://localhost:") || origin.startsWith("http://127.0.0.1:");
+      if (origin === env.FRONTEND_URL || isLocalhost) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 )
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+app.use("/uploads", express.static("uploads"))
 
 // ─── Health Check ─────────────────────────────────────────────────────────────
 app.get("/", (_req: Request, res: Response) => {
@@ -45,10 +59,13 @@ app.use("/api/v1/vendors",  vendorsRoutes)
 app.use("/api/v1/kategori", kategoriRoutes)   
 app.use("/api/v1/jadwal", jadwalRoutes)
 app.use("/api/v1/bookings", bookingsRoutes)
+app.use("/api/v1/bookings/:bookingId/messages", messagesRoutes)
 app.use("/api/v1/payments", paymentsRoutes)
 app.use("/api/v1/reviews", reviewRoutes)
 app.use("/api/v1/notifications", notificationRoutes)
 app.use("/api/v1/admin", adminRoutes)
+app.use("/api/v1/uploads", uploadsRoutes)
+app.use("/api/v1/favorites", favoritesRoutes)
 
 // ─── 404 Handler ──────────────────────────────────────────────────────────────
 app.use((req: Request, res: Response) => {

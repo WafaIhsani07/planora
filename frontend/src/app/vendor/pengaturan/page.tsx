@@ -10,16 +10,17 @@ import {
   User,
   Bell,
   X,
+  RefreshCw,
 } from 'lucide-react';
+import { getMyVendorProfile, updateVendorProfile, uploadImage } from '@/services/vendor.service';
+import { getUserProfile, updateUserProfile, changePassword } from '@/services/user.service';
 
 type ProfileForm = {
   businessName: string;
-  yearFounded: string;
   description: string;
   email: string;
-  whatsapp: string;
-  instagram: string;
-  website: string;
+  phone: string;
+  city: string;
   address: string;
 };
 
@@ -27,24 +28,6 @@ type BankForm = {
   bankName: string;
   accountNumber: string;
   accountHolder: string;
-};
-
-const initialForm: ProfileForm = {
-  businessName: 'Wafa Decoration',
-  yearFounded: '2018',
-  description:
-    'Wafa Decoration melayani berbagai macam jasa dekorasi mulai dari lamaran, akad nikah, hingga resepsi besar dengan sentuhan modern dan elegan.',
-  email: 'hello@wafadeco.com',
-  whatsapp: '+62 812-3456-7890',
-  instagram: '@wafadecoration',
-  website: '',
-  address: 'Jl. Melati No. 45, Kebayoran Baru, Jakarta Selatan, 12150',
-};
-
-const initialBankForm: BankForm = {
-  bankName: 'Bank BCA',
-  accountNumber: '1234 5678 9012',
-  accountHolder: 'Wafa Decoration',
 };
 
 const navItems = [
@@ -55,29 +38,98 @@ const navItems = [
 ];
 
 export default function PengaturanVendorPage() {
-  const [form, setForm] = useState<ProfileForm>(initialForm);
-  const [notice, setNotice] = useState<{ type: 'success' | 'info'; message: string } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [form, setForm] = useState<ProfileForm>({
+    businessName: '',
+    description: '',
+    email: '',
+    phone: '',
+    city: '',
+    address: '',
+  });
+  
+  const [bankForm, setBankForm] = useState<BankForm>({
+    bankName: '',
+    accountNumber: '',
+    accountHolder: '',
+  });
+
+  const [notice, setNotice] = useState<{ type: 'success' | 'info' | 'error'; message: string } | null>(null);
+  
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [isRemovingAvatar, setIsRemovingAvatar] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [showRemoveAvatarConfirm, setShowRemoveAvatarConfirm] = useState(false);
+  
   const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [isSavingBank, setIsSavingBank] = useState(false);
+  
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [deleteError, setDeleteError] = useState('');
+  
   const [activeSection, setActiveSection] = useState('profil');
-  const [bankForm, setBankForm] = useState<BankForm>(initialBankForm);
-  const [bankDraft, setBankDraft] = useState<BankForm>(initialBankForm);
+  
+  const [bankDraft, setBankDraft] = useState<BankForm>({ bankName: '', accountNumber: '', accountHolder: '' });
   const [bankEditMode, setBankEditMode] = useState(false);
+  
   const rightRef = useRef<HTMLDivElement | null>(null);
   const noticeTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
+    async function loadData() {
+      try {
+        setLoading(true);
+        const [user, vendor] = await Promise.all([
+          getUserProfile(),
+          getMyVendorProfile(),
+        ]);
+        
+        if (user) {
+          setForm(prev => ({
+            ...prev,
+            email: user.email || '',
+            phone: user.phone || '',
+          }));
+          if (user.avatar) setAvatarUrl(user.avatar);
+        }
+        
+        if (vendor) {
+          setForm(prev => ({
+            ...prev,
+            businessName: vendor.businessName || '',
+            description: vendor.description || '',
+            city: vendor.city || '',
+            address: vendor.address || '',
+          }));
+          
+          setBankForm({
+            bankName: vendor.bankName || 'Bank BCA',
+            accountNumber: vendor.bankAccount || '',
+            accountHolder: vendor.bankHolder || '',
+          });
+        }
+      } catch (error) {
+        console.error("Gagal memuat profil:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    loadData();
+  }, []);
+
+  useEffect(() => {
+    if (loading) return;
     const container = rightRef.current;
     if (!container) return;
 
@@ -97,80 +149,123 @@ export default function PengaturanVendorPage() {
     onScroll();
     container.addEventListener('scroll', onScroll, { passive: true });
     return () => container.removeEventListener('scroll', onScroll);
-  }, []);
+  }, [loading]);
+
+  useEffect(() => {
+    return () => {
+      if (avatarUrl && avatarUrl.startsWith('blob:')) URL.revokeObjectURL(avatarUrl);
+    };
+  }, [avatarUrl]);
+
+  const pushNotice = (type: 'success' | 'info' | 'error', message: string) => {
+    if (noticeTimerRef.current) window.clearTimeout(noticeTimerRef.current);
+    setNotice({ type, message });
+    noticeTimerRef.current = window.setTimeout(() => setNotice(null), 3000);
+  };
 
   const handleChange = (key: keyof ProfileForm, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  useEffect(() => {
-    return () => {
-      if (avatarUrl) URL.revokeObjectURL(avatarUrl);
-    };
-  }, [avatarUrl]);
-
   const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const url = URL.createObjectURL(file);
-    if (avatarUrl) URL.revokeObjectURL(avatarUrl);
+    if (avatarUrl && avatarUrl.startsWith('blob:')) URL.revokeObjectURL(avatarUrl);
     setAvatarUrl(url);
-    pushNotice('success', 'Foto profil berhasil dipilih (preview). Klik Simpan Perubahan untuk menyimpan');
+    setAvatarFile(file);
+    setIsRemovingAvatar(false);
+    pushNotice('info', 'Foto profil dipilih (preview). Klik Simpan Perubahan untuk menyimpan');
   };
 
   const triggerFileSelect = () => fileInputRef.current?.click();
 
   const handleRemoveAvatar = () => {
     setShowRemoveAvatarConfirm(false);
-    if (avatarUrl) URL.revokeObjectURL(avatarUrl);
+    if (avatarUrl && avatarUrl.startsWith('blob:')) URL.revokeObjectURL(avatarUrl);
     setAvatarUrl(null);
-    pushNotice('info', 'Foto profil dihapus. Klik Simpan Perubahan untuk menyimpan perubahan.');
+    setAvatarFile(null);
+    setIsRemovingAvatar(true);
+    pushNotice('info', 'Foto profil dihapus. Klik Simpan Perubahan untuk menyelesaikannya.');
   };
 
-  const pushNotice = (type: 'success' | 'info', message: string) => {
-    if (noticeTimerRef.current) {
-      window.clearTimeout(noticeTimerRef.current);
-    }
-
-    setNotice({ type, message });
-    noticeTimerRef.current = window.setTimeout(() => {
-      setNotice(null);
-    }, 2500);
-  };
-
-  const handleSave = () => {
+  const handleSave = async () => {
     if (isSavingProfile) return;
-
+    
+    if (!form.businessName || form.businessName.trim().length < 2) {
+      pushNotice('error', 'Nama Bisnis wajib diisi minimal 2 karakter!');
+      return;
+    }
+    
     setIsSavingProfile(true);
-    window.setTimeout(() => {
-      setIsSavingProfile(false);
+    
+    try {
+      let finalAvatarUrl = avatarUrl;
+      let avatarChanged = false;
+      
+      // Handle avatar upload atau penghapusan
+      if (avatarFile) {
+        const uploadedUrl = await uploadImage(avatarFile);
+        if (uploadedUrl) {
+          finalAvatarUrl = uploadedUrl;
+          avatarChanged = true;
+        } else {
+          // Upload gagal, hentikan proses
+          setIsSavingProfile(false);
+          return;
+        }
+      } else if (isRemovingAvatar) {
+        finalAvatarUrl = '';
+        avatarChanged = true;
+      }
+      
+      // Update User fields (avatar + phone)
+      await updateUserProfile({
+        phone: form.phone,
+        ...(avatarChanged ? { avatar: finalAvatarUrl || '' } : {}),
+      });
+      
+      // Update Vendor fields
+      await updateVendorProfile({
+        businessName: form.businessName,
+        description: form.description,
+        city: form.city,
+        address: form.address,
+      });
+      
+      // Perbarui state avatar agar tampilan langsung berubah
+      if (avatarChanged) {
+        setAvatarUrl(finalAvatarUrl || null);
+        // Kirim event ke layout agar topbar langsung refresh avatar
+        window.dispatchEvent(new CustomEvent('vendor-avatar-updated', { detail: { avatarUrl: finalAvatarUrl } }));
+      }
+      setAvatarFile(null);
+      setIsRemovingAvatar(false);
       pushNotice('success', 'Profil bisnis berhasil disimpan.');
-    }, 900);
+    } catch (error) {
+      pushNotice('error', 'Gagal menyimpan profil bisnis.');
+    } finally {
+      setIsSavingProfile(false);
+    }
   };
 
-  const handlePasswordUpdate = () => {
+  const handlePasswordUpdate = async () => {
     setPasswordError('');
 
-    if (!currentPassword) {
-      setPasswordError('Isi kata sandi saat ini terlebih dahulu.');
-      return;
-    }
+    if (!currentPassword) return setPasswordError('Isi kata sandi saat ini terlebih dahulu.');
+    if (newPassword.length < 8) return setPasswordError('Kata sandi baru minimal 8 karakter.');
+    if (newPassword !== confirmPassword) return setPasswordError('Konfirmasi kata sandi tidak cocok.');
 
-    if (newPassword.length < 8) {
-      setPasswordError('Kata sandi baru minimal 8 karakter.');
-      return;
+    try {
+      await changePassword({ currentPassword, newPassword, confirmPassword });
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setShowPasswordModal(false);
+      pushNotice('success', 'Kata sandi berhasil diperbarui.');
+    } catch (error: any) {
+      setPasswordError(error.response?.data?.message || 'Gagal mengubah kata sandi');
     }
-
-    if (newPassword !== confirmPassword) {
-      setPasswordError('Konfirmasi kata sandi tidak cocok.');
-      return;
-    }
-
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
-    setShowPasswordModal(false);
-    pushNotice('success', 'Kata sandi berhasil diperbarui.');
   };
 
   const handleLogout = async () => {
@@ -190,10 +285,8 @@ export default function PengaturanVendorPage() {
       setDeleteError('Ketik HAPUS untuk melanjutkan.');
       return;
     }
-
     setShowDeleteModal(false);
-    setDeleteConfirmText('');
-    pushNotice('info', 'Permintaan penghapusan akun vendor telah dikirim.');
+    pushNotice('info', 'Permintaan penghapusan akun vendor telah dikirim ke Admin.');
   };
 
   const handleEditBank = () => {
@@ -212,12 +305,23 @@ export default function PengaturanVendorPage() {
     }
   };
 
-  const handleSaveBank = () => {
-    if (!bankEditMode) return;
-
-    setBankForm(bankDraft);
-    setBankEditMode(false);
-    pushNotice('success', 'Perubahan rekening disimpan.');
+  const handleSaveBank = async () => {
+    if (!bankEditMode || isSavingBank) return;
+    setIsSavingBank(true);
+    try {
+      await updateVendorProfile({
+        bankName: bankDraft.bankName,
+        bankAccount: bankDraft.accountNumber,
+        bankHolder: bankDraft.accountHolder,
+      });
+      setBankForm(bankDraft);
+      setBankEditMode(false);
+      pushNotice('success', 'Perubahan rekening disimpan.');
+    } catch (error) {
+      pushNotice('error', 'Gagal memperbarui rekening bank.');
+    } finally {
+      setIsSavingBank(false);
+    }
   };
 
   const sidebarItems = useMemo(
@@ -251,6 +355,15 @@ export default function PengaturanVendorPage() {
     [activeSection]
   );
 
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-40" data-testid="loading-spinner">
+        <RefreshCw className="w-12 h-12 text-[#FF9A9E] animate-spin mb-4" />
+        <p className="text-xs font-bold uppercase tracking-widest text-[#2A2A2A]/40">Memuat pengaturan...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-7xl space-y-10 pb-20 p-8 py-6">
       <div className="space-y-1">
@@ -265,6 +378,8 @@ export default function PengaturanVendorPage() {
           className={`rounded-2xl px-4 py-3 text-[11px] font-black uppercase tracking-widest ${
             notice.type === 'success'
               ? 'border border-[#E6F9F0] bg-[#E6F9F0] text-[#10B981]'
+              : notice.type === 'error'
+              ? 'border border-[#F9D4D4] bg-[#FFF2F2] text-red-500'
               : 'border border-[#E8EEFF] bg-[#E8EEFF] text-[#5B6AC5]'
           }`}
         >
@@ -300,11 +415,11 @@ export default function PengaturanVendorPage() {
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={avatarUrl} alt="avatar" className="h-full w-full object-cover" />
                   ) : (
-                    <span>WD</span>
+                    <User className="h-12 w-12 text-[#FF9A9E]" />
                   )}
                 </div>
                 <div className="absolute -bottom-2 -right-2 flex h-10 w-10 items-center justify-center rounded-xl border-4 border-white bg-[#2A2A2A] text-white">
-                  <button onClick={triggerFileSelect} aria-label="Upload Foto" className="flex items-center justify-center w-full h-full">
+                  <button onClick={triggerFileSelect} aria-label="Upload Foto" className="flex items-center justify-center w-full h-full cursor-pointer hover:bg-black transition-colors rounded-xl">
                     <Camera className="h-4 w-4" />
                   </button>
                   <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={onSelectFile} />
@@ -313,16 +428,18 @@ export default function PengaturanVendorPage() {
 
               <div className="space-y-3 text-center md:text-left">
                 <div>
-                  <h4 className="text-xl font-black text-[#2A2A2A]">{form.businessName}</h4>
-                  <p className="mt-0.5 text-xs font-bold uppercase tracking-widest text-slate-300">Dekorasi • Padang, Sumatera Barat</p>
+                  <h4 className="text-xl font-black text-[#2A2A2A]">{form.businessName || 'Nama Bisnis'}</h4>
+                  <p className="mt-0.5 text-xs font-bold uppercase tracking-widest text-slate-300">{form.city || 'Belum diatur'}</p>
                 </div>
                 <div className="flex gap-3">
                   <button onClick={triggerFileSelect} className="rounded-xl bg-[#2A2A2A] px-6 py-2.5 text-[10px] font-black uppercase tracking-widest text-white transition-all hover:bg-black cursor-pointer">
                     Upload Foto
                   </button>
-                  <button onClick={() => setShowRemoveAvatarConfirm(true)} className="rounded-xl border border-slate-200 bg-white px-6 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-400 transition-all hover:bg-slate-50 cursor-pointer">
-                    Hapus
-                  </button>
+                  {avatarUrl && (
+                    <button onClick={() => setShowRemoveAvatarConfirm(true)} className="rounded-xl border border-slate-200 bg-white px-6 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-400 transition-all hover:bg-slate-50 cursor-pointer">
+                      Hapus
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -342,15 +459,21 @@ export default function PengaturanVendorPage() {
                 <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">Nomor HP / WhatsApp</label>
                 <input
                   type="text"
-                  value={form.whatsapp}
-                  onChange={(e) => handleChange('whatsapp', e.target.value)}
+                  value={form.phone}
+                  onChange={(e) => handleChange('phone', e.target.value)}
+                  placeholder="08123456789"
                   className="w-full rounded-2xl border border-[#E2E8F0] bg-[#F7F9FC] px-6 py-4 text-sm font-bold transition-all focus:border-[#FF9A9E] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9A9E]/10"
                 />
               </div>
 
               <div className="space-y-3">
                 <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">Kota / Kabupaten</label>
-                <input type="text" value="Padang, Sumatera Barat" readOnly className="w-full rounded-2xl border border-[#E2E8F0] bg-[#F7F9FC] px-6 py-4 text-sm font-bold text-slate-500" />
+                <input 
+                  type="text" 
+                  value={form.city || 'Belum diatur'} 
+                  readOnly 
+                  className="w-full rounded-2xl border border-[#E2E8F0] bg-[#F7F9FC] px-6 py-4 text-sm font-bold text-slate-500 cursor-not-allowed" 
+                />
               </div>
             </div>
 
@@ -360,13 +483,14 @@ export default function PengaturanVendorPage() {
                 rows={4}
                 value={form.description}
                 onChange={(e) => handleChange('description', e.target.value)}
+                placeholder="Ceritakan tentang bisnis dan keahlian Anda..."
                 className="w-full resize-none rounded-[24px] border border-[#E2E8F0] bg-[#F7F9FC] px-6 py-5 text-sm font-bold leading-relaxed transition-all focus:border-[#FF9A9E] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9A9E]/10"
               />
             </div>
 
             <div className="flex justify-end border-t border-slate-50 pt-6">
               <button onClick={handleSave} disabled={isSavingProfile} className="rounded-2xl bg-[#2A2A2A] px-10 py-4 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-black/10 transition-all hover:bg-black active:scale-95 cursor-pointer disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none">
-                {isSavingProfile ? 'Menyimpan...' : 'Simpan Perubahan'}
+                {isSavingProfile ? 'Menyimpan...' : 'Simpan Perubahan Profil'}
               </button>
             </div>
           </section>
@@ -381,9 +505,9 @@ export default function PengaturanVendorPage() {
               <div className="space-y-3 md:max-w-xl">
                 <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">Email Akun</label>
                 <input type="email" value={form.email} readOnly className="w-full cursor-not-allowed rounded-2xl border border-[#E2E8F0] bg-[#F7F9FC] px-6 py-4 text-sm font-bold text-slate-400 opacity-70" />
-                <p className="ml-1 mt-1 text-[9px] font-bold italic tracking-tighter text-slate-300">Email tidak dapat diubah. Hubungi admin jika perlu.</p>
+                <p className="ml-1 mt-1 text-[9px] font-bold italic tracking-tighter text-slate-300">Email utama Anda. Tidak dapat diubah.</p>
 
-                <p className="mt-4 text-sm text-slate-500">Untuk mengganti kata sandi, klik tombol di bawah. Perubahan kata sandi hanya tersedia melalui dialog aman.</p>
+                <p className="mt-4 text-sm text-slate-500">Untuk mengganti kata sandi, klik tombol di bawah. Perubahan kata sandi akan segera diberlakukan.</p>
 
                 <div className="mt-4 flex justify-end">
                   <button onClick={() => setShowPasswordModal(true)} className="rounded-2xl bg-[#2A2A2A] px-8 py-3 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-black/10 transition-all hover:bg-black active:scale-95 cursor-pointer">
@@ -406,10 +530,12 @@ export default function PengaturanVendorPage() {
                   <Landmark className="h-8 w-8" />
                 </div>
                 <div>
-                  <h5 className="text-sm font-black uppercase tracking-tight leading-none text-[#2A2A2A]">{bankForm.bankName}</h5>
-                  <p className="mt-2 text-base font-bold italic tracking-widest text-[#2A2A2A] opacity-60">{bankForm.accountNumber} — a.n. {bankForm.accountHolder}</p>
+                  <h5 className="text-sm font-black uppercase tracking-tight leading-none text-[#2A2A2A]">{bankForm.bankName || 'Belum Diatur'}</h5>
+                  <p className="mt-2 text-base font-bold italic tracking-widest text-[#2A2A2A] opacity-60">
+                    {bankForm.accountNumber ? `${bankForm.accountNumber} — a.n. ${bankForm.accountHolder}` : 'Silakan atur rekening Anda'}
+                  </p>
                   <p className="mt-1.5 flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-emerald-500">
-                    <Check className="h-3.5 w-3.5" /> Sudah diverifikasi admin
+                    <Check className="h-3.5 w-3.5" /> Digunakan untuk pencairan otomatis
                   </p>
                 </div>
               </div>
@@ -427,10 +553,12 @@ export default function PengaturanVendorPage() {
                   onChange={(e) => setBankDraft((prev) => ({ ...prev, bankName: e.target.value }))}
                   className="w-full cursor-pointer rounded-2xl border border-[#E2E8F0] bg-[#F7F9FC] px-6 py-4 text-sm font-bold transition-all focus:border-[#FF9A9E] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9A9E]/10 disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                  <option>Bank BCA</option>
-                  <option>Bank Mandiri</option>
-                  <option>Bank BNI</option>
-                  <option>Bank CIMB Niaga</option>
+                  <option value="">Pilih Bank</option>
+                  <option value="Bank BCA">Bank BCA</option>
+                  <option value="Bank Mandiri">Bank Mandiri</option>
+                  <option value="Bank BNI">Bank BNI</option>
+                  <option value="Bank BRI">Bank BRI</option>
+                  <option value="Bank CIMB Niaga">Bank CIMB Niaga</option>
                 </select>
               </div>
               <div className="space-y-3">
@@ -440,7 +568,7 @@ export default function PengaturanVendorPage() {
                   value={bankEditMode ? bankDraft.accountNumber : bankForm.accountNumber}
                   readOnly={!bankEditMode}
                   onChange={(e) => setBankDraft((prev) => ({ ...prev, accountNumber: e.target.value }))}
-                  placeholder="Masukkan nomor rekening baru"
+                  placeholder="Masukkan nomor rekening"
                   className="w-full rounded-2xl border border-[#E2E8F0] bg-[#F7F9FC] px-6 py-4 text-sm font-bold transition-all focus:border-[#FF9A9E] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9A9E]/10 read-only:cursor-default read-only:bg-slate-50 read-only:text-slate-400"
                 />
               </div>
@@ -458,8 +586,8 @@ export default function PengaturanVendorPage() {
             </div>
 
             <div className="flex justify-end border-t border-slate-50 pt-6">
-              <button onClick={handleSaveBank} disabled={!bankEditMode} className="rounded-2xl bg-[#2A2A2A] px-10 py-4 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-black/10 transition-all hover:bg-black active:scale-95 cursor-pointer disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none">
-                Simpan Perubahan Rekening
+              <button onClick={handleSaveBank} disabled={!bankEditMode || isSavingBank} className="rounded-2xl bg-[#2A2A2A] px-10 py-4 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-black/10 transition-all hover:bg-black active:scale-95 cursor-pointer disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none">
+                {isSavingBank ? 'Menyimpan...' : 'Simpan Perubahan Rekening'}
               </button>
             </div>
           </section>

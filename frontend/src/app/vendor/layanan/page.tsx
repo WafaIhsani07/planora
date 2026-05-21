@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Plus, Edit3, Trash2, X, Check, Upload, ChevronDown, ArrowLeft, Briefcase, Tag, ShoppingBag, Calculator, Eye } from 'lucide-react';
-import { getMyLayanan, createLayanan, updateLayanan, deleteLayanan } from '@/services/vendor.service';
+import { Plus, Edit3, Trash2, X, Check, Upload, ArrowLeft, Briefcase, Tag, ShoppingBag, Calculator } from 'lucide-react';
+import { getMyLayanan, createLayanan, updateLayanan, deleteLayanan, uploadImage } from '@/services/vendor.service';
 import { getAllKategori } from '@/services/admin.service';
 
 interface ServicePackage {
@@ -73,6 +73,39 @@ export default function VendorLayananPage() {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validasi Ukuran (Maksimal 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Ukuran gambar terlalu besar! Maksimal 5MB.");
+      return;
+    }
+    
+    // Validasi Tipe File
+    if (!file.type.startsWith("image/")) {
+      alert("Format file tidak didukung! Harus berupa gambar.");
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const url = await uploadImage(file);
+      if (url) {
+        setUploadedImage(url);
+      } else {
+        alert("Gagal mengunggah gambar. Silakan coba lagi.");
+      }
+    } catch (error) {
+      console.error("Error upload image:", error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   // Fetch all data on mount
   const fetchData = async () => {
@@ -169,6 +202,7 @@ export default function VendorLayananPage() {
       descriptionText: '',
     });
     setHasDiscountEnabled(false);
+    setUploadedImage(null);
     setEditingId(null);
   };
 
@@ -185,6 +219,7 @@ export default function VendorLayananPage() {
       features: item.features.length > 0 ? item.features : ['', ''],
       descriptionText: item.descriptionText,
     });
+    setUploadedImage(item.img);
     setHasDiscountEnabled(!!(item.discountPercent && item.discountPercent > 0));
     setIsAddingPackage(true);
   };
@@ -214,7 +249,7 @@ export default function VendorLayananPage() {
         kategoriId: formData.kategoriId || categories[0]?.id,
         price: finalPrice,
         description: finalDescription,
-        images: [DEFAULT_IMAGE],
+        images: [uploadedImage || DEFAULT_IMAGE],
       };
 
       if (editingId) {
@@ -296,38 +331,49 @@ export default function VendorLayananPage() {
         </div>
 
         <div className="grid lg:grid-cols-12 gap-8 items-start">
-          {/* Left Column: Image Upload & Preview */}
+          {/* Left Column: Image Upload */}
           <div className="lg:col-span-4 space-y-6">
             <div className="bg-white p-8 rounded-xl border border-[#2A2A2A]/5 shadow-sm">
               <h4 className="text-[10px] font-black text-[#2A2A2A]/30 uppercase tracking-widest mb-6">Foto Utama Paket</h4>
-              <div className="aspect-square bg-[#FDF1F0] rounded-[32px] border-2 border-dashed border-[#FF9A9E]/30 flex flex-col items-center justify-center p-8 text-center group hover:bg-[#FDF1F0] transition-all cursor-pointer">
-                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform">
-                  <Upload className="w-6 h-6 text-[#FF9A9E]" />
-                </div>
-                <p className="text-xs font-bold text-[#2A2A2A]/60 leading-relaxed">
-                  Foto Utama Paket Terpilih
-                </p>
-                <p className="text-[9px] text-[#2A2A2A]/30 mt-2 uppercase tracking-tighter">Planora Premium Decoration</p>
-              </div>
-            </div>
+              
+              <input 
+                type="file" 
+                id="package-image-input" 
+                accept="image/*" 
+                className="hidden" 
+                onChange={handleImageUpload}
+              />
 
-            {/* Live Preview Mobile */}
-            <div className="bg-[#2A2A2A] p-8 rounded-[32px] text-white shadow-2xl space-y-4">
-              <div className="flex items-center gap-2 opacity-40">
-                <Eye className="w-4 h-4" />
-                <span className="text-[9px] font-black uppercase tracking-widest">Pratinjau Mobile</span>
-              </div>
-              <div>
-                <h5 className="text-xl font-black">{formData.name || 'Nama Paket Anda'}</h5>
-                <p className="text-2xl font-black text-[#FF9A9E] mt-2">
-                  Rp {previewPrice.toLocaleString('id-ID')}
-                </p>
-                {hasDiscountEnabled && formData.discountPercent && (
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="text-[10px] text-white/30 line-through">
-                      Rp {(parseInt(formData.price) || 0).toLocaleString('id-ID')}
-                    </span>
-                    <span className="bg-[#FF527B] text-white text-[8px] font-black px-2 py-0.5 rounded">PROMO</span>
+              <div 
+                onClick={() => !isUploading && document.getElementById('package-image-input')?.click()}
+                className="aspect-square bg-[#FDF1F0] rounded-[32px] border-2 border-dashed border-[#FF9A9E]/30 flex flex-col items-center justify-center p-2 text-center group hover:bg-[#FDF1F0]/80 transition-all cursor-pointer overflow-hidden relative"
+              >
+                {isUploading ? (
+                  <div className="flex flex-col items-center justify-center space-y-3">
+                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF9A9E]" />
+                    <p className="text-xs font-bold text-[#2A2A2A]/50">Mengunggah gambar...</p>
+                  </div>
+                ) : uploadedImage ? (
+                  <div className="relative w-full h-full rounded-[24px] overflow-hidden group/img">
+                    <img 
+                      src={uploadedImage} 
+                      alt="Preview Paket" 
+                      className="w-full h-full object-cover object-center" 
+                    />
+                    <div className="absolute inset-0 bg-[#0A0A0A]/50 opacity-0 group-hover/img:opacity-100 transition-opacity flex flex-col items-center justify-center text-white p-4">
+                      <Upload className="w-6 h-6 mb-2 text-[#FF9A9E]" />
+                      <span className="text-[10px] font-bold uppercase tracking-wider">Ubah Foto Utama</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center p-6">
+                    <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform">
+                      <Upload className="w-6 h-6 text-[#FF9A9E]" />
+                    </div>
+                    <p className="text-xs font-bold text-[#2A2A2A]/60 leading-relaxed">
+                      Klik untuk Unggah Foto
+                    </p>
+                    <p className="text-[9px] text-[#2A2A2A]/30 mt-2 uppercase tracking-tighter">Maksimal 5MB (JPG, PNG, WEBP)</p>
                   </div>
                 )}
               </div>
@@ -337,39 +383,18 @@ export default function VendorLayananPage() {
           {/* Right Column: Form */}
           <div className="lg:col-span-8 space-y-8">
             <div className="bg-white p-10 rounded-xl border border-[#2A2A2A]/5 shadow-sm space-y-8">
-              {/* Nama & Kategori */}
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black text-[#2A2A2A]/40 uppercase tracking-widest ml-1">
-                    Nama Paket
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Contoh: Paket Intimate Rose"
-                    className="w-full bg-[#FDF1F0]/50 border border-transparent rounded-2xl py-4 px-6 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/30 focus:bg-white focus:border-[#FF9A9E] transition-all"
-                  />
-                </div>
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black text-[#2A2A2A]/40 uppercase tracking-widest ml-1">
-                    Kategori Utama
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={formData.kategoriId}
-                      onChange={(e) => setFormData({ ...formData, kategoriId: e.target.value })}
-                      className="w-full bg-[#FDF1F0]/50 border border-transparent rounded-2xl py-4 px-6 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/30 focus:bg-white appearance-none cursor-pointer"
-                    >
-                      {categories.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 w-4 h-4 text-[#2A2A2A]/30 pointer-events-none" />
-                  </div>
-                </div>
+              {/* Nama Paket */}
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-[#2A2A2A]/40 uppercase tracking-widest ml-1">
+                  Nama Paket
+                </label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="Contoh: Paket Intimate Rose"
+                  className="w-full bg-[#FDF1F0]/50 border border-transparent rounded-2xl py-4 px-6 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/30 focus:bg-white focus:border-[#FF9A9E] transition-all"
+                />
               </div>
 
               {/* Harga & Diskon Section */}
