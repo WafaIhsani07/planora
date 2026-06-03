@@ -46,7 +46,15 @@ export default function LoginPage() {
     });
 
     if (result?.error) {
-      setAuthError('Email atau kata sandi salah.');
+      if (result.error === 'DATABASE_ERROR') {
+        setAuthError('Koneksi database bermasalah. Kemungkinan database Supabase sedang paused atau offline. Harap resume/restore database Anda.');
+      } else if (result.error === 'SERVER_OFFLINE') {
+        setAuthError('Tidak dapat terhubung ke server backend. Pastikan server backend Planora sedang berjalan.');
+      } else if (result.error === 'CredentialsSignin' || result.error === 'INVALID_CREDENTIALS') {
+        setAuthError('Email atau kata sandi salah.');
+      } else {
+        setAuthError(result.error);
+      }
       setIsLoading(false);
       return;
     }

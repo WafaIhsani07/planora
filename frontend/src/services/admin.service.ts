@@ -60,15 +60,7 @@ export async function getAllUsers(params?: any) {
   }
 }
 
-export async function verifyPayment(paymentId: string, data: { status: 'PAID' | 'FAILED', note?: string }) {
-  try {
-    const response = await api.patch(`/admin/payments/${paymentId}/verify`, data);
-    return response.data;
-  } catch (error) {
-    console.error("API Error (verifyPayment):", error);
-    throw error;
-  }
-}
+
 
 // Withdrawals (Pencairan Dana)
 export async function getAllWithdrawals() {
@@ -136,7 +128,7 @@ export async function rejectVendor(id: string, reason: string) {
   return data.data;
 }
 
-export async function verifyPayment(id: string, payload: { status: 'PAID' | 'FAILED' | 'REFUNDED', note?: string }) {
+export async function verifyPayment(id: string, payload: { status: string, note?: string, refundProofUrl?: string }) {
   const { data } = await api.patch(`/payments/${id}/verify`, payload);
   return data.data;
 }

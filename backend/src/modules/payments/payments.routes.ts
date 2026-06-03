@@ -13,7 +13,7 @@ router.post("/", authorize("CUSTOMER"), paymentsController.createPayment)
 // Customer / Vendor / Admin bisa melihat detail pembayaran
 router.get("/booking/:bookingId", paymentsController.getPayment)
 
-// Hanya Vendor (Web) atau Admin yang bisa memverifikasi uang masuk
-router.patch("/:id/verify", authorize("VENDOR", "ADMIN"), paymentsController.verifyPayment)
+// Hanya Admin yang bisa memverifikasi uang masuk
+router.patch("/:id/verify", authorize("ADMIN"), paymentsController.verifyPayment)
 
 export default router

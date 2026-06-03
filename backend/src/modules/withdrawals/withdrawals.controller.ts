@@ -1,13 +1,13 @@
-import { Request, Response, NextFunction } from "express"
-import { sendSuccess } from "../../utils/response"
-import * as withdrawalsService from "./withdrawals.service"
-import { createWithdrawalSchema, processWithdrawalSchema } from "./withdrawals.validation"
-import { AppError } from "../../utils/error"
-import { db } from "../../config/database"
+import type { Request, Response, NextFunction } from "express"
+import { sendSuccess } from "../../utils/response.js"
+import * as withdrawalsService from "./withdrawals.service.js"
+import { createWithdrawalSchema, processWithdrawalSchema } from "./withdrawals.validation.js"
+import { AppError } from "../../utils/error.js"
+import { db } from "../../config/database.js"
 
 export const requestWithdrawal = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = req.user?.id
+    const userId = req.userId
     if (!userId) throw new AppError("Unauthorized", 401)
     
     // Get vendorId from userId
@@ -25,8 +25,8 @@ export const requestWithdrawal = async (req: Request, res: Response, next: NextF
 
 export const getAllWithdrawals = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const role = req.user?.role
-    const userId = req.user?.id
+    const role = req.userRole
+    const userId = req.userId
     
     let whereClause = {}
     
@@ -60,7 +60,7 @@ export const processWithdrawalAdmin = async (req: Request, res: Response, next: 
     const { id } = req.params
     const payload = processWithdrawalSchema.parse(req.body)
     
-    const withdrawal = await withdrawalsService.processWithdrawal(id, payload)
+    const withdrawal = await withdrawalsService.processWithdrawal(id as string, payload)
     
     sendSuccess(res, withdrawal, `Status pencairan berhasil diubah menjadi ${payload.status}`)
   } catch (error) {

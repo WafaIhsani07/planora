@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:http_parser/http_parser.dart';
 
 class ApiService {
   static String get baseUrl {
@@ -284,6 +286,7 @@ class ApiService {
     required String bookingId,
     required double amount,
     required String method,
+    String? proofUrl,
     http.Client? client,
   }) async {
     try {
@@ -291,6 +294,7 @@ class ApiService {
         'bookingId': bookingId,
         'amount': amount,
         'method': method,
+        if (proofUrl != null) 'proofUrl': proofUrl,
       }, client: client);
 
       final data = json.decode(response.body);
@@ -302,6 +306,48 @@ class ApiService {
       }
     } catch (e) {
       return {'success': false, 'message': 'Gagal terhubung ke server'};
+    }
+  }
+
+  /// Mengunggah file bukti pembayaran ke backend
+  static Future<Map<String, dynamic>> uploadFile(XFile image, {http.Client? client}) async {
+    final token = await getToken();
+    try {
+      final request = http.MultipartRequest('POST', Uri.parse('$baseUrl/uploads'));
+      
+      request.headers.addAll({
+        if (token != null) 'Authorization': 'Bearer $token',
+      });
+      
+      final bytes = await image.readAsBytes();
+      final filename = image.name.toLowerCase();
+      String mimeType = 'image/jpeg';
+      if (filename.endsWith('.png')) {
+        mimeType = 'image/png';
+      } else if (filename.endsWith('.webp')) {
+        mimeType = 'image/webp';
+      } else if (filename.endsWith('.gif')) {
+        mimeType = 'image/gif';
+      }
+
+      request.files.add(http.MultipartFile.fromBytes(
+        'file',
+        bytes,
+        filename: image.name,
+        contentType: MediaType.parse(mimeType),
+      ));
+      
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      final data = json.decode(response.body);
+
+      if (response.statusCode == 201 && data['success'] == true) {
+        return {'success': true, 'imageUrl': data['data']['imageUrl']};
+      } else {
+        return {'success': false, 'message': data['message'] ?? 'Gagal mengunggah file'};
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Gagal terhubung ke server untuk unggah file: $e'};
     }
   }
 

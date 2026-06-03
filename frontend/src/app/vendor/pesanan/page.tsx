@@ -31,6 +31,13 @@ const STATUS_LABEL: Record<string, string> = {
   CANCELLED: 'Dibatalkan',
 };
 
+const PAYMENT_STATUS_LABEL: Record<string, string> = {
+  PENDING: 'Bukti Bayar Terkirim',
+  PAID: 'Lunas',
+  FAILED: 'Ditolak Admin',
+  REFUNDED: 'Direfund',
+};
+
 const getStatusStyle = (status: string) => {
   switch (status) {
     case 'PENDING':
@@ -42,6 +49,21 @@ const getStatusStyle = (status: string) => {
       return 'bg-[#E6F9F0] text-[#10B981]';
     default:
       return 'bg-slate-100 text-slate-400';
+  }
+};
+
+const getPaymentStatusStyle = (status: string) => {
+  switch (status) {
+    case 'PENDING':
+      return 'bg-amber-50 text-amber-600 border border-amber-200';
+    case 'PAID':
+      return 'bg-emerald-50 text-emerald-600 border border-emerald-200';
+    case 'FAILED':
+      return 'bg-red-50 text-red-500 border border-red-200';
+    case 'REFUNDED':
+      return 'bg-purple-50 text-purple-600 border border-purple-200';
+    default:
+      return 'bg-slate-50 text-slate-400 border border-slate-100';
   }
 };
 
@@ -174,6 +196,32 @@ export default function VendorPesananPage() {
     }
   };
 
+  const handleStart = async (id: string) => {
+    setProcessingId(id);
+    try {
+      await updateBookingStatus(id, 'IN_PROGRESS');
+      await fetchBookings();
+      setSelectedBooking((prev: any) => prev && prev.id === id ? { ...prev, status: 'IN_PROGRESS' } : prev);
+    } catch (err) {
+      console.error('Gagal memulai pesanan:', err);
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const handleComplete = async (id: string) => {
+    setProcessingId(id);
+    try {
+      await updateBookingStatus(id, 'COMPLETED');
+      await fetchBookings();
+      setSelectedBooking((prev: any) => prev && prev.id === id ? { ...prev, status: 'COMPLETED' } : prev);
+    } catch (err) {
+      console.error('Gagal menyelesaikan pesanan:', err);
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
   const handleCancel = async (id: string) => {
     if (!confirm('Tolak pesanan ini?')) return;
     setProcessingId(id);
@@ -191,7 +239,8 @@ export default function VendorPesananPage() {
   // Filter & Pagination logic
   const filteredBookings = useMemo(() => {
     if (filterStatus === 'Semua') return bookings;
-    if (filterStatus === 'Menunggu') return bookings.filter((b) => b.status === 'PENDING');
+    if (filterStatus === 'Menunggu') return bookings.filter((b) => b.status === 'PENDING' && !b.payment);
+    if (filterStatus === 'Bukti Bayar') return bookings.filter((b) => b.status === 'PENDING' && b.payment?.status === 'PENDING');
     if (filterStatus === 'Dikonfirmasi') return bookings.filter((b) => b.status === 'CONFIRMED' || b.status === 'IN_PROGRESS');
     if (filterStatus === 'Selesai') return bookings.filter((b) => b.status === 'COMPLETED');
     return bookings;
@@ -269,7 +318,8 @@ export default function VendorPesananPage() {
           <div className="flex items-center gap-3 overflow-x-auto no-scrollbar">
             {[
               { name: 'Semua', count: bookings.length },
-              { name: 'Menunggu', count: bookings.filter((b) => b.status === 'PENDING').length },
+              { name: 'Menunggu', count: bookings.filter((b) => b.status === 'PENDING' && !b.payment).length },
+              { name: 'Bukti Bayar', count: bookings.filter((b) => b.status === 'PENDING' && b.payment?.status === 'PENDING').length },
               { name: 'Dikonfirmasi', count: bookings.filter((b) => b.status === 'CONFIRMED' || b.status === 'IN_PROGRESS').length },
               { name: 'Selesai', count: bookings.filter((b) => b.status === 'COMPLETED').length },
             ].map((status) => (
@@ -281,11 +331,15 @@ export default function VendorPesananPage() {
                 }}
                 className={`px-6 py-2.5 text-[11px] font-black uppercase tracking-widest transition-all flex items-center gap-2 whitespace-nowrap rounded-full border-2 cursor-pointer ${
                   filterStatus === status.name
-                    ? 'bg-[#FF9A9E] text-white border-[#FF9A9E]'
+                    ? status.name === 'Bukti Bayar'
+                      ? 'bg-amber-400 text-white border-amber-400'
+                      : 'bg-[#FF9A9E] text-white border-[#FF9A9E]'
+                    : status.name === 'Bukti Bayar' && bookings.filter((b) => b.status === 'PENDING' && b.payment?.status === 'PENDING').length > 0
+                    ? 'bg-amber-50 text-amber-600 border-amber-300 animate-pulse'
                     : 'bg-white text-[#2A2A2A]/60 border-[#2A2A2A]/10 hover:border-[#2A2A2A]/30'
                 }`}
               >
-                {status.name}
+                {status.name === 'Bukti Bayar' ? '🧾 Bukti Bayar Masuk' : status.name}
                 <span
                   className={`w-5 h-5 flex items-center justify-center rounded-full text-[9px] font-black ${
                     filterStatus === status.name
@@ -302,7 +356,7 @@ export default function VendorPesananPage() {
           {/* Table list */}
           <div className="bg-white rounded-xl border border-[#2A2A2A]/5 overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse min-w-[1100px]">
+              <table className="w-full text-left border-collapse min-w-[1200px]">
                 <thead>
                   <tr className="bg-slate-50/40 text-[10px] font-black text-[#2A2A2A]/30 uppercase tracking-[0.2em] border-b border-slate-50">
                     <th className="px-10 py-6 text-left">Pesanan</th>
@@ -310,14 +364,15 @@ export default function VendorPesananPage() {
                     <th className="px-10 py-6 text-center">Tanggal Acara</th>
                     <th className="px-10 py-6 text-center">Paket</th>
                     <th className="px-10 py-6 text-center min-w-[180px]">Total</th>
-                    <th className="px-10 py-6 text-center">Status</th>
+                    <th className="px-10 py-6 text-center">Status Booking</th>
+                    <th className="px-10 py-6 text-center">Status Bayar</th>
                     <th className="px-10 py-6 text-center">Aksi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
                   {paginatedBookings.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="text-center py-16 text-slate-400 font-bold uppercase text-xs tracking-wider">
+                      <td colSpan={8} className="text-center py-16 text-slate-400 font-bold uppercase text-xs tracking-wider">
                         Tidak ada pesanan untuk kategori ini.
                       </td>
                     </tr>
@@ -375,6 +430,19 @@ export default function VendorPesananPage() {
                             >
                               {STATUS_LABEL[booking.status] || booking.status}
                             </div>
+                          </td>
+                          <td className="px-10 py-6 text-center">
+                            {booking.payment ? (
+                              <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider whitespace-nowrap ${getPaymentStatusStyle(booking.payment.status)}`}>
+                                {booking.payment.status === 'PENDING' && '⏳'}
+                                {booking.payment.status === 'PAID' && '✅'}
+                                {booking.payment.status === 'FAILED' && '❌'}
+                                {booking.payment.status === 'REFUNDED' && '↩️'}
+                                {PAYMENT_STATUS_LABEL[booking.payment.status] || booking.payment.status}
+                              </div>
+                            ) : (
+                              <span className="text-[9px] font-bold text-[#2A2A2A]/25 uppercase tracking-wider">Belum Bayar</span>
+                            )}
                           </td>
                           <td className="px-10 py-6 text-center">
                             <button
@@ -670,6 +738,49 @@ export default function VendorPesananPage() {
                 </div>
               </div>
 
+              {/* Payment Info */}
+              {selectedBooking.payment && (
+                <div className="space-y-3">
+                  <h4 className="text-[10px] font-black text-[#2A2A2A]/30 uppercase tracking-[0.2em] border-b border-[#2A2A2A]/5 pb-2">Status Pembayaran</h4>
+                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-[#2A2A2A]/5">
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Status</span>
+                    <span className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider ${getPaymentStatusStyle(selectedBooking.payment.status)}`}>
+                      {selectedBooking.payment.status === 'PENDING' && '⏳ '}
+                      {selectedBooking.payment.status === 'PAID' && '✅ '}
+                      {selectedBooking.payment.status === 'FAILED' && '❌ '}
+                      {selectedBooking.payment.status === 'REFUNDED' && '↩️ '}
+                      {PAYMENT_STATUS_LABEL[selectedBooking.payment.status] || selectedBooking.payment.status}
+                    </span>
+                  </div>
+                  {selectedBooking.payment.status === 'PENDING' && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-[10px] font-semibold text-amber-700 leading-relaxed">
+                      ⚠️ Customer sudah mengirim bukti pembayaran. Menunggu verifikasi oleh Admin Planora.
+                    </div>
+                  )}
+                  {selectedBooking.payment.proofUrl && (
+                    <a
+                      href={selectedBooking.payment.proofUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#2A2A2A] text-white text-[9px] font-black uppercase tracking-widest hover:bg-[#FF527B] transition-all"
+                    >
+                      🔗 Lihat Bukti Transfer Customer
+                    </a>
+                  )}
+                  {selectedBooking.payment.method && (
+                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider text-center">
+                      Metode: {selectedBooking.payment.method}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {!selectedBooking.payment && selectedBooking.status === 'PENDING' && (
+                <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 text-[10px] font-semibold text-slate-500 text-center leading-relaxed">
+                  Customer belum mengunggah bukti pembayaran.
+                </div>
+              )}
+
               {/* Total Price */}
               <div className="border-t border-[#2A2A2A]/5 pt-6 flex items-center justify-between">
                 <div>
@@ -684,6 +795,22 @@ export default function VendorPesananPage() {
 
             {/* Modal Actions */}
             {selectedBooking.status === 'PENDING' && (
+              <div className="p-8 border-t border-[#2A2A2A]/5 bg-slate-50/50 flex flex-col gap-3">
+                <div className="text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                  Menunggu Pembayaran Customer & Verifikasi Admin
+                </div>
+                <button
+                  type="button"
+                  disabled={processingId === selectedBooking.id}
+                  onClick={() => handleCancel(selectedBooking.id)}
+                  className="w-full rounded-2xl border border-red-200 bg-white px-5 py-4 text-[10px] font-black uppercase tracking-widest text-[#FF527B] hover:bg-red-50 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  <XCircle className="w-4 h-4" /> Tolak Pesanan
+                </button>
+              </div>
+            )}
+
+            {selectedBooking.status === 'CONFIRMED' && (
               <div className="p-8 border-t border-[#2A2A2A]/5 bg-slate-50/50 flex items-center gap-3">
                 <button
                   type="button"
@@ -691,18 +818,45 @@ export default function VendorPesananPage() {
                   onClick={() => handleCancel(selectedBooking.id)}
                   className="flex-1 rounded-2xl border border-red-200 bg-white px-5 py-4 text-[10px] font-black uppercase tracking-widest text-[#FF527B] hover:bg-red-50 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
                 >
-                  <XCircle className="w-4 h-4" /> Tolak
+                  <XCircle className="w-4 h-4" /> Batalkan
                 </button>
                 <button
                   type="button"
                   disabled={processingId === selectedBooking.id}
-                  onClick={() => handleConfirm(selectedBooking.id)}
+                  onClick={() => handleStart(selectedBooking.id)}
                   className="flex-1 rounded-2xl bg-[#2A2A2A] px-5 py-4 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-[#2A2A2A]/10 transition-all hover:bg-[#FF527B] flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
                 >
-                  <CheckCircle className="w-4 h-4" /> Terima Pesanan
+                  <CheckCircle className="w-4 h-4" /> Mulai Pekerjaan
                 </button>
               </div>
             )}
+
+            {selectedBooking.status === 'IN_PROGRESS' && (() => {
+              const isBeforeEventDate = selectedBooking.eventDate ? (new Date() < new Date(selectedBooking.eventDate)) : false;
+              const eventDateFormatted = selectedBooking.eventDate ? new Date(selectedBooking.eventDate).toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+              }) : '';
+
+              return (
+                <div className="p-8 border-t border-[#2A2A2A]/5 bg-slate-50/50 flex flex-col gap-3">
+                  {isBeforeEventDate && (
+                    <p className="text-[10px] font-bold text-[#F59E0B] text-center bg-[#FFF9E5] p-3 rounded-xl border border-[#F59E0B]/10 leading-relaxed">
+                      ⚠️ Hanya dapat diselesaikan setelah tanggal acara ({eventDateFormatted}) atau melalui konfirmasi langsung oleh pelanggan.
+                    </p>
+                  )}
+                  <button
+                    type="button"
+                    disabled={processingId === selectedBooking.id || isBeforeEventDate}
+                    onClick={() => handleComplete(selectedBooking.id)}
+                    className="w-full rounded-2xl bg-[#10B981] px-5 py-4 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-emerald-100 transition-all hover:bg-emerald-600 flex items-center justify-center gap-1.5 cursor-pointer disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed"
+                  >
+                    <CheckCircle className="w-4 h-4" /> Selesaikan Pesanan
+                  </button>
+                </div>
+              );
+            })()}
           </div>
         </div>
       )}

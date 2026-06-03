@@ -172,24 +172,7 @@ class _PesananScreenState extends State<PesananScreen> {
                           itemBuilder: (context, index) {
                             final item = _orders[index];
                             final status = item['status'] ?? 'PENDING';
-                            final isPaid = status != 'PENDING';
-                            final layanan = item['layanan'];
-                            final layananName = layanan?['namaLayanan'] ?? layanan?['name'] ?? 'Layanan';
-                            final harga = layanan?['harga'] ?? layanan?['price'] ?? 0;
-                            final vendorName = item['vendor']?['businessName'] ?? item['vendor']?['name'] ?? layananName;
-
-                            return _buildOrderCard(
-                              id: item['id']?.toString() ?? '1',
-                              invoiceStatus: status,
-                              name: vendorName,
-                              subLabel: layananName,
-                              date: item['eventDate'] != null
-                                  ? item['eventDate'].toString().substring(0, 10)
-                                  : 'Tanggal Acara',
-                              price: _formatCurrency(harga),
-                              imageUrl: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=200&auto=format&fit=crop',
-                              isPaid: isPaid,
-                            );
+                            return _buildOrderCard(item);
                           },
                         ),
             ],
@@ -275,17 +258,41 @@ class _PesananScreenState extends State<PesananScreen> {
   }
 
   // ── Order Card ──────────────────────────────────────────────────────────
-  Widget _buildOrderCard({
-    required String id,
-    required String invoiceStatus,
-    required String name,
-    String? subLabel,
-    required String date,
-    required String price,
-    required String imageUrl,
-    required bool isPaid,
-  }) {
+  Widget _buildOrderCard(Map<String, dynamic> item) {
     final tt = Theme.of(context).textTheme;
+
+    final id = item['id']?.toString() ?? '1';
+    final invoiceStatus = item['status'] ?? 'PENDING';
+    final status = invoiceStatus;
+    final layanan = item['layanan'];
+    final layananName = layanan?['namaLayanan'] ?? layanan?['name'] ?? 'Layanan';
+    final harga = layanan?['harga'] ?? layanan?['price'] ?? 0;
+    final vendorName = item['vendor']?['businessName'] ?? item['vendor']?['name'] ?? layananName;
+    final isPaid = invoiceStatus != 'PENDING';
+    
+    final date = item['eventDate'] != null
+        ? item['eventDate'].toString().substring(0, 10)
+        : 'Tanggal Acara';
+    final price = _formatCurrency(harga);
+    const imageUrl = 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=200&auto=format&fit=crop';
+
+    final vendorData = item['vendor'] ?? {};
+    final vid = vendorData['id']?.toString() ?? '';
+    final bid = id;
+    final vname = vendorData['businessName'] ?? vendorData['name'] ?? 'Vendor';
+    final avatar = vendorData['avatar']?.toString() ?? '';
+    final assetUrl = ApiService.getAssetUrl(avatar);
+    final finalImageUrl = assetUrl.isNotEmpty ? assetUrl : imageUrl;
+
+    final chatArgs = {
+      'id': vid,
+      'bookingId': bid,
+      'name': vname,
+      'imageUrl': finalImageUrl,
+    };
+
+    final paymentData = item['payment'];
+    final isPaymentPending = paymentData != null && paymentData['status'] == 'PENDING';
 
     // Status badge color logic
     Color statusBg;
@@ -345,7 +352,7 @@ class _PesananScreenState extends State<PesananScreen> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(14),
                     child: Image.network(
-                      imageUrl,
+                      finalImageUrl,
                       width: 68,
                       height: 68,
                       fit: BoxFit.cover,
@@ -361,10 +368,10 @@ class _PesananScreenState extends State<PesananScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(name, style: tt.titleSmall, maxLines: 1, overflow: TextOverflow.ellipsis),
-                        if (subLabel != null && subLabel.isNotEmpty) ...[
+                        Text(vendorName, style: tt.titleSmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+                        if (layananName.isNotEmpty) ...[
                           const SizedBox(height: 2),
-                          Text(subLabel, style: tt.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+                          Text(layananName, style: tt.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
                         ],
                         const SizedBox(height: 6),
                         Row(
@@ -382,7 +389,9 @@ class _PesananScreenState extends State<PesananScreen> {
                           children: isPaid
                               ? [
                                   OutlinedButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      Navigator.pushNamed(context, '/chat_detail', arguments: chatArgs);
+                                    },
                                     style: OutlinedButton.styleFrom(
                                       minimumSize: const Size(0, 36),
                                       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -391,7 +400,9 @@ class _PesananScreenState extends State<PesananScreen> {
                                   ),
                                   const SizedBox(width: 8),
                                   ElevatedButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      Navigator.pushNamed(context, '/detail_booking_batalkan', arguments: id);
+                                    },
                                     style: ElevatedButton.styleFrom(
                                       minimumSize: const Size(0, 36),
                                       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -399,16 +410,34 @@ class _PesananScreenState extends State<PesananScreen> {
                                     child: const Text('Detail'),
                                   ),
                                 ]
-                              : [
-                                  ElevatedButton(
-                                    onPressed: () => Navigator.pushNamed(context, '/pembayaran', arguments: id),
-                                    style: ElevatedButton.styleFrom(
-                                      minimumSize: const Size(0, 36),
-                                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                                    ),
-                                    child: const Text('Bayar Sekarang'),
-                                  ),
-                                ],
+                              : isPaymentPending
+                                  ? [
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFFFF3CD),
+                                          borderRadius: BorderRadius.circular(12),
+                                          border: Border.all(color: const Color(0xFFFFEBA8)),
+                                        ),
+                                        child: Text(
+                                          'Menunggu Verifikasi',
+                                          style: tt.labelSmall?.copyWith(
+                                            color: const Color(0xFF856404),
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ),
+                                    ]
+                                  : [
+                                      ElevatedButton(
+                                        onPressed: () => Navigator.pushNamed(context, '/pembayaran', arguments: id),
+                                        style: ElevatedButton.styleFrom(
+                                          minimumSize: const Size(0, 36),
+                                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                                        ),
+                                        child: const Text('Bayar Sekarang'),
+                                      ),
+                                    ],
                         ),
                       ],
                     ),

@@ -189,7 +189,7 @@ export default function AdminPaymentVerificationPage() {
 	const handleSelect = (invoice: string) => setSelectedInvoice(invoice);
 	const handleClose = () => setSelectedInvoice(null);
 
-	const handleUpdateStatus = async (invoice: string, status: 'PAID' | 'FAILED') => {
+	const handleUpdateStatus = async (invoice: string, status: 'PAID' | 'FAILED' | 'PENDING') => {
         let note = '';
         if (status === 'FAILED') {
             const reason = window.prompt("Masukkan alasan penolakan:");

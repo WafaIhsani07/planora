@@ -31,38 +31,63 @@ export const authOptions: NextAuthOptions = {
 
         const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000";
 
-        const response = await fetch(`${apiBaseUrl}/api/v1/auth/login`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: credentials.email,
-            password: credentials.password,
-            appType: "WEB",
-          }),
-        });
+        try {
+          const response = await fetch(`${apiBaseUrl}/api/v1/auth/login`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: credentials.email,
+              password: credentials.password,
+              appType: "WEB",
+            }),
+          });
 
-        if (!response.ok) {
-          return null;
+          if (!response.ok) {
+            if (response.status === 500) {
+              throw new Error("DATABASE_ERROR");
+            }
+            
+            let errorData;
+            try {
+              errorData = await response.json();
+            } catch (e) {
+              // ignore json parse error
+            }
+
+            const errorMsg = errorData?.message || "INVALID_CREDENTIALS";
+            throw new Error(errorMsg);
+          }
+
+          const payload = (await response.json()) as LoginResponse;
+          const user = payload.data?.user;
+          const role = user?.role;
+
+          if (!user?.id || !user.email || !role) {
+            return null;
+          }
+
+          return {
+            id: user.id,
+            name: user.name ?? user.email,
+            email: user.email,
+            role,
+            accessToken: payload.data?.accessToken,
+            refreshToken: payload.data?.refreshToken,
+          };
+        } catch (error: any) {
+          // Check if this is a network/offline error
+          if (
+            error.message && 
+            (error.message.includes("fetch failed") || 
+             error.message.includes("ECONNREFUSED") || 
+             error.message.includes("Failed to fetch"))
+          ) {
+            throw new Error("SERVER_OFFLINE");
+          }
+          throw error;
         }
-
-        const payload = (await response.json()) as LoginResponse;
-        const user = payload.data?.user;
-        const role = user?.role;
-
-        if (!user?.id || !user.email || !role) {
-          return null;
-        }
-
-        return {
-          id: user.id,
-          name: user.name ?? user.email,
-          email: user.email,
-          role,
-          accessToken: payload.data?.accessToken,
-          refreshToken: payload.data?.refreshToken,
-        };
       },
     }),
   ],

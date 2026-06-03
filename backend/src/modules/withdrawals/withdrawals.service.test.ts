@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { createWithdrawal, processWithdrawal } from "./withdrawals.service"
-import { db } from "../../config/database"
-import { AppError } from "../../utils/error"
+import { createWithdrawal, processWithdrawal } from "./withdrawals.service.js"
+import { db } from "../../config/database.js"
+import { AppError } from "../../utils/error.js"
 
 vi.mock("../../config/database", () => ({
   db: {

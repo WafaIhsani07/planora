@@ -460,16 +460,52 @@ class _DetailBookingBatalkanScreenState
               ],
             ),
             if (statusText.toUpperCase() == 'PENDING')
-              OutlinedButton(
-                onPressed: _cancelBooking,
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(0, 48),
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  side: const BorderSide(color: PlanoraColors.error),
-                  foregroundColor: PlanoraColors.error,
-                ),
-                child: const Text('Batalkan'),
-              )
+              (() {
+                final paymentData = detail['payment'];
+                final isPaymentPending = paymentData != null && paymentData['status'] == 'PENDING';
+
+                return Row(
+                  children: [
+                    OutlinedButton(
+                      onPressed: _cancelBooking,
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(0, 48),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        side: const BorderSide(color: PlanoraColors.error),
+                        foregroundColor: PlanoraColors.error,
+                      ),
+                      child: const Text('Batalkan'),
+                    ),
+                    const SizedBox(width: 8),
+                    isPaymentPending
+                        ? Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF3CD),
+                              borderRadius: BorderRadius.circular(32),
+                              border: Border.all(color: const Color(0xFFFFEBA8)),
+                            ),
+                            child: Text(
+                              'Menunggu Verifikasi',
+                              style: tt.labelMedium?.copyWith(
+                                color: const Color(0xFF856404),
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          )
+                        : ElevatedButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/pembayaran', arguments: _bookingId);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: const Size(0, 48),
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                            ),
+                            child: const Text('Bayar Sekarang'),
+                          ),
+                  ],
+                );
+              })()
             else
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),

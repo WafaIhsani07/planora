@@ -190,7 +190,7 @@ export default function AdminPencairanDanaPage() {
     }
 
     try {
-      await processWithdrawal(id, { status: backendStatus, proofUrl, note });
+      await processWithdrawal(id, { status: backendStatus as any, proofUrl, note });
       await loadData();
       setSuccessModal({ show: true, message: `Pencairan dana berhasil diperbarui menjadi ${status}.` });
       setSelectedId(null);
@@ -423,8 +423,6 @@ export default function AdminPencairanDanaPage() {
               </div>
             </div>
           </div>
-        </div>
-      </div>
         </div>
       </div>
 
