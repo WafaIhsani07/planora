@@ -15,48 +15,48 @@ export const getAllVendors = async (query: GetVendorsQuery) => {
   const { page, limit, search, kategoriId, city } = query
   const skip = (page - 1) * limit
 
-  const [vendors, total] = await Promise.all([
-    db.vendor.findMany({
-      where: {
-        status: "VERIFIED",
-        ...(search && {
-          OR: [
-            { businessName: { contains: search, mode: "insensitive" } },
-            { description: { contains: search, mode: "insensitive" } },
-          ],
-        }),
-        ...(city && { city: { contains: city, mode: "insensitive" } }),
-        ...(kategoriId && {
-          layanan: { some: { kategoriId, isActive: true } },
-        }),
-      },
-      skip,
-      take: limit,
-      orderBy: { rating: "desc" },
-      select: {
-        id: true,
-        businessName: true,
-        description: true,
-        city: true,
-        province: true,
-        rating: true,
-        totalReviews: true,
-        totalBookings: true,
-        user: { select: { name: true, avatar: true } },
-        layanan: {
-          where: { isActive: true },
-          take: 3,
-          select: {
-            id: true,
-            name: true,
-            price: true,
-            kategori: { select: { name: true, slug: true } },
-          },
+  const where = {
+    status: "VERIFIED" as const,
+    ...(search && {
+      OR: [
+        { businessName: { contains: search, mode: "insensitive" as const } },
+        { description: { contains: search, mode: "insensitive" as const } },
+      ],
+    }),
+    ...(city && { city: { contains: city, mode: "insensitive" as const } }),
+    ...(kategoriId && {
+      layanan: { some: { kategoriId, isActive: true } },
+    }),
+  }
+
+  const vendors = await db.vendor.findMany({
+    where,
+    skip,
+    take: limit,
+    orderBy: { rating: "desc" },
+    select: {
+      id: true,
+      businessName: true,
+      description: true,
+      city: true,
+      province: true,
+      rating: true,
+      totalReviews: true,
+      totalBookings: true,
+      user: { select: { name: true, avatar: true } },
+      layanan: {
+        where: { isActive: true },
+        take: 3,
+        select: {
+          id: true,
+          name: true,
+          price: true,
+          kategori: { select: { name: true, slug: true } },
         },
       },
-    }),
-    db.vendor.count({ where: { status: "VERIFIED" } }),
-  ])
+    },
+  })
+  const total = await db.vendor.count({ where })
 
   return {
     vendors,

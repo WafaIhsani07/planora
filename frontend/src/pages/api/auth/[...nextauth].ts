@@ -1,1 +1,0 @@
-// This file is disabled in favor of src/app/api/auth/[...nextauth]/route.ts
