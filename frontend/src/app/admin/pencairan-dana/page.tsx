@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { getAllWithdrawals, processWithdrawal } from '@/services/admin.service';
 import AdminHeader from '@/components/admin/AdminHeader';
 import StatusBadge from '@/components/admin/StatusBadge';
@@ -70,24 +70,56 @@ function ConfirmModal({
   );
 }
 
-// ─── Modal: Input Bukti Transfer (URL) ────────────────────────────────────────
+// ─── Modal: Upload Bukti Transfer (file langsung) ─────────────────────────────
 function ProofModal({
   open, onConfirm, onCancel,
 }: {
   open: boolean; onConfirm: (url: string) => void; onCancel: () => void;
 }) {
-  const [url, setUrl] = useState('');
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => { if (!open) { setUrl(''); setError(''); } }, [open]);
+  useEffect(() => {
+    if (!open) { setFile(null); setPreview(null); setError(''); setIsUploading(false); setIsDragging(false); }
+  }, [open]);
 
-  const handleSubmit = () => {
-    if (!url.trim()) { setError('Link bukti transfer wajib diisi.'); return; }
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      setError('Masukkan URL yang valid (dimulai dengan https://).');
-      return;
+  const handleFile = (f: File) => {
+    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+    if (!allowed.includes(f.type)) { setError('Format tidak didukung. Gunakan JPG, PNG, WEBP, atau PDF.'); return; }
+    if (f.size > 5 * 1024 * 1024) { setError('Ukuran file maksimal 5 MB.'); return; }
+    setError('');
+    setFile(f);
+    if (f.type !== 'application/pdf') {
+      const reader = new FileReader();
+      reader.onload = (e) => setPreview(e.target?.result as string);
+      reader.readAsDataURL(f);
+    } else {
+      setPreview('pdf');
     }
-    onConfirm(url.trim());
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault(); setIsDragging(false);
+    const f = e.dataTransfer.files[0];
+    if (f) handleFile(f);
+  };
+
+  const handleSubmit = async () => {
+    if (!file) { setError('Pilih file bukti transfer terlebih dahulu.'); return; }
+    setIsUploading(true);
+    try {
+      const { uploadImage } = await import('@/services/vendor.service');
+      const url = await uploadImage(file);
+      if (!url) { setError('Gagal mengunggah file. Coba lagi.'); setIsUploading(false); return; }
+      onConfirm(url);
+    } catch {
+      setError('Terjadi kesalahan saat mengunggah. Coba lagi.');
+      setIsUploading(false);
+    }
   };
 
   if (!open) return null;
@@ -96,41 +128,69 @@ function ProofModal({
       <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl">
         <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100">
           <svg className="h-7 w-7 text-emerald-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
           </svg>
         </div>
         <h3 className="mb-1 text-xl font-black text-[#2A2A2A]">Unggah Bukti Transfer</h3>
-        <p className="mb-5 text-sm text-slate-500 leading-relaxed">
-          Tempel link URL foto/screenshot bukti transfer yang sudah Anda unggah ke{' '}
-          <span className="font-bold text-slate-700">Google Drive, Dropbox, atau layanan cloud lainnya</span>.
-          Pastikan akses link diatur ke{' '}
-          <span className="font-bold text-emerald-600">publik (anyone with the link)</span>.
-        </p>
-        <div className="mb-3">
-          <label className="mb-2 block text-xs font-black uppercase tracking-widest text-slate-400">Link URL Bukti Transfer</label>
-          <input
-            type="url"
-            value={url}
-            onChange={(e) => { setUrl(e.target.value); setError(''); }}
-            onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-            placeholder="https://drive.google.com/file/d/..."
-            className={`w-full rounded-2xl border-2 bg-slate-50 px-4 py-3.5 text-sm font-semibold text-[#2A2A2A] placeholder:text-slate-300 focus:outline-none transition-all ${
-              error ? 'border-red-300 bg-red-50 focus:border-red-400' : 'border-slate-200 focus:border-emerald-400 focus:bg-white'
-            }`}
-          />
-          {error && <p className="mt-2 text-xs font-semibold text-red-500">{error}</p>}
+        <p className="mb-5 text-sm text-slate-500">Upload foto/screenshot struk transfer langsung dari perangkat Anda. Format: JPG, PNG, WEBP, atau PDF (maks. 5 MB).</p>
+
+        {/* Drop Zone */}
+        <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp,application/pdf" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
+        <div
+          onClick={() => !isUploading && inputRef.current?.click()}
+          onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+          onDragLeave={() => setIsDragging(false)}
+          onDrop={handleDrop}
+          className={`relative mb-4 flex h-36 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed transition-all ${
+            isDragging ? 'border-emerald-400 bg-emerald-50' :
+            file ? 'border-emerald-300 bg-emerald-50/50' :
+            error ? 'border-red-300 bg-red-50' :
+            'border-slate-200 bg-slate-50 hover:border-emerald-300 hover:bg-emerald-50/30'
+          }`}
+        >
+          {isUploading ? (
+            <div className="flex flex-col items-center gap-2">
+              <svg className="h-8 w-8 animate-spin text-emerald-500" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              <span className="text-xs font-semibold text-emerald-600">Mengunggah...</span>
+            </div>
+          ) : preview && preview !== 'pdf' ? (
+            <div className="relative h-full w-full overflow-hidden rounded-xl p-1">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={preview} alt="preview" className="h-full w-full rounded-xl object-contain" />
+              <div className="absolute inset-0 flex items-end justify-center pb-2">
+                <span className="rounded-full bg-black/60 px-3 py-1 text-[10px] font-bold text-white">Klik untuk ganti file</span>
+              </div>
+            </div>
+          ) : preview === 'pdf' ? (
+            <div className="flex flex-col items-center gap-2">
+              <svg className="h-10 w-10 text-red-400" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+              </svg>
+              <span className="max-w-[200px] truncate text-xs font-bold text-slate-600">{file?.name}</span>
+              <span className="text-[10px] text-slate-400">Klik untuk ganti</span>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-2 px-4 text-center">
+              <svg className={`h-8 w-8 transition-colors ${isDragging ? 'text-emerald-400' : 'text-slate-300'}`} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+              </svg>
+              <span className="text-xs font-bold text-slate-400">Seret &amp; lepas file ke sini, atau <span className="text-emerald-500">klik untuk memilih</span></span>
+              <span className="text-[10px] text-slate-300">JPG, PNG, WEBP, PDF &bull; Maks. 5 MB</span>
+            </div>
+          )}
         </div>
-        <div className="mb-7 rounded-xl bg-amber-50 border border-amber-100 px-4 py-3">
-          <p className="text-[11px] text-amber-700 leading-relaxed font-medium">
-            💡 <strong>Cara unggah bukti:</strong> Foto struk transfer → Upload ke Google Drive → Klik kanan file → &quot;Get link&quot; → Atur ke &quot;Anyone with the link&quot; → Salin link ke sini.
-          </p>
-        </div>
+
+        {error && <p className="mb-4 rounded-xl bg-red-50 px-3 py-2 text-xs font-semibold text-red-500">{error}</p>}
+
         <div className="flex gap-3">
-          <button onClick={onCancel} className="flex-1 rounded-2xl border border-slate-200 bg-white py-3 text-sm font-bold text-slate-600 transition-all hover:bg-slate-50">
+          <button onClick={onCancel} disabled={isUploading} className="flex-1 rounded-2xl border border-slate-200 bg-white py-3 text-sm font-bold text-slate-600 transition-all hover:bg-slate-50 disabled:opacity-50">
             Batal
           </button>
-          <button onClick={handleSubmit} className="flex-1 rounded-2xl bg-emerald-500 py-3 text-sm font-black text-white transition-all hover:bg-emerald-600 shadow-lg shadow-emerald-100">
-            Tandai Selesai ✓
+          <button onClick={handleSubmit} disabled={isUploading || !file} className="flex-1 rounded-2xl bg-emerald-500 py-3 text-sm font-black text-white transition-all hover:bg-emerald-600 shadow-lg shadow-emerald-100 disabled:opacity-50 disabled:cursor-not-allowed">
+            {isUploading ? 'Mengunggah...' : 'Tandai Selesai ✓'}
           </button>
         </div>
       </div>
