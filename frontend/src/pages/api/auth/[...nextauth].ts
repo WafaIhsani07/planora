@@ -1,4 +1,1 @@
-import NextAuth from "next-auth";
-import { authOptions } from "@/lib/auth";
-
-export default NextAuth(authOptions);
+// This file is disabled in favor of src/app/api/auth/[...nextauth]/route.ts
