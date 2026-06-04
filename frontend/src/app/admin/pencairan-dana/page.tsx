@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
+import { getAllWithdrawals, processWithdrawal } from '@/services/admin.service';
 import AdminHeader from '@/components/admin/AdminHeader';
 import AdminPagination from '@/components/admin/AdminPagination';
 import StatusBadge from '@/components/admin/StatusBadge';
@@ -107,11 +108,46 @@ function formatWithdrawalNumber(id: string) {
 }
 
 export default function AdminPencairanDanaPage() {
-  const [items, setItems] = useState<WithdrawalItem[]>(DUMMY_WITHDRAWALS);
+  const [items, setItems] = useState<WithdrawalItem[]>([]);
   const [activeFilter, setActiveFilter] = useState<'semua' | 'menunggu' | 'diproses' | 'selesai'>('semua');
   const [searchQuery, setSearchQuery] = useState('');
   const [perPage, setPerPage] = useState<number>(10);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [successModal, setSuccessModal] = useState<{show: boolean, message: string}>({ show: false, message: '' });
+
+  const loadData = async () => {
+    setIsLoading(true);
+    try {
+      const data = await getAllWithdrawals();
+      const mapped = data.map((d: any) => ({
+        id: d.id,
+        vendor: d.vendor.businessName,
+        vendorCode: `VDR-${d.vendorId.substring(0, 6).toUpperCase()}`,
+        category: 'Vendor Layanan',
+        bank: d.bankName,
+        accountNumber: d.bankAccount,
+        accountName: d.bankHolder,
+        amount: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(d.amount),
+        balance: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(d.vendor.balance || 0),
+        commission: '- Rp 0',
+        requestDate: new Date(d.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+        requestTime: new Date(d.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB',
+        status: d.status === 'PENDING' ? 'menunggu' : d.status === 'PROCESSING' ? 'diproses' : d.status === 'COMPLETED' ? 'selesai' : 'ditolak',
+        note: d.note || '',
+        timeline: []
+      }));
+      setItems(mapped);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
 
   const counts = useMemo(
     () => ({
@@ -138,8 +174,30 @@ export default function AdminPencairanDanaPage() {
   const start = shown > 0 ? 1 : 0;
   const end = shown;
 
-  const updateStatus = (id: string, status: WithdrawalStatus) => {
-    setItems((prev) => prev.map((p) => (p.id === id ? { ...p, status } : p)));
+  const updateStatus = async (id: string, status: WithdrawalStatus) => {
+    const backendStatus = status === 'menunggu' ? 'PENDING' : status === 'diproses' ? 'PROCESSING' : status === 'selesai' ? 'COMPLETED' : 'REJECTED';
+    let proofUrl = undefined;
+    let note = undefined;
+
+    if (backendStatus === 'COMPLETED') {
+      const pUrl = window.prompt("Masukkan link URL bukti transfer:");
+      if (!pUrl) return; 
+      proofUrl = pUrl;
+    } else if (backendStatus === 'REJECTED') {
+      const pNote = window.prompt("Masukkan alasan penolakan pencairan:");
+      if (!pNote) return;
+      note = pNote;
+    }
+
+    try {
+      await processWithdrawal(id, { status: backendStatus as any, proofUrl, note });
+      await loadData();
+      setSuccessModal({ show: true, message: `Pencairan dana berhasil diperbarui menjadi ${status}.` });
+      setSelectedId(null);
+    } catch (error) {
+      console.error(error);
+      alert("Gagal memproses pencairan dana");
+    }
   };
 
   const selected = selectedId ? items.find((i) => i.id === selectedId) ?? null : null;
@@ -349,8 +407,15 @@ export default function AdminPencairanDanaPage() {
                       </div>
 
                       <div className="mt-6 flex gap-3">
-                        <button onClick={() => { updateStatus(sel.id, 'ditolak'); setSelectedId(null); }} className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-bold">Batalkan</button>
-                        <button onClick={() => { updateStatus(sel.id, 'selesai'); setSelectedId(null); }} className="ml-auto rounded-full bg-emerald-500 px-4 py-2 text-sm font-black text-white">Proses Pencairan</button>
+                        {sel.status === 'menunggu' && (
+                          <button onClick={() => updateStatus(sel.id, 'diproses')} className="w-full rounded-full bg-blue-500 px-4 py-2 text-sm font-black text-white">Proses Sekarang</button>
+                        )}
+                        {sel.status === 'diproses' && (
+                          <>
+                            <button onClick={() => updateStatus(sel.id, 'ditolak')} className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-bold">Batalkan</button>
+                            <button onClick={() => updateStatus(sel.id, 'selesai')} className="ml-auto rounded-full bg-emerald-500 px-4 py-2 text-sm font-black text-white">Tandai Selesai & Unggah Bukti</button>
+                          </>
+                        )}
                       </div>
                     </div>
                   );
@@ -360,6 +425,19 @@ export default function AdminPencairanDanaPage() {
           </div>
         </div>
       </div>
+
+      {successModal.show && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-xl">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
+                    <svg className="h-8 w-8 text-emerald-500" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                </div>
+                <h3 className="mb-2 text-xl font-black text-[#2A2A2A]">Berhasil!</h3>
+                <p className="mb-6 text-sm font-semibold text-slate-500">{successModal.message}</p>
+                <button onClick={() => setSuccessModal({ show: false, message: '' })} className="w-full rounded-2xl bg-[#FF9A9E] py-3 text-sm font-black uppercase tracking-widest text-white shadow-md shadow-pink-100 transition-colors hover:bg-[#FF5E7E]">Tutup</button>
+            </div>
+        </div>
+      )}
     </div>
   );
 }

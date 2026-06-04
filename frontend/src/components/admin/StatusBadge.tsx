@@ -1,6 +1,6 @@
 type StatusBadgeProps = {
     text: string;
-    variant: 'blue' | 'emerald' | 'red';
+    variant: 'blue' | 'emerald' | 'red' | 'gray';
     rounded?: 'full' | 'md';
     bordered?: boolean;
     helperActionText?: string;
@@ -10,12 +10,14 @@ const variantMap: Record<StatusBadgeProps['variant'], string> = {
     blue: 'bg-[#EBF3FF] text-blue-600',
     emerald: 'bg-[#EAF5EF] text-emerald-600',
     red: 'bg-[#FDF1F0] text-red-600',
+    gray: 'bg-[#F4F4F5] text-gray-500',
 };
 
 const borderVariantMap: Record<StatusBadgeProps['variant'], string> = {
     blue: 'border border-blue-100',
     emerald: 'border border-emerald-100',
     red: 'border border-red-100',
+    gray: 'border border-gray-200',
 };
 
 export default function StatusBadge({ text, variant, rounded = 'full', bordered = false, helperActionText }: StatusBadgeProps) {

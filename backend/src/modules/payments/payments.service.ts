@@ -1,6 +1,7 @@
 import { db } from "../../config/database.js"
 import { AppError } from "../../utils/error.js"
 import type { CreatePaymentInput, VerifyPaymentInput } from "./payments.validation.js"
+import { createNotification } from "../notifications/notifications.service.js"
 
 // ─── Create Payment (Customer submit bukti bayar) ────────────────────────
 export const createPayment = async (userId: string, input: CreatePaymentInput) => {
@@ -39,9 +40,9 @@ export const verifyPayment = async (userId: string, userRole: string, paymentId:
 
   if (!payment) throw new AppError("Data pembayaran tidak ditemukan", 404)
 
-  // Otorisasi: Vendor hanya bisa verifikasi pembayaran untuk tokonya sendiri
-  if (userRole === "VENDOR" && payment.booking.vendor.userId !== userId) {
-    throw new AppError("Akses ditolak: Pembayaran ini untuk vendor lain", 403)
+  // Otorisasi: Hanya ADMIN yang bisa memverifikasi pembayaran
+  if (userRole !== "ADMIN") {
+    throw new AppError("Akses ditolak: Hanya Admin yang dapat memverifikasi pembayaran", 403)
   }
 
   const verifiedPayment = await db.payment.update({
@@ -51,6 +52,10 @@ export const verifyPayment = async (userId: string, userRole: string, paymentId:
       verifiedAt: new Date(),
       verifiedBy: userId,
       paidAt: input.status === "PAID" ? new Date() : null,
+      note: input.note ?? null,
+      refundProofUrl: input.refundProofUrl ?? null,
+      refundedAt: input.status === "REFUNDED" ? new Date() : null,
+      refundedBy: input.status === "REFUNDED" ? userId : null,
     },
   })
 
@@ -60,6 +65,54 @@ export const verifyPayment = async (userId: string, userRole: string, paymentId:
       where: { id: payment.bookingId },
       data: { status: "CONFIRMED" },
     })
+  }
+
+  // Kirim notifikasi
+  try {
+    const bookingId = payment.bookingId
+    const displayId = bookingId.substring(Math.max(0, bookingId.length - 6)).toUpperCase()
+
+    if (input.status === "PAID") {
+      // Notifikasi ke Customer
+      await createNotification({
+        userId: payment.booking.customerId,
+        title: "Pembayaran Diterima",
+        message: `Pembayaran Anda untuk pesanan #${displayId} telah diverifikasi oleh Admin. Pesanan Anda kini dikonfirmasi!`,
+        type: "PAYMENT",
+        data: { bookingId },
+      })
+
+      // Notifikasi ke Vendor
+      if (payment.booking.vendor?.userId) {
+        await createNotification({
+          userId: payment.booking.vendor.userId,
+          title: "Pembayaran Lunas",
+          message: `Pembayaran untuk pesanan #${displayId} telah lunas dan diverifikasi oleh Admin.`,
+          type: "PAYMENT",
+          data: { bookingId },
+        })
+      }
+    } else if (input.status === "FAILED") {
+      // Notifikasi ke Customer
+      await createNotification({
+        userId: payment.booking.customerId,
+        title: "Pembayaran Ditolak",
+        message: `Pembayaran Anda untuk pesanan #${displayId} ditolak oleh Admin. Catatan: ${input.note ?? "-"}`,
+        type: "PAYMENT",
+        data: { bookingId },
+      })
+    } else if (input.status === "REFUNDED") {
+      // Notifikasi ke Customer
+      await createNotification({
+        userId: payment.booking.customerId,
+        title: "Refund Berhasil",
+        message: `Pengembalian dana untuk pesanan #${displayId} telah ditransfer balik oleh Admin. Silakan periksa rekening Anda.`,
+        type: "PAYMENT",
+        data: { bookingId },
+      })
+    }
+  } catch (notifError) {
+    console.error("[VerifyPayment] Gagal mengirim notifikasi:", notifError)
   }
 
   return verifiedPayment

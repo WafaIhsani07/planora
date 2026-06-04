@@ -14,21 +14,24 @@ import {
   Sparkles,
 } from 'lucide-react';
 
+// [TESTING ONLY] Quick login credentials
+const QUICK_LOGINS = [
+  { label: '🔧 Admin', email: 'admin@planora.dev', password: 'devadmin123', color: '#DC2626' },
+  { label: '🏪 Vendor', email: 'ritzwo@planora.com', password: 'password123', color: '#7C3AED' },
+];
+
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState('');
+  const [emailValue, setEmailValue] = useState('');
+  const [passwordValue, setPasswordValue] = useState('');
   const router = useRouter();
 
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const doLogin = async (email: string, password: string) => {
     setIsLoading(true);
     setAuthError('');
-
-    const formData = new FormData(e.currentTarget);
-    const email = String(formData.get('email') ?? '').trim();
-    const password = String(formData.get('password') ?? '').trim();
 
     if (!email || !password) {
       setAuthError('Email dan kata sandi wajib diisi.');
@@ -43,22 +46,40 @@ export default function LoginPage() {
     });
 
     if (result?.error) {
-      setAuthError('Email atau kata sandi salah.');
+      if (result.error === 'DATABASE_ERROR') {
+        setAuthError('Koneksi database bermasalah. Kemungkinan database Supabase sedang paused atau offline. Harap resume/restore database Anda.');
+      } else if (result.error === 'SERVER_OFFLINE') {
+        setAuthError('Tidak dapat terhubung ke server backend. Pastikan server backend Planora sedang berjalan.');
+      } else if (result.error === 'CredentialsSignin' || result.error === 'INVALID_CREDENTIALS') {
+        setAuthError('Email atau kata sandi salah.');
+      } else {
+        setAuthError(result.error);
+      }
       setIsLoading(false);
       return;
     }
 
-    // Ambil session untuk mengecek role
     const { getSession } = await import('next-auth/react');
     const session = await getSession();
-    
+
     if ((session?.user as any)?.role === 'ADMIN') {
       router.replace('/admin/dashboard');
     } else {
       router.replace('/vendor/dashboard');
     }
-    
+
     router.refresh();
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    await doLogin(emailValue.trim(), passwordValue.trim());
+  };
+
+  const handleQuickLogin = async (email: string, password: string) => {
+    setEmailValue(email);
+    setPasswordValue(password);
+    await doLogin(email, password);
   };
 
 
@@ -183,6 +204,8 @@ export default function LoginPage() {
                   placeholder="Masukkan email atau nomor HP"
                   className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400"
                   required
+                  value={emailValue}
+                  onChange={e => setEmailValue(e.target.value)}
                   suppressHydrationWarning
                 />
               </div>
@@ -203,6 +226,8 @@ export default function LoginPage() {
                   placeholder="Masukkan kata sandi"
                   className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-12 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400"
                   required
+                  value={passwordValue}
+                  onChange={e => setPasswordValue(e.target.value)}
                   suppressHydrationWarning
                 />
                 <button
@@ -259,9 +284,36 @@ export default function LoginPage() {
             {authError ? (
               <p className="text-sm font-bold text-rose-500 text-center">{authError}</p>
             ) : null}
-
-            {/* Vendor-only login form */}
           </form>
+
+          {/* [TESTING ONLY] Quick Login */}
+          <div className="mt-5 rounded-2xl border border-dashed border-amber-300 bg-amber-50/60 p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-base">⚗️</span>
+              <span className="text-[10px] font-black text-amber-700 uppercase tracking-[0.18em]">
+                Dev Quick Login
+              </span>
+              <span className="ml-auto text-[9px] text-amber-500 font-semibold">testing only</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2.5">
+              {QUICK_LOGINS.map((q) => (
+                <button
+                  key={q.email}
+                  type="button"
+                  disabled={isLoading}
+                  onClick={() => handleQuickLogin(q.email, q.password)}
+                  className="group flex flex-col items-center gap-0.5 py-3 px-3 rounded-xl text-white transition-all hover:brightness-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                  style={{ backgroundColor: q.color }}
+                >
+                  <span className="text-sm font-bold tracking-wide">{q.label}</span>
+                  <span className="text-[10px] font-normal opacity-70 truncate w-full text-center">
+                    {q.email}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* [END TESTING] */}
 
           {/* Divider */}
           <div className="relative my-10">

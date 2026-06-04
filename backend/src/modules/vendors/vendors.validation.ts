@@ -13,6 +13,9 @@ export const createVendorProfileSchema = z.object({
   bankName: z.string().max(100).optional(),
   bankAccount: z.string().max(50).optional(),
   bankHolder: z.string().max(100).optional(),
+  ktpUrl: z.string().url("Format URL KTP tidak valid").optional(),
+  bankBookUrl: z.string().url("Format URL Buku Rekening tidak valid").optional(),
+  businessLicenseUrl: z.string().url("Format URL Surat Izin Usaha tidak valid").optional(),
 })
 
 export const updateVendorProfileSchema = createVendorProfileSchema.partial()

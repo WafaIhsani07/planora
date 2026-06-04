@@ -62,6 +62,18 @@ export default function PengaturanVendorPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [showRemoveAvatarConfirm, setShowRemoveAvatarConfirm] = useState(false);
   
+  const [ktpUrl, setKtpUrl] = useState<string | null>(null);
+  const [ktpFile, setKtpFile] = useState<File | null>(null);
+  const ktpInputRef = useRef<HTMLInputElement | null>(null);
+
+  const [businessLicenseUrl, setBusinessLicenseUrl] = useState<string | null>(null);
+  const [businessLicenseFile, setBusinessLicenseFile] = useState<File | null>(null);
+  const businessLicenseInputRef = useRef<HTMLInputElement | null>(null);
+
+  const [bankBookUrl, setBankBookUrl] = useState<string | null>(null);
+  const [bankBookFile, setBankBookFile] = useState<File | null>(null);
+  const bankBookInputRef = useRef<HTMLInputElement | null>(null);
+  
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isSavingBank, setIsSavingBank] = useState(false);
   
@@ -111,6 +123,10 @@ export default function PengaturanVendorPage() {
             city: vendor.city || '',
             address: vendor.address || '',
           }));
+          
+          if ((vendor as any).ktpUrl) setKtpUrl((vendor as any).ktpUrl);
+          if ((vendor as any).businessLicenseUrl) setBusinessLicenseUrl((vendor as any).businessLicenseUrl);
+          if ((vendor as any).bankBookUrl) setBankBookUrl((vendor as any).bankBookUrl);
           
           setBankForm({
             bankName: vendor.bankName || 'Bank BCA',
@@ -178,6 +194,22 @@ export default function PengaturanVendorPage() {
     pushNotice('info', 'Foto profil dipilih (preview). Klik Simpan Perubahan untuk menyimpan');
   };
 
+  const handleSelectDoc = (type: 'ktp' | 'license' | 'bank') => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    if (type === 'ktp') {
+      if (ktpUrl && ktpUrl.startsWith('blob:')) URL.revokeObjectURL(ktpUrl);
+      setKtpUrl(url); setKtpFile(file);
+    } else if (type === 'license') {
+      if (businessLicenseUrl && businessLicenseUrl.startsWith('blob:')) URL.revokeObjectURL(businessLicenseUrl);
+      setBusinessLicenseUrl(url); setBusinessLicenseFile(file);
+    } else if (type === 'bank') {
+      if (bankBookUrl && bankBookUrl.startsWith('blob:')) URL.revokeObjectURL(bankBookUrl);
+      setBankBookUrl(url); setBankBookFile(file);
+    }
+  };
+
   const triggerFileSelect = () => fileInputRef.current?.click();
 
   const handleRemoveAvatar = () => {
@@ -225,12 +257,26 @@ export default function PengaturanVendorPage() {
         ...(avatarChanged ? { avatar: finalAvatarUrl || '' } : {}),
       });
       
+      let finalKtpUrl = ktpUrl;
+      if (ktpFile) {
+        const uploaded = await uploadImage(ktpFile);
+        if (uploaded) finalKtpUrl = uploaded;
+      }
+
+      let finalLicenseUrl = businessLicenseUrl;
+      if (businessLicenseFile) {
+        const uploaded = await uploadImage(businessLicenseFile);
+        if (uploaded) finalLicenseUrl = uploaded;
+      }
+
       // Update Vendor fields
       await updateVendorProfile({
         businessName: form.businessName,
         description: form.description,
         city: form.city,
         address: form.address,
+        ...((finalKtpUrl && !finalKtpUrl.startsWith('blob:')) ? { ktpUrl: finalKtpUrl } : {}),
+        ...((finalLicenseUrl && !finalLicenseUrl.startsWith('blob:')) ? { businessLicenseUrl: finalLicenseUrl } : {}),
       });
       
       // Perbarui state avatar agar tampilan langsung berubah
@@ -309,10 +355,17 @@ export default function PengaturanVendorPage() {
     if (!bankEditMode || isSavingBank) return;
     setIsSavingBank(true);
     try {
+      let finalBankBookUrl = bankBookUrl;
+      if (bankBookFile) {
+        const uploaded = await uploadImage(bankBookFile);
+        if (uploaded) finalBankBookUrl = uploaded;
+      }
+
       await updateVendorProfile({
         bankName: bankDraft.bankName,
         bankAccount: bankDraft.accountNumber,
         bankHolder: bankDraft.accountHolder,
+        ...((finalBankBookUrl && !finalBankBookUrl.startsWith('blob:')) ? { bankBookUrl: finalBankBookUrl } : {}),
       });
       setBankForm(bankDraft);
       setBankEditMode(false);
@@ -488,6 +541,44 @@ export default function PengaturanVendorPage() {
               />
             </div>
 
+            <div className="grid gap-8 border-t border-slate-50 pt-10 md:grid-cols-2">
+              <div className="space-y-3">
+                <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">Foto KTP Pemilik</label>
+                <div className="flex items-center gap-4">
+                  {ktpUrl ? (
+                    <div className="h-16 w-24 overflow-hidden rounded-xl border border-slate-200 shrink-0">
+                      <img src={ktpUrl} alt="KTP" className="h-full w-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="flex h-16 w-24 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 text-[10px] font-bold text-slate-400 shrink-0 text-center px-2">Belum ada</div>
+                  )}
+                  <div>
+                    <button onClick={() => ktpInputRef.current?.click()} className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-50 transition-all shadow-sm">Upload KTP</button>
+                    <p className="text-[9px] text-slate-400 mt-1.5 font-bold">Pastikan tulisan terbaca jelas.</p>
+                  </div>
+                  <input ref={ktpInputRef} type="file" accept="image/*" className="hidden" onChange={handleSelectDoc('ktp')} />
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">Surat Izin Usaha (NIB/SKU)</label>
+                <div className="flex items-center gap-4">
+                  {businessLicenseUrl ? (
+                    <div className="h-16 w-24 overflow-hidden rounded-xl border border-slate-200 shrink-0">
+                      <img src={businessLicenseUrl} alt="Surat Izin Usaha" className="h-full w-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="flex h-16 w-24 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 text-[10px] font-bold text-slate-400 shrink-0 text-center px-2">Belum ada</div>
+                  )}
+                  <div>
+                    <button onClick={() => businessLicenseInputRef.current?.click()} className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-50 transition-all shadow-sm">Upload Surat</button>
+                    <p className="text-[9px] text-slate-400 mt-1.5 font-bold">Opsional tapi disarankan.</p>
+                  </div>
+                  <input ref={businessLicenseInputRef} type="file" accept="image/*" className="hidden" onChange={handleSelectDoc('license')} />
+                </div>
+              </div>
+            </div>
+
             <div className="flex justify-end border-t border-slate-50 pt-6">
               <button onClick={handleSave} disabled={isSavingProfile} className="rounded-2xl bg-[#2A2A2A] px-10 py-4 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-black/10 transition-all hover:bg-black active:scale-95 cursor-pointer disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none">
                 {isSavingProfile ? 'Menyimpan...' : 'Simpan Perubahan Profil'}
@@ -582,6 +673,24 @@ export default function PengaturanVendorPage() {
                   placeholder="Sesuai buku tabungan"
                   className="w-full rounded-2xl border border-[#E2E8F0] bg-[#F7F9FC] px-6 py-4 text-sm font-bold transition-all focus:border-[#FF9A9E] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9A9E]/10 read-only:cursor-default read-only:bg-slate-50 read-only:text-slate-400"
                 />
+              </div>
+
+              <div className="space-y-3 md:col-span-2 pt-4 border-t border-slate-50">
+                <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">Foto Buku Rekening (Untuk Verifikasi Admin)</label>
+                <div className="flex items-center gap-4">
+                  {bankBookUrl ? (
+                    <div className="h-16 w-24 overflow-hidden rounded-xl border border-slate-200 shrink-0">
+                      <img src={bankBookUrl} alt="Buku Rekening" className="h-full w-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="flex h-16 w-24 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 text-[10px] font-bold text-slate-400 shrink-0 text-center px-2">Belum ada</div>
+                  )}
+                  <div>
+                    <button disabled={!bankEditMode} onClick={() => bankBookInputRef.current?.click()} className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm">Upload Rekening</button>
+                    <p className="text-[9px] text-slate-400 mt-1.5 font-bold">Pastikan nama & nomor rekening jelas.</p>
+                  </div>
+                  <input ref={bankBookInputRef} type="file" accept="image/*" className="hidden" onChange={handleSelectDoc('bank')} disabled={!bankEditMode} />
+                </div>
               </div>
             </div>
 

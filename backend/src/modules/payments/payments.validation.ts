@@ -10,6 +10,8 @@ export const verifyPaymentSchema = z.object({
   status: z.enum(["PAID", "FAILED", "REFUNDED"], {
     required_error: "Status wajib diisi (PAID, FAILED, atau REFUNDED)",
   }),
+  note: z.string().max(500, "Catatan maksimal 500 karakter").optional(),
+  refundProofUrl: z.string().url("Format URL bukti refund tidak valid").optional(),
 })
 
 export type CreatePaymentInput = z.infer<typeof createPaymentSchema>
