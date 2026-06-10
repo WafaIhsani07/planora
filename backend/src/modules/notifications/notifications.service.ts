@@ -27,23 +27,15 @@ export const getMyNotifications = async (
   const { page = 1, limit = 20, type } = query
   const skip = (page - 1) * limit
 
-  const [notifications, total] = await Promise.all([
-    db.notification.findMany({
-      where: {
-        userId,
-        ...(type !== undefined && { type }),
-      },
-      orderBy: { createdAt: "desc" },
-      skip,
-      take: limit,
-    }),
-    db.notification.count({
-      where: {
-        userId,
-        ...(type !== undefined && { type }),
-      },
-    }),
-  ])
+  const where = { userId, ...(type !== undefined && { type }) }
+
+  const notifications = await db.notification.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    skip,
+    take: limit,
+  })
+  const total = await db.notification.count({ where })
 
   return {
     notifications,

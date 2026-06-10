@@ -116,21 +116,19 @@ export const getMyBookings = async (
     whereClause.status = query.status
   }
 
-  const [data, total] = await Promise.all([
-    db.booking.findMany({
-      where: whereClause,
-      include: {
-        layanan: { select: { name: true, price: true } },
-        customer: { select: { name: true, phone: true } },
-        vendor: { select: { businessName: true } },
-        payment: true,
-      },
-      orderBy: { createdAt: "desc" },
-      skip,
-      take: limit,
-    }),
-    db.booking.count({ where: whereClause })
-  ])
+  const data = await db.booking.findMany({
+    where: whereClause,
+    include: {
+      layanan: { select: { name: true, price: true } },
+      customer: { select: { name: true, phone: true } },
+      vendor: { select: { businessName: true } },
+      payment: true,
+    },
+    orderBy: { createdAt: "desc" },
+    skip,
+    take: limit,
+  })
+  const total = await db.booking.count({ where: whereClause })
 
   return {
     data,

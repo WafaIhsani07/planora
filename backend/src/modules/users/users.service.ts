@@ -115,32 +115,30 @@ export const getAllUsers = async (query: GetUsersQuery) => {
     ...(isActive !== undefined && { isActive }),
   }
 
-  const [users, total] = await Promise.all([
-    db.user.findMany({
-      where,
-      skip,
-      take: limit,
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        phone: true,
-        avatar: true,
-        role: true,
-        isActive: true,
-        createdAt: true,
-        vendor: {
-          select: {
-            id: true,
-            businessName: true,
-            status: true,
-          },
+  const users = await db.user.findMany({
+    where,
+    skip,
+    take: limit,
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      avatar: true,
+      role: true,
+      isActive: true,
+      createdAt: true,
+      vendor: {
+        select: {
+          id: true,
+          businessName: true,
+          status: true,
         },
       },
-    }),
-    db.user.count({ where }),
-  ])
+    },
+  })
+  const total = await db.user.count({ where })
 
   return {
     users,
