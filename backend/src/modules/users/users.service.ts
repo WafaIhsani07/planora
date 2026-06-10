@@ -22,6 +22,7 @@ export const getProfile = async (userId: string) => {
       avatar: true,
       role: true,
       isActive: true,
+      notificationSettings: true,
       createdAt: true,
       updatedAt: true,
       vendor: {
@@ -54,6 +55,7 @@ export const updateProfile = async (
       ...(input.name !== undefined && { name: input.name }),
       ...(input.phone !== undefined && { phone: input.phone ?? null }),
       ...(input.avatar !== undefined && { avatar: input.avatar ?? null }),
+      ...(input.notificationSettings !== undefined && { notificationSettings: input.notificationSettings }),
     },
     select: {
       id: true,
@@ -62,6 +64,7 @@ export const updateProfile = async (
       phone: true,
       avatar: true,
       role: true,
+      notificationSettings: true,
       updatedAt: true,
     },
   })
@@ -216,4 +219,16 @@ export const updateUserStatus = async (
   }
 
   return updated
+}
+
+// ─── Deactivate My Account ───────────────────────────────────────────────────
+export const deactivateAccount = async (userId: string) => {
+  const user = await db.user.update({
+    where: { id: userId },
+    data: { isActive: false },
+  })
+
+  // Hapus semua refresh token
+  await db.refreshToken.deleteMany({ where: { userId } })
+  return user
 }

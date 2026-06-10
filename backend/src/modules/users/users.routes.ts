@@ -8,6 +8,7 @@ const router = Router()
 router.get("/profile", authenticate, usersController.getProfile)
 router.put("/profile", authenticate, usersController.updateProfile)
 router.put("/change-password", authenticate, usersController.changePassword)
+router.delete("/me", authenticate, usersController.deactivateMyAccount)
 
 // ─── Protected — Admin Only ───────────────────────────────────────────────────
 router.get("/", authenticate, authorize("ADMIN"), usersController.getAllUsers)

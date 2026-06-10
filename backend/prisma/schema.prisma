@@ -25,6 +25,7 @@ model User {
   refreshTokens       RefreshToken[]
   reviews             Review[]
   vendor              Vendor?
+  notificationSettings Json?
 
   @@map("users")
 }

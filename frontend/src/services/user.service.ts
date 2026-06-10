@@ -10,7 +10,7 @@ export async function getUserProfile() {
   }
 }
 
-export async function updateUserProfile(payload: { name?: string; phone?: string; avatar?: string }) {
+export async function updateUserProfile(payload: { name?: string; phone?: string; avatar?: string; notificationSettings?: any }) {
   try {
     const response = await api.put("/users/profile", payload);
     return response.data.data;
@@ -23,4 +23,9 @@ export async function updateUserProfile(payload: { name?: string; phone?: string
 export async function changePassword(payload: any) {
   const response = await api.put("/users/change-password", payload);
   return response.data.data;
+}
+
+export async function deleteMyAccount() {
+  const response = await api.delete("/users/me");
+  return response.data;
 }

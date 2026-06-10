@@ -246,14 +246,14 @@ export default function DashboardClient() {
                 <p className="text-sm font-bold text-slate-400">Belum ada pesanan terbaru.</p>
               </div>
             ) : (
-              <table className="w-full text-left table-fixed border-collapse min-w-[820px] lg:min-w-0">
+              <table className="w-full text-left table-auto border-collapse min-w-[820px]">
                 <thead>
                   <tr className="bg-slate-50/40 text-[9px] lg:text-[10px] font-black text-[#2A2A2A]/30 uppercase tracking-[0.18em] border-b border-slate-50">
-                    <th className="px-5 py-4 text-center">Pesanan</th>
-                    <th className="px-5 py-4 text-center">Klien</th>
-                    <th className="px-5 py-4 text-center">Tanggal Acara</th>
-                    <th className="px-5 py-4 text-center">Paket</th>
-                    <th className="px-5 py-4 text-center min-w-[140px]">Total</th>
+                    <th className="px-5 py-4 text-left">Pesanan</th>
+                    <th className="px-5 py-4 text-left">Klien</th>
+                    <th className="px-5 py-4 text-left">Tanggal Acara</th>
+                    <th className="px-5 py-4 text-left">Paket</th>
+                    <th className="px-5 py-4 text-right min-w-[140px]">Total</th>
                     <th className="px-5 py-4 text-center">Status</th>
                   </tr>
                 </thead>
@@ -267,29 +267,29 @@ export default function DashboardClient() {
                             className="w-10 h-10 flex-shrink-0 rounded-lg object-cover shadow-sm transition-transform group-hover:scale-105"
                             alt="Acara"
                           />
-                          <div>
-                            <h4 className="font-black text-[#2A2A2A] text-[13px] mb-0.5 truncate max-w-[120px]">{order.layanan?.name || 'Paket'}</h4>
-                            <p className="text-[10px] font-bold text-[#2A2A2A]/40 tracking-widest uppercase">
+                          <div className="min-w-0 flex-1">
+                            <h4 className="font-black text-[#2A2A2A] text-[13px] mb-0.5 truncate">{order.layanan?.name || 'Paket'}</h4>
+                            <p className="text-[10px] font-bold text-[#2A2A2A]/40 tracking-widest uppercase truncate">
                               #PLR-{order.id.substring(Math.max(0, order.id.length - 6)).toUpperCase()}
                             </p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-5 py-4 align-top text-center">
+                      <td className="px-5 py-4 align-top text-left max-w-[150px]">
                         <p className="text-[13px] font-black text-[#2A2A2A] truncate">{order.customer?.name || 'Pelanggan'}</p>
                       </td>
-                      <td className="px-5 py-4 align-top text-center">
+                      <td className="px-5 py-4 align-top text-left">
                         <div className="space-y-1">
                           <p className="text-[13px] font-black text-[#2A2A2A] whitespace-nowrap">{formatDate(order.eventDate, 'full')}</p>
                           <p className="text-[9px] font-bold text-[#2A2A2A]/40 uppercase whitespace-nowrap">{formatDate(order.eventDate, 'time')}</p>
                         </div>
                       </td>
-                      <td className="px-5 py-4 align-top text-center">
+                      <td className="px-5 py-4 align-top text-left max-w-[150px]">
                         <div className="space-y-1">
-                          <p className="text-[13px] font-black text-[#2A2A2A] truncate max-w-[100px] mx-auto">{order.layanan?.name || 'Layanan'}</p>
+                          <p className="text-[13px] font-black text-[#2A2A2A] truncate">{order.layanan?.name || 'Layanan'}</p>
                         </div>
                       </td>
-                      <td className="px-5 py-4 align-top text-center min-w-[140px]">
+                      <td className="px-5 py-4 align-top text-right min-w-[140px]">
                         <p className="text-[13px] font-black text-[#2A2A2A] whitespace-nowrap">{formatCurrency(order.totalPrice)}</p>
                       </td>
                       <td className="px-5 py-4 align-top text-center">

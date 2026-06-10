@@ -9,6 +9,7 @@ export const updateProfileSchema = z.object({
     .optional(),
   phone: z.string().max(20, "Nomor telepon terlalu panjang").optional(),
   avatar: z.union([z.string().url("Format URL avatar tidak valid"), z.literal("")]).optional().nullable(),
+  notificationSettings: z.any().optional(),
 })
 
 // ─── Change Password ──────────────────────────────────────────────────────────

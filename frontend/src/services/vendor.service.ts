@@ -165,3 +165,25 @@ export async function replyToReview(reviewId: string, reply: string) {
     return null;
   }
 }
+
+// ─── Keuangan / Penarikan ───────────────────────────────────────────────────
+export async function getMyWithdrawals() {
+  try {
+    const response = await api.get("/withdrawals");
+    return response.data.data.withdrawals || [];
+  } catch (error) {
+    handleApiError(error, "Gagal mengambil riwayat penarikan");
+    return [];
+  }
+}
+
+export async function requestWithdrawal(amount: number) {
+  try {
+    const response = await api.post("/withdrawals", { amount });
+    toast.success("Pengajuan penarikan dana berhasil");
+    return response.data.data;
+  } catch (error) {
+    handleApiError(error, "Gagal mengajukan penarikan dana");
+    return null;
+  }
+}

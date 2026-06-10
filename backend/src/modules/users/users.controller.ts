@@ -98,3 +98,13 @@ export const updateUserStatus = async (
   )
   sendSuccess(res, user, "Status user berhasil diperbarui")
 }
+
+// ─── Deactivate My Account ────────────────────────────────────────────────────
+export const deactivateMyAccount = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  await usersService.deactivateAccount(req.userId)
+  sendSuccess(res, null, "Akun berhasil dinonaktifkan")
+}

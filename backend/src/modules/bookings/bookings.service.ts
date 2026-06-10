@@ -204,11 +204,12 @@ export const updateBookingStatus = async (
         },
       })
 
-      // 2. Tambah Saldo Vendor (100% masuk ke vendor)
+      // 2. Tambah Saldo Vendor (95% masuk ke vendor, 5% komisi platform)
+      const netAmount = booking.totalPrice * 0.95;
       await tx.vendor.update({
         where: { id: booking.vendorId },
         data: {
-          balance: { increment: booking.totalPrice },
+          balance: { increment: netAmount },
         },
       })
 

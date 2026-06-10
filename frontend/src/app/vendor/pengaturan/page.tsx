@@ -13,7 +13,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { getMyVendorProfile, updateVendorProfile, uploadImage } from '@/services/vendor.service';
-import { getUserProfile, updateUserProfile, changePassword } from '@/services/user.service';
+import { getUserProfile, updateUserProfile, changePassword, deleteMyAccount } from '@/services/user.service';
 
 type ProfileForm = {
   businessName: string;
@@ -28,6 +28,15 @@ type BankForm = {
   bankName: string;
   accountNumber: string;
   accountHolder: string;
+};
+
+type NotificationSettings = {
+  pesananBaru: boolean;
+  pembayaranDp: boolean;
+  pengingatH3: boolean;
+  danaCair: boolean;
+  ulasanBaru: boolean;
+  newsletter: boolean;
 };
 
 const navItems = [
@@ -54,6 +63,15 @@ export default function PengaturanVendorPage() {
     accountHolder: '',
   });
 
+  const [notifications, setNotifications] = useState<NotificationSettings>({
+    pesananBaru: true,
+    pembayaranDp: true,
+    pengingatH3: true,
+    danaCair: true,
+    ulasanBaru: false,
+    newsletter: false,
+  });
+
   const [notice, setNotice] = useState<{ type: 'success' | 'info' | 'error'; message: string } | null>(null);
   
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -76,6 +94,7 @@ export default function PengaturanVendorPage() {
   
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isSavingBank, setIsSavingBank] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -113,6 +132,12 @@ export default function PengaturanVendorPage() {
             phone: user.phone || '',
           }));
           if (user.avatar) setAvatarUrl(user.avatar);
+          if (user.notificationSettings) {
+            setNotifications((prev) => ({
+              ...prev,
+              ...(user.notificationSettings as NotificationSettings)
+            }));
+          }
         }
         
         if (vendor) {
@@ -326,13 +351,26 @@ export default function PengaturanVendorPage() {
     setShowDeleteModal(true);
   };
 
-  const handleRequestDelete = () => {
+  const handleRequestDelete = async () => {
     if (deleteConfirmText !== 'HAPUS') {
       setDeleteError('Ketik HAPUS untuk melanjutkan.');
       return;
     }
-    setShowDeleteModal(false);
-    pushNotice('info', 'Permintaan penghapusan akun vendor telah dikirim ke Admin.');
+    
+    setIsDeleting(true);
+    try {
+      await deleteMyAccount();
+      setShowDeleteModal(false);
+      pushNotice('success', 'Akun berhasil dinonaktifkan. Anda akan dikeluarkan dari sistem.');
+      
+      setTimeout(async () => {
+        await signOut({ redirect: false, callbackUrl: '/login' });
+        window.location.href = '/login';
+      }, 2000);
+    } catch (error) {
+      setDeleteError('Gagal menghapus akun. Silakan coba lagi.');
+      setIsDeleting(false);
+    }
   };
 
   const handleEditBank = () => {
@@ -377,6 +415,19 @@ export default function PengaturanVendorPage() {
     }
   };
 
+  const handleToggleNotification = async (key: keyof NotificationSettings) => {
+    const updatedSettings = { ...notifications, [key]: !notifications[key] };
+    setNotifications(updatedSettings);
+    
+    try {
+      await updateUserProfile({ notificationSettings: updatedSettings });
+      pushNotice('success', 'Pengaturan notifikasi disimpan.');
+    } catch (error) {
+      setNotifications(notifications); // revert on error
+      pushNotice('error', 'Gagal menyimpan notifikasi.');
+    }
+  };
+
   const sidebarItems = useMemo(
     () =>
       navItems.map((item) => {
@@ -416,6 +467,15 @@ export default function PengaturanVendorPage() {
       </div>
     );
   }
+
+  const notificationOptions = [
+    { key: 'pesananBaru', title: 'Pesanan masuk baru', desc: 'Notifikasi saat ada customer melakukan booking' },
+    { key: 'pembayaranDp', title: 'Pembayaran DP diterima', desc: 'Notifikasi saat admin memverifikasi DP customer' },
+    { key: 'pengingatH3', title: 'Pengingat H-3 acara', desc: 'Pengingat otomatis 3 hari sebelum acara berlangsung' },
+    { key: 'danaCair', title: 'Dana berhasil dicairkan', desc: 'Notifikasi saat admin mencairkan dana ke rekening Anda' },
+    { key: 'ulasanBaru', title: 'Ulasan baru dari customer', desc: 'Notifikasi saat customer memberikan rating dan ulasan' },
+    { key: 'newsletter', title: 'Email newsletter Planora', desc: 'Tips bisnis dan update fitur terbaru dari Planora' },
+  ];
 
   return (
     <div className="mx-auto max-w-7xl space-y-10 pb-20 p-8 py-6">
@@ -708,21 +768,19 @@ export default function PengaturanVendorPage() {
             </div>
 
             <div className="divide-y divide-slate-100 border-t border-slate-100">
-              {[
-                ['Pesanan masuk baru', 'Notifikasi saat ada customer melakukan booking', true],
-                ['Pembayaran DP diterima', 'Notifikasi saat admin memverifikasi DP customer', true],
-                ['Pengingat H-3 acara', 'Pengingat otomatis 3 hari sebelum acara berlangsung', true],
-                ['Dana berhasil dicairkan', 'Notifikasi saat admin mencairkan dana ke rekening Anda', true],
-                ['Ulasan baru dari customer', 'Notifikasi saat customer memberikan rating dan ulasan', false],
-                ['Email newsletter Planora', 'Tips bisnis dan update fitur terbaru dari Planora', false],
-              ].map(([title, desc, enabled]) => (
-                <div key={title as string} className="flex items-center justify-between py-8">
+              {notificationOptions.map(({ key, title, desc }) => (
+                <div key={key} className="flex items-center justify-between py-8">
                   <div className="space-y-1">
-                    <h5 className="text-[15px] font-black leading-tight text-[#2A2A2A]">{title as string}</h5>
-                    <p className="text-[11px] font-medium text-slate-400">{desc as string}</p>
+                    <h5 className="text-[15px] font-black leading-tight text-[#2A2A2A]">{title}</h5>
+                    <p className="text-[11px] font-medium text-slate-400">{desc}</p>
                   </div>
                   <label className="relative inline-flex cursor-pointer items-center">
-                    <input type="checkbox" className="peer sr-only" defaultChecked={enabled as boolean} />
+                    <input 
+                      type="checkbox" 
+                      className="peer sr-only" 
+                      checked={notifications[key as keyof NotificationSettings]} 
+                      onChange={() => handleToggleNotification(key as keyof NotificationSettings)}
+                    />
                     <div className="h-7 w-14 rounded-full bg-slate-200 transition-all duration-300 peer-checked:bg-[#2A2A2A]" />
                     <div className="absolute left-1 top-1 h-5 w-5 rounded-full bg-white shadow-sm transition-all duration-300 peer-checked:translate-x-7" />
                   </label>
@@ -734,7 +792,7 @@ export default function PengaturanVendorPage() {
           <section className="flex flex-col items-center justify-between gap-6 rounded-3xl border border-red-100 bg-red-50 p-8 shadow-sm md:flex-row md:p-10">
             <div className="space-y-1 text-center md:text-left">
               <h3 className="text-lg font-black uppercase tracking-tight text-red-500">Hapus Akun Vendor</h3>
-              <p className="text-xs font-medium text-red-400">Akun dan semua data toko akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.</p>
+              <p className="text-xs font-medium text-red-400">Akun dan semua data toko akan dinonaktifkan (soft delete). Tindakan ini dapat dicabut oleh Admin.</p>
             </div>
             <button onClick={handleOpenDeleteModal} className="rounded-2xl bg-red-500 px-10 py-4 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-red-200 transition-all hover:bg-red-600 active:scale-95 cursor-pointer">
               Ajukan Penghapusan
@@ -742,6 +800,49 @@ export default function PengaturanVendorPage() {
           </section>
         </div>
       </div>
+
+      {/* Delete Account Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl">
+            <div className="bg-red-50 p-6 text-center">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 text-red-500">
+                <X className="h-8 w-8" />
+              </div>
+              <h4 className="text-xl font-black text-red-500">Apakah Anda Yakin?</h4>
+              <p className="mt-2 text-[11px] font-bold text-red-400/80 uppercase tracking-widest">Akun Anda akan dinonaktifkan</p>
+            </div>
+            <div className="p-8">
+              <p className="mb-6 text-center text-sm font-medium text-slate-500">
+                Untuk alasan keamanan, ketik kata <strong className="text-[#2A2A2A]">HAPUS</strong> di bawah ini untuk mengonfirmasi.
+              </p>
+              <input
+                type="text"
+                placeholder="Ketik HAPUS"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                className="w-full rounded-2xl border border-red-200 bg-red-50/50 px-6 py-4 text-center text-lg font-black tracking-widest text-[#2A2A2A] focus:border-red-500 focus:outline-none focus:ring-4 focus:ring-red-500/10"
+              />
+              {deleteError && <p className="mt-3 text-center text-[10px] font-bold uppercase tracking-widest text-red-500">{deleteError}</p>}
+              <div className="mt-8 flex gap-4">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="flex-1 rounded-2xl bg-slate-100 py-4 text-[11px] font-black uppercase tracking-widest text-slate-500 transition-colors hover:bg-slate-200"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={handleRequestDelete}
+                  disabled={isDeleting}
+                  className="flex-1 rounded-2xl bg-red-500 py-4 text-[11px] font-black uppercase tracking-widest text-white shadow-lg shadow-red-200 transition-colors hover:bg-red-600 disabled:opacity-50"
+                >
+                  {isDeleting ? 'Menghapus...' : 'Ya, Hapus'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showPasswordModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4">
@@ -799,114 +900,6 @@ export default function PengaturanVendorPage() {
                   {passwordError}
                 </p>
               )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showRemoveAvatarConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4">
-          <div className="w-full max-w-sm rounded-[20px] bg-white p-6 shadow-2xl">
-            <div className="mb-4 flex items-center justify-between">
-              <h4 className="text-lg font-black text-[#2A2A2A]">Hapus Foto Profil</h4>
-              <button onClick={() => setShowRemoveAvatarConfirm(false)} className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-50 text-[#2A2A2A]/40 transition-all hover:bg-[#FCE6E3] hover:text-[#FF527B] cursor-pointer">
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            <p className="text-sm text-[#2A2A2A]/70">Kamu yakin ingin menghapus foto profil? Tindakan ini dapat dibatalkan dengan mengunggah foto baru.</p>
-
-            <div className="mt-6 flex gap-3">
-              <button onClick={() => setShowRemoveAvatarConfirm(false)} className="flex-1 rounded-xl border border-gray-200 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-[#2A2A2A]/50 transition-all hover:bg-gray-50 cursor-pointer">Batal</button>
-              <button onClick={handleRemoveAvatar} className="flex-1 rounded-xl bg-red-500 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-all hover:bg-red-600 cursor-pointer">Hapus</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showLogoutModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
-            <div className="mb-4 flex items-center justify-between">
-              <h4 className="text-lg font-black text-[#2A2A2A]">Konfirmasi Keluar</h4>
-              <button
-                onClick={() => setShowLogoutModal(false)}
-                className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-50 text-[#2A2A2A]/40 transition-all hover:bg-[#FCE6E3] hover:text-[#FF527B] cursor-pointer"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            <p className="mb-6 text-sm font-semibold text-[#2A2A2A]/70">Kamu yakin ingin keluar dari akun vendor sekarang?</p>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowLogoutModal(false)}
-                className="flex-1 rounded-xl border border-gray-200 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-[#2A2A2A]/50 transition-all hover:bg-gray-50 cursor-pointer"
-              >
-                Batal
-              </button>
-              <button
-                onClick={handleLogout}
-                className="flex-1 rounded-xl bg-red-500 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-all hover:bg-red-600 cursor-pointer"
-              >
-                Ya, Keluar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
-            <div className="mb-4 flex items-center justify-between">
-              <h4 className="text-lg font-black text-[#2A2A2A]">Ajukan Penghapusan Akun</h4>
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-50 text-[#2A2A2A]/40 transition-all hover:bg-[#FCE6E3] hover:text-[#FF527B] cursor-pointer"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <p className="text-sm font-semibold text-[#2A2A2A]/70">
-                Tindakan ini tidak langsung menghapus akun. Kami akan menerima permintaan penghapusan vendor untuk diproses lebih lanjut.
-              </p>
-
-              <div className="rounded-2xl border border-[#F9D4D4] bg-[#FFF2F2] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-red-500">
-                Ketik HAPUS untuk melanjutkan
-              </div>
-
-              <input
-                type="text"
-                value={deleteConfirmText}
-                onChange={(e) => setDeleteConfirmText(e.target.value)}
-                placeholder="HAPUS"
-                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold focus:border-[#FF9A9E] focus:outline-none"
-              />
-
-              {deleteError && (
-                <p className="rounded-2xl border border-[#F9D4D4] bg-[#FFF2F2] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-red-500">
-                  {deleteError}
-                </p>
-              )}
-
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowDeleteModal(false)}
-                  className="flex-1 rounded-xl border border-gray-200 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-[#2A2A2A]/50 transition-all hover:bg-gray-50 cursor-pointer"
-                >
-                  Batal
-                </button>
-                <button
-                  onClick={handleRequestDelete}
-                  className="flex-1 rounded-xl bg-red-500 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-all hover:bg-red-600 cursor-pointer"
-                >
-                  Kirim Permintaan
-                </button>
-              </div>
             </div>
           </div>
         </div>
