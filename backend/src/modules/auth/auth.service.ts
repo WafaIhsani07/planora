@@ -20,8 +20,9 @@ const RESET_TOKEN_EXPIRES_MS = 30 * 60 * 1000 // 30 menit
 
 // ─── Register ────────────────────────────────────────────────────────────
 export const register = async (input: RegisterInput) => {
+  const emailNormalized = input.email.trim().toLowerCase()
   const existing = await db.user.findUnique({
-    where: { email: input.email },
+    where: { email: emailNormalized },
   })
   if (existing) throw new AppError("Email sudah terdaftar", 409)
 
@@ -30,7 +31,7 @@ export const register = async (input: RegisterInput) => {
   const user = await db.user.create({
     data: {
       name: input.name,
-      email: input.email,
+      email: emailNormalized,
       password: hashedPassword,
       role: input.role,
       phone: input.phone ?? null,
@@ -61,8 +62,9 @@ export const register = async (input: RegisterInput) => {
 
 // ─── Login ───────────────────────────────────────────────────────────────
 export const login = async (input: LoginInput) => {
+  const emailNormalized = input.email.trim().toLowerCase()
   const user = await db.user.findUnique({
-    where: { email: input.email },
+    where: { email: emailNormalized },
   })
   if (!user) throw new AppError("Email atau password salah", 401)
   if (!user.isActive) throw new AppError("Akun kamu telah dinonaktifkan", 403)
@@ -154,7 +156,8 @@ export const getMe = async (userId: string) => {
 
 // ─── Forgot Password ─────────────────────────────────────────────────────────
 export const requestPasswordReset = async (input: ForgotPasswordInput) => {
-  const user = await db.user.findUnique({ where: { email: input.email } })
+  const emailNormalized = input.email.trim().toLowerCase()
+  const user = await db.user.findUnique({ where: { email: emailNormalized } })
   if (!user) throw new AppError("Email tidak ditemukan", 404)
 
   await db.passwordResetToken.deleteMany({ where: { userId: user.id } })
@@ -199,4 +202,22 @@ export const resetPassword = async (input: ResetPasswordInput) => {
   })
 
   await db.refreshToken.deleteMany({ where: { userId: stored.userId } })
+}
+
+// ─── Rollback Registration ───────────────────────────────────────────────────
+export const rollbackRegistration = async (userId: string) => {
+  // Only allow rollback if the vendor profile doesn't exist yet
+  const vendor = await db.vendor.findUnique({ where: { userId } })
+  if (vendor) {
+    throw new AppError("Tidak dapat membatalkan pendaftaran karena profil vendor sudah dibuat", 400)
+  }
+
+  // Delete all refresh tokens
+  await db.refreshToken.deleteMany({ where: { userId } })
+
+  // Delete all password reset tokens
+  await db.passwordResetToken.deleteMany({ where: { userId } })
+
+  // Delete the user
+  await db.user.delete({ where: { id: userId } })
 }

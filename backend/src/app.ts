@@ -43,6 +43,27 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use("/uploads", express.static("uploads"))
 
+// ─── Request Logger Middleware ────────────────────────────────────────────────
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const start = Date.now()
+  res.on("finish", () => {
+    const duration = Date.now() - start
+    let statusColor = "\x1b[32m" // Hijau (2xx)
+    if (res.statusCode >= 300 && res.statusCode < 400) {
+      statusColor = "\x1b[36m" // Cyan (3xx)
+    } else if (res.statusCode >= 400 && res.statusCode < 500) {
+      statusColor = "\x1b[33m" // Kuning (4xx)
+    } else if (res.statusCode >= 500) {
+      statusColor = "\x1b[31m" // Merah (5xx)
+    }
+    const reset = "\x1b[0m"
+    console.log(
+      `[${new Date().toLocaleTimeString()}] ${req.method} ${req.originalUrl} - ${statusColor}${res.statusCode}${reset} (${duration}ms)`
+    )
+  })
+  next()
+})
+
 // ─── Health Check ─────────────────────────────────────────────────────────────
 app.get("/", (_req: Request, res: Response) => {
   res.json({

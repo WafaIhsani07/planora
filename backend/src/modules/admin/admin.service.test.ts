@@ -17,22 +17,31 @@ describe("Admin Service", () => {
     it("should return all aggregated stats", async () => {
       mockDb.user.count.mockResolvedValueOnce(150)   // totalUsers
       mockDb.vendor.count
+        .mockResolvedValueOnce(37)                   // totalVendors
         .mockResolvedValueOnce(25)                   // activeVendors (VERIFIED)
         .mockResolvedValueOnce(12)                   // pendingVendors (PENDING)
       mockDb.booking.count
         .mockResolvedValueOnce(300)                  // totalBookings
         .mockResolvedValueOnce(50)                   // pendingBookings
       mockDb.payment.aggregate.mockResolvedValue({ _sum: { amount: 75000000 } })
+      mockDb.withdrawal.aggregate.mockResolvedValue({ _sum: { amount: 5000000 } })
+      mockDb.booking.findMany.mockResolvedValue([{ totalPrice: 10000000 }])
+      mockDb.payment.count.mockResolvedValue(2)      // pendingPayments
 
       const result = await adminService.getDashboardStats()
 
       expect(result).toMatchObject({
         totalUsers: 150,
+        totalVendors: 37,
         activeVendors: 25,
         pendingVendors: 12,
         totalBookings: 300,
         pendingBookings: 50,
         totalRevenue: 75000000,
+        escrowBalance: 75000000,
+        readyToWithdraw: 5000000,
+        monthlyCommission: 500000,
+        pendingPayments: 2,
       })
     })
 
@@ -41,35 +50,45 @@ describe("Admin Service", () => {
       mockDb.vendor.count.mockResolvedValue(0)
       mockDb.booking.count.mockResolvedValue(0)
       mockDb.payment.aggregate.mockResolvedValue({ _sum: { amount: null } })
+      mockDb.withdrawal.aggregate.mockResolvedValue({ _sum: { amount: null } })
+      mockDb.booking.findMany.mockResolvedValue([])
+      mockDb.payment.count.mockResolvedValue(0)
 
       const result = await adminService.getDashboardStats()
 
       expect(result.totalRevenue).toBe(0)
     })
 
-    it("should call db.user.count once for totalUsers", async () => {
+    it("should call db.user.count once for totalUsers with role CUSTOMER", async () => {
       mockDb.user.count.mockResolvedValue(0)
       mockDb.vendor.count.mockResolvedValue(0)
       mockDb.booking.count.mockResolvedValue(0)
       mockDb.payment.aggregate.mockResolvedValue({ _sum: { amount: null } })
+      mockDb.withdrawal.aggregate.mockResolvedValue({ _sum: { amount: null } })
+      mockDb.booking.findMany.mockResolvedValue([])
+      mockDb.payment.count.mockResolvedValue(0)
 
       await adminService.getDashboardStats()
 
       expect(mockDb.user.count).toHaveBeenCalledOnce()
-      expect(mockDb.user.count).toHaveBeenCalledWith({ where: {} })
+      expect(mockDb.user.count).toHaveBeenCalledWith({ where: { role: "CUSTOMER" } })
     })
 
-    it("should call db.vendor.count separately for VERIFIED and PENDING", async () => {
+    it("should call db.vendor.count for total, VERIFIED and PENDING status", async () => {
       mockDb.user.count.mockResolvedValue(0)
       mockDb.vendor.count.mockResolvedValue(0)
       mockDb.booking.count.mockResolvedValue(0)
       mockDb.payment.aggregate.mockResolvedValue({ _sum: { amount: null } })
+      mockDb.withdrawal.aggregate.mockResolvedValue({ _sum: { amount: null } })
+      mockDb.booking.findMany.mockResolvedValue([])
+      mockDb.payment.count.mockResolvedValue(0)
 
       await adminService.getDashboardStats()
 
+      expect(mockDb.vendor.count).toHaveBeenCalledWith({ where: {} })
       expect(mockDb.vendor.count).toHaveBeenCalledWith({ where: { status: "VERIFIED" } })
       expect(mockDb.vendor.count).toHaveBeenCalledWith({ where: { status: "PENDING" } })
-      expect(mockDb.vendor.count).toHaveBeenCalledTimes(2)
+      expect(mockDb.vendor.count).toHaveBeenCalledTimes(3)
     })
   })
 

@@ -23,14 +23,14 @@ const storage = multer.diskStorage({
 
 // Filter hanya file bertipe gambar
 const fileFilter = (_req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-  const allowedTypes = /jpeg|jpg|png|webp|gif/
+  const allowedTypes = /jpeg|jpg|png|webp|gif|pdf/
   const ext = allowedTypes.test(path.extname(file.originalname).toLowerCase())
   const mime = allowedTypes.test(file.mimetype)
 
   if (ext && mime) {
     cb(null, true)
   } else {
-    cb(new AppError("Hanya file gambar (JPG, PNG, WEBP, GIF) yang diperbolehkan!", 400) as any, false)
+    cb(new AppError("Hanya file gambar (JPG, PNG, WEBP, GIF) dan dokumen PDF yang diperbolehkan!", 400) as any, false)
   }
 }
 

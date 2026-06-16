@@ -19,6 +19,7 @@ import {
   Phone,
 } from 'lucide-react';
 import { getVendorBookings, updateBookingStatus } from '@/services/vendor.service';
+import { getBookingMessages, sendBookingMessage } from '@/services/bookings.service';
 
 const formatCurrency = (amount: number) =>
   new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
@@ -156,6 +157,73 @@ export default function VendorPesananPage() {
   const [calendarCursor, setCalendarCursor] = useState(() => new Date(2026, 4, 1));
   const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
+
+  const [showChat, setShowChat] = useState(false);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [chatLoading, setChatLoading] = useState(false);
+  const [newMessage, setNewMessage] = useState("");
+  const [isSending, setIsSending] = useState(false);
+
+  useEffect(() => {
+    if (!selectedBooking || !showChat) {
+      setMessages([]);
+      return;
+    }
+
+    let active = true;
+    const loadMessages = async () => {
+      try {
+        const data = await getBookingMessages(selectedBooking.id);
+        if (active && data) {
+          setMessages(data);
+        }
+      } catch (err) {
+        console.error("Gagal memuat pesan:", err);
+      }
+    };
+
+    setChatLoading(true);
+    loadMessages().finally(() => {
+      if (active) setChatLoading(false);
+    });
+
+    const interval = setInterval(loadMessages, 4000);
+
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
+  }, [selectedBooking?.id, showChat]);
+
+  useEffect(() => {
+    if (messages.length > 0 && showChat) {
+      setTimeout(() => {
+        document.getElementById("chat-end-anchor")?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+  }, [messages.length, showChat]);
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMessage.trim() || isSending || !selectedBooking) return;
+
+    setIsSending(true);
+    try {
+      const sentMsg = await sendBookingMessage(selectedBooking.id, newMessage.trim());
+      if (sentMsg) {
+        setMessages((prev) => [...prev, sentMsg]);
+        setNewMessage("");
+        setTimeout(() => {
+          document.getElementById("chat-end-anchor")?.scrollIntoView({ behavior: "smooth" });
+        }, 100);
+      }
+    } catch (err) {
+      console.error("Gagal mengirim pesan:", err);
+      alert("Gagal mengirim pesan. Silakan coba lagi.");
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   // Fetch all bookings from backend
   const fetchBookings = async () => {
@@ -645,7 +713,9 @@ export default function VendorPesananPage() {
       {/* Detailed Booking Modal */}
       {selectedBooking && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#2A2A2A]/60 backdrop-blur-[4px] px-4">
-          <div className="w-full max-w-lg overflow-hidden rounded-[2.5rem] border border-white/10 bg-white shadow-2xl animate-in zoom-in duration-300">
+          <div className={`w-full overflow-hidden rounded-[2.5rem] border border-white/10 bg-white shadow-2xl animate-in zoom-in duration-300 transition-all ${
+            showChat ? 'max-w-4xl' : 'max-w-lg'
+          }`}>
             {/* Modal Header */}
             <div className="p-8 border-b border-[#2A2A2A]/5 flex items-center justify-between">
               <div>
@@ -653,210 +723,305 @@ export default function VendorPesananPage() {
                   Detail Transaksi #{selectedBooking.id.slice(0, 8).toUpperCase()}
                 </span>
                 <h3 className="text-2xl font-black text-[#2A2A2A] mt-1">Detail Informasi Pesanan</h3>
+                <button
+                  onClick={() => setShowChat(!showChat)}
+                  className={`mt-2 flex items-center gap-1.5 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer ${
+                    showChat 
+                      ? 'bg-[#FF527B] text-white shadow-md' 
+                      : 'bg-[#FDF1F0] text-[#FF527B] border border-[#FF9A9E]/20 hover:bg-[#FF9A9E]/10'
+                  }`}
+                >
+                  💬 {showChat ? 'Tutup Chat' : 'Chat Pelanggan'}
+                </button>
               </div>
               <button
-                onClick={() => setSelectedBooking(null)}
+                onClick={() => { setSelectedBooking(null); setShowChat(false); }}
                 className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-all cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Modal Body */}
-            <div className="p-8 space-y-6 max-h-[500px] overflow-y-auto no-scrollbar">
-              {/* Status Section */}
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-[#2A2A2A]/5">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Status Transaksi</span>
-                <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${getStatusStyle(selectedBooking.status)}`}>
-                  {STATUS_LABEL[selectedBooking.status] || selectedBooking.status}
-                </span>
-              </div>
-
-              {/* Client Info */}
-              <div className="space-y-3">
-                <h4 className="text-[10px] font-black text-[#2A2A2A]/30 uppercase tracking-[0.2em] border-b border-[#2A2A2A]/5 pb-2">Informasi Klien</h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center flex-shrink-0">
-                      <User className="w-4 h-4" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-[8px] font-bold text-slate-400 uppercase">Nama</p>
-                      <p className="text-xs font-black text-[#2A2A2A] truncate">{selectedBooking.customer?.name || 'Klien'}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center flex-shrink-0">
-                      <Mail className="w-4 h-4" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-[8px] font-bold text-slate-400 uppercase">Email</p>
-                      <p className="text-xs font-black text-[#2A2A2A] truncate">{selectedBooking.customer?.email || '-'}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center flex-shrink-0">
-                      <Phone className="w-4 h-4" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-[8px] font-bold text-slate-400 uppercase">No. Telepon</p>
-                      <p className="text-xs font-black text-[#2A2A2A] truncate">{selectedBooking.customer?.phone || '-'}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center flex-shrink-0">
-                      <Clock className="w-4 h-4" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-[8px] font-bold text-slate-400 uppercase">Waktu Acara</p>
-                      <p className="text-xs font-black text-[#2A2A2A] truncate">08.00 - 16.00</p>
-                    </div>
-                  </div>
+            {/* Modal Body & Flex Layout */}
+            <div className="flex flex-col md:flex-row h-[550px] overflow-hidden">
+              {/* Left Column: Details */}
+              <div className={`flex-1 overflow-y-auto p-8 space-y-6 no-scrollbar ${showChat ? 'hidden md:block border-r border-[#2A2A2A]/5' : ''}`}>
+                {/* Status Section */}
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-[#2A2A2A]/5">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Status Transaksi</span>
+                  <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${getStatusStyle(selectedBooking.status)}`}>
+                    {STATUS_LABEL[selectedBooking.status] || selectedBooking.status}
+                  </span>
                 </div>
-              </div>
 
-              {/* Event Details */}
-              <div className="space-y-4">
-                <h4 className="text-[10px] font-black text-[#2A2A2A]/30 uppercase tracking-[0.2em] border-b border-[#2A2A2A]/5 pb-2">Rincian Paket & Acara</h4>
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <MapPin className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <p className="text-[8px] font-bold text-slate-400 uppercase">Lokasi Acara</p>
-                    <p className="text-xs font-black text-[#2A2A2A] leading-relaxed mt-0.5">{selectedBooking.eventAddress || 'Alamat tidak ditentukan'}</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <FileText className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <p className="text-[8px] font-bold text-slate-400 uppercase">Catatan Tambahan</p>
-                    <p className="text-xs font-black text-[#2A2A2A] leading-relaxed mt-0.5">{selectedBooking.notes || 'Tidak ada catatan tambahan'}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Payment Info */}
-              {selectedBooking.payment && (
+                {/* Client Info */}
                 <div className="space-y-3">
-                  <h4 className="text-[10px] font-black text-[#2A2A2A]/30 uppercase tracking-[0.2em] border-b border-[#2A2A2A]/5 pb-2">Status Pembayaran</h4>
-                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-[#2A2A2A]/5">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Status</span>
-                    <span className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider ${getPaymentStatusStyle(selectedBooking.payment.status)}`}>
-                      {selectedBooking.payment.status === 'PENDING' && '⏳ '}
-                      {selectedBooking.payment.status === 'PAID' && '✅ '}
-                      {selectedBooking.payment.status === 'FAILED' && '❌ '}
-                      {selectedBooking.payment.status === 'REFUNDED' && '↩️ '}
-                      {PAYMENT_STATUS_LABEL[selectedBooking.payment.status] || selectedBooking.payment.status}
+                  <h4 className="text-[10px] font-black text-[#2A2A2A]/30 uppercase tracking-[0.2em] border-b border-[#2A2A2A]/5 pb-2">Informasi Klien</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center flex-shrink-0">
+                        <User className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[8px] font-bold text-slate-400 uppercase">Nama</p>
+                        <p className="text-xs font-black text-[#2A2A2A] truncate">{selectedBooking.customer?.name || 'Klien'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center flex-shrink-0">
+                        <Mail className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[8px] font-bold text-slate-400 uppercase">Email</p>
+                        <p className="text-xs font-black text-[#2A2A2A] truncate">{selectedBooking.customer?.email || '-'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center flex-shrink-0">
+                        <Phone className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[8px] font-bold text-slate-400 uppercase">No. Telepon</p>
+                        <p className="text-xs font-black text-[#2A2A2A] truncate">{selectedBooking.customer?.phone || '-'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center flex-shrink-0">
+                        <Clock className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[8px] font-bold text-slate-400 uppercase">Waktu Acara</p>
+                        <p className="text-xs font-black text-[#2A2A2A] truncate">08.00 - 16.00</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Event Details */}
+                <div className="space-y-4">
+                  <h4 className="text-[10px] font-black text-[#2A2A2A]/30 uppercase tracking-[0.2em] border-b border-[#2A2A2A]/5 pb-2">Rincian Paket & Acara</h4>
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <MapPin className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-[8px] font-bold text-slate-400 uppercase">Lokasi Acara</p>
+                      <p className="text-xs font-black text-[#2A2A2A] leading-relaxed mt-0.5">{selectedBooking.eventAddress || 'Alamat tidak ditentukan'}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <FileText className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-[8px] font-bold text-slate-400 uppercase">Catatan Tambahan</p>
+                      <p className="text-xs font-black text-[#2A2A2A] leading-relaxed mt-0.5">{selectedBooking.notes || 'Tidak ada catatan tambahan'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Payment Info */}
+                {selectedBooking.payment && (
+                  <div className="space-y-3">
+                    <h4 className="text-[10px] font-black text-[#2A2A2A]/30 uppercase tracking-[0.2em] border-b border-[#2A2A2A]/5 pb-2">Status Pembayaran</h4>
+                    <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-[#2A2A2A]/5">
+                      <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Status</span>
+                      <span className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider ${getPaymentStatusStyle(selectedBooking.payment.status)}`}>
+                        {selectedBooking.payment.status === 'PENDING' && '⏳ '}
+                        {selectedBooking.payment.status === 'PAID' && '✅ '}
+                        {selectedBooking.payment.status === 'FAILED' && '❌ '}
+                        {selectedBooking.payment.status === 'REFUNDED' && '↩️ '}
+                        {PAYMENT_STATUS_LABEL[selectedBooking.payment.status] || selectedBooking.payment.status}
+                      </span>
+                    </div>
+                    {selectedBooking.payment.status === 'PENDING' && (
+                      <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-[10px] font-semibold text-amber-700 leading-relaxed">
+                        ⚠️ Customer sudah mengirim bukti pembayaran. Menunggu verifikasi oleh Admin Planora.
+                      </div>
+                    )}
+                    {selectedBooking.payment.proofUrl && (
+                      <a
+                        href={selectedBooking.payment.proofUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#2A2A2A] text-white text-[9px] font-black uppercase tracking-widest hover:bg-[#FF527B] transition-all text-center"
+                      >
+                        🔗 Lihat Bukti Transfer Customer
+                      </a>
+                    )}
+                    {selectedBooking.payment.method && (
+                      <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider text-center">
+                        Metode: {selectedBooking.payment.method}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {!selectedBooking.payment && selectedBooking.status === 'PENDING' && (
+                  <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 text-[10px] font-semibold text-slate-500 text-center leading-relaxed">
+                    Customer belum mengunggah bukti pembayaran.
+                  </div>
+                )}
+
+                {/* Total Price */}
+                <div className="border-t border-[#2A2A2A]/5 pt-6 flex items-center justify-between">
+                  <div>
+                    <p className="text-[9px] font-black text-[#2A2A2A]/30 uppercase tracking-widest">Total Transaksi</p>
+                    <p className="text-2xl font-black text-[#FF527B] mt-1">{formatCurrency(Number(selectedBooking.totalPrice))}</p>
+                  </div>
+                  <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider text-right max-w-[150px]">
+                    Sudah termasuk seluruh biaya layanan & pajak.
+                  </span>
+                </div>
+
+                {/* Action Buttons inside Details panel */}
+                <div className="pt-4 border-t border-[#2A2A2A]/5 space-y-3">
+                  {selectedBooking.status === 'PENDING' && (
+                    <div className="bg-slate-50 p-4 rounded-xl text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                      Menunggu Pembayaran Customer & Verifikasi Admin
+                    </div>
+                  )}
+
+                  {selectedBooking.status === 'PENDING' && (
+                    <button
+                      type="button"
+                      disabled={processingId === selectedBooking.id}
+                      onClick={() => handleCancel(selectedBooking.id)}
+                      className="w-full rounded-2xl border border-red-200 bg-white px-5 py-4 text-[10px] font-black uppercase tracking-widest text-[#FF527B] hover:bg-red-50 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                    >
+                      <XCircle className="w-4 h-4" /> Tolak Pesanan
+                    </button>
+                  )}
+
+                  {selectedBooking.status === 'CONFIRMED' && (
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        disabled={processingId === selectedBooking.id}
+                        onClick={() => handleCancel(selectedBooking.id)}
+                        className="flex-1 rounded-2xl border border-red-200 bg-white px-5 py-4 text-[10px] font-black uppercase tracking-widest text-[#FF527B] hover:bg-red-50 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                      >
+                        <XCircle className="w-4 h-4" /> Batalkan
+                      </button>
+                      <button
+                        type="button"
+                        disabled={processingId === selectedBooking.id}
+                        onClick={() => handleStart(selectedBooking.id)}
+                        className="flex-1 rounded-2xl bg-[#2A2A2A] px-5 py-4 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-[#2A2A2A]/10 transition-all hover:bg-[#FF527B] flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                      >
+                        <CheckCircle className="w-4 h-4" /> Mulai Pekerjaan
+                      </button>
+                    </div>
+                  )}
+
+                  {selectedBooking.status === 'IN_PROGRESS' && (() => {
+                    const isBeforeEventDate = selectedBooking.eventDate ? (new Date() < new Date(selectedBooking.eventDate)) : false;
+                    const eventDateFormatted = selectedBooking.eventDate ? new Date(selectedBooking.eventDate).toLocaleDateString('id-ID', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric'
+                    }) : '';
+
+                    return (
+                      <div className="space-y-3">
+                        {isBeforeEventDate && (
+                          <p className="text-[10px] font-bold text-[#F59E0B] text-center bg-[#FFF9E5] p-3 rounded-xl border border-[#F59E0B]/10 leading-relaxed">
+                            ⚠️ Hanya dapat diselesaikan setelah tanggal acara ({eventDateFormatted}) atau melalui konfirmasi langsung oleh pelanggan.
+                          </p>
+                        )}
+                        <button
+                          type="button"
+                          disabled={processingId === selectedBooking.id || isBeforeEventDate}
+                          onClick={() => handleComplete(selectedBooking.id)}
+                          className="w-full rounded-2xl bg-[#10B981] px-5 py-4 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-emerald-100 transition-all hover:bg-emerald-600 flex items-center justify-center gap-1.5 cursor-pointer disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed"
+                        >
+                          <CheckCircle className="w-4 h-4" /> Selesaikan Pesanan
+                        </button>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+
+              {/* Right Column: Chat panel */}
+              {showChat && (
+                <div className="flex-1 flex flex-col h-full bg-[#FAFAFC] overflow-hidden">
+                  <div className="p-4 border-b border-[#2A2A2A]/5 bg-white flex items-center justify-between">
+                    <span className="text-[9px] font-black text-[#2A2A2A]/40 uppercase tracking-widest">
+                      Percakapan dengan Klien
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Live</span>
                     </span>
                   </div>
-                  {selectedBooking.payment.status === 'PENDING' && (
-                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-[10px] font-semibold text-amber-700 leading-relaxed">
-                      ⚠️ Customer sudah mengirim bukti pembayaran. Menunggu verifikasi oleh Admin Planora.
-                    </div>
-                  )}
-                  {selectedBooking.payment.proofUrl && (
-                    <a
-                      href={selectedBooking.payment.proofUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#2A2A2A] text-white text-[9px] font-black uppercase tracking-widest hover:bg-[#FF527B] transition-all"
-                    >
-                      🔗 Lihat Bukti Transfer Customer
-                    </a>
-                  )}
-                  {selectedBooking.payment.method && (
-                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider text-center">
-                      Metode: {selectedBooking.payment.method}
-                    </p>
-                  )}
-                </div>
-              )}
 
-              {!selectedBooking.payment && selectedBooking.status === 'PENDING' && (
-                <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 text-[10px] font-semibold text-slate-500 text-center leading-relaxed">
-                  Customer belum mengunggah bukti pembayaran.
-                </div>
-              )}
+                  {/* Message container */}
+                  <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col no-scrollbar">
+                    {chatLoading ? (
+                      <div className="flex h-full items-center justify-center">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#FF9A9E]" />
+                      </div>
+                    ) : messages.length === 0 ? (
+                      <div className="flex h-full flex-col items-center justify-center text-center p-6 text-slate-400 my-auto">
+                        <span className="text-2xl mb-2">👋</span>
+                        <p className="text-[10px] font-black uppercase tracking-wider text-[#2A2A2A]">Mulai Percakapan</p>
+                        <p className="text-[9px] text-slate-400 mt-1 max-w-[200px]">Diskusikan rincian acara, kebutuhan khusus, atau waktu pelaksanaan dengan klien.</p>
+                      </div>
+                    ) : (
+                      messages.map((msg: any) => {
+                        const isMe = msg.sender?.role === "VENDOR" || msg.senderId === selectedBooking.vendor?.userId;
+                        const formattedTime = new Date(msg.createdAt).toLocaleTimeString('id-ID', {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        });
 
-              {/* Total Price */}
-              <div className="border-t border-[#2A2A2A]/5 pt-6 flex items-center justify-between">
-                <div>
-                  <p className="text-[9px] font-black text-[#2A2A2A]/30 uppercase tracking-widest">Total Transaksi</p>
-                  <p className="text-2xl font-black text-[#FF527B] mt-1">{formatCurrency(Number(selectedBooking.totalPrice))}</p>
-                </div>
-                <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider text-right max-w-[150px]">
-                  Sudah termasuk seluruh biaya layanan & pajak.
-                </span>
-              </div>
-            </div>
+                        return (
+                          <div
+                            key={msg.id}
+                            className={`flex flex-col max-w-[80%] ${isMe ? 'self-end items-end' : 'self-start items-start'}`}
+                          >
+                            <div className={`px-4 py-2.5 rounded-2xl text-xs font-semibold leading-relaxed shadow-sm ${
+                              isMe
+                                ? 'bg-[#FF9A9E] text-white rounded-br-none'
+                                : 'bg-white text-[#2A2A2A] rounded-bl-none border border-[#2A2A2A]/5'
+                            }`}>
+                              {msg.content}
+                            </div>
+                            <span className="text-[8px] font-bold text-slate-400 uppercase mt-1 tracking-tighter">
+                              {msg.sender?.name || (isMe ? 'Anda' : 'Klien')} • {formattedTime}
+                            </span>
+                          </div>
+                        );
+                      })
+                    )}
+                    <div id="chat-end-anchor" />
+                  </div>
 
-            {/* Modal Actions */}
-            {selectedBooking.status === 'PENDING' && (
-              <div className="p-8 border-t border-[#2A2A2A]/5 bg-slate-50/50 flex flex-col gap-3">
-                <div className="text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
-                  Menunggu Pembayaran Customer & Verifikasi Admin
-                </div>
-                <button
-                  type="button"
-                  disabled={processingId === selectedBooking.id}
-                  onClick={() => handleCancel(selectedBooking.id)}
-                  className="w-full rounded-2xl border border-red-200 bg-white px-5 py-4 text-[10px] font-black uppercase tracking-widest text-[#FF527B] hover:bg-red-50 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
-                >
-                  <XCircle className="w-4 h-4" /> Tolak Pesanan
-                </button>
-              </div>
-            )}
-
-            {selectedBooking.status === 'CONFIRMED' && (
-              <div className="p-8 border-t border-[#2A2A2A]/5 bg-slate-50/50 flex items-center gap-3">
-                <button
-                  type="button"
-                  disabled={processingId === selectedBooking.id}
-                  onClick={() => handleCancel(selectedBooking.id)}
-                  className="flex-1 rounded-2xl border border-red-200 bg-white px-5 py-4 text-[10px] font-black uppercase tracking-widest text-[#FF527B] hover:bg-red-50 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
-                >
-                  <XCircle className="w-4 h-4" /> Batalkan
-                </button>
-                <button
-                  type="button"
-                  disabled={processingId === selectedBooking.id}
-                  onClick={() => handleStart(selectedBooking.id)}
-                  className="flex-1 rounded-2xl bg-[#2A2A2A] px-5 py-4 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-[#2A2A2A]/10 transition-all hover:bg-[#FF527B] flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
-                >
-                  <CheckCircle className="w-4 h-4" /> Mulai Pekerjaan
-                </button>
-              </div>
-            )}
-
-            {selectedBooking.status === 'IN_PROGRESS' && (() => {
-              const isBeforeEventDate = selectedBooking.eventDate ? (new Date() < new Date(selectedBooking.eventDate)) : false;
-              const eventDateFormatted = selectedBooking.eventDate ? new Date(selectedBooking.eventDate).toLocaleDateString('id-ID', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-              }) : '';
-
-              return (
-                <div className="p-8 border-t border-[#2A2A2A]/5 bg-slate-50/50 flex flex-col gap-3">
-                  {isBeforeEventDate && (
-                    <p className="text-[10px] font-bold text-[#F59E0B] text-center bg-[#FFF9E5] p-3 rounded-xl border border-[#F59E0B]/10 leading-relaxed">
-                      ⚠️ Hanya dapat diselesaikan setelah tanggal acara ({eventDateFormatted}) atau melalui konfirmasi langsung oleh pelanggan.
-                    </p>
-                  )}
-                  <button
-                    type="button"
-                    disabled={processingId === selectedBooking.id || isBeforeEventDate}
-                    onClick={() => handleComplete(selectedBooking.id)}
-                    className="w-full rounded-2xl bg-[#10B981] px-5 py-4 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-emerald-100 transition-all hover:bg-emerald-600 flex items-center justify-center gap-1.5 cursor-pointer disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed"
+                  {/* Chat input form */}
+                  <form
+                    onSubmit={handleSendMessage}
+                    className="p-4 bg-white border-t border-[#2A2A2A]/5 flex items-center gap-3"
                   >
-                    <CheckCircle className="w-4 h-4" /> Selesaikan Pesanan
-                  </button>
+                    <input
+                      type="text"
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      placeholder="Tulis pesan..."
+                      disabled={isSending}
+                      className="flex-1 bg-[#F7F9FC] border border-[#E2E8F0] rounded-xl py-3 px-5 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/30 focus:bg-white transition-all"
+                    />
+                    <button
+                      type="submit"
+                      disabled={isSending || !newMessage.trim()}
+                      className="bg-[#2A2A2A] text-white hover:bg-[#FF9A9E] px-5 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer disabled:opacity-50"
+                    >
+                      {isSending ? "Kirim..." : "Kirim"}
+                    </button>
+                  </form>
                 </div>
-              );
-            })()}
+              )}
+            </div>
           </div>
         </div>
       )}

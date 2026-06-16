@@ -1,0 +1,13 @@
+Attempting to generate prisma client...
+Prisma generate output:
+
+✔ Generated Prisma Client (v7.8.0) to .\node_modules\@prisma\client in 253ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+
+
+Attempting to fetch first user...
+Found user ID: cmpftdhva0000oouzl58duk7s, Email: customer@planora.com
+Calling getProfile...
+Successfully fetched profile. Business Name: None

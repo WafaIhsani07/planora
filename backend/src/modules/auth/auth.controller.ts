@@ -118,3 +118,13 @@ export const resetPassword = async (
   await authService.resetPassword(parsed.data)
   sendSuccess(res, null, "Password berhasil direset")
 }
+
+// ─── Rollback Registration ───────────────────────────────────────────────────
+export const rollbackRegistration = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  await authService.rollbackRegistration(req.userId)
+  sendSuccess(res, null, "Pendaftaran berhasil dibatalkan")
+}

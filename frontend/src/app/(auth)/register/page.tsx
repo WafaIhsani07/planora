@@ -1,15 +1,14 @@
 "use client";
-
-import React, { useState } from "react";
+ 
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { CATEGORIES } from "../../../lib/categories";
 import { useRouter } from "next/navigation";
-import { Briefcase, Building, ChevronDown, Eye, EyeOff, Lock, Mail, MapPin, Phone, ShieldCheck, Sparkles } from "lucide-react";
+import { Briefcase, Building, ChevronDown, Eye, EyeOff, Lock, Mail, MapPin, Phone, ShieldCheck, Sparkles, Upload } from "lucide-react";
 import api from "@/lib/api";
 import { signIn } from "next-auth/react";
-
-const serviceCategories = CATEGORIES;
+import { getAllKategori } from "@/services/admin.service";
 
 export default function RegisterPage() {
   const role = "VENDOR";
@@ -28,6 +27,24 @@ export default function RegisterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  const [ktpDoc, setKtpDoc] = useState<File | null>(null);
+  const [siupDoc, setSiupDoc] = useState<File | null>(null);
+  const [bankBookDoc, setBankBookDoc] = useState<File | null>(null);
+  const [categoriesList, setCategoriesList] = useState<any[]>(CATEGORIES);
+
+  useEffect(() => {
+    getAllKategori().then((data) => {
+      if (data && data.length > 0) {
+        const mapped = data.map((c: any) => ({
+          id: c.slug || c.id,
+          name: c.name,
+        }));
+        setCategoriesList(mapped);
+      }
+    }).catch(err => console.error("Failed to load categories:", err));
+  }, []);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -40,40 +57,55 @@ export default function RegisterPage() {
     setSuccessMessage("");
 
     if (!agreed) {
-      setErrorMessage("Kamu harus menyetujui syarat & ketentuan terlebih dahulu.");
+      setErrorMessage("You must agree to the terms & conditions first.");
       return;
     }
 
     if (!ownerName.trim()) {
-      setErrorMessage("Nama pemilik wajib diisi.");
+      setErrorMessage("Owner name is required.");
       return;
     }
 
     if (!businessName.trim()) {
-      setErrorMessage("Nama bisnis wajib diisi.");
+      setErrorMessage("Business name is required.");
+      return;
+    }
+
+    if (!ktpDoc) {
+      setErrorMessage("ID Card (KTP) document is required to be uploaded.");
+      return;
+    }
+
+    if (!siupDoc) {
+      setErrorMessage("SIUP (Business License) document is required to be uploaded.");
+      return;
+    }
+
+    if (!bankBookDoc) {
+      setErrorMessage("Bank Book document is required to be uploaded.");
       return;
     }
 
     if (!password.trim()) {
-      setErrorMessage("Kata sandi wajib diisi.");
+      setErrorMessage("Password is required.");
       return;
     }
 
     if (password !== confirmPassword) {
-      setErrorMessage("Konfirmasi sandi tidak cocok.");
+      setErrorMessage("Password confirmation does not match.");
       return;
     }
 
     const contactValue = ownerContact.trim();
     const businessEmailValue = businessEmail.trim();
-    let email = businessEmailValue;
+    let email = businessEmailValue.toLowerCase();
     let phone: string | undefined;
 
     if (!email) {
       if (contactValue.includes("@")) {
-        email = contactValue;
+        email = contactValue.toLowerCase();
       } else {
-        setErrorMessage("Email bisnis wajib diisi.");
+        setErrorMessage("Business email is required.");
         return;
       }
     }
@@ -83,8 +115,10 @@ export default function RegisterPage() {
     }
 
     setIsSubmitting(true);
+    let createdAccessToken = "";
 
     try {
+      setSuccessMessage("Registering vendor account...");
       const registerResponse = await api.post("/auth/register", {
         name: ownerName.trim(),
         email,
@@ -97,16 +131,42 @@ export default function RegisterPage() {
         registerResponse.data?.data?.accessToken ?? registerResponse.data?.accessToken;
 
       if (!accessToken) {
-        throw new Error("Access token tidak ditemukan.");
+        throw new Error("Access token not found.");
       }
 
+      createdAccessToken = accessToken;
+
+      setSuccessMessage("Uploading legal documents...");
+      
+      const uploadDoc = async (file: File) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        const uploadRes = await api.post("/uploads", formData, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        return uploadRes.data?.data?.imageUrl || uploadRes.data?.imageUrl;
+      };
+
+      const [ktpUrl, businessLicenseUrl, bankBookUrl] = await Promise.all([
+        uploadDoc(ktpDoc),
+        uploadDoc(siupDoc),
+        uploadDoc(bankBookDoc),
+      ]);
+
+      setSuccessMessage("Creating business profile...");
       await api.post(
         "/vendors/profile",
         {
           businessName: businessName.trim(),
           ...(city.trim() ? { city: city.trim() } : {}),
           ...(address.trim() ? { address: address.trim() } : {}),
-          ...(category ? { description: `Kategori utama: ${category}` } : {}),
+          ...(category ? { description: `Main category: ${category}` } : {}),
+          ktpUrl,
+          businessLicenseUrl,
+          bankBookUrl,
         },
         {
           headers: {
@@ -115,25 +175,24 @@ export default function RegisterPage() {
         }
       );
 
-      const loginResult = await signIn("credentials", {
-        redirect: false,
-        email,
-        password,
-        role: role,
-      });
-
-      if (loginResult?.error) {
-        setSuccessMessage("Registrasi vendor berhasil. Silakan login.");
-        router.replace("/login");
-        return;
-      }
-
-      router.replace("/vendor/dashboard");
-      router.refresh();
+      setSuccessMessage("Registration successful!");
+      setShowSuccessModal(true);
     } catch (error) {
       const message = (error as { response?: { data?: { message?: string } } })
         ?.response?.data?.message;
-      setErrorMessage(message ?? "Registrasi gagal. Coba lagi.");
+      setErrorMessage(message ?? "Registration failed. Please try again.");
+
+      if (createdAccessToken) {
+        try {
+          await api.post("/auth/rollback-registration", {}, {
+            headers: {
+              Authorization: `Bearer ${createdAccessToken}`,
+            },
+          });
+        } catch (rollbackErr) {
+          console.error("Failed to rollback registration:", rollbackErr);
+        }
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -159,12 +218,12 @@ export default function RegisterPage() {
 
         <div className="relative z-20 mt-10">
           <h1 className="text-5xl xl:text-6xl font-black leading-[1.05] mb-8 text-black tracking-tight">
-            Mulai <br />
-            Langkahmu <br />
-            <span className="text-[#FF527B] italic drop-shadow-md">Bersama Planora</span>
+            Start <br />
+            Your Journey <br />
+            <span className="text-[#FF527B] italic drop-shadow-md">With Planora</span>
           </h1>
           <p className="text-slate-700 font-bold text-lg max-w-md leading-relaxed opacity-85">
-            Daftar sebagai vendor untuk menjangkau ribuan klien dan kembangkan bisnis Anda lebih profesional.
+            Register as a vendor to reach thousands of clients and grow your business professionally.
           </p>
         </div>
 
@@ -175,11 +234,11 @@ export default function RegisterPage() {
               <img src="https://i.pravatar.cc/100?u=v11" className="w-12 h-12 rounded-full border-2 border-white object-cover shadow-sm" alt="User" />
               <img src="https://i.pravatar.cc/100?u=v12" className="w-12 h-12 rounded-full border-2 border-white object-cover shadow-sm" alt="User" />
             </div>
-            <p className="text-sm font-bold text-slate-700">Bergabung dengan <span className="text-black font-black">10.000+</span> vendor</p>
+            <p className="text-sm font-bold text-slate-700">Join <span className="text-black font-black">10,000+</span> vendors</p>
           </div>
           <div className="max-w-md border-l-4 border-[#FF527B] pl-6">
             <p className="text-lg xl:text-xl font-black text-black leading-snug italic opacity-90">
-              "Bergabung dengan Planora membantu saya menjangkau lebih banyak klien dan mengatur pesanan dengan rapi."
+              "Joining Planora helped me reach more clients and organize orders neatly."
             </p>
           </div>
         </div>
@@ -187,15 +246,14 @@ export default function RegisterPage() {
 
       <div className="w-full lg:w-1/2 flex items-center justify-center bg-white p-8 md:p-20 overflow-y-auto">
         <div className="w-full max-w-[500px] py-8 md:py-10">
-          {/* Back to Home Button */}
           <Link href="/" className="inline-flex items-center gap-2 mb-8 text-slate-500 hover:text-[#FF9A9E] transition-colors text-sm font-semibold">
-            ← Kembali ke Beranda
+            ← Back to Home
           </Link>
 
           <div className="mb-10">
-            <p className="text-slate-400 text-[11px] mb-2 font-bold uppercase tracking-[0.15em]">Selamat Datang ✨</p>
-            <h2 className="text-3xl md:text-[2rem] font-extrabold text-[#0D121F] mb-3 tracking-tight leading-tight">Daftar Vendor <span className="text-[#FF9A9E]">Planora</span></h2>
-            <p className="text-slate-400 text-sm font-medium">Sudah punya akun? <Link href="/login" className="font-bold hover:underline" style={{color: '#FF9A9E'}}>Masuk Sekarang</Link></p>
+            <p className="text-slate-400 text-[11px] mb-2 font-bold uppercase tracking-[0.15em]">Welcome ✨</p>
+            <h2 className="text-3xl md:text-[2rem] font-extrabold text-[#0D121F] mb-3 tracking-tight leading-tight">Planora Vendor <span className="text-[#FF9A9E]">Registration</span></h2>
+            <p className="text-slate-400 text-sm font-medium">Already have an account? <Link href="/login" className="font-bold hover:underline" style={{color: '#FF9A9E'}}>Sign In Now</Link></p>
           </div>
 
           <form className="space-y-6" onSubmit={handleSubmit}>
@@ -205,7 +263,7 @@ export default function RegisterPage() {
                   className={`rounded-2xl border px-4 py-3 text-sm font-semibold ${
                     errorMessage
                       ? "border-red-200 bg-red-50 text-red-600"
-                      : "border-emerald-200 bg-emerald-50 text-emerald-700"
+                      : "border-[#FF9A9E]/20 bg-[#FF9A9E]/5 text-[#FF527B]"
                   }`}
                 >
                   {errorMessage || successMessage}
@@ -213,10 +271,10 @@ export default function RegisterPage() {
               )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2.5">
-                  <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Nama Pemilik (Owner)</label>
+                  <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Owner Name</label>
                   <input
                     type="text"
-                    placeholder="Nama lengkap"
+                    placeholder="Full name"
                     className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 px-6 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400"
                     value={ownerName}
                     onChange={(event) => setOwnerName(event.target.value)}
@@ -224,10 +282,10 @@ export default function RegisterPage() {
                   />
                 </div>
                 <div className="space-y-2.5">
-                  <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Email / Nomor HP</label>
+                  <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Email / Phone Number</label>
                   <input
                     type="text"
-                    placeholder="Email atau No. HP"
+                    placeholder="Email or Phone No."
                     className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 px-6 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400"
                     value={ownerContact}
                     onChange={(event) => setOwnerContact(event.target.value)}
@@ -236,12 +294,12 @@ export default function RegisterPage() {
               </div>
 
               <div className="space-y-2.5">
-                <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Nama Bisnis</label>
+                <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Business Name</label>
                 <div className="relative group">
                   <Building className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[#FF9A9E] transition-colors" />
                   <input
                     type="text"
-                    placeholder="Contoh: Arkana Photography"
+                    placeholder="e.g. Arkana Photography"
                     className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400"
                     value={businessName}
                     onChange={(event) => setBusinessName(event.target.value)}
@@ -251,17 +309,17 @@ export default function RegisterPage() {
               </div>
 
               <div className="space-y-2.5">
-                <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Kategori Jasa</label>
+                <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Service Category</label>
                 <div className="relative">
                   <Briefcase className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                   <select
-                    className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-10 appearance-none focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white transition-all text-slate-600 font-medium text-sm md:text-base"
+                    className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-10 appearance-none focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white transition-all text-slate-600 font-medium text-sm md:text-base cursor-pointer"
                     value={category}
                     onChange={(event) => setCategory(event.target.value)}
                   >
-                    <option value="">Pilih kategori utama</option>
-                    {serviceCategories.map((category) => (
-                      <option key={category.id} value={category.id}>{category.name}</option>
+                    <option value="">Select main category</option>
+                    {categoriesList.map((category) => (
+                      <option key={category.id} value={category.name}>{category.name}</option>
                     ))}
                   </select>
                   <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
@@ -269,12 +327,12 @@ export default function RegisterPage() {
               </div>
 
               <div className="space-y-2.5">
-                <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Email Bisnis</label>
+                <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Business Email</label>
                 <div className="relative group">
                   <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[#FF9A9E] transition-colors" />
                   <input
                     type="email"
-                    placeholder="email@bisnisanda.id"
+                    placeholder="email@yourbusiness.com"
                     className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400"
                     value={businessEmail}
                     onChange={(event) => setBusinessEmail(event.target.value)}
@@ -284,12 +342,12 @@ export default function RegisterPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2.5">
-                  <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Kota Domisili</label>
+                  <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">City of Domicile</label>
                   <div className="relative group">
                     <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[#FF9A9E] transition-colors" />
                     <input
                       type="text"
-                      placeholder="Nama Kota"
+                      placeholder="City Name"
                       className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400"
                       value={city}
                       onChange={(event) => setCity(event.target.value)}
@@ -297,26 +355,91 @@ export default function RegisterPage() {
                   </div>
                 </div>
                 <div className="space-y-2.5">
-                  <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Alamat Lengkap</label>
+                  <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Full Address</label>
                   <input
                     type="text"
-                    placeholder="Detail Alamat"
+                    placeholder="Address Details"
                     className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 px-6 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400"
                     value={address}
                     onChange={(event) => setAddress(event.target.value)}
                   />
                 </div>
               </div>
+
+              {/* UPLOAD DOKUMEN LEGALITAS */}
+              <div className="space-y-4 border-t border-slate-100 pt-6">
+                <p className="text-slate-800 text-[10px] font-black uppercase tracking-[0.18em] mb-1">
+                  Legal & Verification Documents (Required)
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* KTP */}
+                  <div className="space-y-2">
+                    <label className="text-[9px] font-black text-slate-800 uppercase tracking-widest block ml-1">Owner's ID Card (KTP)</label>
+                    <div className="relative group">
+                      <label className="flex flex-col items-center justify-center border-2 border-dashed border-[#E2E8F0] hover:border-[#FF9A9E] bg-[#F7F9FC] hover:bg-white rounded-2xl p-4 cursor-pointer text-center transition-all h-28">
+                        <Upload className="w-5 h-5 text-slate-400 group-hover:text-[#FF9A9E] mb-2" />
+                        <span className="text-[9px] font-bold text-slate-500 line-clamp-1">
+                          {ktpDoc ? ktpDoc.name : "Upload ID Card (Image)"}
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => setKtpDoc(e.target.files?.[0] || null)}
+                        />
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* SIUP / Business License */}
+                  <div className="space-y-2">
+                    <label className="text-[9px] font-black text-slate-800 uppercase tracking-widest block ml-1">Business License (SIUP)</label>
+                    <div className="relative group">
+                      <label className="flex flex-col items-center justify-center border-2 border-dashed border-[#E2E8F0] hover:border-[#FF9A9E] bg-[#F7F9FC] hover:bg-white rounded-2xl p-4 cursor-pointer text-center transition-all h-28">
+                        <Upload className="w-5 h-5 text-slate-400 group-hover:text-[#FF9A9E] mb-2" />
+                        <span className="text-[9px] font-bold text-slate-500 line-clamp-1">
+                          {siupDoc ? siupDoc.name : "Upload SIUP (Image/PDF)"}
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*,application/pdf"
+                          className="hidden"
+                          onChange={(e) => setSiupDoc(e.target.files?.[0] || null)}
+                        />
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Bank Book */}
+                  <div className="space-y-2">
+                    <label className="text-[9px] font-black text-slate-800 uppercase tracking-widest block ml-1">Bank Book / Statement</label>
+                    <div className="relative group">
+                      <label className="flex flex-col items-center justify-center border-2 border-dashed border-[#E2E8F0] hover:border-[#FF9A9E] bg-[#F7F9FC] hover:bg-white rounded-2xl p-4 cursor-pointer text-center transition-all h-28">
+                        <Upload className="w-5 h-5 text-slate-400 group-hover:text-[#FF9A9E] mb-2" />
+                        <span className="text-[9px] font-bold text-slate-500 line-clamp-1">
+                          {bankBookDoc ? bankBookDoc.name : "Upload Bank Book (Image/PDF)"}
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*,application/pdf"
+                          className="hidden"
+                          onChange={(e) => setBankBookDoc(e.target.files?.[0] || null)}
+                        />
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2.5">
-                <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Kata Sandi</label>
+                <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Password</label>
                 <div className="relative group">
                   <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[#FF9A9E] transition-colors" />
                   <input
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="Min. 8 Karakter"
+                    placeholder="Min. 8 Characters"
                     className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-12 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400"
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
@@ -326,10 +449,10 @@ export default function RegisterPage() {
                 </div>
               </div>
               <div className="space-y-2.5">
-                <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Konfirmasi Sandi</label>
+                <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Confirm Password</label>
                 <input
                   type="password"
-                  placeholder="Ulangi sandi"
+                  placeholder="Repeat password"
                   className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 px-6 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400"
                   value={confirmPassword}
                   onChange={(event) => setConfirmPassword(event.target.value)}
@@ -344,20 +467,20 @@ export default function RegisterPage() {
                 <div className="w-5 h-5 bg-slate-100 border border-slate-300 rounded-md peer-checked:bg-[#FF9A9E] peer-checked:border-[#FF9A9E] transition-all cursor-pointer" onClick={() => setAgreed(!agreed)} />
                 <svg className="absolute w-3 h-3 text-white left-1 opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4"><path d="M5 13l4 4L19 7" /></svg>
               </div>
-              <label htmlFor="agree" className="text-sm font-bold text-slate-500 cursor-pointer select-none leading-tight">Saya menyetujui <button className="text-[#FF9A9E] hover:underline transition-all">Syarat & Ketentuan</button> serta <button className="text-[#FF9A9E] hover:underline transition-all">Kebijakan Planora</button>.</label>
+              <label htmlFor="agree" className="text-sm font-bold text-slate-500 cursor-pointer select-none leading-tight">I agree to the <button type="button" className="text-[#FF9A9E] hover:underline transition-all">Terms & Conditions</button> and <button type="button" className="text-[#FF9A9E] hover:underline transition-all">Planora Policy</button>.</label>
             </div>
 
             <button
-              className="w-full bg-[#0D121F] text-white font-bold py-4.5 rounded-2xl shadow-xl transition-all text-base md:text-lg mt-4 hover:bg-slate-800 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full bg-[#0D121F] text-white font-bold py-4.5 rounded-2xl shadow-xl transition-all text-base md:text-lg mt-4 hover:bg-slate-800 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
               disabled={isSubmitting || !agreed}
             >
-              {isSubmitting ? "Memproses..." : "Daftar Sekarang"}
+              {isSubmitting ? "Processing..." : "Register Now"}
             </button>
           </form>
 
           <div className="relative my-10">
             <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[#EDF2F7]"></div></div>
-            <div className="relative flex justify-center text-[10px] uppercase tracking-[0.25em] font-black text-slate-300"><span className="bg-white px-4">atau daftar dengan</span></div>
+            <div className="relative flex justify-center text-[10px] uppercase tracking-[0.25em] font-black text-slate-300"><span className="bg-white px-4">or register with</span></div>
           </div>
 
           <button className="w-full bg-white border border-[#E2E8F0] text-slate-700 font-bold py-5 rounded-2xl flex items-center justify-center gap-3 hover:bg-[#F7F9FC] transition-all shadow-sm mb-12">
@@ -366,12 +489,54 @@ export default function RegisterPage() {
 
           <div className="flex items-center gap-4 bg-[#FF9A9E]/5 p-5 rounded-[24px] border border-[#FF9A9E]/10">
             <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm flex-shrink-0"><ShieldCheck className="w-5 h-5 text-[#FF9A9E]" /></div>
-            <p className="text-[10px] text-slate-400 leading-relaxed font-bold">Data pendaftaran Anda aman. Kami menjamin kerahasiaan informasi sesuai standar keamanan global Planora.</p>
+            <p className="text-[10px] text-slate-400 leading-relaxed font-bold">Your registration data is secure. We guarantee confidentiality in accordance with Planora's global security standards.</p>
           </div>
         </div>
       </div>
 
-      <style>{`\n        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&display=swap');\n        button, input, select, textarea { font-family: inherit; }\n      `}</style>
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+          <div className="relative w-full max-w-md bg-white rounded-3xl p-8 border border-slate-100 shadow-2xl text-center transform scale-95 transition-all duration-300 ease-out animate-scale-in">
+            <div className="mx-auto w-16 h-16 bg-[#FF9A9E]/10 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+              <ShieldCheck className="w-8 h-8 text-[#FF527B]" />
+            </div>
+
+            <h3 className="text-2xl font-extrabold text-[#0D121F] mb-4 tracking-tight leading-tight">
+              Account Created Successfully!
+            </h3>
+            <p className="text-slate-500 text-sm leading-relaxed mb-8 font-medium">
+              Your vendor account has been created and is currently pending verification from our admin. Once your account is verified, a notification email will be sent to your registered address and you will be able to log in.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => router.push("/login")}
+              className="w-full bg-[#0D121F] hover:bg-slate-800 text-white font-bold py-4 rounded-2xl transition-all text-base shadow-lg shadow-slate-900/10 cursor-pointer"
+            >
+              Back to Login
+            </button>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&display=swap');
+        button, input, select, textarea { font-family: inherit; }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes scaleIn {
+          from { transform: scale(0.95); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.2s ease-out forwards;
+        }
+        .animate-scale-in {
+          animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+      `}</style>
     </div>
   );
 }

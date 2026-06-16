@@ -27,6 +27,6 @@ export const db = new PrismaClient({
   adapter,
   log:
     env.NODE_ENV === "development"
-      ? ["warn", "error"]   // Hilangkan "query" untuk mengurangi noise di terminal
+      ? ["query", "info", "warn", "error"] // Aktifkan query, info, warn, dan error log di development untuk debugging
       : ["error"],
 })

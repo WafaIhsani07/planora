@@ -52,10 +52,32 @@ export default function AdminDashboardView({ stats, pendingVendors }: AdminDashb
   const totalUsers = Number(stats?.totalUsers ?? 0);
   const pendingVendorCount = Number(stats?.pendingVendors ?? pendingVendors.length ?? 0);
   const totalVendors = Number(stats?.totalVendors ?? Math.max(pendingVendors.length, pendingVendorCount));
-  const escrowValue = Number(stats?.escrowBalance ?? Math.max(totalRevenue * 0.017, 0));
-  const readyToWithdraw = Number(stats?.readyToWithdraw ?? 4275000);
-  const monthlyCommission = Number(stats?.monthlyCommission ?? 2000000);
-  const pendingPayments = Number(stats?.pendingPayments ?? 18);
+  const escrowValue = Number(stats?.escrowBalance ?? 0);
+  const readyToWithdraw = Number(stats?.readyToWithdraw ?? 0);
+  const monthlyCommission = Number(stats?.monthlyCommission ?? 0);
+  const pendingPayments = Number(stats?.pendingPayments ?? 0);
+
+  const defaultChartData = [
+    { date: '12 Mei', revenue: 0 },
+    { date: '13 Mei', revenue: 0 },
+    { date: '14 Mei', revenue: 0 },
+    { date: '15 Mei', revenue: 0 },
+    { date: '16 Mei', revenue: 0 },
+    { date: '17 Mei', revenue: 0 },
+    { date: '18 Mei', revenue: 0 },
+  ];
+  const chartData = stats?.chartData && stats.chartData.length > 0 ? stats.chartData : defaultChartData;
+  const maxRevenue = Math.max(...chartData.map((d: any) => d.revenue), 100000); // Minimum 100,000 for scaling
+
+  const xSpacing = 500 / 6;
+  const chartPoints = chartData.map((d: any, i: number) => {
+    const x = i * xSpacing;
+    const y = 175 - (d.revenue / maxRevenue) * 135; // Map to y bounds [40, 175]
+    return { x, y };
+  });
+
+  const lineD = chartPoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+  const areaD = `${lineD} L ${chartPoints[chartPoints.length - 1].x} 200 L ${chartPoints[0].x} 200 Z`;
 
   const activityItems = [
     { title: 'Vendor baru mendaftar', subtitle: pendingVendors[0]?.businessName ?? 'Eterna Photography', time: '10 menit yang lalu', icon: UserPlus, tone: 'pink' },
@@ -153,24 +175,16 @@ export default function AdminDashboardView({ stats, pendingVendors }: AdminDashb
                 <line x1="0" y1="80" x2="500" y2="80" stroke="#F4D7D4" strokeWidth="1.5" />
                 <line x1="0" y1="120" x2="500" y2="120" stroke="#F4D7D4" strokeWidth="1.5" />
                 <line x1="0" y1="160" x2="500" y2="160" stroke="#F4D7D4" strokeWidth="1.5" />
-                <path d="M 0 130 C 40 100, 45 150, 80 160 C 120 170, 140 130, 160 130 C 180 130, 200 130, 220 120 C 240 110, 260 80, 280 90 C 310 100, 330 110, 350 100 C 370 90, 410 40, 440 20 L 440 200 L 0 200 Z" fill="url(#chartGradient)" />
-                <path d="M 0 130 C 40 100, 45 150, 80 160 C 120 170, 140 130, 160 130 C 180 130, 200 130, 220 120 C 240 110, 260 80, 280 90 C 310 100, 330 110, 350 100 C 370 90, 410 40, 440 20" fill="none" stroke="#FF9A9E" strokeWidth="3" />
-                <circle cx="0" cy="130" r="5" fill="#FF9A9E" stroke="#FFFFFF" strokeWidth="2" />
-                <circle cx="80" cy="160" r="5" fill="#FF9A9E" stroke="#FFFFFF" strokeWidth="2" />
-                <circle cx="160" cy="130" r="5" fill="#FF9A9E" stroke="#FFFFFF" strokeWidth="2" />
-                <circle cx="220" cy="120" r="5" fill="#FF9A9E" stroke="#FFFFFF" strokeWidth="2" />
-                <circle cx="280" cy="90" r="5" fill="#FF9A9E" stroke="#FFFFFF" strokeWidth="2" />
-                <circle cx="350" cy="100" r="5" fill="#FF9A9E" stroke="#FFFFFF" strokeWidth="2" />
-                <circle cx="440" cy="20" r="5" fill="#FF9A9E" stroke="#FFFFFF" strokeWidth="2" />
+                <path d={areaD} fill="url(#chartGradient)" />
+                <path d={lineD} fill="none" stroke="#FF9A9E" strokeWidth="3" />
+                {chartPoints.map((p, i) => (
+                  <circle key={i} cx={p.x} cy={p.y} r="5" fill="#FF9A9E" stroke="#FFFFFF" strokeWidth="2" />
+                ))}
               </svg>
               <div className="mx-auto flex max-w-[760px] justify-between px-1 pt-3 text-[10px] font-extrabold text-[#A8A8A8]">
-                <span>12 Mei</span>
-                <span>13 Mei</span>
-                <span>14 Mei</span>
-                <span>15 Mei</span>
-                <span>16 Mei</span>
-                <span>17 Mei</span>
-                <span>18 Mei</span>
+                {chartData.map((d: any, i: number) => (
+                  <span key={i}>{d.date}</span>
+                ))}
               </div>
             </div>
           </div>

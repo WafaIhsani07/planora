@@ -8,6 +8,7 @@ import { listVendors } from '@/lib/vendors';
 import { getCategoryById } from '@/lib/categories';
 import Footer from '@/components/Footer';
 import ScrollObserver from '@/components/ScrollObserver';
+import { getAllKategori } from '@/services/admin.service';
 
 const vendors = listVendors();
 
@@ -16,6 +17,13 @@ export default function VendorsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
+  const [categories, setCategories] = useState<any[]>([]);
+
+  useEffect(() => {
+    getAllKategori().then((data) => {
+      if (data) setCategories(data);
+    }).catch(err => console.error("Error fetching categories:", err));
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,7 +39,11 @@ export default function VendorsPage() {
   }, []);
 
   const filteredVendors = vendors.filter((vendor) => {
-    const matchCategory = !selectedCategory || vendor.category === selectedCategory;
+    const matchCategory =
+      !selectedCategory ||
+      vendor.category === selectedCategory ||
+      (selectedCategory === 'catering' && vendor.category === 'katering') ||
+      (selectedCategory === 'katering' && vendor.category === 'catering');
     const matchSearch = !searchTerm || vendor.name.toLowerCase().includes(searchTerm.toLowerCase());
     return matchCategory && matchSearch;
   });
@@ -139,11 +151,19 @@ export default function VendorsPage() {
               }}
             >
               <option value="">All Categories</option>
-              {['fotografi', 'dekorasi', 'katering', 'wedding-organizer', 'venue', 'undangan'].map((cat) => (
-                <option key={cat} value={cat}>
-                  {getCategoryById(cat)?.name ?? cat}
-                </option>
-              ))}
+              {categories.length > 0 ? (
+                categories.map((cat) => (
+                  <option key={cat.id} value={cat.slug}>
+                    {cat.name}
+                  </option>
+                ))
+              ) : (
+                ['fotografi', 'dekorasi', 'katering', 'wedding-organizer', 'venue', 'undangan'].map((cat) => (
+                  <option key={cat} value={cat}>
+                    {getCategoryById(cat)?.name ?? cat}
+                  </option>
+                ))
+              )}
             </select>
           </div>
         </div>
@@ -164,7 +184,7 @@ export default function VendorsPage() {
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 />
                 <div className="absolute top-6 left-6 rounded-full bg-white/90 backdrop-blur-md px-4 py-1.5 text-[9px] font-black uppercase text-[#FF527B] shadow-sm">
-                  {getCategoryById(vendor.category)?.name ?? vendor.category}
+                  {categories.find(c => c.slug === vendor.category || (c.slug === 'catering' && vendor.category === 'katering'))?.name ?? getCategoryById(vendor.category)?.name ?? vendor.category}
                 </div>
               </div>
               <div className="flex flex-1 flex-col space-y-6 p-8">

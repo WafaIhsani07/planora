@@ -8,8 +8,10 @@ import type {
 
 // ─── Get Dashboard Stats ──────────────────────────────────────────────────────
 export const getDashboardStats = async () => {
-  // Semua user
-  const totalUsers = await db.user.count({ where: {} })
+  // Semua user (role CUSTOMER)
+  const totalUsers = await db.user.count({ where: { role: "CUSTOMER" } })
+  // Total vendor
+  const totalVendors = await db.vendor.count({ where: {} })
   // Vendor yang sudah verified
   const activeVendors = await db.vendor.count({ where: { status: "VERIFIED" } })
   // Vendor yang masih pending
@@ -24,13 +26,83 @@ export const getDashboardStats = async () => {
     _sum: { amount: true },
   })
 
+  // Escrow Balance (PAID payments where bookings are not completed or cancelled)
+  const escrowAgg = await db.payment.aggregate({
+    where: {
+      status: "PAID",
+      booking: {
+        status: { in: ["PENDING", "CONFIRMED", "IN_PROGRESS"] },
+      },
+    },
+    _sum: { amount: true },
+  })
+
+  // Ready to Withdraw (PENDING withdrawals)
+  const withdrawalsAgg = await db.withdrawal.aggregate({
+    where: { status: "PENDING" },
+    _sum: { amount: true },
+  })
+
+  // Monthly Commission (5% of completed paid bookings this month)
+  const now = new Date()
+  const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+  const completedBookingsThisMonth = await db.booking.findMany({
+    where: {
+      status: "COMPLETED",
+      updatedAt: { gte: firstDayOfMonth },
+      payment: { status: "PAID" }
+    },
+    select: { totalPrice: true }
+  })
+  const monthlyCommission = completedBookingsThisMonth.reduce(
+    (sum, booking) => sum + Number(booking.totalPrice) * 0.05,
+    0
+  )
+
+  // Pending Payments (PENDING status with uploaded proof)
+  const pendingPayments = await db.payment.count({
+    where: { status: "PENDING", proofUrl: { not: null } }
+  })
+
+  // Chart data (last 7 days daily revenue)
+  const chartData = []
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date()
+    d.setDate(d.getDate() - i)
+    const startOfDay = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0)
+    const endOfDay = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999)
+
+    const dayPaid = await db.payment.aggregate({
+      where: {
+        status: "PAID",
+        OR: [
+          { paidAt: { gte: startOfDay, lte: endOfDay } },
+          { paidAt: null, createdAt: { gte: startOfDay, lte: endOfDay } }
+        ]
+      },
+      _sum: { amount: true }
+    })
+
+    const dayName = d.toLocaleDateString("id-ID", { day: "numeric", month: "short" })
+    chartData.push({
+      date: dayName,
+      revenue: Number(dayPaid._sum.amount ?? 0)
+    })
+  }
+
   return {
     totalUsers,
+    totalVendors,
     activeVendors,
     pendingVendors,
     totalBookings,
     pendingBookings,
     totalRevenue: Number(revenueAgg._sum.amount ?? 0),
+    escrowBalance: Number(escrowAgg._sum.amount ?? 0),
+    readyToWithdraw: Number(withdrawalsAgg._sum.amount ?? 0),
+    monthlyCommission,
+    pendingPayments,
+    chartData,
   }
 }
 

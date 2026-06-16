@@ -28,3 +28,13 @@ export async function submitPaymentProof(bookingId: string, method: string, proo
   const { data } = await api.post("/payments", { bookingId, method, proofUrl });
   return data;
 }
+
+export async function getBookingMessages(bookingId: string) {
+  const { data } = await api.get(`/bookings/${bookingId}/messages`);
+  return data.data;
+}
+
+export async function sendBookingMessage(bookingId: string, content: string) {
+  const { data } = await api.post(`/bookings/${bookingId}/messages`, { content });
+  return data.data;
+}

@@ -28,13 +28,12 @@ export default function LoginPage() {
   const [passwordValue, setPasswordValue] = useState('');
   const router = useRouter();
 
-
   const doLogin = async (email: string, password: string) => {
     setIsLoading(true);
     setAuthError('');
 
     if (!email || !password) {
-      setAuthError('Email dan kata sandi wajib diisi.');
+      setAuthError('Email and password are required.');
       setIsLoading(false);
       return;
     }
@@ -47,11 +46,11 @@ export default function LoginPage() {
 
     if (result?.error) {
       if (result.error === 'DATABASE_ERROR') {
-        setAuthError('Koneksi database bermasalah. Kemungkinan database Supabase sedang paused atau offline. Harap resume/restore database Anda.');
+        setAuthError('Database connection issue. The Supabase database might be paused or offline. Please resume/restore your database.');
       } else if (result.error === 'SERVER_OFFLINE') {
-        setAuthError('Tidak dapat terhubung ke server backend. Pastikan server backend Planora sedang berjalan.');
+        setAuthError('Could not connect to the backend server. Please make sure the Planora backend server is running.');
       } else if (result.error === 'CredentialsSignin' || result.error === 'INVALID_CREDENTIALS') {
-        setAuthError('Email atau kata sandi salah.');
+        setAuthError('Invalid email or password.');
       } else {
         setAuthError(result.error);
       }
@@ -82,10 +81,9 @@ export default function LoginPage() {
     await doLogin(email, password);
   };
 
-
   return (
     <div className="min-h-screen flex flex-col lg:flex-row font-sans text-slate-900 overflow-hidden bg-white text-base">
-      {/* SISI KIRI: HERO, INFO & TESTIMONIAL */}
+      {/* LEFT SIDE: HERO, INFO & TESTIMONIAL */}
       <div className="relative hidden lg:flex lg:w-1/2 flex-col p-16 xl:p-24 justify-between overflow-hidden">
         {/* Background Image */}
         <div
@@ -98,7 +96,7 @@ export default function LoginPage() {
         {/* Overlay Pink #FFDED7 solid */}
         <div className="absolute inset-0 z-10 bg-[#FFDED7]/90 backdrop-blur-[1px]" />
 
-        {/* Logo Section - Hitam Pekat */}
+        {/* Logo Section */}
         <div className="relative z-20 flex items-center gap-3">
           <Image
             src="/images/logogmbr.png"
@@ -113,20 +111,19 @@ export default function LoginPage() {
           <Sparkles className="mt-[-6px] h-5 w-5 text-[#E94E77]" />
         </div>
 
-        {/* Headline Sisi Kiri - Teks Akcent tidak pucat */}
+        {/* Left Side Headline */}
         <div className="relative z-20 mt-10">
           <h1 className="text-5xl xl:text-6xl font-black leading-[1.05] mb-8 text-black tracking-tight">
-            Rencanakan <br />
-            Momen Spesialmu <br />
-            <span className="text-[#FF527B] italic drop-shadow-md">Bersama Planora</span>
+            Plan Your <br />
+            Special Moments <br />
+            <span className="text-[#FF527B] italic drop-shadow-md">With Planora</span>
           </h1>
           <p className="text-slate-700 font-bold text-lg max-w-md leading-relaxed opacity-85">
-            Masuk untuk mengelola pesanan acara Anda atau temukan vendor impian
-            untuk momen spesial berikutnya.
+            Sign in to manage your event orders or find the vendor of your dreams for your next special moment.
           </p>
         </div>
 
-        {/* Testimonial & Social Proof Sisi Kiri */}
+        {/* Testimonial & Social Proof */}
         <div className="relative z-20 mt-auto space-y-8">
           <div className="flex items-center gap-4">
             <div className="flex -space-x-3">
@@ -147,42 +144,41 @@ export default function LoginPage() {
               />
             </div>
             <p className="text-sm font-bold text-slate-700">
-              Bergabung dengan <span className="text-black font-black">10.000+</span> pengguna
+              Join <span className="text-black font-black">10,000+</span> active users
             </p>
           </div>
           <div className="max-w-md border-l-4 border-[#FF527B] pl-6">
             <p className="text-lg xl:text-xl font-black text-black leading-snug italic opacity-90">
-              "Semenjak pakai Planora, ngurus vendor acara jadi jauh lebih
-              tenang dan teratur. Bener-bener ngebantu banget!"
+              "Ever since using Planora, managing event vendors has become much more peaceful and organized. It really helps a lot!"
             </p>
           </div>
         </div>
       </div>
 
-      {/* SISI KANAN: LOGIN FORM */}
+      {/* RIGHT SIDE: LOGIN FORM */}
       <div className="w-full lg:w-1/2 flex items-center justify-center bg-white p-8 md:p-20 overflow-y-auto">
         <div className="w-full max-w-[500px] py-10">
           {/* Back to Home Button */}
           <Link href="/" className="inline-flex items-center gap-2 mb-8 text-slate-500 hover:text-[#FF9A9E] transition-colors text-sm font-semibold">
-            ← Kembali ke Beranda
+            ← Back to Home
           </Link>
 
           {/* Header Section */}
           <div className="mb-10">
             <p className="text-slate-400 text-[11px] mb-2 font-bold uppercase tracking-[0.15em]">
-              Selamat Datang ✨
+              Welcome Back ✨
             </p>
             <h2 className="text-3xl md:text-[2rem] font-extrabold text-[#0D121F] mb-3 tracking-tight leading-tight">
-              Masuk ke Planora
+              Sign In to Planora
             </h2>
             <p className="text-slate-400 text-sm font-medium">
-              Belum punya akun?{' '}
+              Don't have an account?{' '}
               <Link
                 href="/register"
                 className="font-bold hover:underline inline-flex items-center gap-1 transition-all"
                 style={{ color: '#FF9A9E' }}
               >
-                Daftar Sekarang
+                Register Now
               </Link>
             </p>
           </div>
@@ -192,7 +188,7 @@ export default function LoginPage() {
             {/* Email Input */}
             <div className="space-y-2.5">
               <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">
-                Email atau Nomor HP
+                Email or Phone Number
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-400 transition-colors">
@@ -201,7 +197,7 @@ export default function LoginPage() {
                 <input
                   name="email"
                   type="text"
-                  placeholder="Masukkan email atau nomor HP"
+                  placeholder="Enter email or phone number"
                   className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400"
                   required
                   value={emailValue}
@@ -214,7 +210,7 @@ export default function LoginPage() {
             {/* Password Input */}
             <div className="space-y-2.5">
               <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">
-                Kata Sandi
+                Password
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-400">
@@ -223,7 +219,7 @@ export default function LoginPage() {
                 <input
                   name="password"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Masukkan kata sandi"
+                  placeholder="Enter password"
                   className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-4.5 pl-12 pr-12 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all placeholder:text-slate-400"
                   required
                   value={passwordValue}
@@ -261,14 +257,14 @@ export default function LoginPage() {
                   </svg>
                 </div>
                 <span className="text-sm font-bold text-slate-500 group-hover:text-slate-800 transition-colors">
-                  Ingat saya
+                  Remember me
                 </span>
               </label>
               <Link
                 href="/forgot-password"
                 className="text-sm font-bold text-[#FF9A9E] hover:underline"
               >
-                Lupa kata sandi?
+                Forgot password?
               </Link>
             </div>
 
@@ -276,9 +272,9 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-[#0D121F] text-white font-bold py-5 rounded-2xl shadow-xl hover:bg-slate-800 disabled:opacity-75 disabled:cursor-not-allowed transform hover:scale-[1.01] active:scale-95 transition-all text-lg mt-4"
+              className="w-full bg-[#0D121F] text-white font-bold py-5 rounded-2xl shadow-xl hover:bg-slate-800 disabled:opacity-75 disabled:cursor-not-allowed transform hover:scale-[1.01] active:scale-95 transition-all text-lg mt-4 cursor-pointer"
             >
-              {isLoading ? 'Sedang Memproses...' : 'Masuk'}
+              {isLoading ? 'Processing...' : 'Sign In'}
             </button>
 
             {authError ? (
@@ -302,7 +298,7 @@ export default function LoginPage() {
                   type="button"
                   disabled={isLoading}
                   onClick={() => handleQuickLogin(q.email, q.password)}
-                  className="group flex flex-col items-center gap-0.5 py-3 px-3 rounded-xl text-white transition-all hover:brightness-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                  className="group flex flex-col items-center gap-0.5 py-3 px-3 rounded-xl text-white transition-all hover:brightness-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm cursor-pointer"
                   style={{ backgroundColor: q.color }}
                 >
                   <span className="text-sm font-bold tracking-wide">{q.label}</span>
@@ -321,14 +317,14 @@ export default function LoginPage() {
               <div className="w-full border-t border-[#EDF2F7]"></div>
             </div>
             <div className="relative flex justify-center text-[10px] uppercase tracking-[0.25em] font-black text-slate-300">
-              <span className="bg-white px-4">atau masuk dengan</span>
+              <span className="bg-white px-4">or sign in with</span>
             </div>
           </div>
 
           {/* Google Sign In */}
           <button
             type="button"
-            className="w-full bg-white border border-[#E2E8F0] text-slate-700 font-bold py-4.5 rounded-2xl flex items-center justify-center gap-3 hover:bg-[#F7F9FC] transition-all shadow-sm mb-12 text-sm md:text-base"
+            className="w-full bg-white border border-[#E2E8F0] text-slate-700 font-bold py-4.5 rounded-2xl flex items-center justify-center gap-3 hover:bg-[#F7F9FC] transition-all shadow-sm mb-12 text-sm md:text-base cursor-pointer"
           >
             <svg
               className="w-5 h-5"
@@ -362,13 +358,13 @@ export default function LoginPage() {
               <ShieldCheck className="w-5 h-5 text-[#FF9A9E]" />
             </div>
             <p className="text-[10px] text-slate-400 leading-relaxed font-bold">
-              Dengan masuk, Anda menyetujui <br />
+              By logging in, you agree to Planora's <br />
               <button className="text-[#FF9A9E] font-bold hover:underline">
-                Syarat & Ketentuan
+                Terms & Conditions
               </button>{' '}
-              dan{' '}
+              and{' '}
               <button className="text-[#FF9A9E] font-bold hover:underline">
-                Kebijakan Privasi
+                Privacy Policy
               </button>{' '}
               Planora.
             </p>

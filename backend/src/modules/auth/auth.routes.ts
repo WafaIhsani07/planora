@@ -14,5 +14,6 @@ router.post("/reset-password", authController.resetPassword)
 
 // ─── Protected Routes ────────────────────────────────────────────────────────
 router.get("/me", authenticate, authController.me)
+router.post("/rollback-registration", authenticate, authController.rollbackRegistration)
 
 export default router
