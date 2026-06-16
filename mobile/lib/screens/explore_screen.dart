@@ -91,25 +91,25 @@ class _ExploreScreenState extends State<ExploreScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Eksplor Layanan', style: tt.headlineMedium),
+              Text('Explore Services', style: tt.headlineMedium),
               const SizedBox(height: 18),
 
               // Search Bar
               TextField(
                 onChanged: (val) => setState(() => _searchQuery = val),
                 decoration: const InputDecoration(
-                  hintText: 'Cari gedung, katering...',
+                  hintText: 'Search venue, catering...',
                   prefixIcon: Icon(Icons.search_rounded),
                 ),
               ),
               const SizedBox(height: 32),
 
-              Text('Kategori Jasa', style: tt.titleLarge),
+              Text('Service Categories', style: tt.titleLarge),
               const SizedBox(height: 16),
               _buildCategoryGrid(),
               const SizedBox(height: 32),
 
-              Text('Mungkin Anda Suka', style: tt.titleLarge),
+              Text('You Might Like', style: tt.titleLarge),
               const SizedBox(height: 14),
 
               _isLoading
@@ -118,7 +118,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       ? Center(
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 40),
-                            child: Text('Belum ada rekomendasi layanan dari server.',
+                            child: Text('No service recommendations available from the server.',
                                 style: tt.bodyMedium?.copyWith(color: PlanoraColors.brandGray, fontStyle: FontStyle.italic)),
                           ),
                         )
@@ -165,11 +165,11 @@ class _ExploreScreenState extends State<ExploreScreen> {
           currentIndex: _currentIndex,
           onTap: _onBottomNavTapped,
           items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home_rounded), label: 'Beranda'),
-            BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), activeIcon: Icon(Icons.explore_rounded), label: 'Eksplor'),
-            BottomNavigationBarItem(icon: Icon(Icons.receipt_long_outlined), activeIcon: Icon(Icons.receipt_long_rounded), label: 'Pesanan'),
-            BottomNavigationBarItem(icon: Icon(Icons.favorite_border_rounded), activeIcon: Icon(Icons.favorite_rounded), label: 'Favorit'),
-            BottomNavigationBarItem(icon: Icon(Icons.person_outline_rounded), activeIcon: Icon(Icons.person_rounded), label: 'Profil'),
+            BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home_rounded), label: 'Home'),
+            BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), activeIcon: Icon(Icons.explore_rounded), label: 'Explore'),
+            BottomNavigationBarItem(icon: Icon(Icons.receipt_long_outlined), activeIcon: Icon(Icons.receipt_long_rounded), label: 'Orders'),
+            BottomNavigationBarItem(icon: Icon(Icons.favorite_border_rounded), activeIcon: Icon(Icons.favorite_rounded), label: 'Favorites'),
+            BottomNavigationBarItem(icon: Icon(Icons.person_outline_rounded), activeIcon: Icon(Icons.person_rounded), label: 'Profile'),
           ],
         ),
       ),
@@ -178,14 +178,14 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   Widget _buildCategoryGrid() {
     final categories = [
-      _Cat(Icons.domain_rounded, 'Gedung'),
-      _Cat(Icons.restaurant_rounded, 'Katering'),
+      _Cat(Icons.domain_rounded, 'Venue'),
+      _Cat(Icons.restaurant_rounded, 'Catering'),
       _Cat(Icons.face_retouching_natural, 'MUA'),
-      _Cat(Icons.camera_alt_rounded, 'Foto'),
-      _Cat(Icons.eco_rounded, 'Dekorasi'),
-      _Cat(Icons.music_note_rounded, 'Hiburan'),
-      _Cat(Icons.checkroom_rounded, 'Busana'),
-      _Cat(Icons.more_horiz_rounded, 'Lainnya'),
+      _Cat(Icons.camera_alt_rounded, 'Photo'),
+      _Cat(Icons.eco_rounded, 'Decoration'),
+      _Cat(Icons.music_note_rounded, 'Entertainment'),
+      _Cat(Icons.checkroom_rounded, 'Wear'),
+      _Cat(Icons.more_horiz_rounded, 'Others'),
     ];
 
     return GridView.count(
@@ -268,7 +268,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(color: PlanoraColors.brandAccent, borderRadius: BorderRadius.circular(20)),
-                        child: Text('Lihat Detail', style: tt.labelSmall?.copyWith(color: PlanoraColors.brandDark, fontWeight: FontWeight.w600)),
+                        child: Text('View Details', style: tt.labelSmall?.copyWith(color: PlanoraColors.brandDark, fontWeight: FontWeight.w600)),
                       ),
                       Row(children: [
                         const Icon(Icons.star_rounded, color: Color(0xFFFFB300), size: 15),

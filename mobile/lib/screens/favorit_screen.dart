@@ -78,7 +78,7 @@ class _FavoritScreenState extends State<FavoritScreen> {
        
        PlanoraSnackBar.show(
          context,
-         message: 'Dihapus dari Favorit',
+         message: 'Removed from Favorites',
          isError: true,
          icon: Icons.favorite_border_rounded,
        );
@@ -110,7 +110,7 @@ class _FavoritScreenState extends State<FavoritScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Favorit Saya', style: tt.headlineMedium),
+                  Text('My Favorites', style: tt.headlineMedium),
                   Container(
                     width: 44,
                     height: 44,
@@ -152,7 +152,7 @@ class _FavoritScreenState extends State<FavoritScreen> {
                                       size: 36, color: PlanoraColors.brandDark),
                                 ),
                                 const SizedBox(height: 16),
-                                Text('Belum ada layanan favorit.',
+                                Text('No favorite services yet.',
                                     style: tt.bodyMedium?.copyWith(
                                       color: PlanoraColors.brandGray,
                                       fontStyle: FontStyle.italic,
@@ -214,11 +214,11 @@ class _FavoritScreenState extends State<FavoritScreen> {
           currentIndex: _currentIndex,
           onTap: _onBottomNavTapped,
           items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home_rounded), label: 'Beranda'),
-            BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), activeIcon: Icon(Icons.explore_rounded), label: 'Eksplor'),
-            BottomNavigationBarItem(icon: Icon(Icons.receipt_long_outlined), activeIcon: Icon(Icons.receipt_long_rounded), label: 'Pesanan'),
-            BottomNavigationBarItem(icon: Icon(Icons.favorite_border_rounded), activeIcon: Icon(Icons.favorite_rounded), label: 'Favorit'),
-            BottomNavigationBarItem(icon: Icon(Icons.person_outline_rounded), activeIcon: Icon(Icons.person_rounded), label: 'Profil'),
+            BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home_rounded), label: 'Home'),
+            BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), activeIcon: Icon(Icons.explore_rounded), label: 'Explore'),
+            BottomNavigationBarItem(icon: Icon(Icons.receipt_long_outlined), activeIcon: Icon(Icons.receipt_long_rounded), label: 'Orders'),
+            BottomNavigationBarItem(icon: Icon(Icons.favorite_border_rounded), activeIcon: Icon(Icons.favorite_rounded), label: 'Favorites'),
+            BottomNavigationBarItem(icon: Icon(Icons.person_outline_rounded), activeIcon: Icon(Icons.person_rounded), label: 'Profile'),
           ],
         ),
       ),
@@ -276,7 +276,7 @@ class _FavoritScreenState extends State<FavoritScreen> {
                     color: PlanoraColors.brandAccent,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Text('Lihat Detail',
+                  child: Text('View Details',
                       style: tt.labelSmall?.copyWith(
                         color: PlanoraColors.brandDark,
                         fontWeight: FontWeight.w600,

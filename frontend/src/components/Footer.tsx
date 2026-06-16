@@ -66,7 +66,7 @@ const YouTubeIcon = ({ className }: { className?: string }) => (
 );
 
 const footerLinks = {
-  platform: ["Jelajahi Vendor", "Cara Kerja", "Untuk Vendor", "Tentang Kami"],
+  platform: ["Explore Vendors", "How It Works", "For Vendors", "About Us"],
   kategori: CATEGORIES.slice(0, 4).map((c) => c.name),
 };
 
@@ -81,7 +81,7 @@ export default function Footer() {
               <h2 className="font-logo text-4xl italic tracking-tighter">Planora</h2>
             </div>
             <p className="mb-10 max-w-xs text-sm leading-relaxed text-gray-400">
-              Marketplace jasa acara premium yang menghubungkan kamu dengan vendor terpercaya.
+              A premium event services marketplace connecting you with trusted vendors.
             </p>
             <div className="flex gap-4">
               <a href="#" className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 text-white transition hover:bg-white hover:text-black">
@@ -113,7 +113,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h6 className="mb-8 text-sm font-bold uppercase tracking-widest text-gray-200">Kategori</h6>
+            <h6 className="mb-8 text-sm font-bold uppercase tracking-widest text-gray-200">Categories</h6>
             <ul className="space-y-4 text-sm font-medium text-gray-400">
               {footerLinks.kategori.map((item) => (
                 <li key={item}>
@@ -126,7 +126,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h6 className="mb-8 text-sm font-bold uppercase tracking-widest text-gray-200">Kontak</h6>
+            <h6 className="mb-8 text-sm font-bold uppercase tracking-widest text-gray-200">Contact</h6>
             <ul className="space-y-5 text-sm font-medium text-gray-400">
               <li className="flex items-center gap-3">
                 <Mail className="h-4 w-4 text-[#FF9A9E]" />

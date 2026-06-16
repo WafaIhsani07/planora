@@ -30,7 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Email dan password wajib diisi')),
+        const SnackBar(content: Text('Email and password are required')),
       );
       return;
     }
@@ -44,12 +44,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (result['success'] == true) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login berhasil!')),
+        const SnackBar(content: Text('Login successful!')),
       );
       Navigator.pushReplacementNamed(context, '/home');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result['message'] ?? 'Login gagal')),
+        SnackBar(content: Text(result['message'] ?? 'Login failed')),
       );
     }
   }
@@ -106,7 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Heading
                   Center(
                     child: Text(
-                      'Selamat Datang',
+                      'Welcome Back',
                       style: GoogleFonts.playfairDisplay(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
@@ -117,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 6),
                   Center(
                     child: Text(
-                      'Silakan masuk ke akun Anda',
+                      'Please sign in to your account',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 14,
                         color: PlanoraColors.brandGray,
@@ -240,7 +240,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             )
                           : Text(
-                              'Masuk',
+                              'Sign In',
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -285,7 +285,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 12),
                         _QuickLoginButton(
-                          label: '👤 Masuk sebagai Pelanggan',
+                          label: '👤 Sign In as Customer',
                           email: 'customer@planora.com',
                           password: 'password123',
                           color: const Color(0xFF1565C0),
@@ -307,7 +307,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Belum punya akun?  ',
+                        'Don\'t have an account?  ',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 13,
                           color: PlanoraColors.brandGray,
@@ -317,7 +317,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         onTap: () =>
                             Navigator.pushNamed(context, '/register'),
                         child: Text(
-                          'Daftar',
+                          'Register',
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,

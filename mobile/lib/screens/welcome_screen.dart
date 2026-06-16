@@ -60,7 +60,7 @@ class WelcomeScreen extends StatelessWidget {
 
                 // ── Tagline ───────────────────────────────────────────
                 Text(
-                  'Wujudkan Momen Terbaikmu\ndengan Vendor Pilihan.',
+                  'Make Your Best Moments Come True\nwith Selected Vendors.',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 15,
                     fontWeight: FontWeight.w400,
@@ -87,7 +87,7 @@ class WelcomeScreen extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      'Masuk',
+                      'Sign In',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -116,7 +116,7 @@ class WelcomeScreen extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      'Buat Akun',
+                      'Create Account',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,

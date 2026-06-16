@@ -52,17 +52,17 @@ export default function VendorsPage() {
 
           <div className="flex items-center gap-8">
             <nav className="hidden items-center gap-8 text-sm font-semibold text-gray-300 lg:flex">
-              <Link href="/#beranda" className="relative transition hover:text-white after:absolute after:-bottom-1.5 after:left-1/2 after:h-0.5 after:w-7 after:-translate-x-1/2 after:bg-[#FF9A9E] after:opacity-0 hover:after:opacity-100 after:transition-opacity">Beranda</Link>
-              <a href="#" className="relative text-[#FF9A9E] after:absolute after:-bottom-1.5 after:left-1/2 after:h-0.5 after:w-7 after:-translate-x-1/2 after:bg-[#FF9A9E]">Jelajahi Vendor</a>
-              <Link href="/#footer" className="relative transition hover:text-white after:absolute after:-bottom-1.5 after:left-1/2 after:h-0.5 after:w-7 after:-translate-x-1/2 after:bg-[#FF9A9E] after:opacity-0 hover:after:opacity-100 after:transition-opacity">Tentang</Link>
+              <Link href="/#beranda" className="relative transition hover:text-white after:absolute after:-bottom-1.5 after:left-1/2 after:h-0.5 after:w-7 after:-translate-x-1/2 after:bg-[#FF9A9E] after:opacity-0 hover:after:opacity-100 after:transition-opacity">Home</Link>
+              <a href="#" className="relative text-[#FF9A9E] after:absolute after:-bottom-1.5 after:left-1/2 after:h-0.5 after:w-7 after:-translate-x-1/2 after:bg-[#FF9A9E]">Explore Vendors</a>
+              <Link href="/#footer" className="relative transition hover:text-white after:absolute after:-bottom-1.5 after:left-1/2 after:h-0.5 after:w-7 after:-translate-x-1/2 after:bg-[#FF9A9E] after:opacity-0 hover:after:opacity-100 after:transition-opacity">About</Link>
             </nav>
 
             <div className="flex items-center gap-3">
-              <Link href="/login" className="hidden rounded-xl bg-[#FF9A9E] px-6 py-2.5 text-sm font-bold text-white transition hover:bg-[#FF527B] md:block">Masuk</Link>
+              <Link href="/login" className="hidden rounded-xl bg-[#FF9A9E] px-6 py-2.5 text-sm font-bold text-white transition hover:bg-[#FF527B] md:block">Sign In</Link>
               <Link href="/download" className="rounded-xl bg-pink-gradient px-6 py-2.5 text-sm font-bold text-black shadow-[0_12px_28px_-14px_rgba(255,154,158,0.8)] transition hover:opacity-90">Download App</Link>
               <button
                 type="button"
-                aria-label={isMobileMenuOpen ? "Tutup menu" : "Buka menu"}
+                aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
                 aria-controls="mobile-nav-menu"
                 onClick={() => setIsMobileMenuOpen((value) => !value)}
                 className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-2 focus-visible:ring-offset-black lg:hidden"
@@ -76,9 +76,9 @@ export default function VendorsPage() {
         {isMobileMenuOpen && (
           <div id="mobile-nav-menu" className="mx-6 mt-4 rounded-3xl border border-white/10 bg-black/95 p-4 shadow-[0_15px_35px_-15px_rgba(0,0,0,0.3)] md:mx-12 lg:hidden">
             <div className="flex flex-col gap-2 text-sm font-semibold text-white">
-              <Link href="/#beranda" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>Beranda</Link>
-              <a href="#" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>Jelajahi Vendor</a>
-              <Link href="/#footer" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>Tentang</Link>
+              <Link href="/#beranda" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
+              <a href="#" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>Explore Vendors</a>
+              <Link href="/#footer" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>About</Link>
               <Link href="/download" className="rounded-xl bg-pink-gradient px-3 py-2 text-center font-bold text-black transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>Download App</Link>
             </div>
           </div>
@@ -92,9 +92,9 @@ export default function VendorsPage() {
         <div className="relative z-10 mx-auto max-w-7xl space-y-10 text-center">
           <div className="space-y-4">
             <h1 className="text-4xl font-[900] uppercase leading-[1.1] tracking-tighter md:text-6xl">
-              TEMUKAN PARTNER <br /> <span className="text-[#FF527B]">ACARA TERBAIKMU</span>
+              FIND YOUR BEST <br /> <span className="text-[#FF527B]">EVENT PARTNER</span>
             </h1>
-            <p className="text-[10px] font-black uppercase tracking-[0.5em] text-[#2A2A2A]/30 md:text-xs">Mulai dari Dekorasi hingga Katering dalam satu tempat.</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.5em] text-[#2A2A2A]/30 md:text-xs">From Decoration to Catering in one place.</p>
           </div>
 
           {/* Search Bar */}
@@ -103,7 +103,7 @@ export default function VendorsPage() {
               <Search className="h-5 w-5 text-slate-300" />
               <input
                 type="text"
-                placeholder="Cari nama vendor..."
+                placeholder="Search vendor name..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full bg-transparent text-sm font-bold text-[#2A2A2A] outline-none placeholder:text-slate-200"
@@ -112,14 +112,14 @@ export default function VendorsPage() {
             <div className="flex flex-1 items-center gap-4 px-8 py-5">
               <MapPin className="h-5 w-5 text-[#FF9A9E]" />
               <select className="w-full appearance-none bg-transparent text-sm font-bold text-[#2A2A2A] outline-none cursor-pointer">
-                <option>Seluruh Indonesia</option>
+                <option>All Indonesia</option>
                 <option>Jakarta</option>
                 <option>Padang</option>
                 <option>Bandung</option>
               </select>
             </div>
             <button className="rounded-[24px] bg-[#2A2A2A] px-12 py-5 text-[11px] font-black uppercase tracking-[0.2em] text-white shadow-lg shadow-black/10 hover:bg-black transition active:scale-95">
-              Cari Sekarang
+              Search Now
             </button>
           </div>
         </div>
@@ -138,7 +138,7 @@ export default function VendorsPage() {
                 paddingRight: '2.5rem'
               }}
             >
-              <option value="">Semua Kategori</option>
+              <option value="">All Categories</option>
               {['fotografi', 'dekorasi', 'katering', 'wedding-organizer', 'venue', 'undangan'].map((cat) => (
                 <option key={cat} value={cat}>
                   {getCategoryById(cat)?.name ?? cat}
@@ -183,7 +183,7 @@ export default function VendorsPage() {
                 </div>
                 <div className="mt-auto flex items-center justify-between border-t border-slate-50 pt-6">
                   <div>
-                    <p className="text-[9px] font-bold uppercase tracking-tighter text-slate-300">Mulai dari</p>
+                    <p className="text-[9px] font-bold uppercase tracking-tighter text-slate-300">Starting from</p>
                     <p className="text-lg font-black text-[#2A2A2A]">{vendor.price}</p>
                   </div>
                   <button className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FCE6E3] text-[#FF527B] shadow-sm transition-all hover:bg-[#FF527B] hover:text-white">
@@ -200,8 +200,8 @@ export default function VendorsPage() {
               <HelpCircle className="h-8 w-8" />
             </div>
             <div className="space-y-2">
-              <h5 className="text-lg font-[900]">Belum Menemukan?</h5>
-              <p className="text-[10px] font-medium leading-relaxed text-white/40">Beri tahu kriteria yang Anda cari, kami akan membantu.</p>
+              <h5 className="text-lg font-[900]">Haven't Found It?</h5>
+              <p className="text-[10px] font-medium leading-relaxed text-white/40">Let us know what criteria you are looking for, we will help.</p>
             </div>
             <button className="rounded-xl bg-[#FF9A9E] px-6 py-2.5 text-[9px] font-black uppercase tracking-widest text-[#2A2A2A] shadow-lg">
               Chat Admin

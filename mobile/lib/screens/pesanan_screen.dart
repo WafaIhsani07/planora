@@ -78,7 +78,7 @@ class _PesananScreenState extends State<PesananScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Pesanan Saya', style: tt.headlineMedium),
+                  Text('My Orders', style: tt.headlineMedium),
                   GestureDetector(
                     onTap: () => Navigator.pushNamed(context, '/kalender'),
                     child: Container(
@@ -110,8 +110,8 @@ class _PesananScreenState extends State<PesananScreen> {
                 ),
                 child: Row(
                   children: [
-                    _buildTab('Berjalan', _isBerjalan, () => setState(() => _isBerjalan = true)),
-                    _buildTab('Selesai', !_isBerjalan, () => setState(() => _isBerjalan = false)),
+                    _buildTab('Ongoing', _isBerjalan, () => setState(() => _isBerjalan = true)),
+                    _buildTab('Completed', !_isBerjalan, () => setState(() => _isBerjalan = false)),
                   ],
                 ),
               ),
@@ -145,9 +145,9 @@ class _PesananScreenState extends State<PesananScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Jadwal Acara', style: tt.titleSmall),
+                            Text('Event Schedule', style: tt.titleSmall),
                             const SizedBox(height: 2),
-                            Text('Pantau tanggal penting', style: tt.bodySmall),
+                            Text('Monitor important dates', style: tt.bodySmall),
                           ],
                         ),
                       ),
@@ -189,11 +189,11 @@ class _PesananScreenState extends State<PesananScreen> {
           currentIndex: _currentIndex,
           onTap: _onBottomNavTapped,
           items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home_rounded), label: 'Beranda'),
-            BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), activeIcon: Icon(Icons.explore_rounded), label: 'Eksplor'),
-            BottomNavigationBarItem(icon: Icon(Icons.receipt_long_outlined), activeIcon: Icon(Icons.receipt_long_rounded), label: 'Pesanan'),
-            BottomNavigationBarItem(icon: Icon(Icons.favorite_border_rounded), activeIcon: Icon(Icons.favorite_rounded), label: 'Favorit'),
-            BottomNavigationBarItem(icon: Icon(Icons.person_outline_rounded), activeIcon: Icon(Icons.person_rounded), label: 'Profil'),
+            BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home_rounded), label: 'Home'),
+            BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), activeIcon: Icon(Icons.explore_rounded), label: 'Explore'),
+            BottomNavigationBarItem(icon: Icon(Icons.receipt_long_outlined), activeIcon: Icon(Icons.receipt_long_rounded), label: 'Orders'),
+            BottomNavigationBarItem(icon: Icon(Icons.favorite_border_rounded), activeIcon: Icon(Icons.favorite_rounded), label: 'Favorites'),
+            BottomNavigationBarItem(icon: Icon(Icons.person_outline_rounded), activeIcon: Icon(Icons.person_rounded), label: 'Profile'),
           ],
         ),
       ),
@@ -246,10 +246,10 @@ class _PesananScreenState extends State<PesananScreen> {
                   size: 40, color: PlanoraColors.brandDark),
             ),
             const SizedBox(height: 16),
-            Text('Belum ada riwayat pesanan.',
+            Text('No order history yet.',
                 style: tt.bodyMedium?.copyWith(color: PlanoraColors.brandGray)),
             const SizedBox(height: 6),
-            Text('Yuk, cari vendor dan buat pesanan pertamamu!',
+            Text('Go find vendors and make your first order!',
                 style: tt.bodySmall, textAlign: TextAlign.center),
           ],
         ),
@@ -396,7 +396,7 @@ class _PesananScreenState extends State<PesananScreen> {
                                       minimumSize: const Size(0, 36),
                                       padding: const EdgeInsets.symmetric(horizontal: 16),
                                     ),
-                                    child: const Text('Hubungi'),
+                                    child: const Text('Contact'),
                                   ),
                                   const SizedBox(width: 8),
                                   ElevatedButton(
@@ -407,7 +407,7 @@ class _PesananScreenState extends State<PesananScreen> {
                                       minimumSize: const Size(0, 36),
                                       padding: const EdgeInsets.symmetric(horizontal: 16),
                                     ),
-                                    child: const Text('Detail'),
+                                    child: const Text('Details'),
                                   ),
                                 ]
                               : isPaymentPending
@@ -420,7 +420,7 @@ class _PesananScreenState extends State<PesananScreen> {
                                           border: Border.all(color: const Color(0xFFFFEBA8)),
                                         ),
                                         child: Text(
-                                          'Menunggu Verifikasi',
+                                          'Awaiting Verification',
                                           style: tt.labelSmall?.copyWith(
                                             color: const Color(0xFF856404),
                                             fontWeight: FontWeight.w700,
@@ -435,7 +435,7 @@ class _PesananScreenState extends State<PesananScreen> {
                                           minimumSize: const Size(0, 36),
                                           padding: const EdgeInsets.symmetric(horizontal: 16),
                                         ),
-                                        child: const Text('Bayar Sekarang'),
+                                        child: const Text('Pay Now'),
                                       ),
                                     ],
                         ),

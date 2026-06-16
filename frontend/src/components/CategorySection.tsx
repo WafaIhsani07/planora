@@ -9,20 +9,20 @@ type Category = {
 
 export default function CategorySection() {
     const categories: Category[] = [
-        { title: "Fotografi", count: "1.200+ Vendor", image: "https://images.unsplash.com/photo-1452587925148-ce544e77e70d?auto=format&fit=crop&q=80" },
-        { title: "Katering", count: "980+ Vendor", image: "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&q=80" },
-        { title: "Dekorasi", count: "750+ Vendor", image: "https://images.unsplash.com/photo-1519222970733-f546218fa6d7?auto=format&fit=crop&q=80" },
-        { title: "Wedding Organizer", count: "520+ Vendor", image: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&q=80" },
-        { title: "Hiburan", count: "430+ Vendor", image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80" },
+        { title: "Photography", count: "1,200+ Vendors", image: "https://images.unsplash.com/photo-1452587925148-ce544e77e70d?auto=format&fit=crop&q=80" },
+        { title: "Catering", count: "980+ Vendors", image: "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&q=80" },
+        { title: "Decoration", count: "750+ Vendors", image: "https://images.unsplash.com/photo-1519222970733-f546218fa6d7?auto=format&fit=crop&q=80" },
+        { title: "Wedding Organizer", count: "520+ Vendors", image: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&q=80" },
+        { title: "Entertainment", count: "430+ Vendors", image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80" },
     ];
 
     return (
         <section id="kategori" data-reveal className="bg-white px-6 py-14 md:py-16 md:px-12">
             <div className="mx-auto max-w-7xl">
                 <div className="mb-10 flex items-end justify-between gap-6">
-                    <h2 className="text-3xl font-bold text-[#2A2A2A] md:text-4xl">Kategori Pilihan</h2>
+                    <h2 className="text-3xl font-bold text-[#2A2A2A] md:text-4xl">Featured Categories</h2>
                     <a href="#" className="hidden items-center gap-1 text-sm font-bold uppercase tracking-tight text-[#FF9A9E] transition-all hover:gap-2 md:flex">
-                        Lihat Semua Kategori
+                        View All Categories
                         <span aria-hidden="true">›</span>
                     </a>
                 </div>
@@ -43,7 +43,7 @@ export default function CategorySection() {
                 </div>
 
                 <a href="#" className="mt-6 flex items-center gap-1 text-sm font-bold uppercase tracking-tight text-[#FF9A9E] md:hidden">
-                    Lihat Semua Kategori
+                    View All Categories
                     <span aria-hidden="true">›</span>
                 </a>
             </div>

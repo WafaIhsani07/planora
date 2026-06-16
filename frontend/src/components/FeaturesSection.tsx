@@ -45,18 +45,18 @@ export default function FeaturesSection() {
     const features = [
         {
             icon: Zap,
-            title: "Kecepatan Integrasi",
-            desc: "Pesan vendor dalam hitungan menit tanpa chat manual.",
+            title: "Integration Speed",
+            desc: "Book vendors in minutes without manual chats.",
         },
         {
             icon: CheckCircle2,
-            title: "Keamanan Transaksi",
-            desc: "Pembayaran aman dalam sistem hingga layanan selesai.",
+            title: "Transaction Security",
+            desc: "Secure payments held in our system until service is completed.",
         },
         {
             icon: TrendingUp,
-            title: "Analitik Performa",
-            desc: "Pantau pertumbuhan bisnis melalui dashboard intuitif.",
+            title: "Performance Analytics",
+            desc: "Monitor business growth through an intuitive dashboard.",
         },
     ];
 
@@ -65,7 +65,7 @@ export default function FeaturesSection() {
             <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-2">
                 <div className="space-y-12">
                     <h2 className="text-[44px] font-black uppercase leading-tight tracking-tight text-[#2A2A2A]">
-                        Kenapa Memilih <br /> <span className="text-gray-300">Planora?</span>
+                        Why Choose <br /> <span className="text-gray-300">Planora?</span>
                     </h2>
 
                     <div className="space-y-10">
@@ -103,8 +103,8 @@ export default function FeaturesSection() {
 
                     <div className="flex aspect-square flex-col justify-center rounded-[3rem] bg-[#F6F6F6] p-10 shadow-sm">
                         <h5 className="mb-2 text-5xl font-black text-gray-900">{vendors}+</h5>
-                        <p className="text-center text-[10px] font-black uppercase tracking-widest text-gray-400">Mitra Vendor</p>
-                        <p className="mt-2 text-center text-[10px] font-black uppercase tracking-widest text-gray-400">{users.toLocaleString("id-ID")}+ Pengguna</p>
+                        <p className="text-center text-[10px] font-black uppercase tracking-widest text-gray-400">Vendor Partners</p>
+                        <p className="mt-2 text-center text-[10px] font-black uppercase tracking-widest text-gray-400">{users.toLocaleString("en-US")}+ Users</p>
                     </div>
                 </div>
             </div>

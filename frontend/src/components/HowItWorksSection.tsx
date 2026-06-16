@@ -6,18 +6,18 @@ import { CalendarCheck, Search, CheckCircle2 } from "lucide-react";
 const steps = [
     {
         icon: Search,
-        title: "Temukan Vendor Terbaik",
-        desc: "Jelajahi ribuan vendor profesional sesuai kebutuhan acara Anda.",
+        title: "Find the Best Vendors",
+        desc: "Explore thousands of professional vendors tailored to your event needs.",
     },
     {
         icon: CalendarCheck,
-        title: "Booking & Bayar DP",
-        desc: "Pilih paket yang sesuai, lakukan booking, dan bayar DP 50%.",
+        title: "Book & Pay Down Payment",
+        desc: "Choose the right package, book your date, and pay a 50% down payment.",
     },
     {
         icon: CheckCircle2,
-        title: "Acara Selesai",
-        desc: "Setelah acara selesai dan Anda konfirmasi, dana dicairkan ke vendor.",
+        title: "Event Completed",
+        desc: "Once the event is finished and you confirm, funds will be released to the vendor.",
     },
 ];
 
@@ -30,10 +30,10 @@ export default function HowItWorksSection() {
 
                     <div className="relative z-10 mb-12 text-center md:mb-16">
                         <h2 className="text-3xl font-extrabold leading-tight text-white md:text-5xl">
-                            Cara Mudah Merencanakan <br /> <span className="text-pink-gradient italic">Acara Impianmu</span>
+                            Easy Way to Plan <br /> Your <span className="text-pink-gradient italic">Dream Event</span>
                         </h2>
                         <p className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-gray-400 md:text-base">
-                            Planora hadir untuk membuat setiap langkah perencanaan acara menjadi lebih mudah, aman, dan terpercaya.
+                            Planora is here to make every event planning step easier, safer, and more reliable.
                         </p>
                     </div>
 

@@ -10,7 +10,6 @@ import {
   sendSuccess,
   sendValidationError,
 } from "../../utils/response.js"
-import { string } from "zod/v4"
 
 // ─── Get Profile ──────────────────────────────────────────────────────────────
 export const getProfile = async (

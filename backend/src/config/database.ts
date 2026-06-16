@@ -10,6 +10,9 @@ const pool = new pg.Pool({
   connectionTimeoutMillis: 10000,  // Timeout menunggu koneksi dari pool
   idleTimeoutMillis: 30000,        // Putus koneksi idle setelah 30 detik
   allowExitOnIdle: false,          // Jangan exit proses saat pool idle
+  ssl: env.DATABASE_URL.includes("supabase.com") || env.DATABASE_URL.includes("supabase.co")
+    ? { rejectUnauthorized: false }
+    : undefined,
 })
 
 // ─── Tangani error koneksi yang tiba-tiba putus (Supabase drops idle conn) ───

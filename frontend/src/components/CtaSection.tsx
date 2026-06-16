@@ -12,9 +12,9 @@ export default function CtaSection() {
                 <div className="relative z-10 mx-auto flex max-w-5xl flex-col items-center justify-between gap-8 text-left md:flex-row">
                     <div>
                         <h2 className="mb-4 text-3xl font-extrabold leading-tight tracking-tight text-white md:text-5xl">
-                            Siap Wujudkan Momen <br /> Spesial Bersama <span className="text-pink-gradient">Planora?</span>
+                            Ready to Realize Your <br /> Special Moments with <span className="text-pink-gradient">Planora?</span>
                         </h2>
-                        <p className="text-sm text-gray-400">Bergabung sekarang dan temukan vendor terbaik untuk acara tak terlupakan.</p>
+                        <p className="text-sm text-gray-400">Join now and find the best vendors for an unforgettable event.</p>
                     </div>
 
                     <Link href="/download" className="rounded-2xl bg-pink-gradient px-10 py-4 font-extrabold text-black transition transform hover:scale-105 hover:opacity-90">

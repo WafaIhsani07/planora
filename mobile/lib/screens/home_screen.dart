@@ -14,7 +14,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   List<dynamic> _vendors = [];
   bool _isLoading = true;
-  String _userName = 'Pengguna';
+  String _userName = 'User';
 
   @override
   void initState() {
@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!mounted) return;
     if (result['success'] == true && result['data'] != null) {
       setState(() {
-        _userName = result['data']['name'] ?? 'Pengguna';
+        _userName = result['data']['name'] ?? 'User';
       });
     }
   }
@@ -62,7 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Hai, $_userName ✨',
+                    'Hi, $_userName ✨',
                     style: tt.headlineMedium,
                   ),
                   // Tombol notifikasi
@@ -93,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     child: TextField(
                       decoration: const InputDecoration(
-                        hintText: 'Cari layanan impianmu...',
+                        hintText: 'Search for your dream service...',
                         prefixIcon: Icon(Icons.search_rounded),
                       ),
                     ),
@@ -121,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 32),
 
               // ── Penawaran Spesial Banner ───────────────────────────────────
-              Text('Penawaran Spesial', style: tt.titleLarge),
+              Text('Special Offers', style: tt.titleLarge),
               const SizedBox(height: 14),
               ClipRRect(
                 borderRadius: BorderRadius.circular(24),
@@ -163,7 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Diskon up to\n30%',
+                            'Discount Up To\n30%',
                             style: GoogleFonts.playfairDisplay(
                               fontSize: 22,
                               fontWeight: FontWeight.w700,
@@ -173,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            'Sewa Gedung VIP',
+                            'VIP Venue Rental',
                             style: tt.bodySmall?.copyWith(
                               color: PlanoraColors.background.withAlpha(200),
                             ),
@@ -190,12 +190,12 @@ class _HomeScreenState extends State<HomeScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Rekomendasi Vendor', style: tt.titleLarge),
+                  Text('Recommended Vendors', style: tt.titleLarge),
                   TextButton(
                     onPressed: () =>
                         Navigator.pushNamed(context, '/explore'),
                     child: Text(
-                      'Lihat Semua',
+                      'View All',
                       style: tt.labelMedium?.copyWith(
                         color: PlanoraColors.brandDark,
                         decoration: TextDecoration.underline,
@@ -220,7 +220,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 40),
                             child: Text(
-                              'Belum ada data vendor dari server.',
+                              'No vendor data available from the server.',
                               style: tt.bodyMedium?.copyWith(
                                 color: PlanoraColors.brandGray,
                                 fontStyle: FontStyle.italic,
@@ -237,8 +237,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             return _buildVendorCard(
                               id: vendor['id']?.toString() ?? '1',
                               name: vendor['businessName'] ?? 'Vendor Name',
-                              category: vendor['city'] ?? 'Kota',
-                              price: 'Lihat Detail',
+                              category: vendor['city'] ?? 'Location',
+                              price: 'View Details',
                               rating: vendor['rating']?.toString() ?? '0.0',
                               imageUrl: vendor['avatar'] ??
                                   'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?q=80&w=200&auto=format&fit=crop',
@@ -275,27 +275,27 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
             activeIcon: Icon(Icons.home_rounded),
-            label: 'Beranda',
+            label: 'Home',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.explore_outlined),
             activeIcon: Icon(Icons.explore_rounded),
-            label: 'Eksplor',
+            label: 'Explore',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.receipt_long_outlined),
             activeIcon: Icon(Icons.receipt_long_rounded),
-            label: 'Pesanan',
+            label: 'Orders',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.favorite_border_rounded),
             activeIcon: Icon(Icons.favorite_rounded),
-            label: 'Favorit',
+            label: 'Favorites',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline_rounded),
             activeIcon: Icon(Icons.person_rounded),
-            label: 'Profil',
+            label: 'Profile',
           ),
         ],
       ),

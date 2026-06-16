@@ -113,7 +113,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Profil Saya', style: tt.headlineMedium),
+                        Text('My Profile', style: tt.headlineMedium),
                         GestureDetector(
                           onTap: () => Navigator.pushNamed(context, '/pengaturan'),
                           child: Container(
@@ -142,7 +142,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
                             ? Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 20),
                                 child: Text(
-                                  'Belum ada data profil dari server.',
+                                  'No profile data available from the server.',
                                   style: tt.bodyMedium?.copyWith(
                                     color: PlanoraColors.brandGray,
                                     fontStyle: FontStyle.italic,
@@ -188,7 +188,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
-                                        _userProfile!['name'] ?? 'Nama Pengguna',
+                                        _userProfile!['name'] ?? 'Username',
                                         style: GoogleFonts.playfairDisplay(
                                           fontSize: 20,
                                           fontWeight: FontWeight.w700,
@@ -242,7 +242,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
                                       ),
                                       child: Text(
                                         _userProfile!['role'] == 'ADMIN'
-                                            ? '⭐ Admin Planora'
+                                            ? '⭐ Planora Admin'
                                             : _userProfile!['role'],
                                         style: tt.labelSmall?.copyWith(
                                           color: PlanoraColors.brandDark,
@@ -261,7 +261,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
                                       }
                                     },
                                     icon: const Icon(Icons.edit_outlined, size: 16),
-                                    label: const Text('Edit Profil'),
+                                    label: const Text('Edit Profile'),
                                     style: OutlinedButton.styleFrom(
                                       minimumSize: const Size(160, 40),
                                       padding: const EdgeInsets.symmetric(
@@ -280,7 +280,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Aktivitas', style: tt.titleMedium?.copyWith(color: PlanoraColors.brandGray)),
+                    Text('Activity', style: tt.titleMedium?.copyWith(color: PlanoraColors.brandGray)),
                     const SizedBox(height: 12),
                     _buildMenuItem(
                       icon: Icons.chat_bubble_outline_rounded,
@@ -289,17 +289,17 @@ class _ProfilScreenState extends State<ProfilScreen> {
                     ),
                     _buildMenuItem(
                       icon: Icons.calendar_today_outlined,
-                      title: 'Kalender Acara',
+                      title: 'Event Calendar',
                       onTap: () => Navigator.pushNamed(context, '/kalender'),
                     ),
                     _buildMenuItem(
                       icon: Icons.history_rounded,
-                      title: 'Riwayat Booking',
+                      title: 'Booking History',
                       onTap: () => Navigator.pushNamed(context, '/riwayat'),
                     ),
                     _buildMenuItem(
                       icon: Icons.payment_outlined,
-                      title: 'Daftar Pembayaran',
+                      title: 'Payment List',
                       onTap: () => Navigator.pushNamed(context, '/pembayaran'),
                     ),
                     const SizedBox(height: 16),
@@ -311,7 +311,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
                     // Tombol Keluar
                     _buildMenuItem(
                       icon: Icons.logout_rounded,
-                      title: 'Keluar',
+                      title: 'Sign Out',
                       isDestructive: true,
                       onTap: _logOut,
                     ),
@@ -333,11 +333,11 @@ class _ProfilScreenState extends State<ProfilScreen> {
           currentIndex: _currentIndex,
           onTap: _onBottomNavTapped,
           items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home_rounded), label: 'Beranda'),
-            BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), activeIcon: Icon(Icons.explore_rounded), label: 'Eksplor'),
-            BottomNavigationBarItem(icon: Icon(Icons.receipt_long_outlined), activeIcon: Icon(Icons.receipt_long_rounded), label: 'Pesanan'),
-            BottomNavigationBarItem(icon: Icon(Icons.favorite_border_rounded), activeIcon: Icon(Icons.favorite_rounded), label: 'Favorit'),
-            BottomNavigationBarItem(icon: Icon(Icons.person_outline_rounded), activeIcon: Icon(Icons.person_rounded), label: 'Profil'),
+            BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home_rounded), label: 'Home'),
+            BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), activeIcon: Icon(Icons.explore_rounded), label: 'Explore'),
+            BottomNavigationBarItem(icon: Icon(Icons.receipt_long_outlined), activeIcon: Icon(Icons.receipt_long_rounded), label: 'Orders'),
+            BottomNavigationBarItem(icon: Icon(Icons.favorite_border_rounded), activeIcon: Icon(Icons.favorite_rounded), label: 'Favorites'),
+            BottomNavigationBarItem(icon: Icon(Icons.person_outline_rounded), activeIcon: Icon(Icons.person_rounded), label: 'Profile'),
           ],
         ),
       ),

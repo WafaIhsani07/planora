@@ -46,14 +46,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
         password.isEmpty ||
         confirmPassword.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Semua kolom wajib diisi')),
+        const SnackBar(content: Text('All fields are required')),
       );
       return;
     }
 
     if (password != confirmPassword) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password dan konfirmasi tidak cocok')),
+        const SnackBar(content: Text('Password and confirmation do not match')),
       );
       return;
     }
@@ -61,7 +61,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!_agreeTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Anda harus menyetujui syarat dan ketentuan')),
+            content: Text('You must agree to the terms and conditions')),
       );
       return;
     }
@@ -75,12 +75,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (result['success'] == true) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registrasi berhasil! Silakan login.')),
+        const SnackBar(content: Text('Registration successful! Please sign in.')),
       );
       Navigator.pushReplacementNamed(context, '/login');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result['message'] ?? 'Registrasi gagal')),
+        SnackBar(content: Text(result['message'] ?? 'Registration failed')),
       );
     }
   }
@@ -187,7 +187,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(width: 16),
                       Text(
-                        'Buat Akun',
+                        'Create Account',
                         style: GoogleFonts.playfairDisplay(
                           fontSize: 24,
                           fontWeight: FontWeight.w700,
@@ -200,9 +200,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   // ── Nama Lengkap ────────────────────────────────────
                   _buildField(
-                    label: 'Nama Lengkap',
+                    label: 'Full Name',
                     controller: _namaController,
-                    hintText: 'Masukkan nama lengkap',
+                    hintText: 'Enter your full name',
                     textCapitalization: TextCapitalization.words,
                   ),
                   const SizedBox(height: 18),
@@ -216,12 +216,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 18),
 
-                  // ── Nomor Telepon ────────────────────────────────────
+                  // ── Phone Number ────────────────────────────────────
                   _buildField(
-                    label: 'Nomor Telepon',
+                    label: 'Phone Number',
                     controller: _phoneController,
                     keyboardType: TextInputType.phone,
-                    hintText: '08xxxxxxxxxx',
+                    hintText: 'e.g., 08xxxxxxxxxx',
                   ),
                   const SizedBox(height: 18),
 
@@ -247,7 +247,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   // ── Konfirmasi Password ─────────────────────────────
                   _buildField(
-                    label: 'Konfirmasi Password',
+                    label: 'Confirm Password',
                     controller: _confirmPasswordController,
                     obscureText: _isConfirmPasswordHidden,
                     hintText: '••••••••',
@@ -292,14 +292,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Expanded(
                         child: Text.rich(
                           TextSpan(
-                            text: 'Saya menyetujui ',
+                            text: 'I agree to the ',
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 12,
                               color: PlanoraColors.brandGray,
                             ),
                             children: [
                               TextSpan(
-                                text: 'Syarat & Ketentuan',
+                                text: 'Terms & Conditions',
                                 style: GoogleFonts.plusJakartaSans(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
@@ -308,14 +308,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 ),
                               ),
                               TextSpan(
-                                text: ' dan ',
+                                text: ' and ',
                                 style: GoogleFonts.plusJakartaSans(
                                   fontSize: 12,
                                   color: PlanoraColors.brandGray,
                                 ),
                               ),
                               TextSpan(
-                                text: 'Kebijakan Privasi',
+                                text: 'Privacy Policy',
                                 style: GoogleFonts.plusJakartaSans(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
@@ -358,7 +358,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                             )
                           : Text(
-                              'Buat Akun',
+                              'Create Account',
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -373,7 +373,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Sudah punya akun?  ',
+                        'Already have an account?  ',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 13,
                           color: PlanoraColors.brandGray,
@@ -383,7 +383,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         onTap: () =>
                             Navigator.pushReplacementNamed(context, '/login'),
                         child: Text(
-                          'Masuk',
+                          'Sign In',
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,

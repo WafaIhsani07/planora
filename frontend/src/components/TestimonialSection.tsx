@@ -6,22 +6,22 @@ import { Star } from "lucide-react";
 const testimonials = [
     {
         name: "Amanda & Dimas",
-        role: "Pelanggan",
-        text: "Planora membantu kami menemukan vendor dekorasi yang sesuai dengan konsep pernikahan impian. Prosesnya mudah dan aman!",
+        role: "Customer",
+        text: "Planora helped us find a decoration vendor that matched our dream wedding concept. The process was easy and secure!",
         avatar: "https://i.pravatar.cc/100?u=u1",
         dark: false,
     },
     {
         name: "Raka Pratama",
-        role: "Fotografer",
-        text: "Sistem escrow-nya sangat membantu, pembayarannya jelas dan pencairan dana cepat. Sangat rekomended untuk vendor.",
+        role: "Photographer",
+        text: "The escrow system is extremely helpful, the payment is clear, and disbursement is fast. Highly recommended for vendors.",
         avatar: "https://i.pravatar.cc/100?u=u2",
         dark: true,
     },
     {
         name: "Sarah Wijaya",
         role: "Event Planner",
-        text: "Vendor-vendornya profesional dan terverifikasi. Acara perusahaan kami berjalan lancar berkat bantuan platform ini.",
+        text: "The vendors are professional and verified. Our corporate event went smoothly thanks to this platform.",
         avatar: "https://i.pravatar.cc/100?u=u3",
         dark: false,
     },
@@ -31,7 +31,7 @@ export default function TestimonialSection() {
     return (
         <section data-reveal className="bg-white px-6 py-16 md:py-20 md:px-12">
             <div className="mx-auto max-w-7xl">
-                <h2 className="mb-12 text-3xl font-bold text-[#2A2A2A] md:text-4xl">Kata Mereka</h2>
+                <h2 className="mb-12 text-3xl font-bold text-[#2A2A2A] md:text-4xl">What They Say</h2>
 
                 <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
                     {testimonials.map((testimonial) => (

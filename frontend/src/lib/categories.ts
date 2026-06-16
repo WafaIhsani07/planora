@@ -1,15 +1,15 @@
 export const CATEGORIES = [
   { id: 'wedding-organizer', name: 'Wedding Organizer' },
   { id: 'venue', name: 'Venue' },
-  { id: 'katering', name: 'Katering' },
-  { id: 'fotografi', name: 'Fotografi' },
-  { id: 'videografi', name: 'Videografi' },
-  { id: 'dekorasi', name: 'Dekorasi & Florist' },
+  { id: 'katering', name: 'Catering' },
+  { id: 'fotografi', name: 'Photography' },
+  { id: 'videografi', name: 'Videography' },
+  { id: 'dekorasi', name: 'Decoration & Florist' },
   { id: 'mua', name: 'Make Up Artist (MUA)' },
-  { id: 'busana', name: 'Busana Pengantin' },
+  { id: 'busana', name: 'Bridal Wear' },
   { id: 'mc', name: 'MC' },
-  { id: 'hiburan', name: 'Hiburan Musik' },
-  { id: 'undangan', name: 'Undangan Digital' },
+  { id: 'hiburan', name: 'Music & Entertainment' },
+  { id: 'undangan', name: 'Digital Invitation' },
   { id: 'souvenir', name: 'Souvenir' },
 ];
 
