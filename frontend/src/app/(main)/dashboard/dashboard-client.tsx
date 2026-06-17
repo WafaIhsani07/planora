@@ -11,6 +11,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { getVendorBookings, getMyVendorProfile } from '@/services/vendor.service';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function DashboardClient() {
   const [vendorName, setVendorName] = useState('Vendor');
@@ -23,6 +24,11 @@ export default function DashboardClient() {
   });
   const [recentOrders, setRecentOrders] = useState<any[]>([]);
   const [upcomingEvent, setUpcomingEvent] = useState<any>(null);
+  const [chartPoints, setChartPoints] = useState<{x: number, y: number}[]>([
+    {x: 0, y: 38}, {x: 15, y: 35}, {x: 30, y: 28}, {x: 45, y: 30}, {x: 60, y: 18}, {x: 75, y: 10}, {x: 100, y: 5}
+    {x: 0, y: 38}, {x: 15, y: 35}, {x: 30, y: 28}, {x: 45, y: 30}, {x: 60, y: 18}, {x: 75, y: 10}, {x: 100, y: 5}
+  ]);
+  const { t } = useLanguage();
 
   useEffect(() => {
     async function loadDashboardData() {
@@ -69,6 +75,28 @@ export default function DashboardClient() {
           if (sortedUpcoming.length > 0) {
             setUpcomingEvent(sortedUpcoming[0]);
           }
+
+          // Calculate Dynamic Chart Points (Last 7 Days)
+          const last7Days = Array.from({length: 7}).map((_, i) => {
+            const d = new Date();
+            d.setDate(d.getDate() - (6 - i));
+            return d.toISOString().split('T')[0];
+          });
+          
+          const revenueByDay = last7Days.map(dayStr => {
+            const dailySum = validBookings
+              .filter((b: any) => b.status !== 'PENDING' && b.createdAt.startsWith(dayStr))
+              .reduce((sum: number, b: any) => sum + (Number(b.totalPrice) || 0), 0);
+            return dailySum;
+          });
+          
+          const maxRev = Math.max(...revenueByDay, 1000); // minimum scale
+          const points = revenueByDay.map((rev, i) => {
+            const x = i * (100 / 6); // 0, 16.66, 33.33... 100
+            const y = 38 - (rev / maxRev) * 33; // 5 to 38
+            return { x, y };
+          });
+          setChartPoints(points);
         }
       } catch (error) {
         console.error('Gagal memuat data dashboard:', error);
@@ -109,11 +137,11 @@ export default function DashboardClient() {
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'PENDING': return 'Menunggu';
-      case 'CONFIRMED': return 'Dikonfirmasi';
-      case 'IN_PROGRESS': return 'Berjalan';
-      case 'COMPLETED': return 'Selesai';
-      case 'CANCELLED': return 'Dibatalkan';
+      case 'PENDING': return t('dashboard.status.pending');
+      case 'CONFIRMED': return t('dashboard.status.confirmed');
+      case 'IN_PROGRESS': return t('dashboard.status.inProgress');
+      case 'COMPLETED': return t('dashboard.status.completed');
+      case 'CANCELLED': return t('dashboard.status.cancelled');
       default: return status;
     }
   };
@@ -136,40 +164,40 @@ export default function DashboardClient() {
 
   const summaryCards = [
     {
-      title: 'Total Pesanan',
+      title: t('dashboard.cards.totalOrders'),
       value: stats.totalOrders.toString(),
       trend: '',
-      link: 'Lihat semua',
+      link: t('dashboard.links.viewAll'),
       linkUrl: '/vendor/pesanan',
       icon: ShoppingBag,
       color: 'text-[#FF527B]',
       bg: 'bg-[#FCE6E3]',
     },
     {
-      title: 'Pesanan Aktif',
+      title: t('dashboard.cards.activeOrders'),
       value: stats.activeOrders.toString(),
       trend: '',
-      link: 'Lihat pesanan',
+      link: t('dashboard.links.viewOrders'),
       linkUrl: '/vendor/pesanan?status=aktif',
       icon: Clock,
       color: 'text-orange-500',
       bg: 'bg-orange-50',
     },
     {
-      title: 'Pesanan Selesai',
+      title: t('dashboard.cards.completedOrders'),
       value: stats.completedOrders.toString(),
       trend: '',
-      link: 'Lihat riwayat',
+      link: t('dashboard.links.viewHistory'),
       linkUrl: '/vendor/pesanan?status=selesai',
       icon: CheckCircle2,
       color: 'text-emerald-500',
       bg: 'bg-emerald-50',
     },
     {
-      title: 'Total Pendapatan',
+      title: t('dashboard.cards.totalRevenue'),
       value: formatCurrency(stats.totalRevenue),
       trend: '',
-      link: 'Laporan',
+      link: t('dashboard.links.report'),
       linkUrl: '/vendor/keuangan',
       icon: CreditCard,
       color: 'text-[#FF527B]',
@@ -181,7 +209,7 @@ export default function DashboardClient() {
     return (
       <div className="flex flex-col items-center justify-center py-40" data-testid="loading-spinner">
         <RefreshCw className="w-12 h-12 text-[#FF9A9E] animate-spin mb-4" />
-        <p className="text-xs font-bold uppercase tracking-widest text-[#2A2A2A]/40">Memuat dashboard...</p>
+        <p className="text-xs font-bold uppercase tracking-widest text-[#2A2A2A]/40">{t('dashboard.loading')}</p>
       </div>
     );
   }
@@ -191,10 +219,10 @@ export default function DashboardClient() {
       {/* Welcome Section */}
       <div className="flex flex-col mb-3">
         <h1 className="text-3xl md:text-[2rem] font-black tracking-[-0.04em] leading-[1.05] text-[#2A2A2A]">
-          Selamat datang, {vendorName}!
+          {t('dashboard.welcome')} {vendorName}!
         </h1>
         <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.18em] text-[#2A2A2A]/35">
-          Kelola bisnis dan pesanan Anda dengan mudah.
+          {t('dashboard.manageSubtitle')}
         </p>
       </div>
 
@@ -234,27 +262,27 @@ export default function DashboardClient() {
         {/* Recent Orders Section */}
         <div className="lg:col-span-7 bg-white rounded-xl border border-[#2A2A2A]/5 shadow-sm overflow-hidden flex flex-col">
           <div className="p-4 flex items-center justify-between border-b border-slate-50">
-            <h3 className="text-sm font-bold tracking-tight text-[#2A2A2A]">Pesanan Terbaru</h3>
+            <h3 className="text-sm font-bold tracking-tight text-[#2A2A2A]">{t('dashboard.recentOrders.title')}</h3>
             <Link href="/vendor/pesanan" className="text-[10px] font-bold uppercase tracking-wide no-underline transition-colors hover:!text-[#FF527B]" style={{color: '#FF9A9E'}}>
-              LIHAT SEMUA
+              {t('dashboard.links.viewAll')}
             </Link>
           </div>
           <div className="overflow-x-auto flex-1">
             {recentOrders.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full min-h-[200px] text-center p-6">
                 <ShoppingBag className="w-10 h-10 text-slate-200 mb-3" />
-                <p className="text-sm font-bold text-slate-400">Belum ada pesanan terbaru.</p>
+                <p className="text-sm font-bold text-slate-400">{t('dashboard.recentOrders.empty')}</p>
               </div>
             ) : (
               <table className="w-full text-left table-auto border-collapse min-w-[820px]">
                 <thead>
                   <tr className="bg-slate-50/40 text-[9px] lg:text-[10px] font-black text-[#2A2A2A]/30 uppercase tracking-[0.18em] border-b border-slate-50">
-                    <th className="px-5 py-4 text-left">Pesanan</th>
-                    <th className="px-5 py-4 text-left">Klien</th>
-                    <th className="px-5 py-4 text-left">Tanggal Acara</th>
-                    <th className="px-5 py-4 text-left">Paket</th>
-                    <th className="px-5 py-4 text-right min-w-[140px]">Total</th>
-                    <th className="px-5 py-4 text-center">Status</th>
+                    <th className="px-5 py-4 text-left">{t('dashboard.recentOrders.table.order')}</th>
+                    <th className="px-5 py-4 text-left">{t('dashboard.recentOrders.table.client')}</th>
+                    <th className="px-5 py-4 text-left">{t('dashboard.recentOrders.table.date')}</th>
+                    <th className="px-5 py-4 text-left">{t('dashboard.recentOrders.table.package')}</th>
+                    <th className="px-5 py-4 text-right min-w-[140px]">{t('dashboard.recentOrders.table.total')}</th>
+                    <th className="px-5 py-4 text-center">{t('dashboard.recentOrders.table.status')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -311,16 +339,16 @@ export default function DashboardClient() {
           <div className="bg-white p-6 rounded-xl border border-[#2A2A2A]/5 shadow-sm overflow-hidden">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xs font-bold uppercase tracking-[0.18em] text-[#2A2A2A]/35">
-                Total Pendapatan
+                {t('dashboard.revenueTitle')}
               </h3>
               <Link href="/vendor/keuangan" className="text-[9px] font-bold uppercase tracking-tight no-underline transition-colors hover:!text-[#FF527B]" style={{color: '#FF9A9E'}}>
-                Laporan
+                {t('dashboard.links.report')}
               </Link>
             </div>
             <div className="mb-8">
               <h4 className="text-3xl font-extrabold text-[#2A2A2A]">{formatCurrency(stats.totalRevenue)}</h4>
               <p className="text-[11px] font-semibold text-[#FF9A9E] mt-1">
-                Akumulasi seluruh transaksi berjalan
+                {t('dashboard.revenueDesc')}
               </p>
             </div>
             <div className="relative h-32 w-full bg-gradient-to-b from-[#FDF1F0] to-white rounded-xl p-4">
@@ -330,7 +358,7 @@ export default function DashboardClient() {
                 <line x1="0" y1="30" x2="100" y2="30" stroke="#F1D7D3" strokeWidth="0.5" />
                 
                 <path
-                  d="M0,38 L15,35 L30,28 L45,30 L60,18 L75,10 L100,5"
+                  d={`M${chartPoints.map(p => `${p.x},${p.y}`).join(' L')}`}
                   fill="none"
                   stroke="#FF527B"
                   strokeWidth="2.5"
@@ -339,15 +367,14 @@ export default function DashboardClient() {
                 />
                 
                 <path
-                  d="M0,38 L15,35 L30,28 L45,30 L60,18 L75,10 L100,5 L100,40 L0,40 Z"
+                  d={`M${chartPoints.map(p => `${p.x},${p.y}`).join(' L')} L100,40 L0,40 Z`}
                   fill="url(#chartGradient)"
                   opacity="0.12"
                 />
                 
-                <circle cx="15" cy="35" r="2" fill="#FF527B" />
-                <circle cx="45" cy="30" r="2" fill="#FF527B" />
-                <circle cx="75" cy="10" r="2" fill="#FF527B" />
-                <circle cx="100" cy="5" r="2" fill="#FF527B" />
+                {chartPoints.map((p, i) => (
+                  <circle key={i} cx={p.x} cy={p.y} r="1.5" fill="#FF527B" />
+                ))}
                 
                 <defs>
                   <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -363,10 +390,10 @@ export default function DashboardClient() {
           <div className="bg-white p-6 rounded-xl border border-[#2A2A2A]/5 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xs font-bold uppercase tracking-[0.18em] text-[#2A2A2A]/35">
-                Jadwal Terdekat
+                {t('dashboard.upcoming.title')}
               </h3>
               <Link href="/vendor/pesanan" className="text-[9px] font-bold uppercase tracking-tight no-underline transition-colors hover:!text-[#FF527B]" style={{color: '#FF9A9E'}}>
-                Pesanan
+                {t('dashboard.links.orders')}
               </Link>
             </div>
             
@@ -386,13 +413,13 @@ export default function DashboardClient() {
                     <Clock className="w-3 h-3" /> {formatDate(upcomingEvent.eventDate, 'time')}
                   </p>
                   <p className="text-[9px] font-semibold text-[#2A2A2A]/40 truncate pr-2">
-                    {upcomingEvent.eventAddress || 'Lokasi belum diatur'}
+                    {upcomingEvent.eventAddress || t('dashboard.upcoming.noLocation')}
                   </p>
                 </div>
               </div>
             ) : (
               <div className="text-center py-6 px-4 bg-slate-50/50 rounded-2xl border border-slate-100">
-                <p className="text-xs font-bold text-slate-400">Belum ada jadwal acara terdekat.</p>
+                <p className="text-xs font-bold text-slate-400">{t('dashboard.upcoming.empty')}</p>
               </div>
             )}
           </div>

@@ -3,8 +3,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { CheckCircle2, TrendingUp, Zap } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function FeaturesSection() {
+    const { t } = useLanguage();
     const ref = useRef<HTMLElement | null>(null);
     const [satisfaction, setSatisfaction] = useState(0);
     const [vendors, setVendors] = useState(0);
@@ -45,18 +47,18 @@ export default function FeaturesSection() {
     const features = [
         {
             icon: Zap,
-            title: "Integration Speed",
-            desc: "Book vendors in minutes without manual chats.",
+            title: t('features.feat1Title'),
+            desc: t('features.feat1Desc'),
         },
         {
             icon: CheckCircle2,
-            title: "Transaction Security",
-            desc: "Secure payments held in our system until service is completed.",
+            title: t('features.feat2Title'),
+            desc: t('features.feat2Desc'),
         },
         {
             icon: TrendingUp,
-            title: "Performance Analytics",
-            desc: "Monitor business growth through an intuitive dashboard.",
+            title: t('features.feat3Title'),
+            desc: t('features.feat3Desc'),
         },
     ];
 
@@ -65,7 +67,7 @@ export default function FeaturesSection() {
             <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-2">
                 <div className="space-y-12">
                     <h2 className="text-[44px] font-black uppercase leading-tight tracking-tight text-[#2A2A2A]">
-                        Why Choose <br /> <span className="text-gray-300">Planora?</span>
+                        {t('features.titleLine1')} <br /> <span className="text-gray-300">{t('features.titleAccent')}</span>
                     </h2>
 
                     <div className="space-y-10">
@@ -90,7 +92,7 @@ export default function FeaturesSection() {
                 <div className="grid grid-cols-2 gap-6">
                     <div className="flex aspect-square flex-col justify-center rounded-[3rem] bg-[#FFE5E6] p-10 shadow-sm">
                         <h5 className="mb-2 text-5xl font-black text-gray-900">{satisfaction}%</h5>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Success Rate</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">{t('features.statSuccess')}</p>
                     </div>
 
                     <div className="aspect-square overflow-hidden rounded-[3rem] shadow-xl relative">
@@ -103,8 +105,8 @@ export default function FeaturesSection() {
 
                     <div className="flex aspect-square flex-col justify-center rounded-[3rem] bg-[#F6F6F6] p-10 shadow-sm">
                         <h5 className="mb-2 text-5xl font-black text-gray-900">{vendors}+</h5>
-                        <p className="text-center text-[10px] font-black uppercase tracking-widest text-gray-400">Vendor Partners</p>
-                        <p className="mt-2 text-center text-[10px] font-black uppercase tracking-widest text-gray-400">{users.toLocaleString("en-US")}+ Users</p>
+                        <p className="text-center text-[10px] font-black uppercase tracking-widest text-gray-400">{t('features.statVendors')}</p>
+                        <p className="mt-2 text-center text-[10px] font-black uppercase tracking-widest text-gray-400">{users.toLocaleString("en-US")}+ {t('features.statUsers')}</p>
                     </div>
                 </div>
             </div>

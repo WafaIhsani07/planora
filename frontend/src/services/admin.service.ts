@@ -132,3 +132,24 @@ export async function verifyPayment(id: string, payload: { status: string, note?
   const { data } = await api.patch(`/payments/${id}/verify`, payload);
   return data.data;
 }
+
+export async function getAdminSettings() {
+  try {
+    const response = await api.get("/admin/settings");
+    return response.data.data;
+  } catch (error) {
+    console.error("API Error (getAdminSettings):", error);
+    return null;
+  }
+}
+
+export async function updateAdminSettings(payload: Record<string, any>) {
+  const { data } = await api.patch("/admin/settings", payload);
+  return data.data;
+}
+
+export async function updateAdminPassword(newPassword: string) {
+  const { data } = await api.patch("/admin/password", { newPassword });
+  return data.data;
+}
+

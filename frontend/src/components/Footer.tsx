@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { CATEGORIES } from "../lib/categories";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const InstagramIcon = ({ className }: { className?: string }) => (
   <svg
@@ -65,12 +66,14 @@ const YouTubeIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const footerLinks = {
-  platform: ["Explore Vendors", "How It Works", "For Vendors", "About Us"],
-  kategori: CATEGORIES.slice(0, 4).map((c) => c.name),
-};
-
 export default function Footer() {
+  const { t } = useLanguage();
+
+  const footerLinks = {
+    platform: [t('footer.linkExplore'), t('footer.linkHow'), t('footer.linkVendor'), t('footer.linkAbout')],
+    kategori: CATEGORIES.slice(0, 4).map((c) => c.name),
+  };
+
   return (
     <footer id="footer" className="border-t border-white/5 bg-[#0A0A0A] px-6 pb-12 pt-24 text-white md:px-12">
       <div className="mx-auto max-w-7xl">
@@ -81,7 +84,7 @@ export default function Footer() {
               <h2 className="font-logo text-4xl italic tracking-tighter">Planora</h2>
             </div>
             <p className="mb-10 max-w-xs text-sm leading-relaxed text-gray-400">
-              A premium event services marketplace connecting you with trusted vendors.
+              {t('footer.description')}
             </p>
             <div className="flex gap-4">
               <a href="#" className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 text-white transition hover:bg-white hover:text-black">
@@ -100,7 +103,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h6 className="mb-8 text-sm font-bold uppercase tracking-widest text-gray-200">Platform</h6>
+            <h6 className="mb-8 text-sm font-bold uppercase tracking-widest text-gray-200">{t('footer.platformTitle')}</h6>
             <ul className="space-y-4 text-sm font-medium text-gray-400">
               {footerLinks.platform.map((item) => (
                 <li key={item}>
@@ -113,7 +116,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h6 className="mb-8 text-sm font-bold uppercase tracking-widest text-gray-200">Categories</h6>
+            <h6 className="mb-8 text-sm font-bold uppercase tracking-widest text-gray-200">{t('footer.categoriesTitle')}</h6>
             <ul className="space-y-4 text-sm font-medium text-gray-400">
               {footerLinks.kategori.map((item) => (
                 <li key={item}>
@@ -126,7 +129,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h6 className="mb-8 text-sm font-bold uppercase tracking-widest text-gray-200">Contact</h6>
+            <h6 className="mb-8 text-sm font-bold uppercase tracking-widest text-gray-200">{t('footer.contactTitle')}</h6>
             <ul className="space-y-5 text-sm font-medium text-gray-400">
               <li className="flex items-center gap-3">
                 <Mail className="h-4 w-4 text-[#FF9A9E]" />
@@ -145,7 +148,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/5 pt-8 text-center">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">© 2024 Planora. All rights reserved.</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{t('footer.allRights')}</p>
         </div>
       </div>
     </footer>

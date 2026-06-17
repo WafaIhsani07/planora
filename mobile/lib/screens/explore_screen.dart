@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
+import '../utils/translations.dart';
 import '../main.dart' show PlanoraColors;
 
 class ExploreScreen extends StatefulWidget {
@@ -91,25 +92,25 @@ class _ExploreScreenState extends State<ExploreScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Explore Services', style: tt.headlineMedium),
+              Text(Translations.t('explore.title'), style: tt.headlineMedium),
               const SizedBox(height: 18),
 
               // Search Bar
               TextField(
                 onChanged: (val) => setState(() => _searchQuery = val),
-                decoration: const InputDecoration(
-                  hintText: 'Search venue, catering...',
-                  prefixIcon: Icon(Icons.search_rounded),
+                decoration: InputDecoration(
+                  hintText: Translations.t('explore.search'),
+                  prefixIcon: const Icon(Icons.search_rounded),
                 ),
               ),
               const SizedBox(height: 32),
 
-              Text('Service Categories', style: tt.titleLarge),
+              Text(Translations.t('explore.categories'), style: tt.titleLarge),
               const SizedBox(height: 16),
               _buildCategoryGrid(),
               const SizedBox(height: 32),
 
-              Text('You Might Like', style: tt.titleLarge),
+              Text(Translations.t('explore.youMightLike'), style: tt.titleLarge),
               const SizedBox(height: 14),
 
               _isLoading
@@ -118,7 +119,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       ? Center(
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 40),
-                            child: Text('No service recommendations available from the server.',
+                            child: Text(Translations.t('explore.noData'),
                                 style: tt.bodyMedium?.copyWith(color: PlanoraColors.brandGray, fontStyle: FontStyle.italic)),
                           ),
                         )
@@ -164,12 +165,12 @@ class _ExploreScreenState extends State<ExploreScreen> {
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
           onTap: _onBottomNavTapped,
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home_rounded), label: 'Home'),
-            BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), activeIcon: Icon(Icons.explore_rounded), label: 'Explore'),
-            BottomNavigationBarItem(icon: Icon(Icons.receipt_long_outlined), activeIcon: Icon(Icons.receipt_long_rounded), label: 'Orders'),
-            BottomNavigationBarItem(icon: Icon(Icons.favorite_border_rounded), activeIcon: Icon(Icons.favorite_rounded), label: 'Favorites'),
-            BottomNavigationBarItem(icon: Icon(Icons.person_outline_rounded), activeIcon: Icon(Icons.person_rounded), label: 'Profile'),
+          items: [
+            BottomNavigationBarItem(icon: const Icon(Icons.home_outlined), activeIcon: const Icon(Icons.home_rounded), label: Translations.t('nav.home')),
+            BottomNavigationBarItem(icon: const Icon(Icons.explore_outlined), activeIcon: const Icon(Icons.explore_rounded), label: Translations.t('nav.explore')),
+            BottomNavigationBarItem(icon: const Icon(Icons.receipt_long_outlined), activeIcon: const Icon(Icons.receipt_long_rounded), label: Translations.t('nav.orders')),
+            BottomNavigationBarItem(icon: const Icon(Icons.favorite_border_rounded), activeIcon: const Icon(Icons.favorite_rounded), label: Translations.t('nav.favorites')),
+            BottomNavigationBarItem(icon: const Icon(Icons.person_outline_rounded), activeIcon: const Icon(Icons.person_rounded), label: Translations.t('nav.profile')),
           ],
         ),
       ),
@@ -178,14 +179,14 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   Widget _buildCategoryGrid() {
     final categories = [
-      _Cat(Icons.domain_rounded, 'Venue'),
-      _Cat(Icons.restaurant_rounded, 'Catering'),
-      _Cat(Icons.face_retouching_natural, 'MUA'),
-      _Cat(Icons.camera_alt_rounded, 'Photo'),
-      _Cat(Icons.eco_rounded, 'Decoration'),
-      _Cat(Icons.music_note_rounded, 'Entertainment'),
-      _Cat(Icons.checkroom_rounded, 'Wear'),
-      _Cat(Icons.more_horiz_rounded, 'Others'),
+      _Cat(Icons.domain_rounded, 'venue', Translations.t('cat.venue')),
+      _Cat(Icons.restaurant_rounded, 'katering', Translations.t('cat.catering')),
+      _Cat(Icons.face_retouching_natural, 'mua', Translations.t('cat.mua')),
+      _Cat(Icons.camera_alt_rounded, 'foto', Translations.t('cat.photo')),
+      _Cat(Icons.eco_rounded, 'dekorasi', Translations.t('cat.decoration')),
+      _Cat(Icons.music_note_rounded, 'entertainment', Translations.t('cat.entertainment')),
+      _Cat(Icons.checkroom_rounded, 'wear', Translations.t('cat.wear')),
+      _Cat(Icons.more_horiz_rounded, 'others', Translations.t('cat.others')),
     ];
 
     return GridView.count(
@@ -195,10 +196,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
       mainAxisSpacing: 12,
       crossAxisSpacing: 8,
       children: categories.map((cat) {
-        final isSelected = _selectedCategory == cat.label;
+        final isSelected = _selectedCategory == cat.filterKey;
         final tt = Theme.of(context).textTheme;
         return GestureDetector(
-          onTap: () => setState(() => _selectedCategory = isSelected ? '' : cat.label),
+          onTap: () => setState(() => _selectedCategory = isSelected ? '' : cat.filterKey),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -268,7 +269,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(color: PlanoraColors.brandAccent, borderRadius: BorderRadius.circular(20)),
-                        child: Text('View Details', style: tt.labelSmall?.copyWith(color: PlanoraColors.brandDark, fontWeight: FontWeight.w600)),
+                        child: Text(Translations.t('home.viewDetails'), style: tt.labelSmall?.copyWith(color: PlanoraColors.brandDark, fontWeight: FontWeight.w600)),
                       ),
                       Row(children: [
                         const Icon(Icons.star_rounded, color: Color(0xFFFFB300), size: 15),
@@ -289,6 +290,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
 class _Cat {
   final IconData icon;
+  final String filterKey;
   final String label;
-  const _Cat(this.icon, this.label);
+  const _Cat(this.icon, this.filterKey, this.label);
 }

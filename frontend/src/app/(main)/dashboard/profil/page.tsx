@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import { useLanguage } from '@/context/LanguageContext';
 
 const ExternalLinkIcon = ({ className }: { className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" x2="21" y1="14" y2="3" /></svg>
@@ -22,6 +23,7 @@ function revokePreviewUrl(previewUrl: string | null) {
 }
 
 export default function ProfilVendorPage() {
+  const { t } = useLanguage();
   const bannerInputRef = useRef<HTMLInputElement | null>(null);
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
   const portfolioInputRef = useRef<HTMLInputElement | null>(null);
@@ -109,21 +111,19 @@ export default function ProfilVendorPage() {
       <div className="flex flex-col items-start justify-between gap-4 lg:flex-row lg:items-end">
         <div>
           <span className="mb-2 block text-[10px] font-bold tracking-[0.2em] text-[#FF7F97] uppercase">
-            IDENTITAS BISNIS & BRAND
+            {t('dashboard.profil.subtitle')}
           </span>
-          <h1 className="text-4xl font-black italic tracking-tighter text-[#2A2A2A] leading-[1.05] md:text-[2.75rem]">
-            PROFIL <br /> STUDIO VENDOR.
-          </h1>
+          <h1 className="text-4xl font-black italic tracking-tighter text-[#2A2A2A] leading-[1.05] md:text-[2.75rem]" dangerouslySetInnerHTML={{ __html: t('dashboard.profil.title') }} />
         </div>
 
         <div className="flex items-center gap-3">
           <button className="flex h-11 items-center gap-2 rounded-full border border-gray-200 bg-white px-5 text-[10px] font-bold tracking-widest text-[#2A2A2A] uppercase shadow-sm transition-colors hover:bg-gray-50 cursor-pointer">
             <ExternalLinkIcon className="h-4 w-4" />
-            LIHAT PUBLIK
+            {t('dashboard.profil.btnViewPublic')}
           </button>
           <button className="flex h-11 items-center gap-2 rounded-full bg-[#2A2A2A] px-5 text-[10px] font-bold tracking-widest text-white uppercase shadow-lg shadow-[#2A2A2A]/20 transition-colors hover:bg-[#1a1a1a] cursor-pointer">
             <SaveIcon className="h-4 w-4" />
-            SIMPAN PROFIL
+            {t('dashboard.profil.btnSave')}
           </button>
         </div>
       </div>
@@ -141,7 +141,7 @@ export default function ProfilVendorPage() {
                   <img src={bannerPreview} alt="Preview banner studio" className="h-full w-full object-cover" />
                 ) : (
                   <span className="text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">
-                    UPLOAD BANNER STUDIO (1200X400)
+                    {t('dashboard.profil.bannerUpload')}
                   </span>
                 )}
               </button>
@@ -182,35 +182,35 @@ export default function ProfilVendorPage() {
             <div className="flex flex-col gap-5">
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 <div className="flex flex-col gap-2">
-                  <label className="text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">NAMA STUDIO / BRAND</label>
+                  <label className="text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">{t('dashboard.profil.fields.studioName')}</label>
                   <input
                     type="text"
                     defaultValue="Wafa Studio Photography"
-                    title="Nama studio atau brand"
-                    placeholder="Nama studio atau brand"
+                    title={t('dashboard.profil.fields.studioName')}
+                    placeholder={t('dashboard.profil.fields.studioName')}
                     className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-[13px] font-medium text-[#2A2A2A] outline-none transition-colors focus:border-[#2A2A2A]"
                   />
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <label className="text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">NAMA PEMILIK</label>
+                  <label className="text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">{t('dashboard.profil.fields.ownerName')}</label>
                   <input
                     type="text"
                     defaultValue="Wahidah Wafa Ihsani"
-                    title="Nama pemilik studio"
-                    placeholder="Nama pemilik studio"
+                    title={t('dashboard.profil.fields.ownerName')}
+                    placeholder={t('dashboard.profil.fields.ownerName')}
                     className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-[13px] font-medium text-[#2A2A2A] outline-none transition-colors focus:border-[#2A2A2A]"
                   />
                 </div>
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">BIO / DESKRIPSI STUDIO</label>
+                <label className="text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">{t('dashboard.profil.fields.bio')}</label>
                 <textarea
                   rows={3}
                   defaultValue="Spesialisasi dalam dokumentasi pernikahan bergaya cinematic dan minimalis. Berbasis di Kota Padang dengan jangkauan layanan seluruh Sumatera Barat."
-                  title="Bio atau deskripsi studio"
-                  placeholder="Bio atau deskripsi studio"
+                  title={t('dashboard.profil.fields.bio')}
+                  placeholder={t('dashboard.profil.fields.bio')}
                   className="w-full resize-none rounded-xl border border-gray-200 bg-white px-4 py-3 text-[13px] font-medium text-[#2A2A2A] outline-none transition-colors focus:border-[#2A2A2A]"
                 />
               </div>
@@ -219,12 +219,12 @@ export default function ProfilVendorPage() {
 
           <div className="rounded-[2rem] border border-gray-100 bg-white p-6 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] lg:p-8">
             <h3 className="mb-6 text-lg font-black italic tracking-tighter text-[#2A2A2A] uppercase">
-              MEDIA SOSIAL & LINK
+              {t('dashboard.profil.fields.socialMedia')}
             </h3>
 
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
               <div className="flex flex-col gap-2">
-                <label className="text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">INSTAGRAM</label>
+                <label className="text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">{t('dashboard.profil.fields.instagram')}</label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[13px] font-medium text-gray-400">@</span>
                   <input
@@ -238,7 +238,7 @@ export default function ProfilVendorPage() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">WHATSAPP BUSINESS</label>
+                <label className="text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">{t('dashboard.profil.fields.whatsapp')}</label>
                 <input
                   type="text"
                   defaultValue="081234567890"
@@ -249,7 +249,7 @@ export default function ProfilVendorPage() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">SITUS WEB / LINKTREE</label>
+                <label className="text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">{t('dashboard.profil.fields.website')}</label>
                 <input
                   type="url"
                   placeholder="https://..."
@@ -259,7 +259,7 @@ export default function ProfilVendorPage() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">EMAIL BISNIS</label>
+                <label className="text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">{t('dashboard.profil.fields.email')}</label>
                 <input
                   type="email"
                   defaultValue="hello@wafastudio.com"
@@ -275,12 +275,12 @@ export default function ProfilVendorPage() {
         <div className="lg:col-span-1 flex flex-col gap-6 lg:gap-8">
           <div className="rounded-[2rem] border border-gray-100 bg-white p-6 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] lg:p-8">
             <h3 className="mb-5 text-lg font-black italic tracking-tighter text-[#2A2A2A] uppercase">
-              LOKASI BISNIS
+              {t('dashboard.profil.fields.location')}
             </h3>
 
             <div className="mb-3 rounded-2xl border border-gray-100 bg-[#FAFAFC] p-4">
               <span className="mb-1 block text-[8px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">
-                KOTA/KABUPATEN UTAMA
+                {t('dashboard.profil.fields.city')}
               </span>
               <span className="text-[13px] font-extrabold text-[#2A2A2A] uppercase">
                 KOTA PADANG
@@ -288,17 +288,17 @@ export default function ProfilVendorPage() {
             </div>
 
             <p className="text-[8px] font-bold leading-relaxed tracking-wider text-[#A8A8A8] uppercase">
-              *LOKASI INI AKAN MEMBANTU SISTEM MEREKOMENDASIKAN JASA ANDA KE PELANGGAN TERDEKAT.
+              {t('dashboard.profil.fields.locationHint')}
             </p>
           </div>
 
           <div className="rounded-[2rem] border border-gray-100 bg-white p-6 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] lg:p-8">
             <div className="mb-5 flex items-center justify-between">
               <h3 className="text-lg font-black italic tracking-tighter text-[#2A2A2A] uppercase">
-                PORTOFOLIO
+                {t('dashboard.profil.fields.portfolio')}
               </h3>
               <a href="#" className="text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] underline decoration-[#A8A8A8] underline-offset-4 transition-colors hover:text-[#2A2A2A] hover:decoration-[#2A2A2A] uppercase">
-                KELOLA GALERI
+                {t('dashboard.profil.fields.manageGallery')}
               </a>
             </div>
 
@@ -324,7 +324,7 @@ export default function ProfilVendorPage() {
                 className="aspect-square rounded-2xl border-2 border-dashed border-[#FCE6E3] bg-[#FDF1F0] flex flex-col items-center justify-center cursor-pointer text-[#EF4444] transition-colors hover:bg-[#FCE6E3]"
               >
                 <PlusIcon className="mb-1 h-5 w-5" />
-                <span className="text-[8px] font-bold tracking-widest uppercase">TAMBAH</span>
+                <span className="text-[8px] font-bold tracking-widest uppercase">{t('dashboard.profil.fields.add')}</span>
               </button>
 
               <input

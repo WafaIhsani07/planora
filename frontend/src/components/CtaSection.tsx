@@ -2,8 +2,11 @@
 
 import React from "react";
 import Link from "next/link";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function CtaSection() {
+    const { t } = useLanguage();
+
     return (
         <section data-reveal className="bg-white px-6 py-16 md:py-20 md:px-12">
             <div className="relative mx-auto max-w-7xl overflow-hidden rounded-[3rem] bg-black px-6 py-12 text-center md:px-12 md:py-16">
@@ -12,13 +15,13 @@ export default function CtaSection() {
                 <div className="relative z-10 mx-auto flex max-w-5xl flex-col items-center justify-between gap-8 text-left md:flex-row">
                     <div>
                         <h2 className="mb-4 text-3xl font-extrabold leading-tight tracking-tight text-white md:text-5xl">
-                            Ready to Realize Your <br /> Special Moments with <span className="text-pink-gradient">Planora?</span>
+                            {t('cta.titleLine1')} <br /> {t('cta.titleLine2')} <span className="text-pink-gradient">{t('cta.titleAccent')}</span>
                         </h2>
-                        <p className="text-sm text-gray-400">Join now and find the best vendors for an unforgettable event.</p>
+                        <p className="text-sm text-gray-400">{t('cta.subtitle')}</p>
                     </div>
 
                     <Link href="/download" className="rounded-2xl bg-pink-gradient px-10 py-4 font-extrabold text-black transition transform hover:scale-105 hover:opacity-90">
-                        Download App
+                        {t('nav.downloadApp')}
                     </Link>
                 </div>
             </div>

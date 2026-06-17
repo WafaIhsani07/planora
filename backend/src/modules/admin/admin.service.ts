@@ -284,3 +284,38 @@ export const getAllPayments = async (query: AdminGetAllPaymentsQuery) => {
     },
   }
 }
+
+// ─── System Settings (Admin) ──────────────────────────────────────────────────
+export const getSettings = async () => {
+  const settings = await db.systemSetting.findMany()
+  const result: Record<string, any> = {}
+  settings.forEach((s: any) => {
+    result[s.key] = s.value
+  })
+  return result
+}
+
+export const updateSettings = async (settings: Record<string, any>) => {
+  const results = []
+  for (const [key, value] of Object.entries(settings)) {
+    const updated = await db.systemSetting.upsert({
+      where: { key },
+      update: { value: value as any },
+      create: { key, value: value as any },
+    })
+    results.push(updated)
+  }
+  return results
+}
+
+// ─── Update Admin Password ────────────────────────────────────────────────────
+import bcrypt from "bcryptjs"
+export const updateAdminPassword = async (userId: string, newPassword: string) => {
+  const hashedPassword = await bcrypt.hash(newPassword, 10)
+  const user = await db.user.update({
+    where: { id: userId, role: "ADMIN" },
+    data: { password: hashedPassword }
+  })
+  return { id: user.id, email: user.email }
+}
+

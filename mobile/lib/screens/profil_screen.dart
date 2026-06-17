@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
+import '../services/language_service.dart';
+import '../utils/translations.dart';
 import '../main.dart' show PlanoraColors;
 
 class ProfilScreen extends StatefulWidget {
@@ -22,50 +24,19 @@ class _ProfilScreenState extends State<ProfilScreen> {
     _fetchProfile();
   }
 
-  // Mengambil data profil — backend dulu, fallback ke bypass data
+  // Mengambil data profil dari backend
   Future<void> _fetchProfile() async {
-    // Coba ambil dari backend
     try {
-      final token = await ApiService.getToken();
-      // Jika token adalah bypass token, langsung pakai data bypass
-      if (token == 'bypass_admin_token_planora_2024') {
-        await _loadBypassProfile();
-        return;
-      }
       final result = await ApiService.getProfile();
       if (mounted) {
         if (result['success'] == true) {
           setState(() => _userProfile = result['data']);
-        } else {
-          // Backend gagal — coba bypass data
-          await _loadBypassProfile();
         }
       }
     } catch (e) {
-      // Network error — coba bypass data
-      if (mounted) await _loadBypassProfile();
+      // Handle error implicitly
     } finally {
       if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  // Load data profil dari SharedPreferences (bypass/demo mode)
-  Future<void> _loadBypassProfile() async {
-    final prefs = await SharedPreferences.getInstance();
-    final name  = prefs.getString('bypass_name');
-    final email = prefs.getString('bypass_email');
-    final phone = prefs.getString('bypass_phone');
-
-    if (name != null && mounted) {
-      setState(() {
-        _userProfile = {
-          'name' : name,
-          'email': email ?? 'adminplanora@gmail.com',
-          'phone': phone ?? '0895619465026',
-          'role' : 'ADMIN',
-          'avatar': null,
-        };
-      });
     }
   }
 
@@ -113,23 +84,49 @@ class _ProfilScreenState extends State<ProfilScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('My Profile', style: tt.headlineMedium),
-                        GestureDetector(
-                          onTap: () => Navigator.pushNamed(context, '/pengaturan'),
-                          child: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: PlanoraColors.surface,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: PlanoraColors.divider),
+                        Text(Translations.t('nav.profile'), style: tt.headlineMedium),
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                final newLang = Translations.currentLang == 'en' ? 'id' : 'en';
+                                LanguageService.setLanguage(newLang);
+                              },
+                              child: Container(
+                                width: 40,
+                                height: 40,
+                                margin: const EdgeInsets.only(right: 12),
+                                decoration: BoxDecoration(
+                                  color: PlanoraColors.surface,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: PlanoraColors.divider),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    Translations.currentLang.toUpperCase(),
+                                    style: tt.labelMedium?.copyWith(color: PlanoraColors.brandDark, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
                             ),
-                            child: const Icon(
-                              Icons.settings_outlined,
-                              color: PlanoraColors.brandGray,
-                              size: 20,
+                            GestureDetector(
+                              onTap: () => Navigator.pushNamed(context, '/pengaturan'),
+                              child: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: PlanoraColors.surface,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: PlanoraColors.divider),
+                                ),
+                                child: const Icon(
+                                  Icons.settings_outlined,
+                                  color: PlanoraColors.brandGray,
+                                  size: 20,
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
                       ],
                     ),
@@ -332,12 +329,12 @@ class _ProfilScreenState extends State<ProfilScreen> {
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
           onTap: _onBottomNavTapped,
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home_rounded), label: 'Home'),
-            BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), activeIcon: Icon(Icons.explore_rounded), label: 'Explore'),
-            BottomNavigationBarItem(icon: Icon(Icons.receipt_long_outlined), activeIcon: Icon(Icons.receipt_long_rounded), label: 'Orders'),
-            BottomNavigationBarItem(icon: Icon(Icons.favorite_border_rounded), activeIcon: Icon(Icons.favorite_rounded), label: 'Favorites'),
-            BottomNavigationBarItem(icon: Icon(Icons.person_outline_rounded), activeIcon: Icon(Icons.person_rounded), label: 'Profile'),
+          items: [
+            BottomNavigationBarItem(icon: const Icon(Icons.home_outlined), activeIcon: const Icon(Icons.home_rounded), label: Translations.t('nav.home')),
+            BottomNavigationBarItem(icon: const Icon(Icons.explore_outlined), activeIcon: const Icon(Icons.explore_rounded), label: Translations.t('nav.explore')),
+            BottomNavigationBarItem(icon: const Icon(Icons.receipt_long_outlined), activeIcon: const Icon(Icons.receipt_long_rounded), label: Translations.t('nav.orders')),
+            BottomNavigationBarItem(icon: const Icon(Icons.favorite_border_rounded), activeIcon: const Icon(Icons.favorite_rounded), label: Translations.t('nav.favorites')),
+            BottomNavigationBarItem(icon: const Icon(Icons.person_outline_rounded), activeIcon: const Icon(Icons.person_rounded), label: Translations.t('nav.profile')),
           ],
         ),
       ),

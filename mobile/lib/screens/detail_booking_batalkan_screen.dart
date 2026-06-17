@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'package:intl/intl.dart';
 import '../main.dart' show PlanoraColors;
+import '../utils/formatters.dart';
 
 class DetailBookingBatalkanScreen extends StatefulWidget {
   const DetailBookingBatalkanScreen({super.key});
@@ -92,8 +93,8 @@ class _DetailBookingBatalkanScreenState
 
     setState(() => _isLoading = true);
 
-    final result = await ApiService.postRequest(
-      '/bookings/$_bookingId/cancel',
+    final result = await ApiService.patchRequest(
+      '/bookings/$_bookingId/status',
       {'status': 'CANCELLED'},
     );
 
@@ -164,8 +165,7 @@ class _DetailBookingBatalkanScreenState
   String _formatCurrency(dynamic value) {
     if (value == null) return 'Rp 0';
     try {
-      final double amount =
-          value is String ? double.parse(value) : value.toDouble();
+      final double amount = Formatters.parsePrice(value);
       return NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0)
           .format(amount);
     } catch (_) {

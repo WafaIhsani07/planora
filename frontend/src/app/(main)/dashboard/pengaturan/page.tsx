@@ -22,6 +22,8 @@ import {
   Bell,
   X,
 } from 'lucide-react';
+import { getUserProfile, updateUserProfile, changePassword } from '@/services/user.service';
+import { useLanguage } from '@/context/LanguageContext';
 
 type ProfileForm = {
   businessName: string;
@@ -32,6 +34,9 @@ type ProfileForm = {
   instagram: string;
   website: string;
   address: string;
+  ktpUrl?: string;
+  bankBookUrl?: string;
+  businessLicenseUrl?: string;
 };
 
 type BankForm = {
@@ -50,6 +55,9 @@ const initialForm: ProfileForm = {
   instagram: '@wafadecoration',
   website: '',
   address: 'Jl. Melati No. 45, Kebayoran Baru, Jakarta Selatan, 12150',
+  ktpUrl: '',
+  bankBookUrl: '',
+  businessLicenseUrl: '',
 };
 
 const initialBankForm: BankForm = {
@@ -58,17 +66,18 @@ const initialBankForm: BankForm = {
   accountHolder: 'Wafa Decoration',
 };
 
-const navItems = [
-  { id: 'profil', label: 'Profil Bisnis', icon: User },
-  { id: 'keamanan', label: 'Keamanan', icon: Lock },
-  { id: 'rekening', label: 'Rekening Bank', icon: Landmark },
-  { id: 'notifikasi', label: 'Notifikasi', icon: Bell },
-];
-
 export default function PengaturanVendorPage() {
+  const { t } = useLanguage();
+  const navItems = [
+    { id: 'profil', label: t('dashboard.pengaturan.nav.profil'), icon: User },
+    { id: 'keamanan', label: t('dashboard.pengaturan.nav.keamanan'), icon: Lock },
+    { id: 'rekening', label: t('dashboard.pengaturan.nav.rekening'), icon: Landmark },
+    { id: 'notifikasi', label: t('dashboard.pengaturan.nav.notifikasi'), icon: Bell },
+  ];
   const [form, setForm] = useState<ProfileForm>(initialForm);
   const [notice, setNotice] = useState<{ type: 'success' | 'info'; message: string } | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [showRemoveAvatarConfirm, setShowRemoveAvatarConfirm] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
@@ -110,13 +119,56 @@ export default function PengaturanVendorPage() {
     return () => container.removeEventListener('scroll', onScroll);
   }, []);
 
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [vendorRes, userRes] = await Promise.all([
+          getMyVendorProfile(),
+          getUserProfile(),
+        ]);
+        
+        if (vendorRes) {
+          setForm(prev => ({
+            ...prev,
+            businessName: vendorRes.businessName || '',
+            description: vendorRes.description || '',
+            address: vendorRes.address || '',
+            ktpUrl: vendorRes.ktpUrl || '',
+            bankBookUrl: vendorRes.bankBookUrl || '',
+            businessLicenseUrl: vendorRes.businessLicenseUrl || '',
+          }));
+          if (vendorRes.bankName || vendorRes.bankAccount) {
+            const bForm = {
+              bankName: vendorRes.bankName || 'Bank BCA',
+              accountNumber: vendorRes.bankAccount || '',
+              accountHolder: vendorRes.bankHolder || '',
+            };
+            setBankForm(bForm);
+            setBankDraft(bForm);
+          }
+        }
+        
+        if (userRes) {
+          setForm(prev => ({
+            ...prev,
+            email: userRes.email || prev.email,
+            whatsapp: userRes.phone || prev.whatsapp,
+          }));
+        }
+      } catch (err) {
+        console.error("Gagal memuat profil:", err);
+      }
+    }
+    loadData();
+  }, []);
+
   const handleChange = (key: keyof ProfileForm, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
   useEffect(() => {
     return () => {
-      if (avatarUrl) URL.revokeObjectURL(avatarUrl);
+      if (avatarUrl && avatarUrl.startsWith('blob:')) URL.revokeObjectURL(avatarUrl);
     };
   }, [avatarUrl]);
 
@@ -124,18 +176,20 @@ export default function PengaturanVendorPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     const url = URL.createObjectURL(file);
-    if (avatarUrl) URL.revokeObjectURL(avatarUrl);
+    if (avatarUrl && avatarUrl.startsWith('blob:')) URL.revokeObjectURL(avatarUrl);
     setAvatarUrl(url);
-    pushNotice('success', 'Foto profil berhasil dipilih (preview). Klik Simpan Perubahan untuk menyimpan');
+    setAvatarFile(file);
+    pushNotice('success', t('dashboard.pengaturan.messages.avatarSelected'));
   };
 
   const triggerFileSelect = () => fileInputRef.current?.click();
 
   const handleRemoveAvatar = () => {
     setShowRemoveAvatarConfirm(false);
-    if (avatarUrl) URL.revokeObjectURL(avatarUrl);
+    if (avatarUrl && avatarUrl.startsWith('blob:')) URL.revokeObjectURL(avatarUrl);
     setAvatarUrl(null);
-    pushNotice('info', 'Foto profil dihapus. Klik Simpan Perubahan untuk menyimpan perubahan.');
+    setAvatarFile(null);
+    pushNotice('info', t('dashboard.pengaturan.messages.avatarRemoved'));
   };
 
   const pushNotice = (type: 'success' | 'info', message: string) => {
@@ -149,40 +203,67 @@ export default function PengaturanVendorPage() {
     }, 2500);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (isSavingProfile) return;
 
     setIsSavingProfile(true);
-    window.setTimeout(() => {
+    try {
+      let finalAvatarUrl = avatarUrl;
+      if (avatarFile) {
+        const uploadedUrl = await uploadImage(avatarFile);
+        if (uploadedUrl) finalAvatarUrl = uploadedUrl;
+      }
+
+      await updateVendorProfile({
+        businessName: form.businessName,
+        description: form.description,
+        address: form.address,
+        ktpUrl: form.ktpUrl,
+        bankBookUrl: form.bankBookUrl,
+        businessLicenseUrl: form.businessLicenseUrl,
+      });
+      await updateUserProfile({ 
+        phone: form.whatsapp,
+        ...(avatarFile || finalAvatarUrl === null ? { avatar: finalAvatarUrl || '' } : {})
+      });
+      
+      setAvatarFile(null);
+      pushNotice('success', t('dashboard.pengaturan.messages.profileSaved'));
+    } catch (error) {
+      pushNotice('info', t('dashboard.pengaturan.messages.profileSaveFailed'));
+    } finally {
       setIsSavingProfile(false);
-      pushNotice('success', 'Profil bisnis berhasil disimpan.');
-    }, 900);
+    }
   };
 
   const handlePasswordUpdate = () => {
     setPasswordError('');
 
     if (!currentPassword) {
-      setPasswordError('Isi kata sandi saat ini terlebih dahulu.');
+      setPasswordError(t('dashboard.pengaturan.messages.pwdCurrentRequired'));
       return;
     }
 
     if (newPassword.length < 8) {
-      setPasswordError('Kata sandi baru minimal 8 karakter.');
+      setPasswordError(t('dashboard.pengaturan.messages.pwdMinLength'));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setPasswordError('Konfirmasi kata sandi tidak cocok.');
+      setPasswordError(t('dashboard.pengaturan.messages.pwdMismatch'));
       return;
     }
 
-    // TODO: call backend API to update password
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
-    setShowPasswordModal(false);
-    pushNotice('success', 'Kata sandi berhasil diperbarui.');
+    try {
+      await changePassword({ currentPassword, newPassword, confirmPassword });
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setShowPasswordModal(false);
+      pushNotice('success', t('dashboard.pengaturan.messages.pwdSuccess'));
+    } catch (error: any) {
+      setPasswordError(error?.response?.data?.message || t('dashboard.pengaturan.messages.pwdFailed'));
+    }
   };
 
   const handleLogout = async () => {
@@ -198,14 +279,14 @@ export default function PengaturanVendorPage() {
   };
 
   const handleRequestDelete = () => {
-    if (deleteConfirmText !== 'HAPUS') {
-      setDeleteError('Ketik HAPUS untuk melanjutkan.');
+    if (deleteConfirmText !== 'DELETE' && deleteConfirmText !== 'HAPUS') {
+      setDeleteError(t('dashboard.pengaturan.messages.deleteTypeConfirm'));
       return;
     }
 
     setShowDeleteModal(false);
     setDeleteConfirmText('');
-    pushNotice('info', 'Permintaan penghapusan akun vendor telah dikirim.');
+    pushNotice('info', t('dashboard.pengaturan.messages.deleteRequested'));
   };
 
   const handleEditBank = () => {
@@ -224,12 +305,21 @@ export default function PengaturanVendorPage() {
     }
   };
 
-  const handleSaveBank = () => {
+  const handleSaveBank = async () => {
     if (!bankEditMode) return;
 
-    setBankForm(bankDraft);
-    setBankEditMode(false);
-    pushNotice('success', 'Perubahan rekening disimpan.');
+    try {
+      await updateVendorProfile({
+        bankName: bankDraft.bankName,
+        bankAccount: bankDraft.accountNumber,
+        bankHolder: bankDraft.accountHolder,
+      });
+      setBankForm(bankDraft);
+      setBankEditMode(false);
+      pushNotice('success', t('dashboard.pengaturan.messages.bankSaved'));
+    } catch (error) {
+      pushNotice('info', t('dashboard.pengaturan.messages.bankFailed'));
+    }
   };
 
   const sidebarItems = useMemo(
@@ -267,9 +357,9 @@ export default function PengaturanVendorPage() {
     <DashboardLayout>
       <div className="mx-auto max-w-7xl space-y-10 pb-20">
         <div className="space-y-1">
-          <h1 className="text-3xl font-black tracking-tight text-[#2A2A2A]">Pengaturan</h1>
+          <h1 className="text-3xl font-black tracking-tight text-[#2A2A2A]">{t('dashboard.pengaturan.title')}</h1>
           <p className="text-sm font-medium uppercase tracking-widest text-slate-400">
-            Kelola informasi akun dan preferensi toko Anda
+            {t('dashboard.pengaturan.subtitle')}
           </p>
         </div>
 
@@ -296,13 +386,13 @@ export default function PengaturanVendorPage() {
               <section id="profil" className="scroll-mt-10 rounded-3xl border border-[#2A2A2A]/5 bg-white p-8 shadow-sm md:p-10 space-y-10">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-xl font-black text-[#2A2A2A]">Profil Bisnis</h3>
+                  <h3 className="text-xl font-black text-[#2A2A2A]">{t('dashboard.pengaturan.profil.title')}</h3>
                   <p className="mt-1 text-xs font-medium uppercase tracking-wider text-slate-400">
-                    Informasi penting yang ditampilkan pada profil bisnis Anda
+                    {t('dashboard.pengaturan.profil.desc')}
                   </p>
                 </div>
                 <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-black uppercase tracking-tighter text-emerald-600">
-                  <Check className="h-3 w-3" /> Terverifikasi
+                  <Check className="h-3 w-3" /> {t('dashboard.pengaturan.profil.verified')}
                 </span>
               </div>
 
@@ -331,10 +421,10 @@ export default function PengaturanVendorPage() {
                   </div>
                   <div className="flex gap-3">
                     <button onClick={triggerFileSelect} className="rounded-xl bg-[#2A2A2A] px-6 py-2.5 text-[10px] font-black uppercase tracking-widest text-white transition-all hover:bg-black cursor-pointer">
-                      Upload Foto
+                      {t('dashboard.pengaturan.profil.uploadBtn')}
                     </button>
                     <button onClick={() => setShowRemoveAvatarConfirm(true)} className="rounded-xl border border-slate-200 bg-white px-6 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-400 transition-all hover:bg-slate-50 cursor-pointer">
-                      Hapus
+                      {t('dashboard.pengaturan.profil.removeBtn')}
                     </button>
                   </div>
                 </div>
@@ -342,7 +432,7 @@ export default function PengaturanVendorPage() {
 
               <div className="grid gap-8 border-t border-slate-50 pt-10 md:grid-cols-2">
                 <div className="space-y-3">
-                  <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">Nama Bisnis</label>
+                  <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">{t('dashboard.pengaturan.profil.businessName')}</label>
                   <input
                     type="text"
                     value={form.businessName}
@@ -354,7 +444,7 @@ export default function PengaturanVendorPage() {
                 {/* Kategori Layanan dihapus — tampilkan hanya data penting */}
 
                 <div className="space-y-3">
-                  <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">Nomor HP / WhatsApp</label>
+                  <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">{t('dashboard.pengaturan.profil.whatsapp')}</label>
                   <input
                     type="text"
                     value={form.whatsapp}
@@ -364,13 +454,13 @@ export default function PengaturanVendorPage() {
                 </div>
 
                 <div className="space-y-3">
-                  <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">Kota / Kabupaten</label>
+                  <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">{t('dashboard.pengaturan.profil.city')}</label>
                   <input type="text" value="Padang, Sumatera Barat" readOnly className="w-full rounded-2xl border border-[#E2E8F0] bg-[#F7F9FC] px-6 py-4 text-sm font-bold text-slate-500" />
                 </div>
               </div>
 
                 <div className="space-y-3">
-                <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">Deskripsi Bisnis</label>
+                <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">{t('dashboard.pengaturan.profil.description')}</label>
                 <textarea
                   rows={4}
                   value={form.description}
@@ -379,30 +469,48 @@ export default function PengaturanVendorPage() {
                 />
               </div>
 
+              <div className="space-y-4 border-t border-slate-50 pt-10">
+                <h4 className="text-sm font-black text-[#2A2A2A]">Dokumen Legalitas (Opsional)</h4>
+                <div className="grid gap-8 md:grid-cols-3">
+                  <div className="space-y-3">
+                    <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">KTP URL</label>
+                    <input type="text" value={form.ktpUrl || ''} onChange={(e) => handleChange('ktpUrl', e.target.value)} placeholder="https://..." className="w-full rounded-2xl border border-[#E2E8F0] bg-[#F7F9FC] px-6 py-4 text-sm font-bold transition-all focus:border-[#FF9A9E] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9A9E]/10" />
+                  </div>
+                  <div className="space-y-3">
+                    <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">SIUP URL</label>
+                    <input type="text" value={form.businessLicenseUrl || ''} onChange={(e) => handleChange('businessLicenseUrl', e.target.value)} placeholder="https://..." className="w-full rounded-2xl border border-[#E2E8F0] bg-[#F7F9FC] px-6 py-4 text-sm font-bold transition-all focus:border-[#FF9A9E] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9A9E]/10" />
+                  </div>
+                  <div className="space-y-3">
+                    <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">Buku Tabungan URL</label>
+                    <input type="text" value={form.bankBookUrl || ''} onChange={(e) => handleChange('bankBookUrl', e.target.value)} placeholder="https://..." className="w-full rounded-2xl border border-[#E2E8F0] bg-[#F7F9FC] px-6 py-4 text-sm font-bold transition-all focus:border-[#FF9A9E] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9A9E]/10" />
+                  </div>
+                </div>
+              </div>
+
               <div className="flex justify-end border-t border-slate-50 pt-6">
                 <button onClick={handleSave} disabled={isSavingProfile} className="rounded-2xl bg-[#2A2A2A] px-10 py-4 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-black/10 transition-all hover:bg-black active:scale-95 cursor-pointer disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none">
-                  {isSavingProfile ? 'Menyimpan...' : 'Simpan Perubahan'}
+                  {isSavingProfile ? t('dashboard.pengaturan.profil.btnSaving') : t('dashboard.pengaturan.profil.btnSave')}
                 </button>
               </div>
             </section>
 
             <section id="keamanan" className="scroll-mt-10 rounded-3xl border border-[#2A2A2A]/5 bg-white p-8 shadow-sm md:p-10 space-y-10">
               <div>
-                <h3 className="text-xl font-black text-[#2A2A2A]">Keamanan Akun</h3>
-                <p className="mt-1 text-xs font-medium uppercase tracking-wider text-slate-400">Ganti kata sandi dan kelola keamanan login</p>
+                <h3 className="text-xl font-black text-[#2A2A2A]">{t('dashboard.pengaturan.keamanan.title')}</h3>
+                <p className="mt-1 text-xs font-medium uppercase tracking-wider text-slate-400">{t('dashboard.pengaturan.keamanan.desc')}</p>
               </div>
 
               <div className="border-t border-slate-50 pt-6">
                 <div className="space-y-3 md:max-w-xl">
-                  <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">Email Akun</label>
+                  <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">{t('dashboard.pengaturan.keamanan.emailLabel')}</label>
                   <input type="email" value={form.email} readOnly className="w-full cursor-not-allowed rounded-2xl border border-[#E2E8F0] bg-[#F7F9FC] px-6 py-4 text-sm font-bold text-slate-400 opacity-70" />
-                  <p className="ml-1 mt-1 text-[9px] font-bold italic tracking-tighter text-slate-300">Email tidak dapat diubah. Hubungi admin jika perlu.</p>
+                  <p className="ml-1 mt-1 text-[9px] font-bold italic tracking-tighter text-slate-300">{t('dashboard.pengaturan.keamanan.emailNote')}</p>
 
-                  <p className="mt-4 text-sm text-slate-500">Untuk mengganti kata sandi, klik tombol di bawah. Perubahan kata sandi hanya tersedia melalui dialog aman.</p>
+                  <p className="mt-4 text-sm text-slate-500">{t('dashboard.pengaturan.keamanan.pwdNote')}</p>
 
                   <div className="mt-4 flex justify-end">
                     <button onClick={() => setShowPasswordModal(true)} className="rounded-2xl bg-[#2A2A2A] px-8 py-3 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-black/10 transition-all hover:bg-black active:scale-95 cursor-pointer">
-                      Ganti Kata Sandi
+                      {t('dashboard.pengaturan.keamanan.btnChangePwd')}
                     </button>
                   </div>
                 </div>
@@ -411,8 +519,8 @@ export default function PengaturanVendorPage() {
 
             <section id="rekening" className="scroll-mt-10 rounded-3xl border border-[#2A2A2A]/5 bg-white p-8 shadow-sm md:p-10 space-y-10">
               <div>
-                <h3 className="text-xl font-black text-[#2A2A2A]">Rekening Bank</h3>
-                <p className="mt-1 text-xs font-medium uppercase tracking-wider text-slate-400">Rekening tujuan pencairan dana dari Planora</p>
+                <h3 className="text-xl font-black text-[#2A2A2A]">{t('dashboard.pengaturan.rekening.title')}</h3>
+                <p className="mt-1 text-xs font-medium uppercase tracking-wider text-slate-400">{t('dashboard.pengaturan.rekening.desc')}</p>
               </div>
 
               <div className="flex flex-col items-center justify-between gap-8 rounded-[32px] border border-slate-100 bg-[#F7F9FC] p-8 md:flex-row">
@@ -424,18 +532,18 @@ export default function PengaturanVendorPage() {
                     <h5 className="text-sm font-black uppercase tracking-tight leading-none text-[#2A2A2A]">{bankForm.bankName}</h5>
                     <p className="mt-2 text-base font-bold italic tracking-widest text-[#2A2A2A] opacity-60">{bankForm.accountNumber} — a.n. {bankForm.accountHolder}</p>
                     <p className="mt-1.5 flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-emerald-500">
-                      <Check className="h-3.5 w-3.5" /> Sudah diverifikasi admin
+                      <Check className="h-3.5 w-3.5" /> {t('dashboard.pengaturan.rekening.verified')}
                     </p>
                   </div>
                 </div>
                 <button onClick={handleEditBank} className="rounded-xl border border-slate-200 bg-white px-6 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-400 shadow-sm transition-all hover:bg-slate-50 cursor-pointer">
-                  {bankEditMode ? 'Batal Ubah' : 'Ubah Rekening'}
+                  {bankEditMode ? t('dashboard.pengaturan.rekening.btnCancelEdit') : t('dashboard.pengaturan.rekening.btnEdit')}
                 </button>
               </div>
 
               <div className="grid gap-8 border-t border-slate-50 pt-10 md:grid-cols-2">
                 <div className="space-y-3">
-                  <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">Nama Bank</label>
+                  <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">{t('dashboard.pengaturan.rekening.bankName')}</label>
                   <select
                     value={bankEditMode ? bankDraft.bankName : bankForm.bankName}
                     disabled={!bankEditMode}
@@ -449,24 +557,24 @@ export default function PengaturanVendorPage() {
                   </select>
                 </div>
                 <div className="space-y-3">
-                  <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">Nomor Rekening</label>
+                  <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">{t('dashboard.pengaturan.rekening.accountNumber')}</label>
                   <input
                     type="text"
                     value={bankEditMode ? bankDraft.accountNumber : bankForm.accountNumber}
                     readOnly={!bankEditMode}
                     onChange={(e) => setBankDraft((prev) => ({ ...prev, accountNumber: e.target.value }))}
-                    placeholder="Masukkan nomor rekening baru"
+                    placeholder={t('dashboard.pengaturan.rekening.accountPlaceholder')}
                     className="w-full rounded-2xl border border-[#E2E8F0] bg-[#F7F9FC] px-6 py-4 text-sm font-bold transition-all focus:border-[#FF9A9E] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9A9E]/10 read-only:cursor-default read-only:bg-slate-50 read-only:text-slate-400"
                   />
                 </div>
                 <div className="space-y-3 md:col-span-2">
-                  <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">Nama Pemilik Rekening</label>
+                  <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">{t('dashboard.pengaturan.rekening.accountHolder')}</label>
                   <input
                     type="text"
                     value={bankEditMode ? bankDraft.accountHolder : bankForm.accountHolder}
                     readOnly={!bankEditMode}
                     onChange={(e) => setBankDraft((prev) => ({ ...prev, accountHolder: e.target.value }))}
-                    placeholder="Sesuai buku tabungan"
+                    placeholder={t('dashboard.pengaturan.rekening.holderPlaceholder')}
                     className="w-full rounded-2xl border border-[#E2E8F0] bg-[#F7F9FC] px-6 py-4 text-sm font-bold transition-all focus:border-[#FF9A9E] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#FF9A9E]/10 read-only:cursor-default read-only:bg-slate-50 read-only:text-slate-400"
                   />
                 </div>
@@ -474,25 +582,25 @@ export default function PengaturanVendorPage() {
 
               <div className="flex justify-end border-t border-slate-50 pt-6">
                 <button onClick={handleSaveBank} disabled={!bankEditMode} className="rounded-2xl bg-[#2A2A2A] px-10 py-4 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-black/10 transition-all hover:bg-black active:scale-95 cursor-pointer disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none">
-                  Simpan Perubahan Rekening
+                  {t('dashboard.pengaturan.rekening.btnSave')}
                 </button>
               </div>
             </section>
 
             <section id="notifikasi" className="scroll-mt-10 rounded-3xl border border-[#2A2A2A]/5 bg-white p-8 shadow-sm md:p-10 space-y-8">
               <div className="pb-2">
-                <h3 className="text-xl font-black text-[#2A2A2A]">Notifikasi</h3>
-                <p className="mt-1 text-xs font-medium uppercase tracking-wider text-slate-400">Atur kapan dan bagaimana Anda menerima notifikasi</p>
+                <h3 className="text-xl font-black text-[#2A2A2A]">{t('dashboard.pengaturan.notifikasi.title')}</h3>
+                <p className="mt-1 text-xs font-medium uppercase tracking-wider text-slate-400">{t('dashboard.pengaturan.notifikasi.desc')}</p>
               </div>
 
               <div className="divide-y divide-slate-100 border-t border-slate-100">
                 {[
-                  ['Pesanan masuk baru', 'Notifikasi saat ada customer melakukan booking', true],
-                  ['Pembayaran DP diterima', 'Notifikasi saat admin memverifikasi DP customer', true],
-                  ['Pengingat H-3 acara', 'Pengingat otomatis 3 hari sebelum acara berlangsung', true],
-                  ['Dana berhasil dicairkan', 'Notifikasi saat admin mencairkan dana ke rekening Anda', true],
-                  ['Ulasan baru dari customer', 'Notifikasi saat customer memberikan rating dan ulasan', false],
-                  ['Email newsletter Planora', 'Tips bisnis dan update fitur terbaru dari Planora', false],
+                  [t('dashboard.pengaturan.notifikasi.items.newOrder.title'), t('dashboard.pengaturan.notifikasi.items.newOrder.desc'), true],
+                  [t('dashboard.pengaturan.notifikasi.items.dpReceived.title'), t('dashboard.pengaturan.notifikasi.items.dpReceived.desc'), true],
+                  [t('dashboard.pengaturan.notifikasi.items.eventReminder.title'), t('dashboard.pengaturan.notifikasi.items.eventReminder.desc'), true],
+                  [t('dashboard.pengaturan.notifikasi.items.fundWithdrawn.title'), t('dashboard.pengaturan.notifikasi.items.fundWithdrawn.desc'), true],
+                  [t('dashboard.pengaturan.notifikasi.items.newReview.title'), t('dashboard.pengaturan.notifikasi.items.newReview.desc'), false],
+                  [t('dashboard.pengaturan.notifikasi.items.newsletter.title'), t('dashboard.pengaturan.notifikasi.items.newsletter.desc'), false],
                 ].map(([title, desc, enabled]) => (
                   <div key={title as string} className="flex items-center justify-between py-8">
                     <div className="space-y-1">
@@ -511,11 +619,11 @@ export default function PengaturanVendorPage() {
 
             <section className="flex flex-col items-center justify-between gap-6 rounded-3xl border border-red-100 bg-red-50 p-8 shadow-sm md:flex-row md:p-10">
               <div className="space-y-1 text-center md:text-left">
-                <h3 className="text-lg font-black uppercase tracking-tight text-red-500">Hapus Akun Vendor</h3>
-                <p className="text-xs font-medium text-red-400">Akun dan semua data toko akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.</p>
+                <h3 className="text-lg font-black uppercase tracking-tight text-red-500">{t('dashboard.pengaturan.dangerZone.title')}</h3>
+                <p className="text-xs font-medium text-red-400">{t('dashboard.pengaturan.dangerZone.desc')}</p>
               </div>
               <button onClick={handleOpenDeleteModal} className="rounded-2xl bg-red-500 px-10 py-4 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-red-200 transition-all hover:bg-red-600 active:scale-95 cursor-pointer">
-                Ajukan Penghapusan
+                {t('dashboard.pengaturan.dangerZone.btnDelete')}
               </button>
             </section>
           </div>
@@ -526,7 +634,7 @@ export default function PengaturanVendorPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4">
           <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
             <div className="mb-4 flex items-center justify-between">
-              <h4 className="text-lg font-black text-[#2A2A2A]">Ganti Kata Sandi</h4>
+              <h4 className="text-lg font-black text-[#2A2A2A]">{t('dashboard.pengaturan.modals.password.title')}</h4>
               <button
                 onClick={() => setShowPasswordModal(false)}
                 className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-50 text-[#2A2A2A]/40 transition-all hover:bg-[#FCE6E3] hover:text-[#FF527B] cursor-pointer"
@@ -537,7 +645,7 @@ export default function PengaturanVendorPage() {
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">Kata Sandi Saat Ini</label>
+                <label className="text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">{t('dashboard.pengaturan.modals.password.currentPwd')}</label>
                 <input
                   type="password"
                   value={currentPassword}
@@ -547,7 +655,7 @@ export default function PengaturanVendorPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">Kata Sandi Baru</label>
+                <label className="text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">{t('dashboard.pengaturan.modals.password.newPwd')}</label>
                 <input
                   type="password"
                   value={newPassword}
@@ -557,7 +665,7 @@ export default function PengaturanVendorPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">Konfirmasi Kata Sandi Baru</label>
+                <label className="text-[10px] font-black uppercase tracking-widest text-[#2A2A2A]/40">{t('dashboard.pengaturan.modals.password.confirmPwd')}</label>
                 <input
                   type="password"
                   value={confirmPassword}
@@ -570,7 +678,7 @@ export default function PengaturanVendorPage() {
                 onClick={handlePasswordUpdate}
                 className="mt-2 w-full rounded-xl bg-[#2A2A2A] py-3 text-[11px] font-black uppercase tracking-widest text-white transition-colors hover:bg-black cursor-pointer"
               >
-                Perbarui Password
+                {t('dashboard.pengaturan.modals.password.btnUpdate')}
               </button>
 
               {passwordError && (
@@ -587,17 +695,17 @@ export default function PengaturanVendorPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4">
           <div className="w-full max-w-sm rounded-[20px] bg-white p-6 shadow-2xl">
             <div className="mb-4 flex items-center justify-between">
-              <h4 className="text-lg font-black text-[#2A2A2A]">Hapus Foto Profil</h4>
+              <h4 className="text-lg font-black text-[#2A2A2A]">{t('dashboard.pengaturan.modals.avatar.title')}</h4>
               <button onClick={() => setShowRemoveAvatarConfirm(false)} className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-50 text-[#2A2A2A]/40 transition-all hover:bg-[#FCE6E3] hover:text-[#FF527B] cursor-pointer">
                 <X className="h-4 w-4" />
               </button>
             </div>
 
-            <p className="text-sm text-[#2A2A2A]/70">Kamu yakin ingin menghapus foto profil? Tindakan ini dapat dibatalkan dengan mengunggah foto baru.</p>
+            <p className="text-sm text-[#2A2A2A]/70">{t('dashboard.pengaturan.modals.avatar.desc')}</p>
 
             <div className="mt-6 flex gap-3">
-              <button onClick={() => setShowRemoveAvatarConfirm(false)} className="flex-1 rounded-xl border border-gray-200 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-[#2A2A2A]/50 transition-all hover:bg-gray-50 cursor-pointer">Batal</button>
-              <button onClick={handleRemoveAvatar} className="flex-1 rounded-xl bg-red-500 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-all hover:bg-red-600 cursor-pointer">Hapus</button>
+              <button onClick={() => setShowRemoveAvatarConfirm(false)} className="flex-1 rounded-xl border border-gray-200 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-[#2A2A2A]/50 transition-all hover:bg-gray-50 cursor-pointer">{t('dashboard.pengaturan.modals.avatar.btnCancel')}</button>
+              <button onClick={handleRemoveAvatar} className="flex-1 rounded-xl bg-red-500 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-all hover:bg-red-600 cursor-pointer">{t('dashboard.pengaturan.modals.avatar.btnDelete')}</button>
             </div>
           </div>
         </div>
@@ -607,7 +715,7 @@ export default function PengaturanVendorPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4">
           <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
             <div className="mb-4 flex items-center justify-between">
-              <h4 className="text-lg font-black text-[#2A2A2A]">Konfirmasi Keluar</h4>
+              <h4 className="text-lg font-black text-[#2A2A2A]">{t('dashboard.pengaturan.modals.logout.title')}</h4>
               <button
                 onClick={() => setShowLogoutModal(false)}
                 className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-50 text-[#2A2A2A]/40 transition-all hover:bg-[#FCE6E3] hover:text-[#FF527B] cursor-pointer"
@@ -616,20 +724,20 @@ export default function PengaturanVendorPage() {
               </button>
             </div>
 
-            <p className="mb-6 text-sm font-semibold text-[#2A2A2A]/70">Kamu yakin ingin keluar dari akun vendor sekarang?</p>
+            <p className="mb-6 text-sm font-semibold text-[#2A2A2A]/70">{t('dashboard.pengaturan.modals.logout.desc')}</p>
 
             <div className="flex gap-3">
               <button
                 onClick={() => setShowLogoutModal(false)}
                 className="flex-1 rounded-xl border border-gray-200 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-[#2A2A2A]/50 transition-all hover:bg-gray-50 cursor-pointer"
               >
-                Batal
+                {t('dashboard.pengaturan.modals.logout.btnCancel')}
               </button>
               <button
                 onClick={handleLogout}
                 className="flex-1 rounded-xl bg-red-500 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-all hover:bg-red-600 cursor-pointer"
               >
-                Ya, Keluar
+                {t('dashboard.pengaturan.modals.logout.btnLogout')}
               </button>
             </div>
           </div>
@@ -640,7 +748,7 @@ export default function PengaturanVendorPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4">
           <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
             <div className="mb-4 flex items-center justify-between">
-              <h4 className="text-lg font-black text-[#2A2A2A]">Ajukan Penghapusan Akun</h4>
+              <h4 className="text-lg font-black text-[#2A2A2A]">{t('dashboard.pengaturan.modals.delete.title')}</h4>
               <button
                 onClick={() => setShowDeleteModal(false)}
                 className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-50 text-[#2A2A2A]/40 transition-all hover:bg-[#FCE6E3] hover:text-[#FF527B] cursor-pointer"
@@ -651,18 +759,18 @@ export default function PengaturanVendorPage() {
 
             <div className="space-y-4">
               <p className="text-sm font-semibold text-[#2A2A2A]/70">
-                Tindakan ini tidak langsung menghapus akun. Kami akan menerima permintaan penghapusan vendor untuk diproses lebih lanjut.
+                {t('dashboard.pengaturan.modals.delete.desc')}
               </p>
 
               <div className="rounded-2xl border border-[#F9D4D4] bg-[#FFF2F2] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-red-500">
-                Ketik HAPUS untuk melanjutkan
+                {t('dashboard.pengaturan.modals.delete.instruction')}
               </div>
 
               <input
                 type="text"
                 value={deleteConfirmText}
                 onChange={(e) => setDeleteConfirmText(e.target.value)}
-                placeholder="HAPUS"
+                placeholder={t('dashboard.pengaturan.modals.delete.placeholder')}
                 className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold focus:border-[#FF9A9E] focus:outline-none"
               />
 
@@ -677,13 +785,13 @@ export default function PengaturanVendorPage() {
                   onClick={() => setShowDeleteModal(false)}
                   className="flex-1 rounded-xl border border-gray-200 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-[#2A2A2A]/50 transition-all hover:bg-gray-50 cursor-pointer"
                 >
-                  Batal
+                  {t('dashboard.pengaturan.modals.delete.btnCancel')}
                 </button>
                 <button
                   onClick={handleRequestDelete}
                   className="flex-1 rounded-xl bg-red-500 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-all hover:bg-red-600 cursor-pointer"
                 >
-                  Kirim Permintaan
+                  {t('dashboard.pengaturan.modals.delete.btnSubmit')}
                 </button>
               </div>
             </div>

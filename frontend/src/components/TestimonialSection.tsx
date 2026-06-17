@@ -2,36 +2,39 @@
 
 import React from "react";
 import { Star } from "lucide-react";
-
-const testimonials = [
-    {
-        name: "Amanda & Dimas",
-        role: "Customer",
-        text: "Planora helped us find a decoration vendor that matched our dream wedding concept. The process was easy and secure!",
-        avatar: "https://i.pravatar.cc/100?u=u1",
-        dark: false,
-    },
-    {
-        name: "Raka Pratama",
-        role: "Photographer",
-        text: "The escrow system is extremely helpful, the payment is clear, and disbursement is fast. Highly recommended for vendors.",
-        avatar: "https://i.pravatar.cc/100?u=u2",
-        dark: true,
-    },
-    {
-        name: "Sarah Wijaya",
-        role: "Event Planner",
-        text: "The vendors are professional and verified. Our corporate event went smoothly thanks to this platform.",
-        avatar: "https://i.pravatar.cc/100?u=u3",
-        dark: false,
-    },
-];
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function TestimonialSection() {
+    const { t } = useLanguage();
+
+    const testimonials = [
+        {
+            name: "Amanda & Dimas",
+            role: t('testimonials.role1'),
+            text: t('testimonials.text1'),
+            avatar: "https://i.pravatar.cc/100?u=u1",
+            dark: false,
+        },
+        {
+            name: "Raka Pratama",
+            role: t('testimonials.role2'),
+            text: t('testimonials.text2'),
+            avatar: "https://i.pravatar.cc/100?u=u2",
+            dark: true,
+        },
+        {
+            name: "Sarah Wijaya",
+            role: t('testimonials.role3'),
+            text: t('testimonials.text3'),
+            avatar: "https://i.pravatar.cc/100?u=u3",
+            dark: false,
+        },
+    ];
+
     return (
         <section data-reveal className="bg-white px-6 py-16 md:py-20 md:px-12">
             <div className="mx-auto max-w-7xl">
-                <h2 className="mb-12 text-3xl font-bold text-[#2A2A2A] md:text-4xl">What They Say</h2>
+                <h2 className="mb-12 text-3xl font-bold text-[#2A2A2A] md:text-4xl">{t('testimonials.title')}</h2>
 
                 <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
                     {testimonials.map((testimonial) => (

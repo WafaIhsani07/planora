@@ -28,4 +28,10 @@ router.get("/bookings/:id", adminController.getBookingDetail)
 router.get("/monitoring/stats", adminController.getMonitoringStats)
 router.get("/payments", adminController.getAllPayments)
 
+// ─── Settings / Configuration ──────────────────────────────────────────────────
+router.get("/settings", adminController.getSettings)
+router.patch("/settings", adminController.updateSettings)
+router.patch("/password", adminController.updateAdminPassword)
+
 export default router
+

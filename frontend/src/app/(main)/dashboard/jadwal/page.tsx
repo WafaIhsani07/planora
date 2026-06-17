@@ -7,7 +7,8 @@ import DashboardLayout from '../DashboardLayout';
 import { type Order, type OrderStatus } from '@/lib/orders';
 import { getVendorBookings } from '@/services/vendor.service';
 import { format } from 'date-fns';
-import { id as localeId } from 'date-fns/locale';
+import { id as localeId, enUS as localeEn } from 'date-fns/locale';
+import { useLanguage } from '@/context/LanguageContext';
 import {
   ShoppingBag,
   List,
@@ -16,12 +17,12 @@ import {
   ChevronRight,
 } from 'lucide-react';
 
-function mapBackendBookingToOrder(b: any): Order {
+function mapBackendBookingToOrder(b: any, t: (key: string) => string, language: string): Order {
   let formattedDate = 'N/A';
   if (b.eventDate) {
     try {
       const date = new Date(b.eventDate);
-      formattedDate = format(date, 'd MMMM yyyy', { locale: localeId });
+      formattedDate = format(date, 'd MMMM yyyy', { locale: language === 'id' ? localeId : localeEn });
     } catch (e) {
       formattedDate = b.eventDate.toString();
     }
@@ -36,18 +37,24 @@ function mapBackendBookingToOrder(b: any): Order {
     uiStatus = 'Menunggu';
   }
 
+  // To preserve English status mapping logically in UI if needed,
+  // we keep the core logic but return a localized label.
+  const localizedStatus = b.status === 'COMPLETED' ? t('dashboard.status.completed') :
+                          b.status === 'CONFIRMED' || b.status === 'IN_PROGRESS' ? t('dashboard.status.confirmed') :
+                          t('dashboard.status.pending');
+
   return {
     id: b.id,
-    name: b.notes || `Acara ${b.customer?.name || ''}`,
-    client: b.customer?.name || 'Klien',
+    name: b.notes || (language === 'id' ? `Acara ${b.customer?.name || ''}` : `Event ${b.customer?.name || ''}`),
+    client: b.customer?.name || (language === 'id' ? 'Klien' : 'Client'),
     date: formattedDate,
     time: '08.00 - 16.00',
-    package: b.layanan?.name || 'Paket Layanan',
+    package: b.layanan?.name || (language === 'id' ? 'Paket Layanan' : 'Service Package'),
     type: 'Premium',
-    status: uiStatus,
+    status: uiStatus, // Keep internal status for styling logic (or change if needed, but let's just add localizedStatus to UI later, wait actually `getStatusStyle` uses `uiStatus`. We can map `status` to `uiStatus` for internal logic and use `uiStatus` for CSS mapping, and `localizedStatus` for display. But wait, `type OrderStatus` only allows 'Menunggu' | 'Dikonfirmasi' | 'Selesai'. Let's keep `status` as `uiStatus` and format display dynamically).
     paymentStatus: b.status === 'COMPLETED' ? 'selesai' : b.status === 'PENDING' ? 'menunggu' : 'dikonfirmasi',
     amount: `Rp ${Number(b.totalPrice || 0).toLocaleString('id-ID')}`,
-    location: b.eventAddress || 'Lokasi Acara',
+    location: b.eventAddress || (language === 'id' ? 'Lokasi Acara' : 'Event Location'),
     img: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=100',
   };
 }
@@ -81,20 +88,9 @@ const getStatusStyle = (status: OrderStatus) => {
   }
 };
 
-const MONTH_NAMES = [
-  'JANUARI',
-  'FEBRUARI',
-  'MARET',
-  'APRIL',
-  'MEI',
-  'JUNI',
-  'JULI',
-  'AGUSTUS',
-  'SEPTEMBER',
-  'OKTOBER',
-  'NOVEMBER',
-  'DESEMBER',
-];
+// We will dynamically fetch these from `t('dashboard.calendar.months')` instead of hardcoding.
+const MONTH_NAMES_EN = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+const MONTH_NAMES_ID = ["JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"];
 
 type CalendarDay = {
   key: string;
@@ -120,15 +116,22 @@ function buildCalendarDays(cursor: Date, orders: Order[]): CalendarDay[] {
   const confirmedOrders = orders.filter((order) => order.status === 'Dikonfirmasi');
   const orderMap: Record<string, Order[]> = {};
   confirmedOrders.forEach((order) => {
-    const [datePart] = order.date.split(' ');
-    const monthMap: Record<string, string> = {
+    // We assume order.date is something like "12 Mei 2026" or "12 May 2026"
+    // Because we formatted it earlier. It's safer to use a reverse map.
+    const monthMapID: Record<string, string> = {
       'Januari': '01', 'Februari': '02', 'Maret': '03', 'April': '04',
       'Mei': '05', 'Juni': '06', 'Juli': '07', 'Agustus': '08',
       'September': '09', 'Oktober': '10', 'November': '11', 'Desember': '12',
     };
+    const monthMapEN: Record<string, string> = {
+      'January': '01', 'February': '02', 'March': '03', 'April': '04',
+      'May': '05', 'June': '06', 'July': '07', 'August': '08',
+      'September': '09', 'October': '10', 'November': '11', 'December': '12',
+    };
     const parts = order.date.split(' ');
+    if (parts.length < 3) return;
     const day = String(parseInt(parts[0])).padStart(2, '0');
-    const month = monthMap[parts[1]];
+    const month = monthMapID[parts[1]] || monthMapEN[parts[1]] || '01';
     const year = parts[2];
     const dateKey = `${year}-${month}-${day}`;
     if (!orderMap[dateKey]) orderMap[dateKey] = [];
@@ -185,6 +188,7 @@ export default function PesananPage() {
   const [calendarCursor, setCalendarCursor] = useState(() => new Date(2026, 4, 1));
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { t, language } = useLanguage();
 
   React.useEffect(() => {
     async function loadData() {
@@ -192,7 +196,7 @@ export default function PesananPage() {
         const data = await getVendorBookings();
         const arrayData = Array.isArray(data) ? data : data?.data || [];
         if (arrayData && Array.isArray(arrayData)) {
-          setOrders(arrayData.map(mapBackendBookingToOrder));
+          setOrders(arrayData.map((b) => mapBackendBookingToOrder(b, t, language)));
         }
       } catch (error) {
         console.error("Gagal load vendor bookings:", error);
@@ -208,6 +212,7 @@ export default function PesananPage() {
     [calendarCursor, orders],
   );
 
+  const MONTH_NAMES = (t('dashboard.calendar.months') as unknown as string[]) || (language === 'id' ? MONTH_NAMES_ID : MONTH_NAMES_EN);
   const calendarTitle = `${MONTH_NAMES[calendarCursor.getMonth()]} ${calendarCursor.getFullYear()}`;
 
   const filteredOrders = filterStatus === 'Semua'
@@ -244,8 +249,8 @@ export default function PesananPage() {
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
           <div className="space-y-1">
-            <h1 className="text-3xl md:text-[2rem] font-extrabold tracking-tight leading-tight text-[#2A2A2A]">{pesananView === 'calendar' ? 'Jadwal' : 'Pesanan'}</h1>
-            <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.18em] text-[#2A2A2A]/35">{pesananView === 'calendar' ? 'Pantau dan kelola jadwal acara Anda.' : 'Pantau dan kelola daftar pesanan Anda.'}</p>
+            <h1 className="text-3xl md:text-[2rem] font-extrabold tracking-tight leading-tight text-[#2A2A2A]">{pesananView === 'calendar' ? t('dashboard.orders.titleCalendar') : t('dashboard.orders.titleList')}</h1>
+            <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.18em] text-[#2A2A2A]/35">{pesananView === 'calendar' ? t('dashboard.orders.subtitleCalendar') : t('dashboard.orders.subtitleList')}</p>
           </div>
 
           <div className="flex items-center gap-3">
@@ -257,7 +262,7 @@ export default function PesananPage() {
                     : 'text-[#2A2A2A]/30 hover:bg-slate-50'
                   }`}
               >
-                <List className="w-3.5 h-3.5" /> Daftar
+                <List className="w-3.5 h-3.5" /> {t('dashboard.orders.btnList')}
               </button>
               <button
                 onClick={() => router.push('/dashboard/jadwal?view=calendar')}
@@ -266,7 +271,7 @@ export default function PesananPage() {
                     : 'text-[#2A2A2A]/30 hover:bg-slate-50'
                   }`}
               >
-                <CalendarIcon className="w-3.5 h-3.5" /> Kalender
+                <CalendarIcon className="w-3.5 h-3.5" /> {t('dashboard.orders.btnCalendar')}
               </button>
             </div>
           </div>
@@ -277,10 +282,10 @@ export default function PesananPage() {
             {/* Status Filter Tabs */}
             <div className="flex items-center gap-3 overflow-x-auto no-scrollbar">
               {[
-                { name: 'Semua', count: null },
-                { name: 'Menunggu', count: orders.filter((o) => o.status === 'Menunggu').length },
-                { name: 'Dikonfirmasi', count: orders.filter((o) => o.status === 'Dikonfirmasi').length },
-                { name: 'Selesai', count: orders.filter((o) => o.status === 'Selesai').length },
+                { name: 'Semua', label: t('dashboard.orders.filterAll'), count: null },
+                { name: 'Menunggu', label: t('dashboard.status.pending'), count: orders.filter((o) => o.status === 'Menunggu').length },
+                { name: 'Dikonfirmasi', label: t('dashboard.status.confirmed'), count: orders.filter((o) => o.status === 'Dikonfirmasi').length },
+                { name: 'Selesai', label: t('dashboard.status.completed'), count: orders.filter((o) => o.status === 'Selesai').length },
               ].map((status) => (
                 <button
                   key={status.name}
@@ -293,7 +298,7 @@ export default function PesananPage() {
                       : 'bg-white text-[#2A2A2A]/60 border-[#2A2A2A]/10 hover:border-[#2A2A2A]/30'
                     }`}
                 >
-                  {status.name}
+                  {status.label}
                   {status.count !== null && (
                     <span
                       className={`w-5 h-5 flex items-center justify-center rounded-full text-[9px] font-black ${filterStatus === status.name
@@ -314,12 +319,12 @@ export default function PesananPage() {
                 <table className="w-full text-left border-collapse min-w-[1100px]">
                   <thead>
                     <tr className="bg-slate-50/40 text-[10px] font-black text-[#2A2A2A]/30 uppercase tracking-[0.2em] border-b border-slate-50">
-                      <th className="px-10 py-6 text-center">Pesanan</th>
-                      <th className="px-10 py-6 text-center">Klien</th>
-                      <th className="px-10 py-6 text-center">Tanggal Acara</th>
-                      <th className="px-10 py-6 text-center">Paket</th>
-                      <th className="px-10 py-6 text-center min-w-[180px]">Total</th>
-                      <th className="px-10 py-6 text-center">Status</th>
+                      <th className="px-10 py-6 text-center">{t('dashboard.recentOrders.table.order')}</th>
+                      <th className="px-10 py-6 text-center">{t('dashboard.recentOrders.table.client')}</th>
+                      <th className="px-10 py-6 text-center">{t('dashboard.recentOrders.table.date')}</th>
+                      <th className="px-10 py-6 text-center">{t('dashboard.recentOrders.table.package')}</th>
+                      <th className="px-10 py-6 text-center min-w-[180px]">{t('dashboard.recentOrders.table.total')}</th>
+                      <th className="px-10 py-6 text-center">{t('dashboard.recentOrders.table.status')}</th>
                       <th className="px-10 py-6 text-center">Aksi</th>
                     </tr>
                   </thead>
@@ -359,7 +364,9 @@ export default function PesananPage() {
                         </td>
                         <td className="px-10 py-6 text-center">
                           <div className={`inline-block px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-wider whitespace-nowrap ${getStatusStyle(order.status)}`}>
-                            {order.status}
+                            {order.status === 'Selesai' ? t('dashboard.status.completed') : 
+                             order.status === 'Dikonfirmasi' ? t('dashboard.status.confirmed') : 
+                             t('dashboard.status.pending')}
                           </div>
                         </td>
                         <td className="px-10 py-6 text-center">
@@ -367,7 +374,7 @@ export default function PesananPage() {
                             onClick={() => router.push(`/dashboard/jadwal/${encodeURIComponent(order.id)}`)}
                             className="px-5 py-2.5 rounded-xl bg-white border border-[#2A2A2A]/5 text-[9px] font-black uppercase tracking-widest text-[#2A2A2A]/60 hover:bg-[#2A2A2A] hover:text-white transition-all shadow-sm cursor-pointer"
                           >
-                            Detail
+                            {t('dashboard.orders.detailButton')}
                           </button>
                         </td>
                       </tr>
@@ -379,8 +386,10 @@ export default function PesananPage() {
               {/* Pagination */}
               <div className="p-10 border-t border-slate-50 flex flex-col sm:flex-row items-center justify-between gap-8 bg-white">
                 <p className="text-[11px] font-bold text-[#2A2A2A]/30 uppercase tracking-[0.15em]">
-                  Menampilkan <span className="text-[#2A2A2A]">{startIndex + 1} - {Math.min(startIndex + itemsPerPage, filteredOrders.length)}</span> dari{' '}
-                  <span className="text-[#2A2A2A]">{filteredOrders.length}</span> pesanan
+                  {t('dashboard.orders.showing')
+                    .replace('{start}', String(startIndex + 1))
+                    .replace('{end}', String(Math.min(startIndex + itemsPerPage, filteredOrders.length)))
+                    .replace('{total}', String(filteredOrders.length))}
                 </p>
                 <div className="flex items-center gap-2">
                   <button 
@@ -431,7 +440,7 @@ export default function PesananPage() {
 
               <div className="border border-[#2A2A2A]/5 rounded-2xl overflow-hidden">
                 <div className="grid grid-cols-7 bg-[#FAFAFC] border-b border-[#2A2A2A]/5">
-                  {['MING', 'SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB'].map((day) => (
+                  {((t('dashboard.calendar.days') as unknown as string[]) || ['MING', 'SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB']).map((day: string) => (
                     <div key={day} className="border-r border-[#2A2A2A]/5 py-3 text-center text-[8px] font-bold tracking-[0.18em] text-[#2A2A2A]/30 uppercase last:border-r-0">
                       {day}
                     </div>
@@ -471,7 +480,7 @@ export default function PesananPage() {
             <div className="lg:col-span-1 bg-white rounded-xl border border-[#2A2A2A]/5 shadow-sm p-6 h-fit sticky top-8">
               <h3 className="text-xl font-black text-[#2A2A2A] mb-6 flex items-center gap-2">
                 <ShoppingBag className="w-5 h-5 text-[#FF9A9E]" />
-                Pesanan Terdekat
+                {t('dashboard.calendar.upcoming')}
               </h3>
 
               <div className="space-y-4">
@@ -503,13 +512,13 @@ export default function PesananPage() {
                       </div>
 
                       <div className="mt-3 pt-3 border-t border-[#2A2A2A]/10 flex items-center gap-2">
-                        <span className="inline-block px-3 py-1.5 bg-[#FFF9E5] text-[#F59E0B] text-[9px] font-black rounded-lg">✓ DIKONFIRMASI</span>
+                        <span className="inline-block px-3 py-1.5 bg-[#FFF9E5] text-[#F59E0B] text-[9px] font-black rounded-lg">✓ {t('dashboard.calendar.confirmedBadge')}</span>
                         <button
                           type="button"
                           onClick={() => router.push(`/dashboard/jadwal/${encodeURIComponent(o.id)}?view=calendar`)}
                           className="ml-auto px-4 py-2 rounded-xl bg-white border border-[#2A2A2A]/5 text-[9px] font-black uppercase tracking-widest text-[#2A2A2A]/60 hover:bg-[#2A2A2A] hover:text-white transition-all shadow-sm active:bg-[#2A2A2A] active:text-white"
                         >
-                          Detail
+                          {t('dashboard.orders.detailButton')}
                         </button>
                       </div>
                     </div>
@@ -518,7 +527,7 @@ export default function PesananPage() {
 
               {orders.filter((o) => o.status === 'Dikonfirmasi').length === 0 && (
                 <div className="py-8 text-center">
-                  <p className="text-[10px] font-bold text-[#2A2A2A]/40">Tidak ada pesanan yang dikonfirmasi</p>
+                  <p className="text-[10px] font-bold text-[#2A2A2A]/40">{t('dashboard.calendar.empty')}</p>
                 </div>
               )}
             </div>

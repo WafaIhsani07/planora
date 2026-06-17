@@ -106,3 +106,37 @@ export const getAllPayments = async (req: Request, res: Response) => {
   const result = await adminService.getAllPayments(parsed.data)
   sendSuccess(res, result, "Berhasil mengambil daftar pembayaran")
 }
+
+// ─── Settings / Configuration ──────────────────────────────────────────────────
+export const getSettings = async (req: Request, res: Response) => {
+  const result = await adminService.getSettings()
+  sendSuccess(res, result, "Berhasil mengambil pengaturan sistem")
+}
+
+export const updateSettings = async (req: Request, res: Response) => {
+  if (!req.body || typeof req.body !== 'object') {
+    sendValidationError(res, { body: ["Invalid settings payload"] })
+    return
+  }
+  const result = await adminService.updateSettings(req.body)
+  sendSuccess(res, result, "Berhasil memperbarui pengaturan sistem")
+}
+
+export const updateAdminPassword = async (req: Request, res: Response) => {
+  const { newPassword } = req.body
+  if (!newPassword || newPassword.length < 6) {
+    sendValidationError(res, { newPassword: ["Password baru minimal 6 karakter"] })
+    return
+  }
+  
+  // Asumsi req.user di-inject dari auth middleware
+  const userId = (req as any).user?.id
+  if (!userId) {
+    res.status(401).json({ success: false, error: { message: "Unauthorized" } })
+    return
+  }
+
+  const result = await adminService.updateAdminPassword(userId, newPassword)
+  sendSuccess(res, result, "Berhasil memperbarui kata sandi admin")
+}
+

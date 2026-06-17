@@ -1,0 +1,528 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "edit": "Edit",
+    "delete": "Delete",
+    "success": "Success",
+    "error": "Error"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "events": "Events",
+    "bookings": "Bookings",
+    "services": "Services",
+    "orders": "Orders",
+    "settings": "Settings",
+    "profile": "Profile",
+    "logout": "Logout",
+    "login": "Login",
+    "register": "Register",
+    "home": "Home",
+    "explore": "Explore Vendors",
+    "about": "About",
+    "signIn": "Sign In",
+    "downloadApp": "Download App"
+  },
+  "hero": {
+    "badge": "#1 EVENT SERVICES MARKETPLACE",
+    "titleLine1": "Plan Your",
+    "titleLine2": "Special Moment",
+    "titleAccent": "Perfectly",
+    "subtitle": "Find the best vendors for all your event needs. Secure, easy, and trusted with Planora.",
+    "searchPlaceholder": "Search vendors, categories, or cities...",
+    "searchButton": "Search Vendor",
+    "customersText": "Customers can view catalogs, recommendations, and testimonials on the web"
+  },
+  "brandTrust": {
+    "title": "Trusted by the best professional vendors"
+  },
+  "categorySection": {
+    "title": "Featured Categories",
+    "viewAll": "View All Categories",
+    "vendorCount": "Vendors",
+    "catPhotography": "Photography",
+    "catCatering": "Catering",
+    "catDecoration": "Decoration",
+    "catWO": "Wedding Organizer",
+    "catEntertainment": "Entertainment"
+  },
+  "vendorFeatured": {
+    "title": "Featured Vendors",
+    "viewAll": "View All Vendors",
+    "startingFrom": "Starting from"
+  },
+  "howItWorks": {
+    "titleLine1": "Easy Way to Plan",
+    "titleAccent": "Dream Event",
+    "subtitle": "Planora is here to make every event planning step easier, safer, and more reliable.",
+    "step1Title": "Find the Best Vendors",
+    "step1Desc": "Explore thousands of professional vendors tailored to your event needs.",
+    "step2Title": "Book & Pay Down Payment",
+    "step2Desc": "Choose the right package, book your date, and pay a 50% down payment.",
+    "step3Title": "Event Completed",
+    "step3Desc": "Once the event is finished and you confirm, funds will be released to the vendor."
+  },
+  "features": {
+    "titleLine1": "Why Choose",
+    "titleAccent": "Planora?",
+    "feat1Title": "Integration Speed",
+    "feat1Desc": "Book vendors in minutes without manual chats.",
+    "feat2Title": "Transaction Security",
+    "feat2Desc": "Secure payments held in our system until service is completed.",
+    "feat3Title": "Performance Analytics",
+    "feat3Desc": "Monitor business growth through an intuitive dashboard.",
+    "statSuccess": "Success Rate",
+    "statVendors": "Vendor Partners",
+    "statUsers": "Users"
+  },
+  "testimonials": {
+    "title": "What They Say",
+    "role1": "Customer",
+    "text1": "Planora helped us find a decoration vendor that matched our dream wedding concept. The process was easy and secure!",
+    "role2": "Photographer",
+    "text2": "The escrow system is extremely helpful, the payment is clear, and disbursement is fast. Highly recommended for vendors.",
+    "role3": "Event Planner",
+    "text3": "The vendors are professional and verified. Our corporate event went smoothly thanks to this platform."
+  },
+  "cta": {
+    "titleLine1": "Ready to Realize Your",
+    "titleLine2": "Special Moments with",
+    "titleAccent": "Planora?",
+    "subtitle": "Join now and find the best vendors for an unforgettable event."
+  },
+  "footer": {
+    "description": "A premium event services marketplace connecting you with trusted vendors.",
+    "platformTitle": "Platform",
+    "categoriesTitle": "Categories",
+    "contactTitle": "Contact",
+    "linkExplore": "Explore Vendors",
+    "linkHow": "How It Works",
+    "linkVendor": "For Vendors",
+    "linkAbout": "About Us",
+    "allRights": "© 2024 Planora. All rights reserved."
+  },
+  "dashboard": {
+    "title": "Dashboard Overview",
+    "welcome": "Welcome back,",
+    "subtitle": "Here is what's happening with your store today.",
+    "sidebar": {
+      "navigation": "NAVIGATION",
+      "dashboard": "Dashboard",
+      "orders": "Orders",
+      "services": "Service Packages",
+      "portfolio": "Portfolio",
+      "reviews": "Reviews",
+      "finance": "Finance",
+      "settings": "Settings",
+      "logout": "Log Out"
+    },
+    "logoutModal": {
+      "title": "Log Out?",
+      "desc": "Are you sure you want to log out of your Planora account?",
+      "cancel": "Cancel",
+      "confirm": "Log Out"
+    },
+    "loading": "Loading dashboard...",
+    "welcome": "Welcome back,",
+    "manageSubtitle": "Manage your business and orders easily.",
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "cards": {
+      "totalOrders": "Total Orders",
+      "activeOrders": "Active Orders",
+      "completedOrders": "Completed Orders",
+      "totalRevenue": "Total Revenue"
+    },
+    "links": {
+      "viewAll": "View All",
+      "viewOrders": "View Orders",
+      "viewHistory": "View History",
+      "report": "Report",
+      "orders": "Orders"
+    },
+    "recentOrders": {
+      "title": "Recent Orders",
+      "empty": "No recent orders yet.",
+      "table": {
+        "order": "Order",
+        "client": "Client",
+        "date": "Event Date",
+        "package": "Package",
+        "total": "Total",
+        "status": "Status"
+      }
+    },
+    "revenueTitle": "Total Revenue",
+    "revenueDesc": "Accumulation of all ongoing transactions",
+    "upcoming": {
+      "title": "Upcoming Schedule",
+      "empty": "No upcoming events yet.",
+      "noLocation": "Location not set"
+    },
+    "orders": {
+      "titleList": "Orders",
+      "titleCalendar": "Schedule",
+      "subtitleList": "Monitor and manage your order list.",
+      "subtitleCalendar": "Monitor and manage your event schedule.",
+      "btnList": "List",
+      "btnCalendar": "Calendar",
+      "filterAll": "All",
+      "detailButton": "Detail",
+      "showing": "Showing {start} - {end} of {total} orders"
+    },
+    "calendar": {
+      "days": ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"],
+      "months": ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"],
+      "upcoming": "Upcoming Orders",
+      "empty": "No confirmed orders",
+      "confirmedBadge": "CONFIRMED"
+    },
+    "katalog": {
+      "title": "Manage Services",
+      "subtitle": "SET PRICING AND PACKAGE DETAILS.",
+      "btnAddNew": "ADD NEW PACKAGE",
+      "stats": {
+        "total": "Total Packages",
+        "promo": "Promo Packages",
+        "active": "Active",
+        "bestseller": "Best Seller",
+        "packageCount": "Packages"
+      },
+      "packageCard": {
+        "discount": "Discount",
+        "features": "Key Features",
+        "price": "Package Price",
+        "orders": "Ordered",
+        "times": "Times",
+        "createNew": "Create New Package",
+        "createNewDesc": "Expand product variations"
+      },
+      "form": {
+        "editTitle": "Edit Service Package",
+        "createTitle": "Create New Package",
+        "createSubtitle": "FILL SERVICE DETAILS FOR CLIENTS.",
+        "imageTitle": "Main Package Photo",
+        "imageSelected": "Main Photo Selected",
+        "imagePlaceholder": "Planora Premium Decoration",
+        "nameLabel": "Package Name",
+        "namePlaceholder": "E.g. Intimate Rose Package",
+        "priceStrategy": "Pricing & Discount Strategy",
+        "enableDiscount": "Enable Discount?",
+        "normalPrice": "Normal Price (IDR)",
+        "discountPercent": "Discount Amount (%)",
+        "promoLabel": "Promo Label",
+        "promoPlaceholder": "E.g. Wedding Week Promo",
+        "finalPrice": "Final Price on App",
+        "finalPriceDesc": "This is the price customers will see on the app.",
+        "featuresLabel": "Included Services",
+        "addFeature": "+ ADD POINT",
+        "featurePlaceholder": "E.g. Full Flower Stage",
+        "description": "Package Description",
+        "descriptionPlaceholder": "Tell details about your package...",
+        "btnCancel": "Cancel",
+        "btnSaving": "Saving...",
+        "btnSave": "Save Package"
+      },
+      "deleteModal": {
+        "title": "Delete service package?",
+        "desc1": "Package",
+        "desc2": "will be removed from catalog. This action cannot be undone.",
+        "category": "Category",
+        "price": "Price",
+        "btnCancel": "Cancel",
+        "btnDelete": "Yes, Delete"
+      },
+      "messages": {
+        "validationError": "Package name and price cannot be empty!",
+        "defaultFeatures": ["Friendly Service", "Guaranteed Quality"],
+        "defaultPromo": "Special Promo"
+      }
+    },
+    "keuangan": {
+      "title": "Business Finance",
+      "subtitle": "Monitor fund flow and withdrawal status in real-time.",
+      "btnDownload": "Download Monthly Report",
+      "stats": {
+        "income": "Total Income",
+        "incomeTrend": "↑ 18% from last month",
+        "incomeNote": "May 2024 Turnover",
+        "held": "Held Funds",
+        "heldNote1": "Incomplete orders",
+        "heldNote2": "Status: Admin Escrow",
+        "ready": "Ready to Withdraw",
+        "readyNote1": "Waiting for Admin Verification",
+        "readyNote2": "Funds Ready to Transfer",
+        "account": "Destination Account",
+        "verified": "Verified Account"
+      },
+      "system": {
+        "title": "Planora Fund Distribution System",
+        "desc": "You receive 95% of the total package price after a 5% platform commission cut.",
+        "vendor": "Vendor Receives",
+        "platform": "Platform Commission"
+      },
+      "history": {
+        "title": "Incoming Payment History",
+        "filterAll": "All",
+        "filterHeld": "Held",
+        "filterWithdrawn": "Withdrawn",
+        "tableEvent": "Event Detail",
+        "tablePrice": "Package Price",
+        "tableCommission": "Commission (5%)",
+        "tableNet": "Net Balance",
+        "tableStatus": "Fund Status",
+        "tableInvoice": "Invoice",
+        "statusHeld": "Held (Escrow)",
+        "statusWithdrawn": "Withdrawn",
+        "footerNote": "*Fund withdrawal is carried out periodically by Planora Admin within 1x24 hours after the event status is declared complete by both parties.",
+        "protected": "Protected Transaction"
+      },
+      "help": {
+        "title": "Have questions about funds?",
+        "desc": "Our support team is ready to explain the details of commissions and your withdrawal status.",
+        "btnContact": "Contact Our Admin"
+      }
+    },
+    "pengaturan": {
+      "title": "Settings",
+      "subtitle": "Manage your account information and store preferences",
+      "nav": {
+        "profil": "Business Profile",
+        "keamanan": "Security",
+        "rekening": "Bank Account",
+        "notifikasi": "Notifications"
+      },
+      "messages": {
+        "avatarSelected": "Profile photo selected (preview). Click Save Changes to save.",
+        "avatarRemoved": "Profile photo removed. Click Save Changes to save.",
+        "profileSaved": "Business profile saved successfully.",
+        "profileSaveFailed": "Failed to save profile.",
+        "pwdCurrentRequired": "Fill in the current password first.",
+        "pwdMinLength": "New password must be at least 8 characters.",
+        "pwdMismatch": "Password confirmation does not match.",
+        "pwdSuccess": "Password updated successfully. Please login again if needed.",
+        "pwdFailed": "Failed to change password.",
+        "deleteTypeConfirm": "Type DELETE to continue.",
+        "deleteRequested": "Vendor account deletion request has been sent.",
+        "bankSaved": "Account changes saved.",
+        "bankFailed": "Failed to save account details."
+      },
+      "profil": {
+        "title": "Business Profile",
+        "desc": "Important information displayed on your business profile",
+        "verified": "Verified",
+        "uploadBtn": "Upload Photo",
+        "removeBtn": "Remove",
+        "businessName": "Business Name",
+        "whatsapp": "Phone / WhatsApp",
+        "city": "City / District",
+        "description": "Business Description",
+        "btnSaving": "Saving...",
+        "btnSave": "Save Changes"
+      },
+      "keamanan": {
+        "title": "Account Security",
+        "desc": "Change password and manage login security",
+        "emailLabel": "Account Email",
+        "emailNote": "Email cannot be changed. Contact admin if necessary.",
+        "pwdNote": "To change your password, click the button below. Password changes are only available via secure dialogue.",
+        "btnChangePwd": "Change Password"
+      },
+      "rekening": {
+        "title": "Bank Account",
+        "desc": "Destination account for Planora fund withdrawals",
+        "verified": "Verified by admin",
+        "btnCancelEdit": "Cancel Edit",
+        "btnEdit": "Edit Account",
+        "bankName": "Bank Name",
+        "accountNumber": "Account Number",
+        "accountPlaceholder": "Enter new account number",
+        "accountHolder": "Account Holder Name",
+        "holderPlaceholder": "According to passbook",
+        "btnSave": "Save Account Changes"
+      },
+      "notifikasi": {
+        "title": "Notifications",
+        "desc": "Set when and how you receive notifications",
+        "items": {
+          "newOrder": { "title": "New incoming order", "desc": "Notification when a customer makes a booking" },
+          "dpReceived": { "title": "DP Payment received", "desc": "Notification when admin verifies customer's DP" },
+          "eventReminder": { "title": "Event D-3 reminder", "desc": "Automatic reminder 3 days before the event" },
+          "fundWithdrawn": { "title": "Funds successfully withdrawn", "desc": "Notification when admin withdraws funds to your account" },
+          "newReview": { "title": "New review from customer", "desc": "Notification when a customer gives a rating and review" },
+          "newsletter": { "title": "Planora newsletter email", "desc": "Business tips and new feature updates from Planora" }
+        }
+      },
+      "dangerZone": {
+        "title": "Delete Vendor Account",
+        "desc": "Account and all store data will be permanently deleted. This action cannot be undone.",
+        "btnDelete": "Request Deletion"
+      },
+      "modals": {
+        "password": {
+          "title": "Change Password",
+          "currentPwd": "Current Password",
+          "newPwd": "New Password",
+          "confirmPwd": "Confirm New Password",
+          "btnUpdate": "Update Password"
+        },
+        "avatar": {
+          "title": "Remove Profile Photo",
+          "desc": "Are you sure you want to remove the profile photo? This action can be undone by uploading a new photo.",
+          "btnCancel": "Cancel",
+          "btnDelete": "Remove"
+        },
+        "logout": {
+          "title": "Confirm Logout",
+          "desc": "Are you sure you want to log out of the vendor account now?",
+          "btnCancel": "Cancel",
+          "btnLogout": "Yes, Logout"
+        },
+        "delete": {
+          "title": "Request Account Deletion",
+          "desc": "This action does not immediately delete the account. We will receive the vendor deletion request for further processing.",
+          "instruction": "Type DELETE to continue",
+          "placeholder": "DELETE",
+          "btnCancel": "Cancel",
+          "btnSubmit": "Send Request"
+        }
+      }
+    },
+    "portofolio": {
+      "messages": {
+        "titleRequired": "Portfolio title is required.",
+        "addFailed": "Failed to add portfolio.",
+        "deleteConfirm": "Are you sure you want to remove this portfolio from the gallery?",
+        "deleteFailed": "Failed to delete portfolio."
+      },
+      "loading": "Loading portfolio...",
+      "list": {
+        "title": "Business Portfolio",
+        "subtitle": "Total Portfolio: {count} Projects",
+        "btnAdd": "ADD PORTFOLIO",
+        "emptyTitle": "No Portfolio Yet",
+        "emptyDesc": "Start adding your most beautiful works to the gallery",
+        "btnEmptyAdd": "Add First Portfolio",
+        "btnDeleteWork": "Delete Work",
+        "uploadMore": "UPLOAD LATEST WORK DOCUMENTATION"
+      },
+      "form": {
+        "title": "Add Work",
+        "subtitle": "UPLOAD YOUR WORK TO SHOWCASE TO CUSTOMERS.",
+        "mediaTitle": "Upload Media",
+        "mediaDesc": "Choose the best photo from your event documentation",
+        "mediaPinned": "Main photo is automatically pinned",
+        "mediaQuality": "Standard High Quality",
+        "fieldTitle": "Portfolio / Event Title",
+        "fieldTitlePlaceholder": "Example: Intimate Wedding at Glass House",
+        "fieldDate": "Documentation / Event Date",
+        "fieldDesc": "Event Description & Success Story",
+        "fieldDescPlaceholder": "Tell us about the decoration theme, color nuances, or uniqueness of this event...",
+        "btnCancel": "Cancel",
+        "btnSave": "Save Work"
+      }
+    },
+    "ulasan": {
+      "title": "Customer Reviews",
+      "subtitle": "MONITOR YOUR BUSINESS FEEDBACK AND REPUTATION.",
+      "sort": {
+        "newest": "Newest",
+        "highest": "Highest Rating",
+        "lowest": "Lowest Rating",
+        "unreplied": "Unreplied"
+      },
+      "stats": {
+        "average": "AVERAGE RATING",
+        "basedOn": "Based on {count} customer reviews",
+        "distribution": "RATING DISTRIBUTION"
+      },
+      "listTitle": "ALL REVIEWS",
+      "reply": {
+        "yourReply": "Your Reply",
+        "placeholder": "Write your reply...",
+        "btnCancel": "Cancel",
+        "btnSave": "Save Changes",
+        "btnEdit": "Edit Reply",
+        "btnSend": "Send Reply",
+        "unrepliedText": "Unreplied",
+        "btnReply": "REPLY REVIEW"
+      }
+    },
+    "profil": {
+      "subtitle": "BUSINESS IDENTITY & BRAND",
+      "title": "VENDOR STUDIO <br /> PROFILE.",
+      "btnViewPublic": "VIEW PUBLIC",
+      "btnSave": "SAVE PROFILE",
+      "bannerUpload": "UPLOAD STUDIO BANNER (1200X400)",
+      "fields": {
+        "studioName": "STUDIO / BRAND NAME",
+        "ownerName": "OWNER NAME",
+        "bio": "BIO / STUDIO DESCRIPTION",
+        "socialMedia": "SOCIAL MEDIA & LINKS",
+        "instagram": "INSTAGRAM",
+        "whatsapp": "WHATSAPP BUSINESS",
+        "website": "WEBSITE / LINKTREE",
+        "email": "BUSINESS EMAIL",
+        "location": "BUSINESS LOCATION",
+        "city": "MAIN CITY/DISTRICT",
+        "locationHint": "*THIS LOCATION HELPS THE SYSTEM RECOMMEND YOUR SERVICES TO NEARBY CUSTOMERS.",
+        "portfolio": "PORTFOLIO",
+        "manageGallery": "MANAGE GALLERY",
+        "add": "ADD"
+      }
+    },
+    "pesananDetail": {
+      "subtitle": "EVENT OPERATIONAL DETAILS",
+      "title": "ANDI PRATAMA <br /> WEDDING PHOTO.",
+      "btnComplete": "ORDER COMPLETED",
+      "btnChat": "CHAT CUSTOMER",
+      "clientInfo": {
+        "title": "CLIENT INFORMATION",
+        "name": "CUSTOMER NAME",
+        "whatsapp": "WHATSAPP CONTACT",
+        "email": "CUSTOMER EMAIL"
+      },
+      "schedule": {
+        "title": "SCHEDULE & TIME",
+        "date": "EVENT DATE",
+        "time": "EXECUTION TIME",
+        "duration": "SERVICE DURATION"
+      },
+      "package": {
+        "title": "SELECTED PACKAGE",
+        "id": "PACKAGE ID"
+      },
+      "location": {
+        "title": "EVENT LOCATION",
+        "openMaps": "OPEN GOOGLE MAPS"
+      },
+      "notes": {
+        "title": "SPECIAL NOTES",
+        "updateTime": "UPDATED 2 DAYS AGO"
+      },
+      "payment": {
+        "title": "PAYMENT",
+        "dp": "DOWN PAYMENT (DP)",
+        "settlement": "SETTLEMENT",
+        "total": "FINAL TOTAL",
+        "statusPaid": "STATUS: PAID IN FULL"
+      }
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "account": "Account",
+    "security": "Security",
+    "notifications": "Notifications",
+    "language": "Language",
+    "theme": "Theme"
+  }
+}

@@ -1,12 +1,16 @@
 import Link from "next/link";
-
-const links = [
-  { href: "/events", label: "Events" },
-  { href: "/bookings", label: "Bookings" },
-  { href: "/dashboard", label: "Dashboard" },
-];
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Navbar() {
+  const { t } = useLanguage();
+
+  const links = [
+    { href: "/events", label: t('nav.events') },
+    { href: "/bookings", label: t('nav.bookings') },
+    { href: "/dashboard", label: t('nav.dashboard') },
+  ];
+
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
       <nav className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6">
@@ -19,6 +23,7 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
+          <LanguageSwitcher />
         </div>
       </nav>
     </header>

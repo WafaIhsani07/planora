@@ -24,7 +24,12 @@ class ApiService {
   /// - Jika [path] kosong/null, string kosong dikembalikan.
   static String getAssetUrl(String? path) {
     if (path == null || path.trim().isEmpty) return '';
-    if (path.startsWith('http')) return path;
+    if (path.startsWith('http')) {
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+        return path.replaceAll('localhost', '10.0.2.2');
+      }
+      return path;
+    }
     return '$baseHost/uploads/$path';
   }
 
@@ -138,6 +143,24 @@ class ApiService {
           'Content-Type': 'application/json',
           if (token != null) 'Authorization': 'Bearer $token',
         },
+      );
+    } finally {
+      if (client == null) httpClient.close();
+    }
+  }
+
+  // Generic PATCH request dengan token
+  static Future<http.Response> patchRequest(String endpoint, Map<String, dynamic> body, {http.Client? client}) async {
+    final httpClient = client ?? http.Client();
+    final token = await getToken();
+    try {
+      return await httpClient.patch(
+        Uri.parse('$baseUrl$endpoint'),
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+        body: json.encode(body),
       );
     } finally {
       if (client == null) httpClient.close();

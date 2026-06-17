@@ -2,26 +2,29 @@
 
 import React from "react";
 import { CalendarCheck, Search, CheckCircle2 } from "lucide-react";
-
-const steps = [
-    {
-        icon: Search,
-        title: "Find the Best Vendors",
-        desc: "Explore thousands of professional vendors tailored to your event needs.",
-    },
-    {
-        icon: CalendarCheck,
-        title: "Book & Pay Down Payment",
-        desc: "Choose the right package, book your date, and pay a 50% down payment.",
-    },
-    {
-        icon: CheckCircle2,
-        title: "Event Completed",
-        desc: "Once the event is finished and you confirm, funds will be released to the vendor.",
-    },
-];
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function HowItWorksSection() {
+    const { t } = useLanguage();
+
+    const steps = [
+        {
+            icon: Search,
+            title: t('howItWorks.step1Title'),
+            desc: t('howItWorks.step1Desc'),
+        },
+        {
+            icon: CalendarCheck,
+            title: t('howItWorks.step2Title'),
+            desc: t('howItWorks.step2Desc'),
+        },
+        {
+            icon: CheckCircle2,
+            title: t('howItWorks.step3Title'),
+            desc: t('howItWorks.step3Desc'),
+        },
+    ];
+
     return (
         <section id="cara-kerja" data-reveal className="bg-white px-6 py-14 md:py-16 md:px-12">
             <div className="mx-auto max-w-7xl">
@@ -30,10 +33,10 @@ export default function HowItWorksSection() {
 
                     <div className="relative z-10 mb-12 text-center md:mb-16">
                         <h2 className="text-3xl font-extrabold leading-tight text-white md:text-5xl">
-                            Easy Way to Plan <br /> Your <span className="text-pink-gradient italic">Dream Event</span>
+                            {t('howItWorks.titleLine1')} <br /> <span className="text-pink-gradient italic">{t('howItWorks.titleAccent')}</span>
                         </h2>
                         <p className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-gray-400 md:text-base">
-                            Planora is here to make every event planning step easier, safer, and more reliable.
+                            {t('howItWorks.subtitle')}
                         </p>
                     </div>
 

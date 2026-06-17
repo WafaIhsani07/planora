@@ -22,6 +22,7 @@ import 'screens/chat_detail_screen.dart';
 import 'screens/pembayaran_screen.dart';
 import 'screens/riwayat_screen.dart';
 import 'screens/edit_profil_screen.dart';
+import 'services/language_service.dart';
 
 // ============================================================
 // PLANORA DESIGN SYSTEM — Color Palette (Single Source of Truth)
@@ -106,8 +107,9 @@ class PlanoraSnackBar {
   }
 }
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await LanguageService.init();
 
   // Status bar menyesuaikan warna terang (ikon gelap di atas background putih)
   SystemChrome.setSystemUIOverlayStyle(
@@ -124,8 +126,7 @@ void main() {
 class PlanoraApp extends StatelessWidget {
   const PlanoraApp({super.key});
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildApp(BuildContext context) {
     // ── Base TextTheme: Plus Jakarta Sans ──────────────────────────────────
     final TextTheme baseTextTheme = GoogleFonts.plusJakartaSansTextTheme(
       const TextTheme(
@@ -511,6 +512,16 @@ class PlanoraApp extends StatelessWidget {
         '/pembayaran': (context) => const PembayaranScreen(),
         '/riwayat': (context) => const RiwayatScreen(),
         '/edit_profil': (context) => const EditProfilScreen(),
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<String>(
+      valueListenable: LanguageService.currentLangNotifier,
+      builder: (context, lang, child) {
+        return _buildApp(context);
       },
     );
   }

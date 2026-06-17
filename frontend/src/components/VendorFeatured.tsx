@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Heart, Star } from "lucide-react";
 import { listVendors } from "../lib/vendors";
 import { getCategoryById } from "../lib/categories";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const vendors = listVendors().slice(0, 3);
 
@@ -18,13 +19,15 @@ function initials(name: string) {
 }
 
 export default function VendorFeatured() {
+  const { t } = useLanguage();
+
   return (
     <section data-reveal className="bg-white px-6 py-20 md:px-12">
       <div className="mx-auto max-w-7xl">
         <div className="mb-10 flex items-end justify-between gap-6">
-          <h2 className="text-3xl font-bold text-[#2A2A2A] md:text-4xl">Featured Vendors</h2>
+          <h2 className="text-3xl font-bold text-[#2A2A2A] md:text-4xl">{t('vendorFeatured.title')}</h2>
           <a href="/vendors" className="hidden items-center gap-1 text-sm font-bold uppercase tracking-tight text-[#FF9A9E] transition-all hover:gap-2 md:flex">
-            View All Vendors
+            {t('vendorFeatured.viewAll')}
             <span aria-hidden="true">›</span>
           </a>
         </div>
@@ -59,7 +62,7 @@ export default function VendorFeatured() {
                 </div>
 
                 <div>
-                  <p className="text-[10px] font-bold uppercase text-gray-400">Starting from</p>
+                  <p className="text-[10px] font-bold uppercase text-gray-400">{t('vendorFeatured.startingFrom')}</p>
                   <p className="text-xl font-extrabold text-[#FF9A9E]">{vendor.price}</p>
                 </div>
               </div>

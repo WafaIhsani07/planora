@@ -1,0 +1,528 @@
+{
+  "common": {
+    "loading": "Memuat...",
+    "save": "Simpan",
+    "cancel": "Batal",
+    "close": "Tutup",
+    "edit": "Ubah",
+    "delete": "Hapus",
+    "success": "Sukses",
+    "error": "Kesalahan"
+  },
+  "nav": {
+    "dashboard": "Dasbor",
+    "events": "Acara",
+    "bookings": "Pesanan",
+    "services": "Layanan",
+    "orders": "Pesanan",
+    "settings": "Pengaturan",
+    "profile": "Profil",
+    "logout": "Keluar",
+    "login": "Masuk",
+    "register": "Daftar",
+    "home": "Beranda",
+    "explore": "Eksplor Vendor",
+    "about": "Tentang",
+    "signIn": "Masuk",
+    "downloadApp": "Unduh Aplikasi"
+  },
+  "hero": {
+    "badge": "MARKETPLACE LAYANAN EVENT #1",
+    "titleLine1": "Rencanakan",
+    "titleLine2": "Momen Spesialmu",
+    "titleAccent": "Sempurna",
+    "subtitle": "Temukan vendor terbaik untuk semua kebutuhan acaramu. Aman, mudah, dan terpercaya bersama Planora.",
+    "searchPlaceholder": "Cari vendor, kategori, atau kota...",
+    "searchButton": "Cari Vendor",
+    "customersText": "Pelanggan dapat melihat katalog, rekomendasi, dan testimoni di web"
+  },
+  "brandTrust": {
+    "title": "Dipercaya oleh vendor profesional terbaik"
+  },
+  "categorySection": {
+    "title": "Kategori Pilihan",
+    "viewAll": "Lihat Semua Kategori",
+    "vendorCount": "Vendor",
+    "catPhotography": "Fotografi",
+    "catCatering": "Katering",
+    "catDecoration": "Dekorasi",
+    "catWO": "Wedding Organizer",
+    "catEntertainment": "Hiburan"
+  },
+  "vendorFeatured": {
+    "title": "Vendor Pilihan",
+    "viewAll": "Lihat Semua Vendor",
+    "startingFrom": "Mulai dari"
+  },
+  "howItWorks": {
+    "titleLine1": "Cara Mudah Merencanakan",
+    "titleAccent": "Acara Impianmu",
+    "subtitle": "Planora hadir untuk membuat setiap langkah perencanaan acaramu menjadi lebih mudah, aman, dan terpercaya.",
+    "step1Title": "Temukan Vendor Terbaik",
+    "step1Desc": "Eksplorasi ribuan vendor profesional yang sesuai dengan kebutuhan acaramu.",
+    "step2Title": "Pesan & Bayar DP",
+    "step2Desc": "Pilih paket yang tepat, pesan tanggal, dan bayar DP 50%.",
+    "step3Title": "Acara Selesai",
+    "step3Desc": "Setelah acara selesai dan kamu konfirmasi, dana akan diteruskan ke vendor."
+  },
+  "features": {
+    "titleLine1": "Mengapa Memilih",
+    "titleAccent": "Planora?",
+    "feat1Title": "Kecepatan Integrasi",
+    "feat1Desc": "Pesan vendor dalam hitungan menit tanpa chat manual.",
+    "feat2Title": "Keamanan Transaksi",
+    "feat2Desc": "Pembayaran aman ditahan di sistem kami hingga layanan selesai.",
+    "feat3Title": "Analitik Performa",
+    "feat3Desc": "Pantau pertumbuhan bisnis melalui dasbor yang intuitif.",
+    "statSuccess": "Tingkat Keberhasilan",
+    "statVendors": "Mitra Vendor",
+    "statUsers": "Pengguna"
+  },
+  "testimonials": {
+    "title": "Apa Kata Mereka",
+    "role1": "Pelanggan",
+    "text1": "Planora membantu kami menemukan vendor dekorasi yang sesuai dengan konsep pernikahan impian kami. Prosesnya mudah dan aman!",
+    "role2": "Fotografer",
+    "text2": "Sistem escrow sangat membantu, pembayaran jelas, dan pencairan cepat. Sangat direkomendasikan untuk vendor.",
+    "role3": "Event Planner",
+    "text3": "Vendornya profesional dan terverifikasi. Acara perusahaan kami berjalan lancar berkat platform ini."
+  },
+  "cta": {
+    "titleLine1": "Siap Wujudkan",
+    "titleLine2": "Momen Spesial Bersama",
+    "titleAccent": "Planora?",
+    "subtitle": "Bergabunglah sekarang dan temukan vendor terbaik untuk acara yang tak terlupakan."
+  },
+  "footer": {
+    "description": "Marketplace layanan acara premium yang menghubungkan Anda dengan vendor terpercaya.",
+    "platformTitle": "Platform",
+    "categoriesTitle": "Kategori",
+    "contactTitle": "Kontak",
+    "linkExplore": "Eksplor Vendor",
+    "linkHow": "Cara Kerja",
+    "linkVendor": "Untuk Vendor",
+    "linkAbout": "Tentang Kami",
+    "allRights": "© 2024 Planora. Hak cipta dilindungi."
+  },
+  "dashboard": {
+    "title": "Ringkasan Dasbor",
+    "welcome": "Selamat datang kembali,",
+    "subtitle": "Berikut adalah aktivitas toko Anda hari ini.",
+    "sidebar": {
+      "navigation": "NAVIGASI",
+      "dashboard": "Dasbor",
+      "orders": "Pesanan",
+      "services": "Paket Layanan",
+      "portfolio": "Portofolio",
+      "reviews": "Ulasan",
+      "finance": "Keuangan",
+      "settings": "Pengaturan",
+      "logout": "Keluar"
+    },
+    "logoutModal": {
+      "title": "Keluar?",
+      "desc": "Apakah kamu yakin ingin keluar dari akun Planora kamu?",
+      "cancel": "Batal",
+      "confirm": "Keluar"
+    },
+    "loading": "Memuat dasbor...",
+    "welcome": "Selamat datang kembali,",
+    "manageSubtitle": "Kelola bisnis dan pesanan Anda dengan mudah.",
+    "status": {
+      "pending": "Menunggu",
+      "confirmed": "Dikonfirmasi",
+      "inProgress": "Berjalan",
+      "completed": "Selesai",
+      "cancelled": "Dibatalkan"
+    },
+    "cards": {
+      "totalOrders": "Total Pesanan",
+      "activeOrders": "Pesanan Aktif",
+      "completedOrders": "Pesanan Selesai",
+      "totalRevenue": "Total Pendapatan"
+    },
+    "links": {
+      "viewAll": "Lihat semua",
+      "viewOrders": "Lihat pesanan",
+      "viewHistory": "Lihat riwayat",
+      "report": "Laporan",
+      "orders": "Pesanan"
+    },
+    "recentOrders": {
+      "title": "Pesanan Terbaru",
+      "empty": "Belum ada pesanan terbaru.",
+      "table": {
+        "order": "Pesanan",
+        "client": "Klien",
+        "date": "Tanggal Acara",
+        "package": "Paket",
+        "total": "Total",
+        "status": "Status"
+      }
+    },
+    "revenueTitle": "Total Pendapatan",
+    "revenueDesc": "Akumulasi seluruh transaksi berjalan",
+    "upcoming": {
+      "title": "Jadwal Terdekat",
+      "empty": "Belum ada jadwal acara terdekat.",
+      "noLocation": "Lokasi belum diatur"
+    },
+    "orders": {
+      "titleList": "Pesanan",
+      "titleCalendar": "Jadwal",
+      "subtitleList": "Pantau dan kelola daftar pesanan Anda.",
+      "subtitleCalendar": "Pantau dan kelola jadwal acara Anda.",
+      "btnList": "Daftar",
+      "btnCalendar": "Kalender",
+      "filterAll": "Semua",
+      "detailButton": "Detail",
+      "showing": "Menampilkan {start} - {end} dari {total} pesanan"
+    },
+    "calendar": {
+      "days": ["MING", "SEN", "SEL", "RAB", "KAM", "JUM", "SAB"],
+      "months": ["JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"],
+      "upcoming": "Pesanan Terdekat",
+      "empty": "Tidak ada pesanan yang dikonfirmasi",
+      "confirmedBadge": "DIKONFIRMASI"
+    },
+    "katalog": {
+      "title": "Kelola Paket Layanan",
+      "subtitle": "ATUR HARGA DAN DETAIL PAKET ACARAMU.",
+      "btnAddNew": "TAMBAH PAKET BARU",
+      "stats": {
+        "total": "Total Paket",
+        "promo": "Paket Promo",
+        "active": "Aktif",
+        "bestseller": "Terlaris",
+        "packageCount": "Paket"
+      },
+      "packageCard": {
+        "discount": "Diskon",
+        "features": "Fitur Utama",
+        "price": "Harga Paket",
+        "orders": "Dipesan",
+        "times": "Kali",
+        "createNew": "Buat Paket Baru",
+        "createNewDesc": "Kembangkan variasi produk"
+      },
+      "form": {
+        "editTitle": "Edit Paket Layanan",
+        "createTitle": "Buat Paket Baru",
+        "createSubtitle": "ISI DETAIL LAYANAN UNTUK KLIENMU.",
+        "imageTitle": "Foto Utama Paket",
+        "imageSelected": "Foto Utama Paket Terpilih",
+        "imagePlaceholder": "Planora Premium Decoration",
+        "nameLabel": "Nama Paket",
+        "namePlaceholder": "Contoh: Paket Intimate Rose",
+        "priceStrategy": "Harga & Strategi Diskon",
+        "enableDiscount": "Aktifkan Diskon?",
+        "normalPrice": "Harga Normal (IDR)",
+        "discountPercent": "Besar Diskon (%)",
+        "promoLabel": "Label Promo",
+        "promoPlaceholder": "Contoh: Promo Wedding Week",
+        "finalPrice": "Harga Akhir di Aplikasi",
+        "finalPriceDesc": "Harga ini akan dilihat customer di aplikasi.",
+        "featuresLabel": "Layanan yang Didapat",
+        "addFeature": "+ TAMBAH POIN",
+        "featurePlaceholder": "Contoh: Pelaminan Full Flower",
+        "description": "Deskripsi Paket",
+        "descriptionPlaceholder": "Ceritakan detail paketmu...",
+        "btnCancel": "Batal",
+        "btnSaving": "Menyimpan...",
+        "btnSave": "Simpan Paket"
+      },
+      "deleteModal": {
+        "title": "Hapus paket layanan?",
+        "desc1": "Paket",
+        "desc2": "akan dihapus dari katalog. Tindakan ini tidak bisa dibatalkan.",
+        "category": "Kategori",
+        "price": "Harga",
+        "btnCancel": "Batal",
+        "btnDelete": "Ya, Hapus"
+      },
+      "messages": {
+        "validationError": "Nama paket dan harga tidak boleh kosong!",
+        "defaultFeatures": ["Pelayanan Ramah", "Kualitas Terjamin"],
+        "defaultPromo": "Promo Spesial"
+      }
+    },
+    "keuangan": {
+      "title": "Keuangan Bisnis",
+      "subtitle": "Pantau alur dana dan status pencairan anda secara real-time.",
+      "btnDownload": "Unduh Laporan Bulanan",
+      "stats": {
+        "income": "Total Pendapatan",
+        "incomeTrend": "↑ 18% dari bulan lalu",
+        "incomeNote": "Omzet Mei 2024",
+        "held": "Dana Ditahan",
+        "heldNote1": "Pesanan belum selesai",
+        "heldNote2": "Status: Escrow Admin",
+        "ready": "Siap Dicairkan",
+        "readyNote1": "Menunggu Verifikasi Admin",
+        "readyNote2": "Dana Siap Ditransfer",
+        "account": "Rekening Tujuan",
+        "verified": "Rekening Terverifikasi"
+      },
+      "system": {
+        "title": "Sistem Pembagian Dana Planora",
+        "desc": "Anda menerima 95% dari total harga paket setelah potongan komisi platform 5%.",
+        "vendor": "Diterima Vendor",
+        "platform": "Komisi Platform"
+      },
+      "history": {
+        "title": "Riwayat Pembayaran Masuk",
+        "filterAll": "Semua",
+        "filterHeld": "Ditahan",
+        "filterWithdrawn": "Dicairkan",
+        "tableEvent": "Detail Acara",
+        "tablePrice": "Harga Paket",
+        "tableCommission": "Komisi (5%)",
+        "tableNet": "Saldo Bersih",
+        "tableStatus": "Status Dana",
+        "tableInvoice": "Invoice",
+        "statusHeld": "Ditahan (Escrow)",
+        "statusWithdrawn": "Sudah Dicairkan",
+        "footerNote": "*Pencairan dana dilakukan secara berkala oleh Admin Planora maksimal 1x24 jam setelah status acara dinyatakan selesai oleh kedua belah pihak.",
+        "protected": "Transaksi Dilindungi"
+      },
+      "help": {
+        "title": "Punya pertanyaan tentang dana?",
+        "desc": "Tim bantuan kami siap menjelaskan rincian komisi dan status pencairan Anda.",
+        "btnContact": "Hubungi Admin Kami"
+      }
+    },
+    "pengaturan": {
+      "title": "Pengaturan",
+      "subtitle": "Kelola informasi akun dan preferensi toko Anda",
+      "nav": {
+        "profil": "Profil Bisnis",
+        "keamanan": "Keamanan",
+        "rekening": "Rekening Bank",
+        "notifikasi": "Notifikasi"
+      },
+      "messages": {
+        "avatarSelected": "Foto profil berhasil dipilih (preview). Klik Simpan Perubahan untuk menyimpan",
+        "avatarRemoved": "Foto profil dihapus. Klik Simpan Perubahan untuk menyimpan perubahan.",
+        "profileSaved": "Profil bisnis berhasil disimpan.",
+        "profileSaveFailed": "Gagal menyimpan profil.",
+        "pwdCurrentRequired": "Isi kata sandi saat ini terlebih dahulu.",
+        "pwdMinLength": "Kata sandi baru minimal 8 karakter.",
+        "pwdMismatch": "Konfirmasi kata sandi tidak cocok.",
+        "pwdSuccess": "Kata sandi berhasil diperbarui. Silakan login ulang jika diperlukan.",
+        "pwdFailed": "Gagal mengganti kata sandi.",
+        "deleteTypeConfirm": "Ketik HAPUS untuk melanjutkan.",
+        "deleteRequested": "Permintaan penghapusan akun vendor telah dikirim.",
+        "bankSaved": "Perubahan rekening disimpan.",
+        "bankFailed": "Gagal menyimpan rekening."
+      },
+      "profil": {
+        "title": "Profil Bisnis",
+        "desc": "Informasi penting yang ditampilkan pada profil bisnis Anda",
+        "verified": "Terverifikasi",
+        "uploadBtn": "Upload Foto",
+        "removeBtn": "Hapus",
+        "businessName": "Nama Bisnis",
+        "whatsapp": "Nomor HP / WhatsApp",
+        "city": "Kota / Kabupaten",
+        "description": "Deskripsi Bisnis",
+        "btnSaving": "Menyimpan...",
+        "btnSave": "Simpan Perubahan"
+      },
+      "keamanan": {
+        "title": "Keamanan Akun",
+        "desc": "Ganti kata sandi dan kelola keamanan login",
+        "emailLabel": "Email Akun",
+        "emailNote": "Email tidak dapat diubah. Hubungi admin jika perlu.",
+        "pwdNote": "Untuk mengganti kata sandi, klik tombol di bawah. Perubahan kata sandi hanya tersedia melalui dialog aman.",
+        "btnChangePwd": "Ganti Kata Sandi"
+      },
+      "rekening": {
+        "title": "Rekening Bank",
+        "desc": "Rekening tujuan pencairan dana dari Planora",
+        "verified": "Sudah diverifikasi admin",
+        "btnCancelEdit": "Batal Ubah",
+        "btnEdit": "Ubah Rekening",
+        "bankName": "Nama Bank",
+        "accountNumber": "Nomor Rekening",
+        "accountPlaceholder": "Masukkan nomor rekening baru",
+        "accountHolder": "Nama Pemilik Rekening",
+        "holderPlaceholder": "Sesuai buku tabungan",
+        "btnSave": "Simpan Perubahan Rekening"
+      },
+      "notifikasi": {
+        "title": "Notifikasi",
+        "desc": "Atur kapan dan bagaimana Anda menerima notifikasi",
+        "items": {
+          "newOrder": { "title": "Pesanan masuk baru", "desc": "Notifikasi saat ada customer melakukan booking" },
+          "dpReceived": { "title": "Pembayaran DP diterima", "desc": "Notifikasi saat admin memverifikasi DP customer" },
+          "eventReminder": { "title": "Pengingat H-3 acara", "desc": "Pengingat otomatis 3 hari sebelum acara berlangsung" },
+          "fundWithdrawn": { "title": "Dana berhasil dicairkan", "desc": "Notifikasi saat admin mencairkan dana ke rekening Anda" },
+          "newReview": { "title": "Ulasan baru dari customer", "desc": "Notifikasi saat customer memberikan rating dan ulasan" },
+          "newsletter": { "title": "Email newsletter Planora", "desc": "Tips bisnis dan update fitur terbaru dari Planora" }
+        }
+      },
+      "dangerZone": {
+        "title": "Hapus Akun Vendor",
+        "desc": "Akun dan semua data toko akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.",
+        "btnDelete": "Ajukan Penghapusan"
+      },
+      "modals": {
+        "password": {
+          "title": "Ganti Kata Sandi",
+          "currentPwd": "Kata Sandi Saat Ini",
+          "newPwd": "Kata Sandi Baru",
+          "confirmPwd": "Konfirmasi Kata Sandi Baru",
+          "btnUpdate": "Perbarui Password"
+        },
+        "avatar": {
+          "title": "Hapus Foto Profil",
+          "desc": "Kamu yakin ingin menghapus foto profil? Tindakan ini dapat dibatalkan dengan mengunggah foto baru.",
+          "btnCancel": "Batal",
+          "btnDelete": "Hapus"
+        },
+        "logout": {
+          "title": "Konfirmasi Keluar",
+          "desc": "Kamu yakin ingin keluar dari akun vendor sekarang?",
+          "btnCancel": "Batal",
+          "btnLogout": "Ya, Keluar"
+        },
+        "delete": {
+          "title": "Ajukan Penghapusan Akun",
+          "desc": "Tindakan ini tidak langsung menghapus akun. Kami akan menerima permintaan penghapusan vendor untuk diproses lebih lanjut.",
+          "instruction": "Ketik HAPUS untuk melanjutkan",
+          "placeholder": "HAPUS",
+          "btnCancel": "Batal",
+          "btnSubmit": "Kirim Permintaan"
+        }
+      }
+    },
+    "portofolio": {
+      "messages": {
+        "titleRequired": "Judul portofolio wajib diisi.",
+        "addFailed": "Gagal menambahkan portofolio.",
+        "deleteConfirm": "Apakah Anda yakin ingin menghapus portofolio ini dari galeri?",
+        "deleteFailed": "Gagal menghapus portofolio."
+      },
+      "loading": "Memuat portofolio...",
+      "list": {
+        "title": "Portofolio Bisnis",
+        "subtitle": "Total Portofolio: {count} Proyek",
+        "btnAdd": "TAMBAH PORTOFOLIO",
+        "emptyTitle": "Belum Ada Portofolio",
+        "emptyDesc": "Mulai tambahkan hasil karya terindah Anda ke galeri",
+        "btnEmptyAdd": "Tambah Portofolio Pertama",
+        "btnDeleteWork": "Hapus Karya",
+        "uploadMore": "UNGGAH DOKUMENTASI KARYA TERBARU"
+      },
+      "form": {
+        "title": "Tambah Karya",
+        "subtitle": "UNGGAH HASIL KERJA ANDA UNTUK DIPAMERKAN KE PELANGGAN.",
+        "mediaTitle": "Upload Media",
+        "mediaDesc": "Pilih foto terbaik dari dokumentasi acara Anda",
+        "mediaPinned": "Foto utama otomatis disematkan",
+        "mediaQuality": "Standard High Quality",
+        "fieldTitle": "Judul Portofolio / Acara",
+        "fieldTitlePlaceholder": "Contoh: Intimate Wedding at Glass House",
+        "fieldDate": "Tanggal Dokumentasi / Acara",
+        "fieldDesc": "Deskripsi & Kisah Sukses Acara",
+        "fieldDescPlaceholder": "Ceritakan tema dekorasi, nuansa warna, atau keunikan acara ini...",
+        "btnCancel": "Batalkan",
+        "btnSave": "Simpan Karya"
+      }
+    },
+    "ulasan": {
+      "title": "Ulasan Pelanggan",
+      "subtitle": "PANTAU FEEDBACK DAN REPUTASI BISNIS ANDA.",
+      "sort": {
+        "newest": "Terbaru",
+        "highest": "Rating Tertinggi",
+        "lowest": "Rating Terendah",
+        "unreplied": "Belum Dibalas"
+      },
+      "stats": {
+        "average": "RATA-RATA RATING",
+        "basedOn": "Berdasarkan {count} ulasan pelanggan",
+        "distribution": "DISTRIBUSI RATING"
+      },
+      "listTitle": "SEMUA ULASAN",
+      "reply": {
+        "yourReply": "Balasan Anda",
+        "placeholder": "Tulis balasan Anda...",
+        "btnCancel": "Batalkan",
+        "btnSave": "Simpan Perubahan",
+        "btnEdit": "Edit Balasan",
+        "btnSend": "Kirim Balasan",
+        "unrepliedText": "Belum dibalas",
+        "btnReply": "BALAS ULASAN"
+      }
+    },
+    "profil": {
+      "subtitle": "IDENTITAS BISNIS & BRAND",
+      "title": "PROFIL <br /> STUDIO VENDOR.",
+      "btnViewPublic": "LIHAT PUBLIK",
+      "btnSave": "SIMPAN PROFIL",
+      "bannerUpload": "UPLOAD BANNER STUDIO (1200X400)",
+      "fields": {
+        "studioName": "NAMA STUDIO / BRAND",
+        "ownerName": "NAMA PEMILIK",
+        "bio": "BIO / DESKRIPSI STUDIO",
+        "socialMedia": "MEDIA SOSIAL & LINK",
+        "instagram": "INSTAGRAM",
+        "whatsapp": "WHATSAPP BUSINESS",
+        "website": "SITUS WEB / LINKTREE",
+        "email": "EMAIL BISNIS",
+        "location": "LOKASI BISNIS",
+        "city": "KOTA/KABUPATEN UTAMA",
+        "locationHint": "*LOKASI INI AKAN MEMBANTU SISTEM MEREKOMENDASIKAN JASA ANDA KE PELANGGAN TERDEKAT.",
+        "portfolio": "PORTOFOLIO",
+        "manageGallery": "KELOLA GALERI",
+        "add": "TAMBAH"
+      }
+    },
+    "pesananDetail": {
+      "subtitle": "RINCIAN OPERASIONAL ACARA",
+      "title": "ANDI PRATAMA <br /> WEDDING PHOTO.",
+      "btnComplete": "PESANAN SELESAI",
+      "btnChat": "CHAT PELANGGAN",
+      "clientInfo": {
+        "title": "INFORMASI KLIEN",
+        "name": "NAMA PEMESAN",
+        "whatsapp": "KONTAK WHATSAPP",
+        "email": "EMAIL PELANGGAN"
+      },
+      "schedule": {
+        "title": "JADWAL & WAKTU",
+        "date": "TANGGAL ACARA",
+        "time": "WAKTU PELAKSANAAN",
+        "duration": "DURASI LAYANAN"
+      },
+      "package": {
+        "title": "PAKET YANG DIPILIH",
+        "id": "ID PAKET"
+      },
+      "location": {
+        "title": "LOKASI ACARA",
+        "openMaps": "BUKA GOOGLE MAPS"
+      },
+      "notes": {
+        "title": "CATATAN KHUSUS",
+        "updateTime": "UPDATE 2 HARI YANG LALU"
+      },
+      "payment": {
+        "title": "PEMBAYARAN",
+        "dp": "UANG MUKA (DP)",
+        "settlement": "PELUNASAN",
+        "total": "TOTAL AKHIR",
+        "statusPaid": "STATUS: TERBAYAR LUNAS"
+      }
+    }
+  },
+  "settings": {
+    "title": "Pengaturan",
+    "account": "Akun",
+    "security": "Keamanan",
+    "notifications": "Notifikasi",
+    "language": "Bahasa",
+    "theme": "Tema"
+  }
+}

@@ -3,8 +3,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import DashboardLayout from '../DashboardLayout';
 import { Plus, Edit3, Trash2, X, Check, Upload, ArrowLeft, Briefcase, Tag, ShoppingBag, Calculator } from 'lucide-react';
-import { getMyLayanan, createLayanan, updateLayanan, deleteLayanan } from '@/services/vendor.service';
+import { getMyLayanan, createLayanan, updateLayanan, deleteLayanan, uploadImage } from '@/services/vendor.service';
 import { getAllKategori } from '@/services/admin.service';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface ServicePackage {
   id: string;
@@ -24,7 +25,7 @@ interface ServicePackage {
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=400';
 
 // Helper to parse features and descriptive text from description
-const parseDescription = (description: string | null) => {
+const parseDescription = (description: string | null, defaultFeatures: string[]) => {
   if (!description) return { features: [], descriptionText: '' };
   const lines = description.split('\n');
   const features: string[] = [];
@@ -40,7 +41,7 @@ const parseDescription = (description: string | null) => {
   });
 
   return {
-    features: features.length > 0 ? features : ['Pelayanan Ramah', 'Kualitas Terjamin'],
+    features: features.length > 0 ? features : defaultFeatures,
     descriptionText: textLines.join('\n'),
   };
 };
@@ -62,6 +63,9 @@ export default function KatalogPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [hasDiscountEnabled, setHasDiscountEnabled] = useState(false);
   const [packageToDelete, setPackageToDelete] = useState<ServicePackage | null>(null);
+  const [packageFile, setPackageFile] = useState<File | null>(null);
+  const [packageImgUrl, setPackageImgUrl] = useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -73,7 +77,10 @@ export default function KatalogPage() {
     descriptionText: '',
   });
 
+  });
+
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { t } = useLanguage();
 
   // Fetch all data on mount
   const fetchData = async () => {
@@ -88,7 +95,7 @@ export default function KatalogPage() {
 
       // Transform backend Layanan to ServicePackage frontend structures
       const transformed: ServicePackage[] = (layananData || []).map((item: any) => {
-        const { features, descriptionText } = parseDescription(item.description);
+        const { features, descriptionText } = parseDescription(item.description, t('dashboard.katalog.messages.defaultFeatures') as unknown as string[]);
         
         // Dynamic bookings count or calculated based on backend length
         const ordersCount = item.bookings?.length || 0;
@@ -171,6 +178,8 @@ export default function KatalogPage() {
     });
     setHasDiscountEnabled(false);
     setEditingId(null);
+    setPackageFile(null);
+    setPackageImgUrl(null);
   };
 
   const handleOpenEdit = (item: ServicePackage) => {
@@ -186,23 +195,33 @@ export default function KatalogPage() {
       features: item.features.length > 0 ? item.features : ['', ''],
       descriptionText: item.descriptionText,
     });
+    setPackageImgUrl(item.img !== DEFAULT_IMAGE ? item.img : null);
+    setPackageFile(null);
     setHasDiscountEnabled(!!(item.discountPercent && item.discountPercent > 0));
     setIsAddingPackage(true);
   };
 
   const handleSavePackage = async () => {
     if (!formData.name || !formData.price) {
-      alert('Nama paket dan harga tidak boleh kosong!');
+      alert(t('dashboard.katalog.messages.validationError'));
       return;
     }
 
     setIsSubmitting(true);
 
     try {
+      let finalImages: string[] = [];
+      if (packageFile) {
+        const uploadedUrl = await uploadImage(packageFile);
+        if (uploadedUrl) finalImages = [uploadedUrl];
+      } else if (packageImgUrl && !packageImgUrl.startsWith('blob:')) {
+        finalImages = [packageImgUrl];
+      }
+
       // Append discount info into description text so it is preserved
       let descriptionTextFinal = formData.descriptionText;
       if (hasDiscountEnabled && formData.discountPercent) {
-        descriptionTextFinal += `\n\n[PROMO:${formData.discountPercent}%,${formData.discountLabel || 'Promo Spesial'}]`;
+        descriptionTextFinal += `\n\n[PROMO:${formData.discountPercent}%,${formData.discountLabel || t('dashboard.katalog.messages.defaultPromo')}]`;
       }
 
       const finalDescription = serializeDescription(formData.features, descriptionTextFinal);
@@ -215,7 +234,7 @@ export default function KatalogPage() {
         kategoriId: formData.kategoriId || categories[0]?.id,
         price: finalPrice.toString(), // Express database price columns require decimals/strings
         description: finalDescription,
-        images: [],
+        images: finalImages,
       };
 
       if (editingId) {
@@ -293,9 +312,9 @@ export default function KatalogPage() {
             </button>
             <div>
               <h1 className="text-3xl md:text-[2rem] font-extrabold tracking-tight leading-tight text-[#2A2A2A]">
-                {editingId ? 'Edit Paket Layanan' : 'Buat Paket Baru'}
+                {editingId ? t('dashboard.katalog.form.editTitle') : t('dashboard.katalog.form.createTitle')}
               </h1>
-              <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.18em] text-[#2A2A2A]/35">ISI DETAIL LAYANAN UNTUK KLIENMU.</p>
+              <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.18em] text-[#2A2A2A]/35">{t('dashboard.katalog.form.createSubtitle')}</p>
             </div>
           </div>
 
@@ -303,15 +322,37 @@ export default function KatalogPage() {
             {/* Left Column: Image Upload */}
             <div className="lg:col-span-4 space-y-6">
               <div className="bg-white p-8 rounded-xl border border-[#2A2A2A]/5 shadow-sm">
-                <h4 className="text-[10px] font-black text-[#2A2A2A]/30 uppercase tracking-widest mb-6">Foto Utama Paket</h4>
-                <div className="aspect-square bg-[#FDF1F0] rounded-[32px] border-2 border-dashed border-[#FF9A9E]/30 flex flex-col items-center justify-center p-8 text-center group hover:bg-[#FDF1F0] transition-all cursor-pointer">
-                  <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform">
-                    <Upload className="w-6 h-6 text-[#FF9A9E]" />
-                  </div>
-                  <p className="text-xs font-bold text-[#2A2A2A]/60 leading-relaxed">
-                    Foto Utama Paket Terpilih
-                  </p>
-                  <p className="text-[9px] text-[#2A2A2A]/30 mt-2 uppercase tracking-tighter">Planora Premium Decoration</p>
+                <h4 className="text-[10px] font-black text-[#2A2A2A]/30 uppercase tracking-widest mb-6">{t('dashboard.katalog.form.imageTitle')}</h4>
+                <div 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="relative aspect-square bg-[#FDF1F0] rounded-[32px] border-2 border-dashed border-[#FF9A9E]/30 flex flex-col items-center justify-center p-8 text-center group hover:bg-[#FDF1F0] transition-all cursor-pointer overflow-hidden"
+                >
+                  {packageImgUrl ? (
+                    <img src={packageImgUrl} alt="Preview" className="absolute inset-0 w-full h-full object-cover" />
+                  ) : (
+                    <>
+                      <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform">
+                        <Upload className="w-6 h-6 text-[#FF9A9E]" />
+                      </div>
+                      <p className="text-xs font-bold text-[#2A2A2A]/60 leading-relaxed">
+                        {t('dashboard.katalog.form.imageSelected')}
+                      </p>
+                      <p className="text-[9px] text-[#2A2A2A]/30 mt-2 uppercase tracking-tighter">{t('dashboard.katalog.form.imagePlaceholder')}</p>
+                    </>
+                  )}
+                  <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setPackageFile(file);
+                        setPackageImgUrl(URL.createObjectURL(file));
+                      }
+                    }} 
+                    accept="image/*" 
+                    className="hidden" 
+                  />
                 </div>
               </div>
             </div>
@@ -322,24 +363,40 @@ export default function KatalogPage() {
                 {/* Nama Paket */}
                 <div className="space-y-3">
                   <label className="text-[10px] font-black text-[#2A2A2A]/40 uppercase tracking-widest ml-1">
-                    Nama Paket
+                    {t('dashboard.katalog.form.nameLabel')}
                   </label>
                   <input
                     data-testid="name-input"
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Contoh: Paket Intimate Rose"
+                    placeholder={t('dashboard.katalog.form.namePlaceholder')}
                     className="w-full bg-[#FDF1F0]/50 border border-transparent rounded-2xl py-4 px-6 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/30 focus:bg-white focus:border-[#FF9A9E] transition-all"
                   />
+                </div>
+
+                {/* Kategori */}
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-[#2A2A2A]/40 uppercase tracking-widest ml-1">
+                    Kategori Paket
+                  </label>
+                  <select
+                    value={formData.kategoriId}
+                    onChange={(e) => setFormData({ ...formData, kategoriId: e.target.value })}
+                    className="w-full bg-[#FDF1F0]/50 border border-transparent rounded-2xl py-4 px-6 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/30 focus:bg-white focus:border-[#FF9A9E] transition-all appearance-none cursor-pointer"
+                  >
+                    {categories.map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Harga & Diskon Section */}
                 <div className="space-y-6 border-b border-slate-50 pb-6">
                   <div className="flex items-center justify-between">
-                    <h5 className="text-[10px] font-black text-[#2A2A2A]/20 uppercase tracking-[0.3em]">Harga & Strategi Diskon</h5>
+                    <h5 className="text-[10px] font-black text-[#2A2A2A]/20 uppercase tracking-[0.3em]">{t('dashboard.katalog.form.priceStrategy')}</h5>
                     <div className="flex items-center gap-3">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Aktifkan Diskon?</span>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{t('dashboard.katalog.form.enableDiscount')}</span>
                       <button
                         onClick={() => setHasDiscountEnabled(!hasDiscountEnabled)}
                         className={`relative inline-flex items-center h-6 w-11 rounded-full transition-colors ${
@@ -358,7 +415,7 @@ export default function KatalogPage() {
                   <div className="grid md:grid-cols-2 gap-8">
                     <div className="space-y-3">
                       <label className="text-[10px] font-black text-[#2A2A2A]/40 uppercase tracking-widest ml-1">
-                        Harga Normal (IDR)
+                        {t('dashboard.katalog.form.normalPrice')}
                       </label>
                       <div className="relative">
                         <span className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 font-bold">Rp</span>
@@ -376,7 +433,7 @@ export default function KatalogPage() {
                       hasDiscountEnabled ? 'opacity-100 pointer-events-auto' : 'opacity-30 pointer-events-none'
                     }`}>
                       <label className="text-[10px] font-black text-[#FF527B] uppercase tracking-widest ml-1 flex items-center gap-2">
-                        Besar Diskon (%) <Tag className="w-3 h-3" />
+                        {t('dashboard.katalog.form.discountPercent')} <Tag className="w-3 h-3" />
                       </label>
                       <div className="relative">
                         <input
@@ -397,13 +454,13 @@ export default function KatalogPage() {
                   {hasDiscountEnabled && (
                     <div className="space-y-3">
                       <label className="text-[10px] font-black text-[#2A2A2A]/40 uppercase tracking-widest ml-1">
-                        Label Promo
+                        {t('dashboard.katalog.form.promoLabel')}
                       </label>
                       <input
                         type="text"
                         value={formData.discountLabel}
                         onChange={(e) => setFormData({ ...formData, discountLabel: e.target.value })}
-                        placeholder="Contoh: Promo Wedding Week"
+                        placeholder={t('dashboard.katalog.form.promoPlaceholder')}
                         className="w-full bg-[#FDF1F0]/50 border border-transparent rounded-2xl py-4 px-6 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/30 focus:bg-white focus:border-[#FF9A9E] transition-all"
                       />
                     </div>
@@ -416,12 +473,12 @@ export default function KatalogPage() {
                         <Calculator className="w-5 h-5" />
                       </div>
                       <div>
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Harga Akhir di Aplikasi</p>
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{t('dashboard.katalog.form.finalPrice')}</p>
                         <h4 className="text-lg font-black text-[#FF527B]">Rp {previewPrice.toLocaleString('id-ID')}</h4>
                       </div>
                     </div>
                     <p className="text-[8px] font-bold text-slate-300 max-w-[150px] uppercase text-right leading-relaxed">
-                      Harga ini akan dilihat customer di aplikasi.
+                      {t('dashboard.katalog.form.finalPriceDesc')}
                     </p>
                   </div>
                 </div>
@@ -430,13 +487,13 @@ export default function KatalogPage() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <label className="text-[10px] font-black text-[#2A2A2A]/40 uppercase tracking-widest ml-1">
-                      Layanan yang Didapat
+                      {t('dashboard.katalog.form.featuresLabel')}
                     </label>
                     <button
                       onClick={addFeature}
                       className="text-[9px] font-black text-[#FF9A9E] uppercase tracking-widest hover:text-[#FF527B] cursor-pointer"
                     >
-                      + TAMBAH POIN
+                      {t('dashboard.katalog.form.addFeature')}
                     </button>
                   </div>
                   <div className="space-y-3">
@@ -450,7 +507,7 @@ export default function KatalogPage() {
                             newFeatures[i] = e.target.value;
                             setFormData({ ...formData, features: newFeatures });
                           }}
-                          placeholder="Contoh: Pelaminan Full Flower"
+                          placeholder={t('dashboard.katalog.form.featurePlaceholder')}
                           className="flex-1 bg-[#FDF1F0]/30 border border-[#2A2A2A]/5 rounded-xl py-3 px-5 text-xs font-bold text-[#2A2A2A]/70 focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/30"
                         />
                         {formData.features.length > 1 && (
@@ -469,13 +526,13 @@ export default function KatalogPage() {
                 {/* Deskripsi */}
                 <div className="space-y-3">
                   <label className="text-[10px] font-black text-[#2A2A2A]/40 uppercase tracking-widest ml-1">
-                    Deskripsi Paket
+                    {t('dashboard.katalog.form.description')}
                   </label>
                   <textarea
                     data-testid="description-input"
                     value={formData.descriptionText}
                     onChange={(e) => setFormData({ ...formData, descriptionText: e.target.value })}
-                    placeholder="Ceritakan detail paketmu..."
+                    placeholder={t('dashboard.katalog.form.descriptionPlaceholder')}
                     rows={4}
                     className="w-full bg-[#FDF1F0]/50 border border-transparent rounded-[24px] py-4 px-6 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/30 focus:bg-white focus:border-[#FF9A9E] transition-all resize-none"
                   />
@@ -490,14 +547,14 @@ export default function KatalogPage() {
                     }}
                     className="px-8 py-4 rounded-[18px] text-[11px] font-black uppercase tracking-widest text-[#2A2A2A]/40 hover:text-[#2A2A2A] transition-all cursor-pointer"
                   >
-                    Batal
+                    {t('dashboard.katalog.form.btnCancel')}
                   </button>
                   <button
                     onClick={handleSavePackage}
                     disabled={isSubmitting}
                     className="bg-[#FF9A9E] text-white px-6 py-3 rounded-[16px] font-bold text-[10px] uppercase tracking-[0.18em] shadow-lg shadow-[#FF9A9E]/20 hover:bg-[#FF527B] transition-all active:scale-95 cursor-pointer disabled:opacity-50"
                   >
-                    {isSubmitting ? 'Menyimpan...' : 'Simpan Paket'}
+                    {isSubmitting ? t('dashboard.katalog.form.btnSaving') : t('dashboard.katalog.form.btnSave')}
                   </button>
                 </div>
               </div>
@@ -514,8 +571,8 @@ export default function KatalogPage() {
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
           <div className="space-y-1">
-            <h1 className="text-3xl md:text-[2rem] font-extrabold tracking-tight leading-tight text-[#2A2A2A]">Kelola Paket Layanan</h1>
-            <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.18em] text-[#2A2A2A]/35">ATUR HARGA DAN DETAIL PAKET ACARAMU.</p>
+            <h1 className="text-3xl md:text-[2rem] font-extrabold tracking-tight leading-tight text-[#2A2A2A]">{t('dashboard.katalog.title')}</h1>
+            <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.18em] text-[#2A2A2A]/35">{t('dashboard.katalog.subtitle')}</p>
           </div>
           <button
             onClick={() => {
@@ -524,7 +581,7 @@ export default function KatalogPage() {
             }}
             className="bg-[#2A2A2A] text-white px-5 py-3 rounded-[16px] font-bold flex items-center gap-2.5 hover:bg-[#FF527B] transition-all shadow-sm active:scale-95 w-fit text-sm cursor-pointer"
           >
-            <Plus className="w-4 h-4" /> TAMBAH PAKET BARU
+            <Plus className="w-4 h-4" /> {t('dashboard.katalog.btnAddNew')}
           </button>
         </div>
 
@@ -535,8 +592,8 @@ export default function KatalogPage() {
               <Briefcase className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-[9px] font-black text-[#2A2A2A]/20 uppercase tracking-widest">Total Paket</p>
-              <h4 className="text-base font-bold text-[#2A2A2A]">{totalPackages} Paket</h4>
+              <p className="text-[9px] font-black text-[#2A2A2A]/20 uppercase tracking-widest">{t('dashboard.katalog.stats.total')}</p>
+              <h4 className="text-base font-bold text-[#2A2A2A]">{totalPackages} {t('dashboard.katalog.stats.packageCount')}</h4>
             </div>
           </div>
           <div className="bg-white p-5 rounded-2xl border border-[#2A2A2A]/5 flex items-center gap-4 shadow-sm">
@@ -544,8 +601,8 @@ export default function KatalogPage() {
               <Tag className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-[9px] font-black text-[#2A2A2A]/20 uppercase tracking-widest">Paket Promo</p>
-              <h4 className="text-base font-bold text-[#2A2A2A]">{promoCount} Aktif</h4>
+              <p className="text-[9px] font-black text-[#2A2A2A]/20 uppercase tracking-widest">{t('dashboard.katalog.stats.promo')}</p>
+              <h4 className="text-base font-bold text-[#2A2A2A]">{promoCount} {t('dashboard.katalog.stats.active')}</h4>
             </div>
           </div>
           <div className="bg-white p-5 rounded-2xl border border-[#2A2A2A]/5 flex items-center gap-4 shadow-sm">
@@ -553,7 +610,7 @@ export default function KatalogPage() {
               <ShoppingBag className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-[9px] font-black text-[#2A2A2A]/20 uppercase tracking-widest">Terlaris</p>
+              <p className="text-[9px] font-black text-[#2A2A2A]/20 uppercase tracking-widest">{t('dashboard.katalog.stats.bestseller')}</p>
               <h4 className="text-base font-bold text-[#2A2A2A]">
                 {bestSeller ? bestSeller.name.split(' ').pop() : 'N/A'}
               </h4>
@@ -577,7 +634,7 @@ export default function KatalogPage() {
                 />
                 {item.discountPercent && item.discountPercent > 0 && (
                   <div className="absolute top-4 left-4 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-[#FFF9E5] text-[#F59E0B] shadow-sm">
-                    Diskon {item.discountPercent}%
+                    {t('dashboard.katalog.packageCard.discount')} {item.discountPercent}%
                   </div>
                 )}
                 <div className="absolute top-4 right-4 flex gap-2">
@@ -615,7 +672,7 @@ export default function KatalogPage() {
                 {/* Features */}
                 <div className="space-y-2">
                   <p className="text-[9px] font-black text-[#2A2A2A]/25 uppercase tracking-widest border-b border-[#2A2A2A]/5 pb-2">
-                    Fitur Utama
+                    {t('dashboard.katalog.packageCard.features')}
                   </p>
                   <ul className="space-y-1.5">
                     {item.features.slice(0, 4).map((feature, i) => (
@@ -631,7 +688,7 @@ export default function KatalogPage() {
                 <div className="border-t border-[#2A2A2A]/5 pt-4 mt-auto">
                   <div className="flex items-end justify-between">
                     <div>
-                      <p className="text-[8px] font-bold text-[#2A2A2A]/30 uppercase tracking-tighter mb-1">Harga Paket</p>
+                      <p className="text-[8px] font-bold text-[#2A2A2A]/30 uppercase tracking-tighter mb-1">{t('dashboard.katalog.packageCard.price')}</p>
                       {item.originalPrice ? (
                         <div className="space-y-0.5">
                           <p className="text-[9px] font-medium text-[#2A2A2A]/40 line-through">{item.originalPrice}</p>
@@ -642,9 +699,9 @@ export default function KatalogPage() {
                       )}
                     </div>
                     <div className="text-right">
-                      <p className="text-[8px] font-bold text-[#2A2A2A]/30 uppercase tracking-tighter mb-1">Dipesan</p>
+                      <p className="text-[8px] font-bold text-[#2A2A2A]/30 uppercase tracking-tighter mb-1">{t('dashboard.katalog.packageCard.orders')}</p>
                       <p className="text-lg font-black text-[#2A2A2A]">
-                        {item.orders} <span className="text-sm font-medium text-[#2A2A2A]/50">Kali</span>
+                        {item.orders} <span className="text-sm font-medium text-[#2A2A2A]/50">{t('dashboard.katalog.packageCard.times')}</span>
                       </p>
                     </div>
                   </div>
@@ -664,9 +721,9 @@ export default function KatalogPage() {
             <div className="w-14 h-14 bg-white rounded-[20px] flex items-center justify-center mb-3 shadow-sm group-hover:scale-110 transition-transform">
               <Plus className="w-6 h-6 text-[#FF9A9E]" />
             </div>
-            <p className="text-[10px] font-bold text-[#FF9A9E] uppercase tracking-widest">Buat Paket Baru</p>
+            <p className="text-[10px] font-bold text-[#FF9A9E] uppercase tracking-widest">{t('dashboard.katalog.packageCard.createNew')}</p>
             <p className="text-[8px] font-bold text-[#2A2A2A]/25 uppercase tracking-tighter mt-1">
-              Kembangkan variasi produk
+              {t('dashboard.katalog.packageCard.createNewDesc')}
             </p>
           </div>
         </div>
@@ -680,19 +737,19 @@ export default function KatalogPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <h3 className="text-2xl font-black text-[#2A2A2A]">Hapus paket layanan?</h3>
+                  <h3 className="text-2xl font-black text-[#2A2A2A]">{t('dashboard.katalog.deleteModal.title')}</h3>
                   <p className="text-sm leading-relaxed text-[#2A2A2A]/45">
-                    Paket <span className="font-bold text-[#2A2A2A]">{packageToDelete.name}</span> akan dihapus dari katalog. Tindakan ini tidak bisa dibatalkan.
+                    {t('dashboard.katalog.deleteModal.desc1')} <span className="font-bold text-[#2A2A2A]">{packageToDelete.name}</span> {t('dashboard.katalog.deleteModal.desc2')}
                   </p>
                 </div>
 
                 <div className="rounded-2xl border border-[#2A2A2A]/5 bg-[#FAFAFC] p-4 space-y-2">
                   <div className="flex items-center justify-between gap-4 text-xs font-bold uppercase tracking-widest text-[#2A2A2A]/45">
-                    <span>Kategori</span>
+                    <span>{t('dashboard.katalog.deleteModal.category')}</span>
                     <span className="normal-case tracking-normal text-[#2A2A2A]">{packageToDelete.category}</span>
                   </div>
                   <div className="flex items-center justify-between gap-4 text-xs font-bold uppercase tracking-widest text-[#2A2A2A]/45">
-                    <span>Harga</span>
+                    <span>{t('dashboard.katalog.deleteModal.price')}</span>
                     <span className="normal-case tracking-normal text-[#FF527B]">{packageToDelete.price}</span>
                   </div>
                 </div>
@@ -703,14 +760,14 @@ export default function KatalogPage() {
                     onClick={() => setPackageToDelete(null)}
                     className="flex-1 rounded-2xl border border-[#2A2A2A]/10 bg-white px-5 py-4 text-[11px] font-black uppercase tracking-[0.18em] text-[#2A2A2A]/60 hover:bg-slate-50 transition-all cursor-pointer"
                   >
-                    Batal
+                    {t('dashboard.katalog.deleteModal.btnCancel')}
                   </button>
                   <button
                     type="button"
                     onClick={confirmDeletePackage}
                     className="flex-1 rounded-2xl bg-[#2A2A2A] px-5 py-4 text-[11px] font-black uppercase tracking-[0.18em] text-white shadow-lg shadow-[#2A2A2A]/10 transition-all hover:bg-[#FF527B] cursor-pointer"
                   >
-                    Ya, Hapus
+                    {t('dashboard.katalog.deleteModal.btnDelete')}
                   </button>
                 </div>
               </div>

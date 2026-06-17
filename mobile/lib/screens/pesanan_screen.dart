@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../services/api_service.dart';
+import '../utils/translations.dart';
 import '../main.dart' show PlanoraColors;
+import '../utils/formatters.dart';
 
 class PesananScreen extends StatefulWidget {
   const PesananScreen({super.key});
@@ -45,8 +47,7 @@ class _PesananScreenState extends State<PesananScreen> {
   String _formatCurrency(dynamic value) {
     if (value == null) return 'Rp 0';
     try {
-      final double amount =
-          value is String ? double.parse(value) : value.toDouble();
+      final double amount = Formatters.parsePrice(value);
       return NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0)
           .format(amount);
     } catch (_) {
@@ -78,7 +79,7 @@ class _PesananScreenState extends State<PesananScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('My Orders', style: tt.headlineMedium),
+                  Text(Translations.t('orders.title'), style: tt.headlineMedium),
                   GestureDetector(
                     onTap: () => Navigator.pushNamed(context, '/kalender'),
                     child: Container(
@@ -110,8 +111,8 @@ class _PesananScreenState extends State<PesananScreen> {
                 ),
                 child: Row(
                   children: [
-                    _buildTab('Ongoing', _isBerjalan, () => setState(() => _isBerjalan = true)),
-                    _buildTab('Completed', !_isBerjalan, () => setState(() => _isBerjalan = false)),
+                    _buildTab(Translations.t('orders.ongoing'), _isBerjalan, () => setState(() => _isBerjalan = true)),
+                    _buildTab(Translations.t('orders.completed'), !_isBerjalan, () => setState(() => _isBerjalan = false)),
                   ],
                 ),
               ),
@@ -145,9 +146,9 @@ class _PesananScreenState extends State<PesananScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Event Schedule', style: tt.titleSmall),
+                            Text(Translations.t('orders.schedule'), style: tt.titleSmall),
                             const SizedBox(height: 2),
-                            Text('Monitor important dates', style: tt.bodySmall),
+                            Text(Translations.t('orders.monitor'), style: tt.bodySmall),
                           ],
                         ),
                       ),
@@ -188,12 +189,12 @@ class _PesananScreenState extends State<PesananScreen> {
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
           onTap: _onBottomNavTapped,
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home_rounded), label: 'Home'),
-            BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), activeIcon: Icon(Icons.explore_rounded), label: 'Explore'),
-            BottomNavigationBarItem(icon: Icon(Icons.receipt_long_outlined), activeIcon: Icon(Icons.receipt_long_rounded), label: 'Orders'),
-            BottomNavigationBarItem(icon: Icon(Icons.favorite_border_rounded), activeIcon: Icon(Icons.favorite_rounded), label: 'Favorites'),
-            BottomNavigationBarItem(icon: Icon(Icons.person_outline_rounded), activeIcon: Icon(Icons.person_rounded), label: 'Profile'),
+          items: [
+            BottomNavigationBarItem(icon: const Icon(Icons.home_outlined), activeIcon: const Icon(Icons.home_rounded), label: Translations.t('nav.home')),
+            BottomNavigationBarItem(icon: const Icon(Icons.explore_outlined), activeIcon: const Icon(Icons.explore_rounded), label: Translations.t('nav.explore')),
+            BottomNavigationBarItem(icon: const Icon(Icons.receipt_long_outlined), activeIcon: const Icon(Icons.receipt_long_rounded), label: Translations.t('nav.orders')),
+            BottomNavigationBarItem(icon: const Icon(Icons.favorite_border_rounded), activeIcon: const Icon(Icons.favorite_rounded), label: Translations.t('nav.favorites')),
+            BottomNavigationBarItem(icon: const Icon(Icons.person_outline_rounded), activeIcon: const Icon(Icons.person_rounded), label: Translations.t('nav.profile')),
           ],
         ),
       ),
@@ -246,10 +247,10 @@ class _PesananScreenState extends State<PesananScreen> {
                   size: 40, color: PlanoraColors.brandDark),
             ),
             const SizedBox(height: 16),
-            Text('No order history yet.',
+            Text(Translations.t('orders.emptyTitle'),
                 style: tt.bodyMedium?.copyWith(color: PlanoraColors.brandGray)),
             const SizedBox(height: 6),
-            Text('Go find vendors and make your first order!',
+            Text(Translations.t('orders.emptyDesc'),
                 style: tt.bodySmall, textAlign: TextAlign.center),
           ],
         ),
@@ -272,7 +273,7 @@ class _PesananScreenState extends State<PesananScreen> {
     
     final date = item['eventDate'] != null
         ? item['eventDate'].toString().substring(0, 10)
-        : 'Tanggal Acara';
+        : Translations.t('orders.eventDate');
     final price = _formatCurrency(harga);
     const imageUrl = 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=200&auto=format&fit=crop';
 
@@ -396,7 +397,7 @@ class _PesananScreenState extends State<PesananScreen> {
                                       minimumSize: const Size(0, 36),
                                       padding: const EdgeInsets.symmetric(horizontal: 16),
                                     ),
-                                    child: const Text('Contact'),
+                                    child: Text(Translations.t('orders.contact')),
                                   ),
                                   const SizedBox(width: 8),
                                   ElevatedButton(
@@ -407,7 +408,7 @@ class _PesananScreenState extends State<PesananScreen> {
                                       minimumSize: const Size(0, 36),
                                       padding: const EdgeInsets.symmetric(horizontal: 16),
                                     ),
-                                    child: const Text('Details'),
+                                    child: Text(Translations.t('orders.details')),
                                   ),
                                 ]
                               : isPaymentPending
@@ -420,7 +421,7 @@ class _PesananScreenState extends State<PesananScreen> {
                                           border: Border.all(color: const Color(0xFFFFEBA8)),
                                         ),
                                         child: Text(
-                                          'Awaiting Verification',
+                                          Translations.t('orders.awaiting'),
                                           style: tt.labelSmall?.copyWith(
                                             color: const Color(0xFF856404),
                                             fontWeight: FontWeight.w700,
@@ -435,7 +436,7 @@ class _PesananScreenState extends State<PesananScreen> {
                                           minimumSize: const Size(0, 36),
                                           padding: const EdgeInsets.symmetric(horizontal: 16),
                                         ),
-                                        child: const Text('Pay Now'),
+                                        child: Text(Translations.t('orders.payNow')),
                                       ),
                                     ],
                         ),

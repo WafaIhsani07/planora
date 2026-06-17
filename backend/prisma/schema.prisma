@@ -145,7 +145,6 @@ model Jadwal {
   booking     Booking?
   vendor      Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
 
-  @@unique([vendorId, date])
   @@map("jadwal")
 }
 
@@ -300,6 +299,7 @@ enum PaymentStatus {
   PENDING
   PAID
   FAILED
+  PENDING_REFUND
   REFUNDED
 }
 
@@ -317,3 +317,13 @@ enum WithdrawalStatus {
   COMPLETED
   REJECTED
 }
+
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  updatedAt DateTime @updatedAt
+
+  @@map("system_settings")
+}
+

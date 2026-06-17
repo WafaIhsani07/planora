@@ -16,37 +16,39 @@ export const createBooking = async (customerId: string, input: CreateBookingInpu
   if (!layanan.isActive) throw new AppError("Layanan ini sedang tidak aktif", 400)
 
   const eventDateObj = new Date(input.eventDate)
+  // Cegah booking untuk tanggal yang sudah lewat (past date)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  if (eventDateObj < today) {
+    throw new AppError("Tidak dapat memesan untuk tanggal yang sudah lewat", 400)
+  }
 
   try {
     // 2 & 3. Gunakan Transaction untuk mengunci jadwal dan membuat booking
     const booking = await db.$transaction(async (tx: Prisma.TransactionClient) => {
-      const existingJadwal = await tx.jadwal.findUnique({
+      // Cek apakah vendor menutup tanggal tersebut secara manual (bukan karena Booked)
+      const closedJadwal = await tx.jadwal.findFirst({
         where: {
-          vendorId_date: {
-            vendorId: layanan.vendorId,
-            date: eventDateObj,
-          },
+          vendorId: layanan.vendorId,
+          date: eventDateObj,
+          isAvailable: false,
+          note: { not: "Booked" }
         },
       })
 
-      if (existingJadwal && !existingJadwal.isAvailable) {
-        throw new AppError("Maaf, Vendor tutup atau tanggal tersebut sudah dipesan", 400)
+      if (closedJadwal) {
+        throw new AppError("Maaf, Vendor tutup pada tanggal tersebut", 400)
       }
 
-      // Kunci atau buat jadwal baru
-      const jadwal = existingJadwal
-        ? await tx.jadwal.update({
-            where: { id: existingJadwal.id },
-            data: { isAvailable: false, note: "Booked" },
-          })
-        : await tx.jadwal.create({
-            data: {
-              vendorId: layanan.vendorId,
-              date: eventDateObj,
-              isAvailable: false,
-              note: "Booked",
-            },
-          })
+      // Buat jadwal khusus untuk booking ini agar bisa multi-booking per hari
+      const jadwal = await tx.jadwal.create({
+        data: {
+          vendorId: layanan.vendorId,
+          date: eventDateObj,
+          isAvailable: false,
+          note: "Booked",
+        },
+      })
 
       const newBooking = await tx.booking.create({
         data: {
@@ -155,6 +157,14 @@ export const updateBookingStatus = async (
 
   if (!booking) throw new AppError("Pesanan tidak ditemukan", 404)
 
+  // Cegah perubahan status apa pun jika pesanan sudah berstatus COMPLETED atau CANCELLED
+  if (booking.status === "COMPLETED") {
+    throw new AppError("Pesanan yang sudah selesai tidak dapat diubah statusnya", 400)
+  }
+  if (booking.status === "CANCELLED") {
+    throw new AppError("Pesanan yang sudah dibatalkan tidak dapat diubah statusnya", 400)
+  }
+
   // Otorisasi Customer: Boleh batalkan pesanan miliknya, atau konfirmasi selesai (pelepasan escrow)
   if (role === "CUSTOMER") {
     if (booking.customerId !== userId) throw new AppError("Akses ditolak", 403)
@@ -171,13 +181,9 @@ export const updateBookingStatus = async (
   if (role === "VENDOR") {
     if (booking.vendor.userId !== userId) throw new AppError("Akses ditolak", 403)
 
-    // Vendor tidak boleh menyelesaikan pesanan sebelum tanggal acara terlewati
-    if (input.status === "COMPLETED" && booking.eventDate) {
-      const now = new Date()
-      const eventDate = new Date(booking.eventDate)
-      if (now < eventDate) {
-        throw new AppError("Vendor hanya dapat menyelesaikan pesanan setelah tanggal pelaksanaan acara selesai", 400)
-      }
+    // Vendor tidak boleh menyelesaikan pesanan secara sepihak
+    if (input.status === "COMPLETED") {
+      throw new AppError("Hanya Customer yang dapat menyelesaikan pesanan (melepas pembayaran escrow)", 400)
     }
   }
 
@@ -259,12 +265,12 @@ export const updateBookingStatus = async (
         })
       }
 
-      // Otomatis ubah status pembayaran menjadi REFUNDED jika sebelumnya PAID
+      // Otomatis ubah status pembayaran menjadi PENDING_REFUND jika sebelumnya PAID
       if (booking.payment?.status === "PAID") {
         await tx.payment.update({
           where: { id: booking.payment.id },
           data: { 
-            status: "REFUNDED", 
+            status: "PENDING_REFUND", 
             note: "Pesanan dibatalkan setelah lunas, menunggu proses refund oleh Admin." 
           },
         })

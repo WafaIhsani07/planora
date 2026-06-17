@@ -14,10 +14,12 @@ import {
   Wallet,
   Briefcase,
   Menu,
+  MessageCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 import { signOut } from 'next-auth/react';
 import { getPendingOrderCount } from '@/lib/orders';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -28,17 +30,19 @@ export default function DashboardLayoutWrapper({ children }: DashboardLayoutProp
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const pathname = usePathname();
   const pendingOrderCount = getPendingOrderCount();
+  const { t } = useLanguage();
 
   const vendorName = 'Wafa Decoration';
 
   const menuItems = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Pesanan', href: '/dashboard/jadwal', icon: ShoppingBag, badge: pendingOrderCount },
-    { name: 'Paket Layanan', href: '/dashboard/katalog', icon: Briefcase },
-    { name: 'Portofolio', href: '/dashboard/portofolio', icon: ImageIcon },
-    { name: 'Ulasan', href: '/dashboard/ulasan', icon: Star },
-    { name: 'Keuangan', href: '/dashboard/keuangan', icon: Wallet },
-    { name: 'Pengaturan', href: '/dashboard/pengaturan', icon: Settings },
+    { name: t('dashboard.sidebar.dashboard'), href: '/dashboard', icon: LayoutDashboard },
+    { name: t('dashboard.sidebar.orders'), href: '/dashboard/jadwal', icon: ShoppingBag, badge: pendingOrderCount },
+    { name: t('dashboard.sidebar.services'), href: '/dashboard/katalog', icon: Briefcase },
+    { name: t('dashboard.sidebar.portfolio'), href: '/dashboard/portofolio', icon: ImageIcon },
+    { name: t('dashboard.sidebar.chat', { defaultValue: 'Pesan' }), href: '/dashboard/pesan', icon: MessageCircle },
+    { name: t('dashboard.sidebar.reviews'), href: '/dashboard/ulasan', icon: Star },
+    { name: t('dashboard.sidebar.finance'), href: '/dashboard/keuangan', icon: Wallet },
+    { name: t('dashboard.sidebar.settings'), href: '/dashboard/pengaturan', icon: Settings },
   ];
 
   const handleLogout = async () => {
@@ -73,7 +77,7 @@ export default function DashboardLayoutWrapper({ children }: DashboardLayoutProp
         <nav className="flex-1 px-3 mt-6 overflow-y-auto">
           <div className="flex flex-col gap-2">
             <span className="text-[9px] font-bold tracking-[0.2em] text-white/40 uppercase px-3 mb-2 block">
-              NAVIGASI
+              {t('dashboard.sidebar.navigation')}
             </span>
             <ul className="space-y-1">
             {menuItems.map((item) => {
@@ -136,7 +140,7 @@ export default function DashboardLayoutWrapper({ children }: DashboardLayoutProp
                 className="flex w-full items-center justify-center gap-1.5 text-sm text-[#FF9A9E] font-extrabold uppercase tracking-wide hover:text-[#FF527B] transition-colors whitespace-nowrap"
               >
                 <LogOut className="w-3 h-3" />
-                Keluar
+                {t('dashboard.sidebar.logout')}
               </button>
             )}
           </div>
@@ -190,22 +194,22 @@ export default function DashboardLayoutWrapper({ children }: DashboardLayoutProp
       {showLogoutModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#2A2A2A]/80 backdrop-blur-sm">
           <div className="bg-white rounded-[2rem] p-8 md:p-10 w-full max-w-[380px] shadow-2xl">
-            <h2 className="text-xl font-extrabold text-[#2A2A2A] mb-2">Keluar?</h2>
+            <h2 className="text-xl font-extrabold text-[#2A2A2A] mb-2">{t('dashboard.logoutModal.title')}</h2>
             <p className="text-sm text-gray-600 mb-8">
-              Apakah kamu yakin ingin keluar dari akun Planora kamu?
+              {t('dashboard.logoutModal.desc')}
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowLogoutModal(false)}
                 className="flex-1 rounded-xl border border-gray-200 px-4 py-3 font-bold text-gray-700 transition hover:bg-gray-50"
               >
-                Batal
+                {t('dashboard.logoutModal.cancel')}
               </button>
               <button
                 onClick={handleLogout}
                 className="flex-1 rounded-xl bg-[#FF9A9E] px-4 py-3 font-bold text-white transition hover:bg-[#FF7F97]"
               >
-                Keluar
+                {t('dashboard.logoutModal.confirm')}
               </button>
             </div>
           </div>

@@ -29,9 +29,6 @@ export default function RegisterPage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  const [ktpDoc, setKtpDoc] = useState<File | null>(null);
-  const [siupDoc, setSiupDoc] = useState<File | null>(null);
-  const [bankBookDoc, setBankBookDoc] = useState<File | null>(null);
   const [categoriesList, setCategoriesList] = useState<any[]>(CATEGORIES);
 
   useEffect(() => {
@@ -68,21 +65,6 @@ export default function RegisterPage() {
 
     if (!businessName.trim()) {
       setErrorMessage("Business name is required.");
-      return;
-    }
-
-    if (!ktpDoc) {
-      setErrorMessage("ID Card (KTP) document is required to be uploaded.");
-      return;
-    }
-
-    if (!siupDoc) {
-      setErrorMessage("SIUP (Business License) document is required to be uploaded.");
-      return;
-    }
-
-    if (!bankBookDoc) {
-      setErrorMessage("Bank Book document is required to be uploaded.");
       return;
     }
 
@@ -136,26 +118,6 @@ export default function RegisterPage() {
 
       createdAccessToken = accessToken;
 
-      setSuccessMessage("Uploading legal documents...");
-      
-      const uploadDoc = async (file: File) => {
-        const formData = new FormData();
-        formData.append("file", file);
-        const uploadRes = await api.post("/uploads", formData, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "multipart/form-data",
-          },
-        });
-        return uploadRes.data?.data?.imageUrl || uploadRes.data?.imageUrl;
-      };
-
-      const [ktpUrl, businessLicenseUrl, bankBookUrl] = await Promise.all([
-        uploadDoc(ktpDoc),
-        uploadDoc(siupDoc),
-        uploadDoc(bankBookDoc),
-      ]);
-
       setSuccessMessage("Creating business profile...");
       await api.post(
         "/vendors/profile",
@@ -164,9 +126,6 @@ export default function RegisterPage() {
           ...(city.trim() ? { city: city.trim() } : {}),
           ...(address.trim() ? { address: address.trim() } : {}),
           ...(category ? { description: `Main category: ${category}` } : {}),
-          ktpUrl,
-          businessLicenseUrl,
-          bankBookUrl,
         },
         {
           headers: {
@@ -366,70 +325,6 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              {/* UPLOAD DOKUMEN LEGALITAS */}
-              <div className="space-y-4 border-t border-slate-100 pt-6">
-                <p className="text-slate-800 text-[10px] font-black uppercase tracking-[0.18em] mb-1">
-                  Legal & Verification Documents (Required)
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* KTP */}
-                  <div className="space-y-2">
-                    <label className="text-[9px] font-black text-slate-800 uppercase tracking-widest block ml-1">Owner's ID Card (KTP)</label>
-                    <div className="relative group">
-                      <label className="flex flex-col items-center justify-center border-2 border-dashed border-[#E2E8F0] hover:border-[#FF9A9E] bg-[#F7F9FC] hover:bg-white rounded-2xl p-4 cursor-pointer text-center transition-all h-28">
-                        <Upload className="w-5 h-5 text-slate-400 group-hover:text-[#FF9A9E] mb-2" />
-                        <span className="text-[9px] font-bold text-slate-500 line-clamp-1">
-                          {ktpDoc ? ktpDoc.name : "Upload ID Card (Image)"}
-                        </span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => setKtpDoc(e.target.files?.[0] || null)}
-                        />
-                      </label>
-                    </div>
-                  </div>
-
-                  {/* SIUP / Business License */}
-                  <div className="space-y-2">
-                    <label className="text-[9px] font-black text-slate-800 uppercase tracking-widest block ml-1">Business License (SIUP)</label>
-                    <div className="relative group">
-                      <label className="flex flex-col items-center justify-center border-2 border-dashed border-[#E2E8F0] hover:border-[#FF9A9E] bg-[#F7F9FC] hover:bg-white rounded-2xl p-4 cursor-pointer text-center transition-all h-28">
-                        <Upload className="w-5 h-5 text-slate-400 group-hover:text-[#FF9A9E] mb-2" />
-                        <span className="text-[9px] font-bold text-slate-500 line-clamp-1">
-                          {siupDoc ? siupDoc.name : "Upload SIUP (Image/PDF)"}
-                        </span>
-                        <input
-                          type="file"
-                          accept="image/*,application/pdf"
-                          className="hidden"
-                          onChange={(e) => setSiupDoc(e.target.files?.[0] || null)}
-                        />
-                      </label>
-                    </div>
-                  </div>
-
-                  {/* Bank Book */}
-                  <div className="space-y-2">
-                    <label className="text-[9px] font-black text-slate-800 uppercase tracking-widest block ml-1">Bank Book / Statement</label>
-                    <div className="relative group">
-                      <label className="flex flex-col items-center justify-center border-2 border-dashed border-[#E2E8F0] hover:border-[#FF9A9E] bg-[#F7F9FC] hover:bg-white rounded-2xl p-4 cursor-pointer text-center transition-all h-28">
-                        <Upload className="w-5 h-5 text-slate-400 group-hover:text-[#FF9A9E] mb-2" />
-                        <span className="text-[9px] font-bold text-slate-500 line-clamp-1">
-                          {bankBookDoc ? bankBookDoc.name : "Upload Bank Book (Image/PDF)"}
-                        </span>
-                        <input
-                          type="file"
-                          accept="image/*,application/pdf"
-                          className="hidden"
-                          onChange={(e) => setBankBookDoc(e.target.files?.[0] || null)}
-                        />
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

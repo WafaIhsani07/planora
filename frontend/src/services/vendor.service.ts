@@ -137,7 +137,11 @@ export async function uploadImage(file: File): Promise<string | null> {
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await api.post("/uploads", formData);
+    const response = await api.post("/uploads", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return response.data.data.imageUrl;
   } catch (error) {
     handleApiError(error, "Gagal mengunggah gambar");

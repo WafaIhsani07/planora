@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/api_service.dart';
+import '../utils/translations.dart';
 import '../main.dart' show PlanoraColors;
 
 class LoginScreen extends StatefulWidget {
@@ -30,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Email and password are required')),
+        SnackBar(content: Text(Translations.t('login.errorEmpty'))),
       );
       return;
     }
@@ -44,12 +45,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (result['success'] == true) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login successful!')),
+        SnackBar(content: Text(Translations.t('login.success'))),
       );
       Navigator.pushReplacementNamed(context, '/home');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result['message'] ?? 'Login failed')),
+        SnackBar(content: Text(result['message'] ?? Translations.t('login.fail'))),
       );
     }
   }
@@ -106,7 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Heading
                   Center(
                     child: Text(
-                      'Welcome Back',
+                      Translations.t('login.title'),
                       style: GoogleFonts.playfairDisplay(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
@@ -117,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 6),
                   Center(
                     child: Text(
-                      'Please sign in to your account',
+                      Translations.t('login.subtitle'),
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 14,
                         color: PlanoraColors.brandGray,
@@ -128,7 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   // ── Label + Input: Email ────────────────────────────
                   Text(
-                    'Email',
+                    Translations.t('login.email'),
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -166,7 +167,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   // ── Label + Input: Password ─────────────────────────
                   Text(
-                    'Password',
+                    Translations.t('login.password'),
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -240,7 +241,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             )
                           : Text(
-                              'Sign In',
+                              Translations.t('login.signIn'),
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -307,7 +308,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Don\'t have an account?  ',
+                        Translations.t('login.noAccount'),
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 13,
                           color: PlanoraColors.brandGray,
@@ -317,7 +318,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         onTap: () =>
                             Navigator.pushNamed(context, '/register'),
                         child: Text(
-                          'Register',
+                          Translations.t('login.register'),
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,

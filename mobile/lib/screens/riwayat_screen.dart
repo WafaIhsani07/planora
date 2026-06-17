@@ -72,9 +72,9 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // Gunakan endpoint cancel booking (PATCH /bookings/:id/cancel)
-      final response = await ApiService.postRequest(
-        '/bookings/$id/cancel',
+      // Gunakan endpoint update status (PATCH /bookings/:id/status)
+      final response = await ApiService.patchRequest(
+        '/bookings/$id/status',
         {'status': 'CANCELLED'},
       );
 

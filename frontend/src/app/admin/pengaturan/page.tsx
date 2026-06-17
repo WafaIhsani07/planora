@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import AdminHeader from '@/components/admin/AdminHeader';
+import { getAdminSettings, updateAdminSettings, updateAdminPassword } from '@/services/admin.service';
 
 const UserIcon = ({ className }: { className?: string }) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
@@ -35,16 +36,9 @@ export default function AdminPengaturanPage() {
     const [showAboutModal, setShowAboutModal] = useState(false);
     const [toast, setToast] = useState<{ type: 'success' | 'info' | 'error'; message: string } | null>(null);
 
-    const initialEscrow = () => {
-        try {
-            const raw = typeof window !== 'undefined' ? localStorage.getItem('adminEscrowAccount') : null;
-            if (raw) return JSON.parse(raw);
-        } catch (e) {}
-        return { bankName: 'BCA', accountNumber: '1234567890', accountHolder: 'Planora Escrow', verified: true };
-    };
-
-    const [escrowBank, setEscrowBank] = useState(() => initialEscrow());
-    const [escrowDraft, setEscrowDraft] = useState(() => initialEscrow());
+    const defaultEscrow = { bankName: 'BCA', accountNumber: '1234567890', accountHolder: 'Planora Escrow', verified: true };
+    const [escrowBank, setEscrowBank] = useState(defaultEscrow);
+    const [escrowDraft, setEscrowDraft] = useState(defaultEscrow);
     const [escrowEditMode, setEscrowEditMode] = useState(false);
     const [escrowDirty, setEscrowDirty] = useState(false);
 
@@ -53,49 +47,56 @@ export default function AdminPengaturanPage() {
     const [passwordDirty, setPasswordDirty] = useState(false);
 
     // Notification settings
-    const initialNotif = () => {
-        try {
-            const raw = typeof window !== 'undefined' ? localStorage.getItem('adminNotifSettings') : null;
-            if (raw) return JSON.parse(raw);
-        } catch (e) {}
-        return {
-            vendorNew: true,
-            paymentReceived: true,
-            bookingCreated: false,
-            weeklyReport: true,
-            dispute: true,
-        };
+    const defaultNotif = {
+        vendorNew: true,
+        paymentReceived: true,
+        bookingCreated: false,
+        weeklyReport: true,
+        dispute: true,
     };
-    const [notifSettings, setNotifSettings] = useState(() => initialNotif());
-    const [notifDraft, setNotifDraft] = useState(() => initialNotif());
+    const [notifSettings, setNotifSettings] = useState(defaultNotif);
+    const [notifDraft, setNotifDraft] = useState(defaultNotif);
     const [notifEditMode, setNotifEditMode] = useState(false);
     const [notifDirty, setNotifDirty] = useState(false);
 
     // Preferences
-    const initialPref = () => {
-        try {
-            const raw = typeof window !== 'undefined' ? localStorage.getItem('adminPrefSettings') : null;
-            if (raw) return JSON.parse(raw);
-        } catch (e) {}
-        return { timezone: '(UTC+07:00) Jakarta', language: 'Indonesia', theme: 'light', dateFormat: 'DD/MM/YYYY' };
-    };
-    const [prefSettings, setPrefSettings] = useState(() => initialPref());
-    const [prefDraft, setPrefDraft] = useState(() => initialPref());
+    const defaultPref = { timezone: '(UTC+07:00) Jakarta', language: 'Indonesia', theme: 'light', dateFormat: 'DD/MM/YYYY' };
+    const [prefSettings, setPrefSettings] = useState(defaultPref);
+    const [prefDraft, setPrefDraft] = useState(defaultPref);
     const [prefEditMode, setPrefEditMode] = useState(false);
     const [prefDirty, setPrefDirty] = useState(false);
 
     // About
-    const initialAbout = () => {
-        try {
-            const raw = typeof window !== 'undefined' ? localStorage.getItem('adminAboutInfo') : null;
-            if (raw) return JSON.parse(raw);
-        } catch (e) {}
-        return { version: '1.0.0', description: 'Aplikasi manajemen layanan acara.', supportEmail: 'support@planora.com' };
-    };
-    const [aboutInfo, setAboutInfo] = useState(() => initialAbout());
-    const [aboutDraft, setAboutDraft] = useState(() => initialAbout());
+    const defaultAbout = { version: '1.0.0', description: 'Aplikasi manajemen layanan acara.', supportEmail: 'support@planora.com' };
+    const [aboutInfo, setAboutInfo] = useState(defaultAbout);
+    const [aboutDraft, setAboutDraft] = useState(defaultAbout);
     const [aboutEditMode, setAboutEditMode] = useState(false);
     const [aboutDirty, setAboutDirty] = useState(false);
+
+    useEffect(() => {
+        const loadSettings = async () => {
+            const data = await getAdminSettings();
+            if (data) {
+                if (data.adminEscrowAccount) {
+                    setEscrowBank(data.adminEscrowAccount);
+                    setEscrowDraft(data.adminEscrowAccount);
+                }
+                if (data.adminNotifSettings) {
+                    setNotifSettings(data.adminNotifSettings);
+                    setNotifDraft(data.adminNotifSettings);
+                }
+                if (data.adminPrefSettings) {
+                    setPrefSettings(data.adminPrefSettings);
+                    setPrefDraft(data.adminPrefSettings);
+                }
+                if (data.adminAboutInfo) {
+                    setAboutInfo(data.adminAboutInfo);
+                    setAboutDraft(data.adminAboutInfo);
+                }
+            }
+        };
+        loadSettings();
+    }, []);
 
     const pushToast = (type: 'success' | 'info' | 'error', message: string) => {
         setToast({ type, message });
@@ -445,11 +446,15 @@ export default function AdminPengaturanPage() {
                                         <button onClick={() => {
                                             if (!passwordDraft.next || passwordDraft.next.length < 8) { pushToast('error', 'Password baru minimal 8 karakter.'); return; }
                                             if (passwordDraft.next !== passwordDraft.confirm) { pushToast('error', 'Konfirmasi password tidak cocok.'); return; }
-                                            // TODO: Hook to backend password change
+                                            updateAdminPassword(passwordDraft.next).then((res) => {
+                                                if (res) pushToast('success', 'Password berhasil diperbarui.');
+                                                else pushToast('error', 'Gagal memperbarui password.');
+                                            }).catch(() => {
+                                                pushToast('error', 'Gagal memperbarui password.');
+                                            });
                                             setShowPasswordModal(false);
                                             setPasswordDraft({ current: '', next: '', confirm: '' });
                                             setPasswordDirty(false);
-                                            pushToast('success', 'Password berhasil diperbarui.');
                                         }} className="px-4 py-2 bg-[#FF6B82] text-white rounded-lg">Simpan</button>
                                     </div>
                                 </div>
@@ -498,8 +503,9 @@ export default function AdminPengaturanPage() {
                                                             pushToast('error', 'Isi semua field rekening terlebih dahulu.');
                                                             return;
                                                         }
-                                                        setEscrowBank({ ...escrowDraft, verified: true });
-                                                        try { localStorage.setItem('adminEscrowAccount', JSON.stringify({ ...escrowDraft, verified: true })); } catch(e) {}
+                                                        const newVal = { ...escrowDraft, verified: true };
+                                                        setEscrowBank(newVal);
+                                                        updateAdminSettings({ adminEscrowAccount: newVal }).catch(console.error);
                                                         setEscrowEditMode(false);
                                                         setEscrowDirty(false);
                                                         setShowEscrowModal(false);
@@ -549,7 +555,7 @@ export default function AdminPengaturanPage() {
                                                     <button onClick={() => { setShowNotifModal(false); setNotifEditMode(false); setNotifDraft(notifSettings); setNotifDirty(false); }} className="px-4 py-2 border rounded-lg">Batal</button>
                                                     <button onClick={() => {
                                                         setNotifSettings(notifDraft);
-                                                        try { localStorage.setItem('adminNotifSettings', JSON.stringify(notifDraft)); } catch (e) {}
+                                                        updateAdminSettings({ adminNotifSettings: notifDraft }).catch(console.error);
                                                         setNotifEditMode(false);
                                                         setNotifDirty(false);
                                                         setShowNotifModal(false);
@@ -623,7 +629,7 @@ export default function AdminPengaturanPage() {
                                                     <button onClick={() => { setShowPrefModal(false); setPrefEditMode(false); setPrefDraft(prefSettings); setPrefDirty(false); }} className="px-4 py-2 border rounded-lg">Batal</button>
                                                     <button onClick={() => {
                                                         setPrefSettings(prefDraft);
-                                                        try { localStorage.setItem('adminPrefSettings', JSON.stringify(prefDraft)); } catch (e) {}
+                                                        updateAdminSettings({ adminPrefSettings: prefDraft }).catch(console.error);
                                                         setPrefEditMode(false);
                                                         setPrefDirty(false);
                                                         setShowPrefModal(false);
@@ -674,7 +680,7 @@ export default function AdminPengaturanPage() {
                                                     <button onClick={() => { setShowAboutModal(false); setAboutEditMode(false); setAboutDraft(aboutInfo); setAboutDirty(false); }} className="px-4 py-2 border rounded-lg">Batal</button>
                                                     <button onClick={() => {
                                                         setAboutInfo(aboutDraft);
-                                                        try { localStorage.setItem('adminAboutInfo', JSON.stringify(aboutDraft)); } catch (e) {}
+                                                        updateAdminSettings({ adminAboutInfo: aboutDraft }).catch(console.error);
                                                         setAboutEditMode(false);
                                                         setAboutDirty(false);
                                                         setShowAboutModal(false);

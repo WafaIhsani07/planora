@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart' show PlanoraColors, PlanoraSnackBar;
+import '../utils/formatters.dart';
 
 class DetailBookingScreen extends StatefulWidget {
   const DetailBookingScreen({super.key});
@@ -132,8 +133,7 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
   String _formatCurrency(dynamic value) {
     if (value == null) return 'Rp 0';
     try {
-      final double amount =
-          value is String ? double.parse(value) : value.toDouble();
+      final double amount = Formatters.parsePrice(value);
       return NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0)
           .format(amount);
     } catch (_) {

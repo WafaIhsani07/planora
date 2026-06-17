@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import DashboardLayout from '../DashboardLayout';
 import { Star, MessageSquare, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface Review {
   id: number;
@@ -64,6 +65,7 @@ const mockReviews: Review[] = [
 const REVIEWS_PER_PAGE = 2;
 
 export default function UlasanPage() {
+  const { t } = useLanguage();
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState('terbaru');
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
@@ -141,10 +143,10 @@ export default function UlasanPage() {
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-1">
             <h1 className="text-3xl md:text-[2rem] font-extrabold tracking-tight leading-tight text-[#2A2A2A]">
-              Ulasan Pelanggan
+              {t('dashboard.ulasan.title')}
             </h1>
             <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.18em] text-[#2A2A2A]/35">
-              PANTAU FEEDBACK DAN REPUTASI BISNIS ANDA.
+              {t('dashboard.ulasan.subtitle')}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -157,10 +159,10 @@ export default function UlasanPage() {
                 }}
                 className="bg-white border border-[#2A2A2A]/5 pl-6 pr-12 py-3 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-[#2A2A2A]/60 appearance-none focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/30 shadow-sm cursor-pointer transition-all"
               >
-                <option value="terbaru">Terbaru</option>
-                <option value="tertinggi">Rating Tertinggi</option>
-                <option value="terendah">Rating Terendah</option>
-                <option value="belumdibalas">Belum Dibalas</option>
+                <option value="terbaru">{t('dashboard.ulasan.sort.newest')}</option>
+                <option value="tertinggi">{t('dashboard.ulasan.sort.highest')}</option>
+                <option value="terendah">{t('dashboard.ulasan.sort.lowest')}</option>
+                <option value="belumdibalas">{t('dashboard.ulasan.sort.unreplied')}</option>
               </select>
               <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#2A2A2A]/20 pointer-events-none rotate-90" />
             </div>
@@ -173,7 +175,7 @@ export default function UlasanPage() {
           <div className="lg:col-span-4 bg-[#2A2A2A] rounded-[32px] p-8 text-white shadow-lg flex flex-col justify-center items-center text-center relative overflow-hidden">
             <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -mr-12 -mt-12"></div>
             <p className="text-[9px] font-black text-[#FF9A9E] uppercase tracking-[0.25em] mb-3 relative z-10">
-              RATA-RATA RATING
+              {t('dashboard.ulasan.stats.average')}
             </p>
             <h2 className="text-6xl font-black mb-3 relative z-10">{avgRating}</h2>
             <div className="flex gap-1 mb-4 relative z-10">
@@ -185,14 +187,14 @@ export default function UlasanPage() {
               ))}
             </div>
             <p className="text-[10px] font-medium text-white/40 relative z-10">
-              Berdasarkan {mockReviews.length} ulasan pelanggan
+              {t('dashboard.ulasan.stats.basedOn').replace('{count}', String(mockReviews.length))}
             </p>
           </div>
 
           {/* Rating Distribution */}
           <div className="lg:col-span-8 bg-white rounded-2xl border border-[#2A2A2A]/5 p-8 shadow-sm">
             <h4 className="text-[10px] font-black text-[#2A2A2A]/20 uppercase tracking-[0.3em] mb-6">
-              DISTRIBUSI RATING
+              {t('dashboard.ulasan.stats.distribution')}
             </h4>
             <div className="space-y-4">
               {[5, 4, 3, 2, 1].map((stars) => {
@@ -221,7 +223,7 @@ export default function UlasanPage() {
         {/* Reviews List */}
         <div className="space-y-6">
           <h4 className="text-[10px] font-black text-[#2A2A2A]/40 uppercase tracking-[0.3em] ml-1">
-            SEMUA ULASAN
+            {t('dashboard.ulasan.listTitle')}
           </h4>
 
           {paginatedReviews.map((review) => (
@@ -270,7 +272,7 @@ export default function UlasanPage() {
                     <div className="flex items-center gap-2">
                       <MessageSquare className="w-4 h-4 text-[#FF9A9E]" />
                       <span className="text-[9px] font-black text-[#FF9A9E] uppercase tracking-widest">
-                        Balasan Anda
+                        {t('dashboard.ulasan.reply.yourReply')}
                       </span>
                     </div>
                     {editingReply === review.id ? (
@@ -286,13 +288,13 @@ export default function UlasanPage() {
                             onClick={handleCancelEdit}
                             className="px-6 py-2 rounded-lg font-bold text-[10px] uppercase tracking-widest text-slate-400 hover:text-[#2A2A2A] transition-colors"
                           >
-                            Batalkan
+                            {t('dashboard.ulasan.reply.btnCancel')}
                           </button>
                           <button
                             onClick={() => handleSaveEdit(review.id)}
                             className="bg-[#2A2A2A] text-white px-6 py-2 rounded-lg font-bold text-[10px] uppercase tracking-widest shadow-sm hover:bg-[#FF527B] transition-all active:scale-95"
                           >
-                            Simpan Perubahan
+                            {t('dashboard.ulasan.reply.btnSave')}
                           </button>
                         </div>
                       </div>
@@ -304,7 +306,7 @@ export default function UlasanPage() {
                             onClick={() => handleEditReply(review.id, review.reply || '')}
                             className="text-[9px] font-bold text-slate-400 uppercase tracking-widest hover:text-[#FF9A9E] transition-colors"
                           >
-                            Edit Balasan
+                            {t('dashboard.ulasan.reply.btnEdit')}
                           </button>
                         </div>
                       </div>
@@ -315,7 +317,7 @@ export default function UlasanPage() {
                     <textarea
                       value={replyText}
                       onChange={(e) => setReplyText(e.target.value)}
-                      placeholder="Tulis balasan Anda..."
+                      placeholder={t('dashboard.ulasan.reply.placeholder')}
                       className="w-full bg-white border border-[#FF9A9E]/20 rounded-xl p-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/30 resize-none"
                       rows={3}
                     />
@@ -327,13 +329,13 @@ export default function UlasanPage() {
                         }}
                         className="px-6 py-2 rounded-lg font-bold text-[10px] uppercase tracking-widest text-slate-400 hover:text-[#2A2A2A] transition-colors"
                       >
-                        Batalkan
+                        {t('dashboard.ulasan.reply.btnCancel')}
                       </button>
                       <button
                         onClick={() => handleReply(review.id)}
                         className="bg-[#2A2A2A] text-white px-6 py-2 rounded-lg font-bold text-[10px] uppercase tracking-widest shadow-sm hover:bg-[#FF527B] transition-all active:scale-95"
                       >
-                        Kirim Balasan
+                        {t('dashboard.ulasan.reply.btnSend')}
                       </button>
                     </div>
                   </div>
@@ -341,13 +343,13 @@ export default function UlasanPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-slate-400">
                       <AlertCircle className="w-4 h-4" />
-                      <span className="text-[9px] font-bold uppercase tracking-widest">Belum dibalas</span>
+                      <span className="text-[9px] font-bold uppercase tracking-widest">{t('dashboard.ulasan.reply.unrepliedText')}</span>
                     </div>
                     <button
                       onClick={() => setReplyingTo(review.id)}
                       className="bg-[#2A2A2A] text-white px-6 py-2.5 rounded-lg font-bold text-[10px] uppercase tracking-widest shadow-sm hover:bg-[#FF527B] transition-all active:scale-95"
                     >
-                      BALAS ULASAN
+                      {t('dashboard.ulasan.reply.btnReply')}
                     </button>
                   </div>
                 )}

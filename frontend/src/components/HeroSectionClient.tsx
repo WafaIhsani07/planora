@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { CATEGORIES } from "../lib/categories";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const SearchIcon = ({ className }: { className?: string }) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -48,6 +49,7 @@ const CloseIcon = ({ className }: { className?: string }) => (
 );
 
 export default function HeroSectionClient() {
+    const { t } = useLanguage();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
 
@@ -76,14 +78,14 @@ export default function HeroSectionClient() {
 
                     <div className="flex items-center gap-8">
                         <nav className="hidden items-center gap-8 text-sm font-semibold text-gray-300 lg:flex">
-                            <a href="#beranda" className="relative text-[#FF9A9E] after:absolute after:-bottom-1.5 after:left-1/2 after:h-0.5 after:w-7 after:-translate-x-1/2 after:bg-[#FF9A9E]">Home</a>
-                            <Link href="/vendors" className="relative transition hover:text-white after:absolute after:-bottom-1.5 after:left-1/2 after:h-0.5 after:w-7 after:-translate-x-1/2 after:bg-[#FF9A9E] after:opacity-0 hover:after:opacity-100 after:transition-opacity">Explore Vendors</Link>
-                            <a href="#footer" className="relative transition hover:text-white after:absolute after:-bottom-1.5 after:left-1/2 after:h-0.5 after:w-7 after:-translate-x-1/2 after:bg-[#FF9A9E] after:opacity-0 hover:after:opacity-100 after:transition-opacity" onClick={() => setIsMobileMenuOpen(false)}>About</a>
+                            <a href="#beranda" className="relative text-[#FF9A9E] after:absolute after:-bottom-1.5 after:left-1/2 after:h-0.5 after:w-7 after:-translate-x-1/2 after:bg-[#FF9A9E]">{t('nav.home')}</a>
+                            <Link href="/vendors" className="relative transition hover:text-white after:absolute after:-bottom-1.5 after:left-1/2 after:h-0.5 after:w-7 after:-translate-x-1/2 after:bg-[#FF9A9E] after:opacity-0 hover:after:opacity-100 after:transition-opacity">{t('nav.explore')}</Link>
+                            <a href="#footer" className="relative transition hover:text-white after:absolute after:-bottom-1.5 after:left-1/2 after:h-0.5 after:w-7 after:-translate-x-1/2 after:bg-[#FF9A9E] after:opacity-0 hover:after:opacity-100 after:transition-opacity" onClick={() => setIsMobileMenuOpen(false)}>{t('nav.about')}</a>
                         </nav>
 
                         <div className="flex items-center gap-3">
-                            <Link href="/login" className="hidden rounded-xl bg-[#FF9A9E] px-6 py-2.5 text-sm font-bold text-white transition hover:bg-[#FF527B] md:block">Sign In</Link>
-                            <Link href="/download" className="rounded-xl bg-pink-gradient px-6 py-2.5 text-sm font-bold text-black shadow-[0_12px_28px_-14px_rgba(255,154,158,0.8)] transition hover:opacity-90">Download App</Link>
+                            <Link href="/login" className="hidden rounded-xl bg-[#FF9A9E] px-6 py-2.5 text-sm font-bold text-white transition hover:bg-[#FF527B] md:block">{t('nav.signIn')}</Link>
+                            <Link href="/download" className="rounded-xl bg-pink-gradient px-6 py-2.5 text-sm font-bold text-black shadow-[0_12px_28px_-14px_rgba(255,154,158,0.8)] transition hover:opacity-90">{t('nav.downloadApp')}</Link>
                             <button
                                 type="button"
                                 aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
@@ -107,10 +109,10 @@ export default function HeroSectionClient() {
                     {isMobileMenuOpen ? (
                         <div id="mobile-nav-menu" className="mx-6 mt-4 rounded-3xl border border-white/10 bg-black/95 p-4 shadow-[0_15px_35px_-15px_rgba(0,0,0,0.3)] md:mx-12 lg:hidden">
                             <div className="flex flex-col gap-2 text-sm font-semibold text-white">
-                                <a href="#beranda" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>Home</a>
-                                <Link href="/vendors" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>Explore Vendors</Link>
-                                <a href="#footer" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>About</a>
-                                <Link href="/download" className="rounded-xl bg-pink-gradient px-3 py-2 text-center font-bold text-black transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>Download App</Link>
+                                <a href="#beranda" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>{t('nav.home')}</a>
+                                <Link href="/vendors" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>{t('nav.explore')}</Link>
+                                <a href="#footer" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>{t('nav.about')}</a>
+                                <Link href="/download" className="rounded-xl bg-pink-gradient px-3 py-2 text-center font-bold text-black transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>{t('nav.downloadApp')}</Link>
                             </div>
                         </div>
                     ) : null}
@@ -118,21 +120,21 @@ export default function HeroSectionClient() {
                     <main className="grid grid-cols-1 items-start gap-6 pb-8 pt-2 sm:pt-6 lg:grid-cols-2 lg:gap-10">
                         <div className="flex flex-col items-start pr-0 lg:pr-10">
                             <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 sm:mb-9">
-                                <span className="text-[10px] font-bold tracking-wider text-gray-300 sm:hidden">#1 EVENT SERVICES MARKETPLACE</span>
-                                <span className="hidden text-[10px] font-bold tracking-wider text-gray-300 sm:inline">#1 EVENT SERVICES MARKETPLACE</span>
+                                <span className="text-[10px] font-bold tracking-wider text-gray-300 sm:hidden">{t('hero.badge')}</span>
+                                <span className="hidden text-[10px] font-bold tracking-wider text-gray-300 sm:inline">{t('hero.badge')}</span>
                             </div>
 
-                            <h1 className="mb-6 max-w-[12ch] text-[2.8rem] font-extrabold leading-[1.04] tracking-tight text-white sm:max-w-none sm:text-[3.8rem] md:text-[4.7rem] lg:text-[5.2rem]">Plan Your <br /> Special Moment <br /> <span className="text-pink-gradient italic">Perfectly</span></h1>
+                            <h1 className="mb-6 max-w-[12ch] text-[2.8rem] font-extrabold leading-[1.04] tracking-tight text-white sm:max-w-none sm:text-[3.8rem] md:text-[4.7rem] lg:text-[5.2rem]">{t('hero.titleLine1')} <br /> {t('hero.titleLine2')} <br /> <span className="text-pink-gradient italic">{t('hero.titleAccent')}</span></h1>
 
-                            <p className="mb-8 max-w-md text-sm leading-relaxed text-gray-400">Find the best vendors for all your event needs. Secure, easy, and trusted with Planora.</p>
+                            <p className="mb-8 max-w-md text-sm leading-relaxed text-gray-400">{t('hero.subtitle')}</p>
 
                             <div className="mb-6 flex w-full max-w-xl flex-col gap-2 rounded-full bg-white p-1.5 shadow-2xl md:flex-row">
                                 <div className="flex flex-1 items-center px-6 py-2 gap-3">
                                     <SearchIcon className="mr-3 h-5 w-5 shrink-0 text-gray-400" />
-                                    <input type="text" placeholder="Search vendors, categories, or cities..." aria-label="Search vendors" className="w-full bg-transparent text-sm text-black placeholder-gray-400 outline-none focus-visible:ring-0" />
+                                    <input type="text" placeholder={t('hero.searchPlaceholder')} aria-label={t('hero.searchPlaceholder')} className="w-full bg-transparent text-sm text-black placeholder-gray-400 outline-none focus-visible:ring-0" />
                                 </div>
                                 <button className="flex w-full items-center justify-center gap-2 rounded-full bg-black px-8 py-3.5 text-sm font-bold text-white transition hover:bg-gray-800 md:w-auto">
-                                    <span>Search Vendor</span>
+                                    <span>{t('hero.searchButton')}</span>
                                     <ArrowRightIcon className="h-4 w-4" />
                                 </button>
                             </div>
@@ -161,7 +163,7 @@ export default function HeroSectionClient() {
                                     </div>
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-[13px] font-semibold uppercase tracking-wide text-gray-400">Customers can view catalogs, recommendations, and testimonials on the web</span>
+                                    <span className="text-[13px] font-semibold uppercase tracking-wide text-gray-400">{t('hero.customersText')}</span>
                                     <span className="text-[9px] font-bold uppercase tracking-widest text-brand-gray sm:text-[10px]"></span>
                                 </div>
                             </div>

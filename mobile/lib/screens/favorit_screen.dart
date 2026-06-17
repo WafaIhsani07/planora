@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
+import '../utils/translations.dart';
 import '../main.dart' show PlanoraColors, PlanoraSnackBar;
 
 class FavoritScreen extends StatefulWidget {
@@ -78,7 +79,7 @@ class _FavoritScreenState extends State<FavoritScreen> {
        
        PlanoraSnackBar.show(
          context,
-         message: 'Removed from Favorites',
+         message: Translations.t('favorites.removed'),
          isError: true,
          icon: Icons.favorite_border_rounded,
        );
@@ -110,7 +111,7 @@ class _FavoritScreenState extends State<FavoritScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('My Favorites', style: tt.headlineMedium),
+                  Text(Translations.t('favorites.title'), style: tt.headlineMedium),
                   Container(
                     width: 44,
                     height: 44,
@@ -152,7 +153,7 @@ class _FavoritScreenState extends State<FavoritScreen> {
                                       size: 36, color: PlanoraColors.brandDark),
                                 ),
                                 const SizedBox(height: 16),
-                                Text('No favorite services yet.',
+                                Text(Translations.t('favorites.empty'),
                                     style: tt.bodyMedium?.copyWith(
                                       color: PlanoraColors.brandGray,
                                       fontStyle: FontStyle.italic,
@@ -213,12 +214,12 @@ class _FavoritScreenState extends State<FavoritScreen> {
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
           onTap: _onBottomNavTapped,
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home_rounded), label: 'Home'),
-            BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), activeIcon: Icon(Icons.explore_rounded), label: 'Explore'),
-            BottomNavigationBarItem(icon: Icon(Icons.receipt_long_outlined), activeIcon: Icon(Icons.receipt_long_rounded), label: 'Orders'),
-            BottomNavigationBarItem(icon: Icon(Icons.favorite_border_rounded), activeIcon: Icon(Icons.favorite_rounded), label: 'Favorites'),
-            BottomNavigationBarItem(icon: Icon(Icons.person_outline_rounded), activeIcon: Icon(Icons.person_rounded), label: 'Profile'),
+          items: [
+            BottomNavigationBarItem(icon: const Icon(Icons.home_outlined), activeIcon: const Icon(Icons.home_rounded), label: Translations.t('nav.home')),
+            BottomNavigationBarItem(icon: const Icon(Icons.explore_outlined), activeIcon: const Icon(Icons.explore_rounded), label: Translations.t('nav.explore')),
+            BottomNavigationBarItem(icon: const Icon(Icons.receipt_long_outlined), activeIcon: const Icon(Icons.receipt_long_rounded), label: Translations.t('nav.orders')),
+            BottomNavigationBarItem(icon: const Icon(Icons.favorite_border_rounded), activeIcon: const Icon(Icons.favorite_rounded), label: Translations.t('nav.favorites')),
+            BottomNavigationBarItem(icon: const Icon(Icons.person_outline_rounded), activeIcon: const Icon(Icons.person_rounded), label: Translations.t('nav.profile')),
           ],
         ),
       ),
@@ -276,7 +277,7 @@ class _FavoritScreenState extends State<FavoritScreen> {
                     color: PlanoraColors.brandAccent,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Text('View Details',
+                  child: Text(Translations.t('home.viewDetails'),
                       style: tt.labelSmall?.copyWith(
                         color: PlanoraColors.brandDark,
                         fontWeight: FontWeight.w600,

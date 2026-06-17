@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/api_service.dart';
+import '../utils/translations.dart';
 import '../main.dart' show PlanoraColors;
 
 class HomeScreen extends StatefulWidget {
@@ -92,9 +93,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Expanded(
                     child: TextField(
-                      decoration: const InputDecoration(
-                        hintText: 'Search for your dream service...',
-                        prefixIcon: Icon(Icons.search_rounded),
+                      decoration: InputDecoration(
+                        hintText: Translations.t('home.search'),
+                        prefixIcon: const Icon(Icons.search_rounded),
                       ),
                     ),
                   ),
@@ -121,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 32),
 
               // ── Penawaran Spesial Banner ───────────────────────────────────
-              Text('Special Offers', style: tt.titleLarge),
+              Text(Translations.t('home.specialOffers'), style: tt.titleLarge),
               const SizedBox(height: 14),
               ClipRRect(
                 borderRadius: BorderRadius.circular(24),
@@ -163,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Discount Up To\n30%',
+                            Translations.t('home.discount'),
                             style: GoogleFonts.playfairDisplay(
                               fontSize: 22,
                               fontWeight: FontWeight.w700,
@@ -173,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            'VIP Venue Rental',
+                            Translations.t('home.vipVenue'),
                             style: tt.bodySmall?.copyWith(
                               color: PlanoraColors.background.withAlpha(200),
                             ),
@@ -190,12 +191,12 @@ class _HomeScreenState extends State<HomeScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Recommended Vendors', style: tt.titleLarge),
+                  Text(Translations.t('home.recommended'), style: tt.titleLarge),
                   TextButton(
                     onPressed: () =>
                         Navigator.pushNamed(context, '/explore'),
                     child: Text(
-                      'View All',
+                      Translations.t('home.viewAll'),
                       style: tt.labelMedium?.copyWith(
                         color: PlanoraColors.brandDark,
                         decoration: TextDecoration.underline,
@@ -220,7 +221,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 40),
                             child: Text(
-                              'No vendor data available from the server.',
+                              Translations.t('home.noData'),
                               style: tt.bodyMedium?.copyWith(
                                 color: PlanoraColors.brandGray,
                                 fontStyle: FontStyle.italic,
@@ -238,7 +239,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               id: vendor['id']?.toString() ?? '1',
                               name: vendor['businessName'] ?? 'Vendor Name',
                               category: vendor['city'] ?? 'Location',
-                              price: 'View Details',
+                              price: Translations.t('home.viewDetails'),
                               rating: vendor['rating']?.toString() ?? '0.0',
                               imageUrl: vendor['avatar'] ??
                                   'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?q=80&w=200&auto=format&fit=crop',
@@ -271,31 +272,31 @@ class _HomeScreenState extends State<HomeScreen> {
           if (index == 3) Navigator.pushReplacementNamed(context, '/favorit');
           if (index == 4) Navigator.pushReplacementNamed(context, '/profil');
         },
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home_rounded),
-            label: 'Home',
+            icon: const Icon(Icons.home_outlined),
+            activeIcon: const Icon(Icons.home_rounded),
+            label: Translations.t('nav.home'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.explore_outlined),
-            activeIcon: Icon(Icons.explore_rounded),
-            label: 'Explore',
+            icon: const Icon(Icons.explore_outlined),
+            activeIcon: const Icon(Icons.explore_rounded),
+            label: Translations.t('nav.explore'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.receipt_long_outlined),
-            activeIcon: Icon(Icons.receipt_long_rounded),
-            label: 'Orders',
+            icon: const Icon(Icons.receipt_long_outlined),
+            activeIcon: const Icon(Icons.receipt_long_rounded),
+            label: Translations.t('nav.orders'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.favorite_border_rounded),
-            activeIcon: Icon(Icons.favorite_rounded),
-            label: 'Favorites',
+            icon: const Icon(Icons.favorite_border_rounded),
+            activeIcon: const Icon(Icons.favorite_rounded),
+            label: Translations.t('nav.favorites'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline_rounded),
-            activeIcon: Icon(Icons.person_rounded),
-            label: 'Profile',
+            icon: const Icon(Icons.person_outline_rounded),
+            activeIcon: const Icon(Icons.person_rounded),
+            label: Translations.t('nav.profile'),
           ),
         ],
       ),
