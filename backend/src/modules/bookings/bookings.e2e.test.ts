@@ -26,7 +26,7 @@ describe("End-to-End (E2E) Integration Tests - Fase 1-4 dengan Peningkatan", () 
       const customerId = "customer-1"
       const input = {
         layananId: "layanan-1",
-        eventDate: "2026-06-05",
+        eventDate: "2026-07-05",
         eventAddress: "Jakarta",
         notes: "Ulang tahun",
       }
@@ -46,7 +46,7 @@ describe("End-to-End (E2E) Integration Tests - Fase 1-4 dengan Peningkatan", () 
       const mockJadwal = {
         id: "jadwal-1",
         vendorId: "vendor-1",
-        date: new Date("2026-06-05"),
+        date: new Date("2026-07-05"),
         isAvailable: false,
         note: "Booked",
       }
@@ -57,7 +57,7 @@ describe("End-to-End (E2E) Integration Tests - Fase 1-4 dengan Peningkatan", () 
         vendorId: "vendor-1",
         layananId: "layanan-1",
         jadwalId: "jadwal-1",
-        eventDate: new Date("2026-06-05"),
+        eventDate: new Date("2026-07-05"),
         totalPrice: 1500000,
         status: "PENDING",
       }
@@ -67,6 +67,7 @@ describe("End-to-End (E2E) Integration Tests - Fase 1-4 dengan Peningkatan", () 
       mockDb.$transaction.mockImplementationOnce(async (cb: Function) => {
         const tx = {
           jadwal: {
+            findFirst: vi.fn().mockResolvedValue(null),
             findUnique: vi.fn().mockResolvedValue(null), // Jadwal kosong/belum ada
             create: vi.fn().mockResolvedValue(mockJadwal),
           },
@@ -95,6 +96,7 @@ describe("End-to-End (E2E) Integration Tests - Fase 1-4 dengan Peningkatan", () 
       mockDb.$transaction.mockImplementationOnce(async (cb: Function) => {
         const tx = {
           jadwal: {
+            findFirst: vi.fn().mockResolvedValue(null),
             findUnique: vi.fn().mockResolvedValue(mockJadwal), // Jadwal sudah ada dan isAvailable: false
           },
         }
@@ -110,7 +112,7 @@ describe("End-to-End (E2E) Integration Tests - Fase 1-4 dengan Peningkatan", () 
       const customerId = "customer-1"
       const input = {
         layananId: "layanan-1",
-        eventDate: "2026-06-05",
+        eventDate: "2026-07-05",
       }
 
       const mockLayanan = {
@@ -238,6 +240,12 @@ describe("End-to-End (E2E) Integration Tests - Fase 1-4 dengan Peningkatan", () 
           jadwal: {
             update: vi.fn().mockResolvedValue({}),
           },
+          payment: {
+            update: vi.fn().mockResolvedValue({}),
+          },
+          vendor: {
+            update: vi.fn().mockResolvedValue({}),
+          }
         }
         return cb(tx)
       })
@@ -274,6 +282,9 @@ describe("End-to-End (E2E) Integration Tests - Fase 1-4 dengan Peningkatan", () 
           payment: {
             update: vi.fn().mockResolvedValue({}),
           },
+          vendor: {
+            update: vi.fn().mockResolvedValue({}),
+          }
         }
         return cb(tx)
       })
@@ -331,7 +342,7 @@ describe("End-to-End (E2E) Integration Tests - Fase 1-4 dengan Peningkatan", () 
         return cb(tx)
       })
 
-      const res = await bookingsService.updateBookingStatus("vendor-user-1", "VENDOR", bookingId, {
+      const res = await bookingsService.updateBookingStatus("customer-1", "CUSTOMER", bookingId, {
         status: "COMPLETED",
       })
 
@@ -339,7 +350,7 @@ describe("End-to-End (E2E) Integration Tests - Fase 1-4 dengan Peningkatan", () 
       expect(capturedTxVendorUpdate).toHaveBeenCalledWith({
         where: { id: "vendor-1" },
         data: {
-          balance: { increment: 2000000 },
+          balance: { increment: 1900000 },
         },
       })
 

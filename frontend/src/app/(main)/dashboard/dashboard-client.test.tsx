@@ -8,6 +8,20 @@ vi.mock('@/services/vendor.service', () => ({
   getVendorBookings: vi.fn(),
 }));
 
+vi.mock('@/context/LanguageContext', () => ({
+  useLanguage: () => ({
+    language: 'id',
+    setLanguage: vi.fn(),
+    t: (key: string) => {
+      const translations: Record<string, string> = {
+        'dashboard.loading': 'Memuat dashboard...',
+        'dashboard.welcome': 'Selamat Datang,',
+      };
+      return translations[key] || key;
+    }
+  }),
+}));
+
 const mockBookings = [
   {
     id: 'ord-1',
@@ -87,7 +101,7 @@ describe('DashboardClient Unit Tests', () => {
 
     // Total Pendapatan: 10M + 5M + 3M = 18M
     // (ord-3 is CANCELLED so it's ignored)
-    expect(screen.getByText('Rp 18.000.000')).toBeDefined();
+    expect(screen.getAllByText('Rp 18.000.000').length).toBeGreaterThan(0);
   });
 
   it('identifies upcoming schedule properly', async () => {
@@ -102,8 +116,8 @@ describe('DashboardClient Unit Tests', () => {
 
     // Upcoming event harusnya 'ord-4' (25 Mei) karena 'ord-1' sudah COMPLETED dan 'ord-3' CANCELLED
     // Active events are ord-2 (1 Juni) and ord-4 (25 Mei). Earliest is 25 Mei (ord-4).
-    expect(screen.getByText(/Paket D/i)).toBeDefined();
-    expect(screen.getByText(/Customer D/i)).toBeDefined();
-    expect(screen.getByText('25')).toBeDefined(); // Tanggal event ord-4
+    expect(screen.getAllByText(/Paket D/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Customer D/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText('25').length).toBeGreaterThan(0); // Tanggal event ord-4
   });
 });

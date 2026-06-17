@@ -26,7 +26,6 @@ export default function DashboardClient() {
   const [upcomingEvent, setUpcomingEvent] = useState<any>(null);
   const [chartPoints, setChartPoints] = useState<{x: number, y: number}[]>([
     {x: 0, y: 38}, {x: 15, y: 35}, {x: 30, y: 28}, {x: 45, y: 30}, {x: 60, y: 18}, {x: 75, y: 10}, {x: 100, y: 5}
-    {x: 0, y: 38}, {x: 15, y: 35}, {x: 30, y: 28}, {x: 45, y: 30}, {x: 60, y: 18}, {x: 75, y: 10}, {x: 100, y: 5}
   ]);
   const { t } = useLanguage();
 

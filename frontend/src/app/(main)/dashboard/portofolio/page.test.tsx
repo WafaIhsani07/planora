@@ -4,6 +4,16 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import PortfolioPage from './page';
 import * as vendorService from '@/services/vendor.service';
 
+// Mock LanguageContext
+vi.mock('@/context/LanguageContext', () => ({
+  useLanguage: () => ({ t: (key: string) => key, language: 'id', setLanguage: vi.fn() }),
+}));
+
+// Mock DashboardLayout
+vi.mock('../DashboardLayout', () => ({
+  default: ({ children }: { children: React.ReactNode }) => <div data-testid="layout">{children}</div>,
+}));
+
 // Mock next/navigation
 vi.mock('next/navigation', () => ({
   usePathname: () => '/dashboard/portofolio',
@@ -18,6 +28,11 @@ vi.mock('@/services/vendor.service', () => ({
   getMyPortfolio: vi.fn(),
   createPortfolio: vi.fn(),
   deletePortfolio: vi.fn(),
+}));
+
+// Mock orders lib
+vi.mock('@/lib/orders', () => ({
+  getPendingOrderCount: vi.fn(() => Promise.resolve(0)),
 }));
 
 describe('PortfolioPage (TDD Integration)', () => {
@@ -74,7 +89,9 @@ describe('PortfolioPage (TDD Integration)', () => {
 
     expect(screen.getByText('Royal Wedding of Dian & Rian')).toBeDefined();
     expect(screen.getByText('Sweet 17 Glamour Gathering')).toBeDefined();
-    expect(screen.getByText('Total Portofolio: 2 Proyek')).toBeDefined();
+    // With the t() mock returning the key, the total count is embedded in the subtitle text
+    // Check that both portfolio items are rendered (2 articles)
+    expect(screen.getAllByRole('article').length).toBe(2);
   });
 
   it('supports creating a new portfolio item and submits correctly', async () => {
@@ -84,8 +101,9 @@ describe('PortfolioPage (TDD Integration)', () => {
       expect(screen.queryByTestId('loading-spinner')).toBeNull();
     });
 
-    // Click on "TAMBAH PORTOFOLIO" button
-    const addButton = screen.getByText('TAMBAH PORTOFOLIO');
+    // Click on "add" button (rendered as i18n key with t() mock)
+    // The button contains the i18n key text 'dashboard.portofolio.list.btnAdd'
+    const addButton = screen.getByRole('button', { name: /dashboard\.portofolio\.list\.btnAdd/i });
     fireEvent.click(addButton);
 
     // Form inputs should be visible

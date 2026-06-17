@@ -61,8 +61,8 @@ describe('PengaturanVendorPage Unit Tests', () => {
     expect((screen.getByDisplayValue('Dekorasi Indah') as HTMLInputElement).value).toBe('Dekorasi Indah');
     expect((screen.getByDisplayValue('08123456789') as HTMLInputElement).value).toBe('08123456789');
     
-    // Check Bank Account elements
-    expect(screen.getByText('Bank BCA')).toBeDefined();
+    // Check Bank Account elements (Bank BCA appears in both the h5 and the select option)
+    expect(screen.getAllByText('Bank BCA').length).toBeGreaterThan(0);
     expect(screen.getByText(/1234567890/)).toBeDefined();
     expect(screen.getByText(/Budi Santoso/i)).toBeDefined();
   });
@@ -114,7 +114,9 @@ describe('PengaturanVendorPage Unit Tests', () => {
       expect(userService.updateUserProfile).toHaveBeenCalledWith({ phone: '0812' });
       expect(vendorService.updateVendorProfile).toHaveBeenCalledWith({
         businessName: 'Deco',
-        description: undefined // since we didn't mock it completely
+        description: '', // initial state value is empty string ''
+        city: '',
+        address: '',
       });
     });
   });

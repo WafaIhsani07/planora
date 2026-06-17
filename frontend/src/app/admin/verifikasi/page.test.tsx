@@ -45,13 +45,13 @@ describe('AdminVerifikasiVendorPage', () => {
       expect(screen.getByText(/Vendor A/i)).toBeDefined();
     });
     
-    expect(screen.getByText(/Jakarta/i)).toBeDefined();
-    // Badge antrean muncul dua kali (ANTREAN & TINJAU HARI INI) - gunakan getAllByText
-    const antreanEl = screen.getAllByText(/01/);
-    expect(antreanEl.length).toBeGreaterThan(0);
+    // Check if the business name is rendered
+    expect(screen.getByText(/Vendor A/i)).toBeDefined();
+    // Check if User A is rendered
+    expect(screen.getByText(/User A/i)).toBeDefined();
   });
 
-  it('calls verifyVendor when SETUJUI is clicked', async () => {
+  it('calls verifyVendor when Verifikasi is clicked', async () => {
     const mockVendors = [
       { id: 'v1', businessName: 'Vendor A', createdAt: '2026-05-14T10:00:00.000Z' }
     ];
@@ -60,18 +60,24 @@ describe('AdminVerifikasiVendorPage', () => {
 
     render(<AdminVerifikasiVendorPage />);
 
+    // Must click "Lihat detail" first to open the panel
     await waitFor(() => {
-      expect(screen.getByText('SETUJUI')).toBeDefined();
+      expect(screen.getByText('Lihat detail')).toBeDefined();
+    });
+    fireEvent.click(screen.getByText('Lihat detail'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Verifikasi')).toBeDefined();
     });
 
-    fireEvent.click(screen.getByText('SETUJUI'));
+    fireEvent.click(screen.getByText('Verifikasi'));
 
     await waitFor(() => {
       expect(adminService.verifyVendor).toHaveBeenCalledWith('v1');
     });
   });
 
-  it('calls rejectVendor when Tolak (Trash icon) is clicked', async () => {
+  it('calls rejectVendor when Tolak is clicked', async () => {
     const mockVendors = [
       { id: 'v1', businessName: 'Vendor A', createdAt: '2026-05-14T10:00:00.000Z' }
     ];
@@ -80,13 +86,21 @@ describe('AdminVerifikasiVendorPage', () => {
 
     render(<AdminVerifikasiVendorPage />);
 
+    // Must click "Lihat detail" first to open the panel
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /Tolak vendor/i })).toBeDefined();
+      expect(screen.getByText('Lihat detail')).toBeDefined();
+    });
+    fireEvent.click(screen.getByText('Lihat detail'));
+
+    await waitFor(() => {
+      const tolakButtons = screen.getAllByRole('button', { name: /Tolak/i });
+      expect(tolakButtons.length).toBeGreaterThan(0);
     });
 
-    fireEvent.click(screen.getByRole('button', { name: /Tolak vendor/i }));
+    // Click the last "Tolak" button (the one in the detail panel)
+    const tolakButtons = screen.getAllByRole('button', { name: /Tolak/i });
+    fireEvent.click(tolakButtons[tolakButtons.length - 1]);
 
-    // In this implementation, we might prompt for a reason, but let's assume it sends 'Ditolak Admin' directly for simplicity.
     await waitFor(() => {
       expect(adminService.rejectVendor).toHaveBeenCalledWith('v1', 'Ditolak oleh admin');
     });

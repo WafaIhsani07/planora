@@ -77,8 +77,6 @@ export default function KatalogPage() {
     descriptionText: '',
   });
 
-  });
-
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { t } = useLanguage();
 
@@ -95,7 +93,8 @@ export default function KatalogPage() {
 
       // Transform backend Layanan to ServicePackage frontend structures
       const transformed: ServicePackage[] = (layananData || []).map((item: any) => {
-        const { features, descriptionText } = parseDescription(item.description, t('dashboard.katalog.messages.defaultFeatures') as unknown as string[]);
+        const defaultFeatures: string[] = ['Layanan profesional', 'Peralatan lengkap', 'Tim berpengalaman'];
+        const { features, descriptionText } = parseDescription(item.description, defaultFeatures);
         
         // Dynamic bookings count or calculated based on backend length
         const ordersCount = item.bookings?.length || 0;

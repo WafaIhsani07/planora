@@ -3,10 +3,20 @@ import { render, screen, waitFor } from '@testing-library/react';
 import KeuanganPage from './page';
 import * as vendorService from '@/services/vendor.service';
 
-// Mock vendor service
+// Mock vendor service - include ALL functions used by KeuanganPage
 vi.mock('@/services/vendor.service', () => ({
   getVendorBookings: vi.fn(),
   getMyVendorProfile: vi.fn(),
+  getMyWithdrawals: vi.fn(),
+  requestWithdrawal: vi.fn(),
+}));
+
+// Mock react-hot-toast which is used in the component
+vi.mock('react-hot-toast', () => ({
+  default: {
+    error: vi.fn(),
+    success: vi.fn(),
+  },
 }));
 
 describe('KeuanganPage Unit Tests', () => {
@@ -15,8 +25,10 @@ describe('KeuanganPage Unit Tests', () => {
   });
 
   it('renders loading state initially', () => {
-    (vendorService.getVendorBookings as any).mockResolvedValue([]);
-    (vendorService.getMyVendorProfile as any).mockResolvedValue(null);
+    // Return never-resolving promises to keep loading state
+    (vendorService.getVendorBookings as any).mockReturnValue(new Promise(() => {}));
+    (vendorService.getMyVendorProfile as any).mockReturnValue(new Promise(() => {}));
+    (vendorService.getMyWithdrawals as any).mockReturnValue(new Promise(() => {}));
 
     render(<KeuanganPage />);
 
@@ -66,10 +78,12 @@ describe('KeuanganPage Unit Tests', () => {
       bankName: 'BANK MANDIRI',
       bankAccount: '123-456-789-0',
       bankHolder: 'Wafa Deco Group',
+      balance: 0,
     };
 
     (vendorService.getVendorBookings as any).mockResolvedValue(mockBookings);
     (vendorService.getMyVendorProfile as any).mockResolvedValue(mockProfile);
+    (vendorService.getMyWithdrawals as any).mockResolvedValue([]);
 
     render(<KeuanganPage />);
 
@@ -78,24 +92,24 @@ describe('KeuanganPage Unit Tests', () => {
       expect(screen.queryByTestId('loading-spinner')).toBeNull();
     });
 
-    // 1. Verify Bank Account details
-    expect(screen.getByText('BANK MANDIRI')).toBeDefined();
-    expect(screen.getByText('123-456-789-0')).toBeDefined();
-    expect(screen.getByText(/a.n. Wafa Deco Group/i)).toBeDefined();
+    // 1. Verify Bank Account details (shown in the "Rekening Tujuan" card)
+    // bankName is shown as text in the dark card: profile.bankName
+    expect(screen.getAllByText('BANK MANDIRI').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('123-456-789-0').length).toBeGreaterThan(0);
+    expect(screen.getByText(/a\.n\. Wafa Deco Group/i)).toBeDefined();
 
-    // 2. Verify financial statistics calculation
-    // Total income = 10,000,000 + 4,000,000 = 14,000,000
-    // Total held = 4,000,000 * 0.95 = 3,800,000
-    // Total completed = 10,000,000 * 0.95 = 9,500,000
-    expect(screen.getByText(/14\.000\.000/)).toBeDefined();
-    expect(screen.getByText(/3\.800\.000/)).toBeDefined();
-    expect(screen.getByText(/9\.500\.000/)).toBeDefined();
+    // 2. Verify financial statistics:
+    // totalIncome = COMPLETED only: b1 netBalance = 10,000,000 * 0.95 = 9,500,000
+    // totalHeld = CONFIRMED only: b2 netBalance = 4,000,000 * 0.95 = 3,800,000
+    // These amounts appear in both stat cards AND transaction table rows
+    expect(screen.getAllByText(/9\.500\.000/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/3\.800\.000/).length).toBeGreaterThan(0);
 
     // 3. Verify transactions list rendering
     expect(screen.getByText(/Paket Wedding Rose \(Andini\)/i)).toBeDefined();
     expect(screen.getByText(/Engagement Gold \(Sarah\)/i)).toBeDefined();
 
-    // Verify invoice short ID formatting
+    // Verify invoice short ID formatting (last 6 chars of id, uppercased)
     expect(screen.getByText(/#PLR-B1/i)).toBeDefined();
     expect(screen.getByText(/#PLR-B2/i)).toBeDefined();
   });

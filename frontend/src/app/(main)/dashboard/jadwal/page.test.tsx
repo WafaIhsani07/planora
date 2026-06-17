@@ -8,6 +8,18 @@ vi.mock('@/services/vendor.service', () => ({
   updateBookingStatus: vi.fn(),
 }));
 
+vi.mock('@/context/LanguageContext', () => ({
+  useLanguage: () => ({ t: (key: string) => key, language: 'id', setLanguage: vi.fn() }),
+}));
+
+vi.mock('../DashboardLayout', () => ({
+  default: ({ children }: { children: React.ReactNode }) => <div data-testid="layout">{children}</div>,
+}));
+
+vi.mock('@/lib/orders', () => ({
+  getPendingOrderCount: vi.fn(() => Promise.resolve(0)),
+}));
+
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
     push: vi.fn(),

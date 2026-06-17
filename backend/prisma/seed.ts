@@ -26,7 +26,9 @@ async function main() {
           'calonvendor@gmail.com',
           'ritzwo@planora.com',
           'royalcatering@planora.com',
-          'roselladekora@planora.com'
+          'roselladekora@planora.com',
+          'siti@planora.com',
+          'grandmercure@planora.com'
         ]
       }
     }
@@ -48,6 +50,19 @@ async function main() {
     },
   });
   console.log('✅ Customer Rudi Hermawan berhasil dibuat.');
+
+  // 1b. BUAT AKUN CUSTOMER KEDUA (SITI)
+  const customer2 = await prisma.user.create({
+    data: {
+      email: 'siti@planora.com',
+      password: passwordHash,
+      name: 'Siti Nurbaya',
+      phone: '081299887766',
+      role: 'CUSTOMER',
+      avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop'
+    },
+  });
+  console.log('✅ Customer Siti Nurbaya berhasil dibuat.');
 
   // 2. BUAT AKUN ADMIN
   await prisma.user.create({
@@ -107,6 +122,17 @@ async function main() {
       password: passwordHash,
       name: 'Budi Calon Vendor',
       role: 'VENDOR',
+    }
+  });
+
+  const vendorVenueUser = await prisma.user.create({
+    data: {
+      email: 'grandmercure@planora.com',
+      password: passwordHash,
+      name: 'Toni Mercure',
+      role: 'VENDOR',
+      phone: '081199887766',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop'
     }
   });
   console.log('✅ Akun-akun user Vendor berhasil dibuat.');
@@ -187,6 +213,25 @@ async function main() {
     }
   });
 
+  const vendorVenue = await prisma.vendor.create({
+    data: {
+      userId: vendorVenueUser.id,
+      businessName: 'Grand Mercure Venue',
+      description: 'Ballroom mewah dan elegan untuk pernikahan impian Anda dengan kapasitas hingga 2000 orang.',
+      address: 'Jl. Jenderal Sudirman No. 1',
+      city: 'Jakarta Pusat',
+      province: 'DKI Jakarta',
+      status: 'VERIFIED',
+      rating: 5.0,
+      totalBookings: 50,
+      totalReviews: 45,
+      bankName: 'BANK BCA',
+      bankAccount: '1122334455',
+      bankHolder: 'Toni Mercure',
+      balance: 0.00
+    }
+  });
+
   // Calon Vendor PENDING untuk pengujian admin
   await prisma.vendor.create({
     data: {
@@ -213,6 +258,9 @@ async function main() {
   });
   const catDeco = await prisma.kategori.create({
     data: { name: 'Dekorasi Pernikahan', slug: 'dekorasi', description: 'Dekorasi panggung, lorong, pencahayaan, dan photobooth' }
+  });
+  const catVenue = await prisma.kategori.create({
+    data: { name: 'Venue & Gedung', slug: 'venue', description: 'Gedung, ballroom, dan lokasi pernikahan outdoor/indoor' }
   });
   console.log('✅ Kategori-kategori berhasil dibuat.');
 
@@ -280,7 +328,34 @@ async function main() {
       images: ['https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=300&auto=format&fit=crop']
     }
   });
+
+  const layVenueBallroom = await prisma.layanan.create({
+    data: {
+      vendorId: vendorVenue.id,
+      kategoriId: catVenue.id,
+      name: 'Sewa Ballroom Grand Mercure (Full Day)',
+      description: 'Sewa ballroom full day termasuk sound system standar, lighting, dan kursi banquet 1000 pcs.',
+      price: 150000000.00,
+      duration: 24,
+      images: [
+        'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=300&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?q=80&w=300&auto=format&fit=crop'
+      ]
+    }
+  });
   console.log('✅ Layanan (Services) berhasil dibuat.');
+
+  // PORTFOLIO VENUE
+  await prisma.portfolio.create({
+    data: {
+      vendorId: vendorVenue.id,
+      title: 'Pernikahan Mewah Raffi & Nagita',
+      description: 'Pernikahan super mewah dengan tema fairy tale di Grand Mercure Ballroom.',
+      imageUrl: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=400&auto=format&fit=crop',
+      eventDate: new Date(today.getFullYear(), today.getMonth() - 2, 10)
+    }
+  });
+  console.log('✅ Portfolio berhasil dibuat.');
 
   // 7. BUAT KETERSEDIAAN JADWAL (JADWAL ACARA VENDOR)
   // Buat tanggal penting di minggu depan
@@ -322,6 +397,15 @@ async function main() {
       date: completedDateOnly,
       isAvailable: false,
       note: 'Selesai diselenggarakan (Sarah Ritz Full WO)'
+    }
+  });
+
+  const jadwalInProgress = await prisma.jadwal.create({
+    data: {
+      vendorId: vendorVenue.id,
+      date: targetDateOnly,
+      isAvailable: false,
+      note: 'Dipesan oleh Siti Nurbaya untuk Resepsi'
     }
   });
   console.log('✅ Ketersediaan Jadwal berhasil di-set.');
@@ -387,6 +471,21 @@ async function main() {
       cancelReason: 'Permintaan customer: Pemindahan tempat pelaksanaan resepsi ke kota lain.'
     }
   });
+
+  // E. BOOKING 5: IN_PROGRESS (Sedang Berjalan - Hari H)
+  const bookingInProgress = await prisma.booking.create({
+    data: {
+      customerId: customer2.id,
+      vendorId: vendorVenue.id,
+      layananId: layVenueBallroom.id,
+      jadwalId: jadwalInProgress.id,
+      eventDate: targetEventDate,
+      eventAddress: 'Jl. Jenderal Sudirman No. 1',
+      notes: 'Harap disiapkan karpet merah dari pintu masuk.',
+      totalPrice: 150000000.00,
+      status: 'IN_PROGRESS',
+    }
+  });
   console.log('✅ Booking multi-status berhasil dibuat.');
 
   // 9. BUAT TRANSAKSI PEMBAYARAN (PAYMENT)
@@ -439,6 +538,20 @@ async function main() {
       proofUrl: 'https://placehold.co/600x400/png?text=Bukti+Transfer+Palsu',
       note: 'Bukti transfer buram dan tidak valid.',
       verifiedAt: new Date(),
+      verifiedBy: 'Super Admin Planora'
+    }
+  });
+
+  // Pembayaran untuk Booking 5: IN_PROGRESS (LUNAS)
+  await prisma.payment.create({
+    data: {
+      bookingId: bookingInProgress.id,
+      amount: 150000000.00,
+      status: 'PAID',
+      method: 'CREDIT_CARD',
+      proofUrl: 'https://placehold.co/600x400/png?text=CC+Payment+Siti',
+      paidAt: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 10),
+      verifiedAt: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 10),
       verifiedBy: 'Super Admin Planora'
     }
   });

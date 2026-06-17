@@ -5,6 +5,48 @@ import KatalogPage from './page';
 import * as vendorService from '@/services/vendor.service';
 import * as adminService from '@/services/admin.service';
 
+// Mock LanguageContext with real Indonesian translations for katalog-specific keys
+vi.mock('@/context/LanguageContext', () => ({
+  useLanguage: () => ({
+    language: 'id',
+    setLanguage: vi.fn(),
+    t: (key: string) => {
+      const translations: Record<string, string> = {
+        'dashboard.katalog.btnAddNew': 'TAMBAH PAKET BARU',
+        'dashboard.katalog.stats.packageCount': 'Paket',
+        'dashboard.katalog.stats.total': 'Total Paket',
+        'dashboard.katalog.stats.promo': 'Promo Aktif',
+        'dashboard.katalog.stats.active': 'Aktif',
+        'dashboard.katalog.stats.orders': 'Pesanan',
+        'dashboard.katalog.form.btnSave': 'Simpan Paket',
+        'dashboard.katalog.form.btnSaving': 'Menyimpan...',
+        'dashboard.katalog.form.btnCancel': 'Batal',
+        'dashboard.katalog.deleteModal.title': 'Hapus paket layanan?',
+        'dashboard.katalog.deleteModal.btnDelete': 'Ya, Hapus',
+        'dashboard.katalog.deleteModal.btnCancel': 'Tidak',
+        'dashboard.katalog.form.priceStrategy': 'Strategi Harga',
+        'dashboard.katalog.form.enableDiscount': 'Aktifkan Diskon',
+        'dashboard.katalog.form.normalPrice': 'Harga Normal',
+        'dashboard.katalog.form.description': 'Deskripsi',
+        'dashboard.katalog.form.descriptionPlaceholder': 'Deskripsi layanan...',
+        'dashboard.katalog.messages.validationError': 'Nama dan harga wajib diisi.',
+        'dashboard.katalog.messages.defaultPromo': 'Promo Spesial',
+      };
+      return translations[key] ?? key;
+    },
+  }),
+}));
+
+// Mock DashboardLayout
+vi.mock('../DashboardLayout', () => ({
+  default: ({ children }: { children: React.ReactNode }) => <div data-testid="layout">{children}</div>,
+}));
+
+// Mock orders lib
+vi.mock('@/lib/orders', () => ({
+  getPendingOrderCount: vi.fn(() => Promise.resolve(0)),
+  uploadImage: vi.fn(),
+}));
 
 // Mock next/navigation
 vi.mock('next/navigation', () => ({
@@ -82,8 +124,8 @@ describe('KatalogPage (TDD Integration)', () => {
     expect(screen.getByText('Dekorasi Pernikahan')).toBeDefined();
     expect(screen.getByText('Dekorasi Lamaran')).toBeDefined();
 
-    // Verify stats cards are calculated dynamically
-    expect(screen.getByText('2 Paket')).toBeDefined(); // Total packages
+    // The stats card shows: '{totalPackages} Paket' = '2 Paket'
+    expect(screen.getByText('2 Paket')).toBeDefined();
   });
 
   it('calls createLayanan API when submitting a new service package form', async () => {
