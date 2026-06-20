@@ -25,7 +25,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
   String? _error;
 
   // Polling interval
-  static const _pollInterval = Duration(seconds: 5);
+  // static const _pollInterval = Duration(seconds: 5);
 
   @override
   void didChangeDependencies() {

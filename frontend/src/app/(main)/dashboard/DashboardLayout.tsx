@@ -20,6 +20,7 @@ import Link from 'next/link';
 import { signOut } from 'next-auth/react';
 import { getPendingOrderCount } from '@/lib/orders';
 import { useLanguage } from '@/context/LanguageContext';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -39,7 +40,7 @@ export default function DashboardLayoutWrapper({ children }: DashboardLayoutProp
     { name: t('dashboard.sidebar.orders'), href: '/dashboard/jadwal', icon: ShoppingBag, badge: pendingOrderCount },
     { name: t('dashboard.sidebar.services'), href: '/dashboard/katalog', icon: Briefcase },
     { name: t('dashboard.sidebar.portfolio'), href: '/dashboard/portofolio', icon: ImageIcon },
-    { name: t('dashboard.sidebar.chat', { defaultValue: 'Pesan' }), href: '/dashboard/pesan', icon: MessageCircle },
+    { name: t('dashboard.sidebar.chat'), href: '/dashboard/pesan', icon: MessageCircle },
     { name: t('dashboard.sidebar.reviews'), href: '/dashboard/ulasan', icon: Star },
     { name: t('dashboard.sidebar.finance'), href: '/dashboard/keuangan', icon: Wallet },
     { name: t('dashboard.sidebar.settings'), href: '/dashboard/pengaturan', icon: Settings },
@@ -159,6 +160,8 @@ export default function DashboardLayoutWrapper({ children }: DashboardLayoutProp
           </button>
 
           <div className="flex items-center gap-6">
+            <LanguageSwitcher />
+
             <button className="relative p-1.5 text-[#2A2A2A]/40 hover:text-[#FF9A9E] transition-colors">
               <Bell className="w-5 h-5" />
               <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-[#FF527B] text-white text-[6px] flex items-center justify-center rounded-full border border-white font-bold">

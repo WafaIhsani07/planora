@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import DashboardLayout from '../DashboardLayout';
-import { Send, Phone, Video, MoreVertical, Search, Paperclip, Smile } from 'lucide-react';
+import { Send, Phone, Video, MoreVertical, Search, Paperclip, Smile, MessageCircle } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
 const DUMMY_CHATS = [

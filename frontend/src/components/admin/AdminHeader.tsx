@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Bell, Menu } from 'lucide-react';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 type AdminHeaderProps = {
   searchPlaceholder?: string;
@@ -50,6 +51,7 @@ export default function AdminHeader({
       </div>
 
       <div className="flex items-center gap-4 md:gap-6">
+        <LanguageSwitcher />
         <button type="button" className="relative cursor-pointer text-[#A8A8A8] transition-colors hover:text-[#FF9A9E]">
           <Bell className="w-5 h-5" />
           {notifCount > 0 && (

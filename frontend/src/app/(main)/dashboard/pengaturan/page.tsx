@@ -23,6 +23,7 @@ import {
   X,
 } from 'lucide-react';
 import { getUserProfile, updateUserProfile, changePassword } from '@/services/user.service';
+import { getMyVendorProfile, updateVendorProfile, uploadImage } from '@/services/vendor.service';
 import { useLanguage } from '@/context/LanguageContext';
 
 type ProfileForm = {
@@ -236,7 +237,7 @@ export default function PengaturanVendorPage() {
     }
   };
 
-  const handlePasswordUpdate = () => {
+  const handlePasswordUpdate = async () => {
     setPasswordError('');
 
     if (!currentPassword) {

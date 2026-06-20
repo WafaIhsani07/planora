@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { getSession } from 'next-auth/react';
 import { Bell, Menu } from 'lucide-react';
 import VendorSidebar from '@/components/vendor/VendorSidebar';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useAuthStore } from '@/store/authStore';
 import { getMyVendorProfile } from '@/services/vendor.service';
 import { getUserProfile } from '@/services/user.service';
@@ -108,6 +109,8 @@ export default function VendorLayout({ children }: { children: ReactNode }) {
           </button>
 
           <div className="flex items-center gap-6">
+            <LanguageSwitcher />
+            
             <button className="relative p-2 text-[#2A2A2A]/40 hover:text-[#FF9A9E] transition-colors cursor-pointer">
               <Bell className="w-5 h-5" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#FF527B] rounded-full border border-[#FDF1F0]" />

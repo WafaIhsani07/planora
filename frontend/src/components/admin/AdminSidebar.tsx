@@ -105,10 +105,12 @@ export default function AdminSidebar() {
 
   const isSidebarOpen = true;
 
-  const isActive = (item: NavItem) =>
-    item.activeMatch?.some(
-      (match) => pathname === match || pathname.startsWith(`${match}/`)
-    ) ?? (pathname === item.href || pathname.startsWith(`${item.href}/`));
+  const isActive = (item: NavItem) => {
+    const path = pathname ?? '';
+    return item.activeMatch?.some(
+      (match) => path === match || path.startsWith(`${match}/`)
+    ) ?? (path === item.href || path.startsWith(`${item.href}/`));
+  };
 
   const handleConfirmLogout = async () => {
     if (isLoggingOut) return;

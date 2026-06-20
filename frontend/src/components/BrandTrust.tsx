@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -6,7 +8,7 @@ export default function BrandTrust() {
     const brands = ["bridestory", "zap", "ASVIDA", "imagenic", "the F thing", "DERAI", "haidee"];
 
     return (
-        <section data-reveal className="border-b border-gray-100 bg-white py-8 md:py-10">
+        <section data-reveal suppressHydrationWarning className="border-b border-gray-100 bg-white py-8 md:py-10">
             <div className="mx-auto max-w-7xl px-6 text-center md:px-12">
                 <p className="mb-10 text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">
                     {t('brandTrust.title')}

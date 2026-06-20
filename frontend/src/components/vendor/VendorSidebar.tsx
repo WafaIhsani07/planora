@@ -83,7 +83,8 @@ export default function VendorSidebar({ isCollapsed, toggleSidebar }: VendorSide
         )}
         <ul className="space-y-1.5">
           {navItems.map((item) => {
-            const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+            const path = pathname ?? '';
+            const active = path === item.href || path.startsWith(`${item.href}/`);
             const Icon = item.icon;
             return (
               <li key={item.href}>

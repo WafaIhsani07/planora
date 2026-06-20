@@ -47,10 +47,11 @@ export default function VendorSidebar() {
   ];
 
   const checkIsActive = (path: string) => {
+    const pName = pathname ?? '';
     if (path === '/dashboard') {
-      return pathname === '/dashboard';
+      return pName === '/dashboard';
     }
-    return pathname.startsWith(path);
+    return pName.startsWith(path);
   };
 
   const handleConfirmLogout = async () => {

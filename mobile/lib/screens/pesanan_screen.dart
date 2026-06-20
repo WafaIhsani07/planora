@@ -172,7 +172,6 @@ class _PesananScreenState extends State<PesananScreen> {
                           itemCount: _orders.length,
                           itemBuilder: (context, index) {
                             final item = _orders[index];
-                            final status = item['status'] ?? 'PENDING';
                             return _buildOrderCard(item);
                           },
                         ),
@@ -264,7 +263,6 @@ class _PesananScreenState extends State<PesananScreen> {
 
     final id = item['id']?.toString() ?? '1';
     final invoiceStatus = item['status'] ?? 'PENDING';
-    final status = invoiceStatus;
     final layanan = item['layanan'];
     final layananName = layanan?['namaLayanan'] ?? layanan?['name'] ?? 'Layanan';
     final harga = layanan?['harga'] ?? layanan?['price'] ?? 0;

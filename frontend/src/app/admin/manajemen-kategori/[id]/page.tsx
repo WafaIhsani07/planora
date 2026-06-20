@@ -16,7 +16,7 @@ function slugify(s: string) {
 export default function EditKategoriPage() {
   const router = useRouter();
   const params = useParams();
-  const id = params.id as string;
+  const id = (params?.id ?? '') as string;
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

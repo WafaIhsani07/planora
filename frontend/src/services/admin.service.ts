@@ -108,7 +108,7 @@ export async function getAllKategori() {
   }
 }
 
-export async function createKategori(payload: { name: string; description?: string }) {
+export async function createKategori(payload: { name: string; description?: string; slug?: string; icon?: string }) {
   const { data } = await api.post("/kategori", payload);
   return data.data;
 }

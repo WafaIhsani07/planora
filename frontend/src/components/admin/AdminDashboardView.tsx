@@ -76,7 +76,7 @@ export default function AdminDashboardView({ stats, pendingVendors }: AdminDashb
     return { x, y };
   });
 
-  const lineD = chartPoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+  const lineD = chartPoints.map((p: any, i: number) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
   const areaD = `${lineD} L ${chartPoints[chartPoints.length - 1].x} 200 L ${chartPoints[0].x} 200 Z`;
 
   const activityItems = [
@@ -177,7 +177,7 @@ export default function AdminDashboardView({ stats, pendingVendors }: AdminDashb
                 <line x1="0" y1="160" x2="500" y2="160" stroke="#F4D7D4" strokeWidth="1.5" />
                 <path d={areaD} fill="url(#chartGradient)" />
                 <path d={lineD} fill="none" stroke="#FF9A9E" strokeWidth="3" />
-                {chartPoints.map((p, i) => (
+                {chartPoints.map((p: any, i: number) => (
                   <circle key={i} cx={p.x} cy={p.y} r="5" fill="#FF9A9E" stroke="#FFFFFF" strokeWidth="2" />
                 ))}
               </svg>
