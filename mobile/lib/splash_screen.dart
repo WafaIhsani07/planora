@@ -16,12 +16,13 @@ class _SplashScreenState extends State<SplashScreen>
   late final AnimationController _controller;
   late final Animation<double> _fadeAnim;
   late final Animation<double> _scaleAnim;
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
 
-    // â”€â”€ Animasi fade + scale masuk â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─── Animasi fade + scale masuk ──────────────────────────────────────────
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 900),
@@ -37,7 +38,7 @@ class _SplashScreenState extends State<SplashScreen>
     _controller.forward();
 
     // Navigasi pintar berdasarkan status login setelah 3 detik
-    Timer(const Duration(seconds: 3), () async {
+    _timer = Timer(const Duration(seconds: 3), () async {
       if (mounted) {
         final token = await ApiService.getToken();
         if (token != null && token.isNotEmpty) {
@@ -51,6 +52,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   void dispose() {
+    _timer?.cancel();
     _controller.dispose();
     super.dispose();
   }

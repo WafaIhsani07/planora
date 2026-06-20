@@ -145,6 +145,7 @@ model Jadwal {
   booking     Booking?
   vendor      Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
 
+  @@unique([vendorId, date])
   @@map("jadwal")
 }
 

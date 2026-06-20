@@ -189,10 +189,6 @@ export const updateBookingStatus = async (
 
   // Logika Khusus: Pesanan Selesai (COMPLETED)
   if (input.status === "COMPLETED") {
-    if (booking.status === "COMPLETED") {
-      throw new AppError("Pesanan ini sudah selesai", 400)
-    }
-    
     if (booking.payment?.status !== "PAID") {
       throw new AppError("Pesanan tidak bisa diselesaikan karena belum lunas dibayar", 400)
     }
@@ -209,7 +205,7 @@ export const updateBookingStatus = async (
       })
 
       // 2. Tambah Saldo Vendor (95% masuk ke vendor, 5% komisi platform)
-      const netAmount = booking.totalPrice * 0.95;
+      const netAmount = Number(booking.totalPrice) * 0.95;
       await tx.vendor.update({
         where: { id: booking.vendorId },
         data: {

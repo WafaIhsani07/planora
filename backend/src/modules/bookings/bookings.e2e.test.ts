@@ -97,7 +97,11 @@ describe("End-to-End (E2E) Integration Tests - Fase 1-4 dengan Peningkatan", () 
         const tx = {
           jadwal: {
             findFirst: vi.fn().mockResolvedValue(null),
-            findUnique: vi.fn().mockResolvedValue(mockJadwal), // Jadwal sudah ada dan isAvailable: false
+            create: vi.fn().mockImplementation(() => {
+              const error: any = new Error("Unique constraint failed")
+              error.code = "P2002"
+              throw error
+            }),
           },
         }
         return cb(tx)
