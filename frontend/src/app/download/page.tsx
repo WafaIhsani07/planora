@@ -121,20 +121,13 @@ export default function DownloadPage() {
             </ul>
 
             <div className="space-y-6 pt-6">
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#2A2A2A]/20">{t('download.downloadPro')}</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#2A2A2A]/20">DOWNLOAD PLANORA APP DIRECTLY</p>
               <div className="flex flex-wrap gap-4">
-                <a href="#" className="flex items-center gap-4 rounded-2xl border border-[#2A2A2A]/5 bg-black px-8 py-4 text-white shadow-lg transition-transform hover:scale-105">
-                  <Apple className="h-8 w-8 fill-white text-white" />
+                <a href="/downloads/planora-app.apk" download className="flex items-center gap-4 rounded-2xl bg-[#FF9A9E] px-8 py-4 text-white shadow-lg shadow-[#FF9A9E]/30 transition-transform hover:bg-[#FF527B] hover:scale-105">
+                  <Play className="h-8 w-8 text-white fill-white" />
                   <div className="text-left">
-                    <p className="mb-1 text-[8px] font-black uppercase leading-none text-white/60">{t('download.downloadOn')}</p>
-                    <p className="text-lg font-black leading-none text-white">{t('download.appStore')}</p>
-                  </div>
-                </a>
-                <a href="#" className="flex items-center gap-4 rounded-2xl border border-[#2A2A2A]/5 bg-black px-8 py-4 text-white shadow-lg transition-transform hover:scale-105">
-                  <Play className="h-8 w-8 text-white" />
-                  <div className="text-left">
-                    <p className="mb-1 text-[8px] font-black uppercase leading-none text-white/60">{t('download.getItOn')}</p>
-                    <p className="text-lg font-black leading-none text-white">{t('download.googlePlay')}</p>
+                    <p className="mb-1 text-[8px] font-black uppercase leading-none text-white/80">DOWNLOAD FOR ANDROID</p>
+                    <p className="text-lg font-black leading-none text-white">Download APK</p>
                   </div>
                 </a>
               </div>
