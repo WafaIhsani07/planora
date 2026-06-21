@@ -7,12 +7,8 @@ import 'package:http_parser/http_parser.dart';
 
 class ApiService {
   static String get baseUrl {
-    if (kIsWeb) {
-      return 'http://localhost:5000/api/v1';
-    }
-    return defaultTargetPlatform == TargetPlatform.android
-        ? 'http://10.0.2.2:5000/api/v1'
-        : 'http://localhost:5000/api/v1';
+    // URL Publik Sementara via Localtunnel agar bisa diakses tim dari jaringan berbeda
+    return 'https://loud-nights-tap.loca.lt/api/v1';
   }
 
   // Alamat dasar host (tanpa /api/v1), untuk membangun URL aset gambar
@@ -55,7 +51,10 @@ class ApiService {
     try {
       final response = await httpClient.post(
         Uri.parse('$baseUrl/auth/login'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Bypass-Tunnel-Reminder': 'true',
+        },
         body: json.encode({
           'email': email,
           'password': password,
@@ -91,7 +90,10 @@ class ApiService {
     try {
       final response = await httpClient.post(
         Uri.parse('$baseUrl/auth/register'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Bypass-Tunnel-Reminder': 'true',
+        },
         body: json.encode({
           'name': name,
           'email': email,
@@ -123,6 +125,7 @@ class ApiService {
         Uri.parse('$baseUrl$endpoint'),
         headers: {
           'Content-Type': 'application/json',
+          'Bypass-Tunnel-Reminder': 'true',
           if (token != null) 'Authorization': 'Bearer $token',
         },
         body: json.encode(body),
@@ -141,6 +144,7 @@ class ApiService {
         Uri.parse('$baseUrl$endpoint'),
         headers: {
           'Content-Type': 'application/json',
+          'Bypass-Tunnel-Reminder': 'true',
           if (token != null) 'Authorization': 'Bearer $token',
         },
       );
@@ -158,6 +162,7 @@ class ApiService {
         Uri.parse('$baseUrl$endpoint'),
         headers: {
           'Content-Type': 'application/json',
+          'Bypass-Tunnel-Reminder': 'true',
           if (token != null) 'Authorization': 'Bearer $token',
         },
         body: json.encode(body),
@@ -339,6 +344,7 @@ class ApiService {
       final request = http.MultipartRequest('POST', Uri.parse('$baseUrl/uploads'));
       
       request.headers.addAll({
+        'Bypass-Tunnel-Reminder': 'true',
         if (token != null) 'Authorization': 'Bearer $token',
       });
       
@@ -437,6 +443,7 @@ class ApiService {
         Uri.parse('$baseUrl/users/profile'),
         headers: {
           'Content-Type': 'application/json',
+          'Bypass-Tunnel-Reminder': 'true',
           if (token != null) 'Authorization': 'Bearer $token',
         },
         body: json.encode({
@@ -518,6 +525,7 @@ class ApiService {
         Uri.parse('$baseUrl/notifications/$id/read'),
         headers: {
           'Content-Type': 'application/json',
+          'Bypass-Tunnel-Reminder': 'true',
           if (token != null) 'Authorization': 'Bearer $token',
         },
       );
@@ -543,6 +551,7 @@ class ApiService {
         Uri.parse('$baseUrl/notifications/read-all'),
         headers: {
           'Content-Type': 'application/json',
+          'Bypass-Tunnel-Reminder': 'true',
           if (token != null) 'Authorization': 'Bearer $token',
         },
       );
@@ -579,6 +588,7 @@ class ApiService {
         Uri.parse('$baseUrl/bookings/$bookingId/messages'),
         headers: {
           'Content-Type': 'application/json',
+          'Bypass-Tunnel-Reminder': 'true',
           if (token != null) 'Authorization': 'Bearer $token',
         },
       );
@@ -608,6 +618,7 @@ class ApiService {
         Uri.parse('$baseUrl/bookings/$bookingId/messages'),
         headers: {
           'Content-Type': 'application/json',
+          'Bypass-Tunnel-Reminder': 'true',
           if (token != null) 'Authorization': 'Bearer $token',
         },
         body: json.encode({'content': content}),
@@ -638,6 +649,7 @@ class ApiService {
         Uri.parse('$baseUrl/bookings/$bookingId/messages/unread-count'),
         headers: {
           'Content-Type': 'application/json',
+          'Bypass-Tunnel-Reminder': 'true',
           if (token != null) 'Authorization': 'Bearer $token',
         },
       );

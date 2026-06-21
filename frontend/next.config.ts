@@ -1,17 +1,8 @@
-if (typeof globalThis !== 'undefined' && (!globalThis.localStorage || typeof (globalThis.localStorage as any).getItem !== 'function')) {
-  (globalThis as any).localStorage = {
-    getItem: () => null,
-    setItem: () => {},
-    removeItem: () => {},
-    clear: () => {},
-    key: () => null,
-    length: 0,
-  };
-}
-
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
+  outputFileTracingRoot: path.join(__dirname, "../"),
   reactStrictMode: true,
   images: {
     remotePatterns: [

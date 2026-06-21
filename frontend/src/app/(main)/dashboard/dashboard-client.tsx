@@ -136,11 +136,11 @@ export default function DashboardClient() {
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'PENDING': return t('dashboard.status.pending');
-      case 'CONFIRMED': return t('dashboard.status.confirmed');
-      case 'IN_PROGRESS': return t('dashboard.status.inProgress');
-      case 'COMPLETED': return t('dashboard.status.completed');
-      case 'CANCELLED': return t('dashboard.status.cancelled');
+      case 'PENDING': return t('vendor_dashboard.status.PENDING');
+      case 'CONFIRMED': return t('vendor_dashboard.status.CONFIRMED');
+      case 'IN_PROGRESS': return t('vendor_dashboard.status.CONFIRMED'); // Using same for now
+      case 'COMPLETED': return t('vendor_dashboard.status.COMPLETED');
+      case 'CANCELLED': return t('vendor_dashboard.status.CANCELLED');
       default: return status;
     }
   };
@@ -163,40 +163,40 @@ export default function DashboardClient() {
 
   const summaryCards = [
     {
-      title: t('dashboard.cards.totalOrders'),
+      title: t('vendor_dashboard.completed_orders'),
       value: stats.totalOrders.toString(),
       trend: '',
-      link: t('dashboard.links.viewAll'),
+      link: t('vendor_dashboard.view_all'),
       linkUrl: '/vendor/pesanan',
       icon: ShoppingBag,
       color: 'text-[#FF527B]',
       bg: 'bg-[#FCE6E3]',
     },
     {
-      title: t('dashboard.cards.activeOrders'),
+      title: t('vendor_dashboard.active_services'),
       value: stats.activeOrders.toString(),
       trend: '',
-      link: t('dashboard.links.viewOrders'),
+      link: t('vendor_dashboard.view_all'),
       linkUrl: '/vendor/pesanan?status=aktif',
       icon: Clock,
       color: 'text-orange-500',
       bg: 'bg-orange-50',
     },
     {
-      title: t('dashboard.cards.completedOrders'),
+      title: t('vendor_dashboard.completed_orders'),
       value: stats.completedOrders.toString(),
       trend: '',
-      link: t('dashboard.links.viewHistory'),
+      link: t('vendor_dashboard.view_all'),
       linkUrl: '/vendor/pesanan?status=selesai',
       icon: CheckCircle2,
       color: 'text-emerald-500',
       bg: 'bg-emerald-50',
     },
     {
-      title: t('dashboard.cards.totalRevenue'),
+      title: t('vendor_dashboard.total_earnings'),
       value: formatCurrency(stats.totalRevenue),
       trend: '',
-      link: t('dashboard.links.report'),
+      link: t('vendor_dashboard.view_all'),
       linkUrl: '/vendor/keuangan',
       icon: CreditCard,
       color: 'text-[#FF527B]',
@@ -208,7 +208,7 @@ export default function DashboardClient() {
     return (
       <div className="flex flex-col items-center justify-center py-40" data-testid="loading-spinner">
         <RefreshCw className="w-12 h-12 text-[#FF9A9E] animate-spin mb-4" />
-        <p className="text-xs font-bold uppercase tracking-widest text-[#2A2A2A]/40">{t('dashboard.loading')}</p>
+        <p className="text-xs font-bold uppercase tracking-widest text-[#2A2A2A]/40">{t('vendor_layout.loading')}</p>
       </div>
     );
   }
@@ -218,10 +218,10 @@ export default function DashboardClient() {
       {/* Welcome Section */}
       <div className="flex flex-col mb-3">
         <h1 className="text-3xl md:text-[2rem] font-black tracking-[-0.04em] leading-[1.05] text-[#2A2A2A]">
-          {t('dashboard.welcome')} {vendorName}!
+          {t('vendor_dashboard.welcome')} {vendorName}!
         </h1>
         <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.18em] text-[#2A2A2A]/35">
-          {t('dashboard.manageSubtitle')}
+          {t('vendor_dashboard.subtitle')}
         </p>
       </div>
 
@@ -261,27 +261,27 @@ export default function DashboardClient() {
         {/* Recent Orders Section */}
         <div className="lg:col-span-7 bg-white rounded-xl border border-[#2A2A2A]/5 shadow-sm overflow-hidden flex flex-col">
           <div className="p-4 flex items-center justify-between border-b border-slate-50">
-            <h3 className="text-sm font-bold tracking-tight text-[#2A2A2A]">{t('dashboard.recentOrders.title')}</h3>
+            <h3 className="text-sm font-bold tracking-tight text-[#2A2A2A]">{t('vendor_dashboard.recent_orders')}</h3>
             <Link href="/vendor/pesanan" className="text-[10px] font-bold uppercase tracking-wide no-underline transition-colors hover:!text-[#FF527B]" style={{color: '#FF9A9E'}}>
-              {t('dashboard.links.viewAll')}
+              {t('vendor_dashboard.view_all')}
             </Link>
           </div>
           <div className="overflow-x-auto flex-1">
             {recentOrders.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full min-h-[200px] text-center p-6">
                 <ShoppingBag className="w-10 h-10 text-slate-200 mb-3" />
-                <p className="text-sm font-bold text-slate-400">{t('dashboard.recentOrders.empty')}</p>
+                <p className="text-sm font-bold text-slate-400">{t('vendor_dashboard.no_orders')}</p>
               </div>
             ) : (
               <table className="w-full text-left table-auto border-collapse min-w-[820px]">
                 <thead>
                   <tr className="bg-slate-50/40 text-[9px] lg:text-[10px] font-black text-[#2A2A2A]/30 uppercase tracking-[0.18em] border-b border-slate-50">
-                    <th className="px-5 py-4 text-left">{t('dashboard.recentOrders.table.order')}</th>
-                    <th className="px-5 py-4 text-left">{t('dashboard.recentOrders.table.client')}</th>
-                    <th className="px-5 py-4 text-left">{t('dashboard.recentOrders.table.date')}</th>
-                    <th className="px-5 py-4 text-left">{t('dashboard.recentOrders.table.package')}</th>
-                    <th className="px-5 py-4 text-right min-w-[140px]">{t('dashboard.recentOrders.table.total')}</th>
-                    <th className="px-5 py-4 text-center">{t('dashboard.recentOrders.table.status')}</th>
+                    <th className="px-5 py-4 text-left">Order</th>
+                    <th className="px-5 py-4 text-left">Client</th>
+                    <th className="px-5 py-4 text-left">Date</th>
+                    <th className="px-5 py-4 text-left">Package</th>
+                    <th className="px-5 py-4 text-right min-w-[140px]">Total</th>
+                    <th className="px-5 py-4 text-center">Status</th>
                   </tr>
                 </thead>
                 <tbody>

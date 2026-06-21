@@ -126,7 +126,6 @@
       "confirm": "Log Out"
     },
     "loading": "Loading dashboard...",
-    "welcome": "Welcome back,",
     "manageSubtitle": "Manage your business and orders easily.",
     "status": {
       "pending": "Pending",
@@ -179,8 +178,29 @@
       "showing": "Showing {start} - {end} of {total} orders"
     },
     "calendar": {
-      "days": ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"],
-      "months": ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"],
+      "days": [
+        "SUN",
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT"
+      ],
+      "months": [
+        "JANUARY",
+        "FEBRUARY",
+        "MARCH",
+        "APRIL",
+        "MAY",
+        "JUNE",
+        "JULY",
+        "AUGUST",
+        "SEPTEMBER",
+        "OCTOBER",
+        "NOVEMBER",
+        "DECEMBER"
+      ],
       "upcoming": "Upcoming Orders",
       "empty": "No confirmed orders",
       "confirmedBadge": "CONFIRMED"
@@ -242,7 +262,10 @@
       },
       "messages": {
         "validationError": "Package name and price cannot be empty!",
-        "defaultFeatures": ["Friendly Service", "Guaranteed Quality"],
+        "defaultFeatures": [
+          "Friendly Service",
+          "Guaranteed Quality"
+        ],
         "defaultPromo": "Special Promo"
       }
     },
@@ -353,12 +376,30 @@
         "title": "Notifications",
         "desc": "Set when and how you receive notifications",
         "items": {
-          "newOrder": { "title": "New incoming order", "desc": "Notification when a customer makes a booking" },
-          "dpReceived": { "title": "DP Payment received", "desc": "Notification when admin verifies customer's DP" },
-          "eventReminder": { "title": "Event D-3 reminder", "desc": "Automatic reminder 3 days before the event" },
-          "fundWithdrawn": { "title": "Funds successfully withdrawn", "desc": "Notification when admin withdraws funds to your account" },
-          "newReview": { "title": "New review from customer", "desc": "Notification when a customer gives a rating and review" },
-          "newsletter": { "title": "Planora newsletter email", "desc": "Business tips and new feature updates from Planora" }
+          "newOrder": {
+            "title": "New incoming order",
+            "desc": "Notification when a customer makes a booking"
+          },
+          "dpReceived": {
+            "title": "DP Payment received",
+            "desc": "Notification when admin verifies customer's DP"
+          },
+          "eventReminder": {
+            "title": "Event D-3 reminder",
+            "desc": "Automatic reminder 3 days before the event"
+          },
+          "fundWithdrawn": {
+            "title": "Funds successfully withdrawn",
+            "desc": "Notification when admin withdraws funds to your account"
+          },
+          "newReview": {
+            "title": "New review from customer",
+            "desc": "Notification when a customer gives a rating and review"
+          },
+          "newsletter": {
+            "title": "Planora newsletter email",
+            "desc": "Business tips and new feature updates from Planora"
+          }
         }
       },
       "dangerZone": {
@@ -560,5 +601,84 @@
       "engagement": "Engagement",
       "checkLeads": "Check All Leads"
     }
+  },
+  "vendor_sidebar": {
+    "dashboard": "Dashboard",
+    "pesanan": "Orders",
+    "layanan": "Service Packages",
+    "portofolio": "Portfolio",
+    "ulasan": "Reviews",
+    "keuangan": "Finances",
+    "pengaturan": "Settings",
+    "navigasi": "NAVIGATION",
+    "keluar": "LOGOUT",
+    "logout_title": "Sign out of account?",
+    "logout_desc": "Are you sure you want to sign out of the vendor account now?",
+    "logout_cancel": "Cancel",
+    "logout_confirm": "Yes, Sign out"
+  },
+  "admin_sidebar": {
+    "dashboard": "Dashboard",
+    "pengguna": "Manage Users",
+    "vendor": "Manage Vendors",
+    "kategori": "Service Categories",
+    "penarikan": "Withdrawal Requests",
+    "pengaturan": "Settings",
+    "navigasi": "NAVIGATION",
+    "keluar": "LOGOUT",
+    "logout_title": "Sign out of account?",
+    "logout_desc": "Are you sure you want to sign out of the admin account now?",
+    "logout_cancel": "Cancel",
+    "logout_confirm": "Yes, Sign out",
+    "overview": "OVERVIEW",
+    "verifikasi": "VERIFICATION",
+    "manajemen": "MANAGEMENT",
+    "akun": "ACCOUNT",
+    "verifikasi_vendor": "Vendor Verification",
+    "verifikasi_pembayaran": "Payment Verification",
+    "pencairan_dana": "Fund Disbursement",
+    "manajemen_kategori": "Category Management",
+    "manajemen_user": "User Management",
+    "laporan_keuangan": "Financial Report"
+  },
+  "vendor_layout": {
+    "loading": "LOADING VENDOR DASHBOARD...",
+    "verification_title": "Account Under Verification",
+    "verification_desc": "Please wait until the Admin approves your account. You cannot add services during this process.",
+    "vendor": "Vendor"
+  },
+  "admin_layout": {
+    "loading": "LOADING ADMIN DASHBOARD...",
+    "admin": "Admin"
+  },
+  "vendor_dashboard": {
+    "welcome": "Business Summary",
+    "subtitle": "MONITOR PERFORMANCE AND RECENT ORDERS",
+    "total_earnings": "Total Earnings",
+    "completed_orders": "Completed Orders",
+    "active_services": "Active Services",
+    "average_rating": "Average Rating",
+    "out_of": "out of",
+    "recent_orders": "Recent Orders",
+    "no_orders": "No recent orders yet",
+    "view_all": "View All",
+    "status": {
+      "PENDING": "Pending",
+      "PAID": "Paid",
+      "CONFIRMED": "Confirmed",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled"
+    }
+  },
+  "admin_dashboard": {
+    "welcome": "Platform Overview",
+    "subtitle": "MONITOR ACTIVITY AND PLANORA GROWTH",
+    "total_users": "Total Users",
+    "total_vendors": "Total Vendors",
+    "total_transactions": "Total Transactions",
+    "total_revenue": "Total Revenue",
+    "recent_vendors": "Recent Vendors",
+    "view_all": "View All",
+    "no_vendors": "No new vendor registrations yet"
   }
 }

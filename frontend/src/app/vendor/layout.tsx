@@ -6,12 +6,15 @@ import { useRouter } from 'next/navigation';
 import { getSession } from 'next-auth/react';
 import { Bell, Menu } from 'lucide-react';
 import VendorSidebar from '@/components/vendor/VendorSidebar';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
 import { getMyVendorProfile } from '@/services/vendor.service';
 import { getUserProfile } from '@/services/user.service';
 
 export default function VendorLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
+  const { t } = useLanguage();
   const { user } = useAuthStore();
   const [ready, setReady] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -84,7 +87,7 @@ export default function VendorLayout({ children }: { children: ReactNode }) {
     return (
       <div className="grid h-screen place-items-center bg-[#FDF1F0]">
         <span className="text-[10px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">
-          MEMUAT DASHBOARD VENDOR...
+          {t('vendor_layout.loading')}
         </span>
       </div>
     );
@@ -108,6 +111,8 @@ export default function VendorLayout({ children }: { children: ReactNode }) {
           </button>
 
           <div className="flex items-center gap-6">
+            <LanguageSwitcher />
+
             <button className="relative p-2 text-[#2A2A2A]/40 hover:text-[#FF9A9E] transition-colors cursor-pointer">
               <Bell className="w-5 h-5" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#FF527B] rounded-full border border-[#FDF1F0]" />
@@ -130,7 +135,7 @@ export default function VendorLayout({ children }: { children: ReactNode }) {
                 <p className="text-xs font-black text-[#2A2A2A] tracking-tight leading-none mb-1">
                   {businessName}
                 </p>
-                <p className="text-[8px] font-bold text-[#2A2A2A]/40 uppercase tracking-widest">Vendor</p>
+                <p className="text-[8px] font-bold text-[#2A2A2A]/40 uppercase tracking-widest">{t('vendor_layout.vendor')}</p>
               </div>
             </div>
           </div>
@@ -145,9 +150,9 @@ export default function VendorLayout({ children }: { children: ReactNode }) {
                   <span className="text-[#F59E0B] text-sm">⏳</span>
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-[#D97706]">Akun Sedang Diverifikasi</h4>
+                  <h4 className="text-sm font-bold text-[#D97706]">{t('vendor_layout.verification_title')}</h4>
                   <p className="text-[11px] font-medium text-[#D97706]/70 mt-0.5">
-                    Mohon tunggu hingga Admin menyetujui akun Anda. Anda tidak bisa menambah layanan selama proses ini.
+                    {t('vendor_layout.verification_desc')}
                   </p>
                 </div>
               </div>

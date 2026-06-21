@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getSession } from 'next-auth/react';
 import AdminSidebar from '@/components/admin/AdminSidebar';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type AdminLayoutProps = {
   children: ReactNode;
@@ -12,6 +13,7 @@ type AdminLayoutProps = {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const router = useRouter();
+  const { t } = useLanguage();
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -36,7 +38,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     return (
       <div className="grid h-screen place-items-center bg-[#FDF1F0]">
         <span className="text-[10px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">
-          MEMUAT DASHBOARD ADMIN...
+          {t('admin_layout.loading')}
         </span>
       </div>
     );

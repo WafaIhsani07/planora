@@ -18,6 +18,7 @@ import {
   Wallet,
   ShieldCheck,
 } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type AdminDashboardViewProps = {
   stats: any;
@@ -46,6 +47,7 @@ function formatDashboardDate(date: Date) {
 }
 
 export default function AdminDashboardView({ stats, pendingVendors }: AdminDashboardViewProps) {
+  const { t } = useLanguage();
   const [currentDate, setCurrentDate] = useState(() => new Date());
   const totalRevenue = Number(stats?.totalRevenue ?? 0);
   const totalBookings = Number(stats?.totalBookings ?? 0);
@@ -123,10 +125,10 @@ export default function AdminDashboardView({ stats, pendingVendors }: AdminDashb
 
         <div className="grid grid-cols-1 gap-5 md:grid-cols-3 xl:grid-cols-5">
           {[
-            { label: 'Total Vendor', value: formatNumber(totalVendors), icon: TrendingUp, iconWrap: 'bg-red-50 text-red-500', hint: '12% dari minggu lalu' },
-            { label: 'Total Customer', value: formatNumber(totalUsers), icon: Users, iconWrap: 'bg-indigo-50 text-indigo-500', hint: '16% dari minggu lalu' },
-            { label: 'Total Pesanan', value: formatNumber(totalBookings), icon: ClipboardList, iconWrap: 'bg-amber-50 text-amber-500', hint: '18% dari minggu lalu' },
-            { label: 'Total Pendapatan', value: formatCurrency(totalRevenue), icon: Wallet, iconWrap: 'bg-emerald-50 text-emerald-500', hint: '20% dari minggu lalu' },
+            { label: t('admin_dashboard.total_vendors'), value: formatNumber(totalVendors), icon: TrendingUp, iconWrap: 'bg-red-50 text-red-500', hint: '12% dari minggu lalu' },
+            { label: t('admin_dashboard.total_users'), value: formatNumber(totalUsers), icon: Users, iconWrap: 'bg-indigo-50 text-indigo-500', hint: '16% dari minggu lalu' },
+            { label: t('admin_dashboard.total_transactions'), value: formatNumber(totalBookings), icon: ClipboardList, iconWrap: 'bg-amber-50 text-amber-500', hint: '18% dari minggu lalu' },
+            { label: t('admin_dashboard.total_revenue'), value: formatCurrency(totalRevenue), icon: Wallet, iconWrap: 'bg-emerald-50 text-emerald-500', hint: '20% dari minggu lalu' },
             { label: 'Dana Ditanam (Escrow)', value: formatCurrency(escrowValue), icon: ShieldCheck, iconWrap: 'bg-amber-50 text-amber-500', hint: '20% dari minggu lalu' },
           ].map((card) => {
             const Icon = card.icon;

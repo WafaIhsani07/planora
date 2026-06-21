@@ -73,7 +73,8 @@ describe('DashboardClient Unit Tests', () => {
     render(<DashboardClient />);
 
     expect(screen.getByTestId('loading-spinner')).toBeDefined();
-    expect(screen.getByText(/Memuat dashboard/i)).toBeDefined();
+    // In our mock LanguageContext, t('vendor_layout.loading') returns 'vendor_layout.loading'
+    expect(screen.getByText(/vendor_layout\.loading|Memuat dashboard/i)).toBeDefined();
   });
 
   it('calculates KPIs correctly based on real bookings', async () => {
