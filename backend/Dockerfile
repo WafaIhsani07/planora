@@ -19,6 +19,10 @@ COPY . .
 # Build TypeScript
 RUN npm run build
 
+# Create uploads folder and give permissions to HF user
+RUN mkdir -p uploads && chown -R 1000:1000 /app
+USER 1000
+
 # Hugging Face Spaces defaults to exposing port 7860
 ENV PORT=7860
 EXPOSE 7860
