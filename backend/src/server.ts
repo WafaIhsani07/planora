@@ -13,7 +13,7 @@ process.on("uncaughtException", (err) => {
   // Jangan exit — biarkan server tetap berjalan
 })
 
-app.listen(env.PORT, () => {
+app.listen(env.PORT, "0.0.0.0", () => {
   console.log(`🚀 Server running  → http://localhost:${env.PORT}`)
   console.log(`📦 Environment     → ${env.NODE_ENV}`)
   console.log(`🗄️  Database        → ${env.DATABASE_URL.split("@").at(-1) ?? "connected"}`)
