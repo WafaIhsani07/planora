@@ -191,3 +191,14 @@ export async function requestWithdrawal(amount: number) {
     return null;
   }
 }
+
+// ─── Publik / Semua Vendor ───────────────────────────────────────────────────
+export async function getAllVendors(params?: { page?: number; limit?: number; search?: string; kategoriId?: string; city?: string }) {
+  try {
+    const response = await api.get("/vendors", { params });
+    return response.data.data;
+  } catch (error) {
+    handleApiError(error, "Gagal mengambil daftar vendor");
+    return { vendors: [], pagination: {} };
+  }
+}

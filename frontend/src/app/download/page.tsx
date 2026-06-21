@@ -1,24 +1,31 @@
+'use client';
+
 import Link from 'next/link';
 import { ArrowRight, Apple, Play, Check, Sparkles, Menu, Bell, MoreHorizontal, Calendar, User, MessageSquare, BarChart3, ShieldCheck } from 'lucide-react';
 import Footer from '@/components/Footer';
-
-const features = [
-  'Berbincang langsung dengan klien Anda secara real-time.',
-  'Tinjau klien potensial dan terhubung dengan cepat.',
-  'Unggah dan kelola portofolio karya terbaru Anda.',
-  'Kelola paket layanan dan harga dalam hitungan detik.',
-  'Perbaharui informasi bisnis Anda secara berkala.',
-];
+import { useLanguage } from '@/contexts/LanguageContext';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 export default function DownloadPage() {
+  const { t } = useLanguage();
+
+  const features = [
+    t('download.features.0') || 'Berbincang langsung dengan klien Anda secara real-time.',
+    t('download.features.1') || 'Tinjau klien potensial dan terhubung dengan cepat.',
+    t('download.features.2') || 'Unggah dan kelola portofolio karya terbaru Anda.',
+    t('download.features.3') || 'Kelola paket layanan dan harga dalam hitungan detik.',
+    t('download.features.4') || 'Perbaharui informasi bisnis Anda secara berkala.',
+  ];
+
   return (
     <>
       <section className="relative overflow-hidden bg-[#FDF1F0]/50 px-6 pb-0 pt-4 md:px-12 md:pt-6 lg:px-12 lg:pt-8">
-        <div className="mx-auto max-w-7xl">
+        <div className="mx-auto max-w-7xl flex items-center justify-between">
           <Link href="/" className="inline-flex items-center gap-2 rounded-full border border-[#2A2A2A]/10 bg-white px-4 py-2 text-sm font-bold text-[#2A2A2A] shadow-sm transition hover:border-[#FF9A9E]/30 hover:text-[#FF527B] hover:shadow-md">
             <ArrowRight className="h-4 w-4 rotate-180" />
-            Kembali
+            {t('download.back')}
           </Link>
+          <LanguageSwitcher />
         </div>
 
         <div className="absolute -mr-96 -mt-96 right-0 top-0 h-[600px] w-[600px] rounded-full bg-white opacity-80 blur-[120px]"></div>
@@ -34,16 +41,16 @@ export default function DownloadPage() {
                       <Menu className="h-5 w-5 text-white" />
                       <Bell className="h-5 w-5 text-white" />
                     </div>
-                    <h4 className="text-lg font-black tracking-tight text-white">Statistics</h4>
+                    <h4 className="text-lg font-black tracking-tight text-white">{t('download.mock.stats')}</h4>
                     <div className="space-y-4 rounded-2xl bg-white/5 p-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
-                          <p className="text-[8px] font-black uppercase tracking-widest text-white/30">Profile Views</p>
+                          <p className="text-[8px] font-black uppercase tracking-widest text-white/30">{t('download.mock.profileViews')}</p>
                           <p className="text-xl font-black text-[#FF9A9E]">12K</p>
                           <p className="text-[8px] font-bold text-emerald-400">↑ 12.52%</p>
                         </div>
                         <div className="space-y-1">
-                          <p className="text-[8px] font-black uppercase tracking-widest text-white/30">Leads</p>
+                          <p className="text-[8px] font-black uppercase tracking-widest text-white/30">{t('download.mock.leads')}</p>
                           <p className="text-xl font-black text-white">159</p>
                           <p className="text-[8px] font-bold text-emerald-400">↑ 14.89%</p>
                         </div>
@@ -52,7 +59,7 @@ export default function DownloadPage() {
                     <div className="space-y-3">
                       <div className="flex h-24 flex-col items-center justify-center gap-2 rounded-2xl border border-white/5 bg-white/5">
                         <MessageSquare className="h-6 w-6 text-[#FF9A9E]" />
-                        <p className="text-[8px] font-bold uppercase text-white/40">New Message</p>
+                        <p className="text-[8px] font-bold uppercase text-white/40">{t('download.mock.newMsg')}</p>
                       </div>
                     </div>
                   </div>
@@ -68,11 +75,11 @@ export default function DownloadPage() {
                       <MoreHorizontal className="h-5 w-5 text-slate-300" />
                       <Calendar className="h-5 w-5 text-slate-300" />
                     </div>
-                    <h4 className="text-lg font-black tracking-tight text-[#2A2A2A]">Active Orders</h4>
+                    <h4 className="text-lg font-black tracking-tight text-[#2A2A2A]">{t('download.mock.activeOrders')}</h4>
                     <div className="space-y-3">
                       {[
-                        { name: 'Andini Putri', label: 'Wedding Decor' },
-                        { name: 'Raka Pratama', label: 'Engagement' },
+                        { name: 'Andini Putri', label: t('download.mock.weddingDecor') },
+                        { name: 'Raka Pratama', label: t('download.mock.engagement') },
                       ].map((item) => (
                         <div key={item.name} className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
                           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#FDF1F0] text-[#FF9A9E]">
@@ -86,7 +93,7 @@ export default function DownloadPage() {
                       ))}
                     </div>
                     <button className="w-full rounded-xl bg-[#2A2A2A] py-3 text-[8px] font-black uppercase tracking-widest text-white shadow-lg">
-                      Check All Leads
+                      {t('download.mock.checkLeads')}
                     </button>
                   </div>
                 </div>
@@ -98,7 +105,7 @@ export default function DownloadPage() {
             <div className="space-y-4">
               <div className="h-1 w-20 rounded-full bg-gradient-to-r from-[#FF9A9E] to-[#FF527B]"></div>
               <h2 className="text-4xl font-[900] uppercase leading-tight tracking-tight text-[#2A2A2A] md:text-6xl">
-                Kelola Bisnis <br /> <span className="font-logo italic text-[#FF527B]">Kapan pun, Di mana pun</span>
+                {t('download.title1')} <br /> <span className="font-logo italic text-[#FF527B]">{t('download.title2')}</span>
               </h2>
             </div>
 
@@ -114,20 +121,20 @@ export default function DownloadPage() {
             </ul>
 
             <div className="space-y-6 pt-6">
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#2A2A2A]/20">Download Planora Pro on</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#2A2A2A]/20">{t('download.downloadPro')}</p>
               <div className="flex flex-wrap gap-4">
                 <a href="#" className="flex items-center gap-4 rounded-2xl border border-[#2A2A2A]/5 bg-black px-8 py-4 text-white shadow-lg transition-transform hover:scale-105">
                   <Apple className="h-8 w-8 fill-white text-white" />
                   <div className="text-left">
-                    <p className="mb-1 text-[8px] font-black uppercase leading-none text-white/60">Download on</p>
-                    <p className="text-lg font-black leading-none text-white">App Store</p>
+                    <p className="mb-1 text-[8px] font-black uppercase leading-none text-white/60">{t('download.downloadOn')}</p>
+                    <p className="text-lg font-black leading-none text-white">{t('download.appStore')}</p>
                   </div>
                 </a>
                 <a href="#" className="flex items-center gap-4 rounded-2xl border border-[#2A2A2A]/5 bg-black px-8 py-4 text-white shadow-lg transition-transform hover:scale-105">
                   <Play className="h-8 w-8 text-white" />
                   <div className="text-left">
-                    <p className="mb-1 text-[8px] font-black uppercase leading-none text-white/60">Get it on</p>
-                    <p className="text-lg font-black leading-none text-white">Google Play</p>
+                    <p className="mb-1 text-[8px] font-black uppercase leading-none text-white/60">{t('download.getItOn')}</p>
+                    <p className="text-lg font-black leading-none text-white">{t('download.googlePlay')}</p>
                   </div>
                 </a>
               </div>
@@ -140,10 +147,10 @@ export default function DownloadPage() {
         <div className="mx-auto max-w-7xl space-y-20">
           <div className="space-y-4 text-center">
             <h2 className="text-4xl font-black tracking-tighter text-[#2A2A2A] md:text-5xl">
-              Satu Aplikasi, <span className="text-[#FF527B]">Kontrol Penuh</span>
+              {t('download.oneApp')}<span className="text-[#FF527B]">{t('download.fullControl')}</span>
             </h2>
             <p className="mx-auto max-w-xl font-medium text-gray-400">
-              Lupakan pencatatan manual yang merepotkan. Semua transaksi dan komunikasi tersentralisasi dengan aman.
+              {t('download.subtitle')}
             </p>
           </div>
 
@@ -153,9 +160,9 @@ export default function DownloadPage() {
                 <MessageSquare className="h-8 w-8" />
               </div>
               <div className="space-y-4">
-                <h5 className="text-xl font-black text-[#2A2A2A]">Smart Chat</h5>
+                <h5 className="text-xl font-black text-[#2A2A2A]">{t('download.smartChat')}</h5>
                 <p className="text-sm leading-relaxed font-medium text-slate-400">
-                  Balas pertanyaan klien lebih cepat dengan fitur quick-reply dan notifikasi instan.
+                  {t('download.smartChatDesc')}
                 </p>
               </div>
             </div>
@@ -165,9 +172,9 @@ export default function DownloadPage() {
                 <BarChart3 className="h-8 w-8" />
               </div>
               <div className="space-y-4">
-                <h5 className="text-xl font-black text-white">Analitik Bisnis</h5>
+                <h5 className="text-xl font-black text-white">{t('download.analytics')}</h5>
                 <p className="text-sm leading-relaxed font-medium text-white/40">
-                  Pantau pertumbuhan jumlah view profil dan konversi booking setiap bulannya.
+                  {t('download.analyticsDesc')}
                 </p>
               </div>
             </div>
@@ -177,9 +184,9 @@ export default function DownloadPage() {
                 <ShieldCheck className="h-8 w-8" />
               </div>
               <div className="space-y-4">
-                <h5 className="text-xl font-black text-[#2A2A2A]">Escrow Payment</h5>
+                <h5 className="text-xl font-black text-[#2A2A2A]">{t('download.escrow')}</h5>
                 <p className="text-sm leading-relaxed font-medium text-slate-400">
-                  Dana klien dijamin aman di sistem Planora dan akan cair otomatis ke saldo Anda.
+                  {t('download.escrowDesc')}
                 </p>
               </div>
             </div>

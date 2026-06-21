@@ -524,5 +524,41 @@
     "notifications": "Notifikasi",
     "language": "Bahasa",
     "theme": "Tema"
+  },
+  "download": {
+    "back": "Kembali",
+    "title1": "Kelola Bisnis",
+    "title2": "Kapan pun, Di mana pun",
+    "features": [
+      "Berbincang langsung dengan klien Anda secara real-time.",
+      "Tinjau klien potensial dan terhubung dengan cepat.",
+      "Unggah dan kelola portofolio karya terbaru Anda.",
+      "Kelola paket layanan dan harga dalam hitungan detik.",
+      "Perbaharui informasi bisnis Anda secara berkala."
+    ],
+    "downloadPro": "Download Planora Pro on",
+    "downloadOn": "Download on",
+    "getItOn": "Get it on",
+    "appStore": "App Store",
+    "googlePlay": "Google Play",
+    "oneApp": "Satu Aplikasi, ",
+    "fullControl": "Kontrol Penuh",
+    "subtitle": "Lupakan pencatatan manual yang merepotkan. Semua transaksi dan komunikasi tersentralisasi dengan aman.",
+    "smartChat": "Smart Chat",
+    "smartChatDesc": "Balas pertanyaan klien lebih cepat dengan fitur quick-reply dan notifikasi instan.",
+    "analytics": "Analitik Bisnis",
+    "analyticsDesc": "Pantau pertumbuhan jumlah view profil dan konversi booking setiap bulannya.",
+    "escrow": "Escrow Payment",
+    "escrowDesc": "Dana klien dijamin aman di sistem Planora dan akan cair otomatis ke saldo Anda.",
+    "mock": {
+      "stats": "Statistik",
+      "profileViews": "Kunjungan Profil",
+      "leads": "Prospek",
+      "newMsg": "Pesan Baru",
+      "activeOrders": "Pesanan Aktif",
+      "weddingDecor": "Dekorasi Pernikahan",
+      "engagement": "Lamaran",
+      "checkLeads": "Cek Semua Prospek"
+    }
   }
 }

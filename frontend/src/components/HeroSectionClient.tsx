@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { CATEGORIES } from "../lib/categories";
 import { useLanguage } from "@/contexts/LanguageContext";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 const SearchIcon = ({ className }: { className?: string }) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -84,6 +85,7 @@ export default function HeroSectionClient() {
                         </nav>
 
                         <div className="flex items-center gap-3">
+                            <div className="hidden md:block mr-2"><LanguageSwitcher /></div>
                             <Link href="/login" className="hidden rounded-xl bg-[#FF9A9E] px-6 py-2.5 text-sm font-bold text-white transition hover:bg-[#FF527B] md:block">{t('nav.signIn')}</Link>
                             <Link href="/download" className="rounded-xl bg-pink-gradient px-6 py-2.5 text-sm font-bold text-black shadow-[0_12px_28px_-14px_rgba(255,154,158,0.8)] transition hover:opacity-90">{t('nav.downloadApp')}</Link>
                             <button
@@ -113,6 +115,9 @@ export default function HeroSectionClient() {
                                 <Link href="/vendors" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>{t('nav.explore')}</Link>
                                 <a href="#footer" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>{t('nav.about')}</a>
                                 <Link href="/download" className="rounded-xl bg-pink-gradient px-3 py-2 text-center font-bold text-black transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>{t('nav.downloadApp')}</Link>
+                                <div className="mt-2 border-t border-white/10 pt-4 flex justify-center">
+                                    <LanguageSwitcher />
+                                </div>
                             </div>
                         </div>
                     ) : null}

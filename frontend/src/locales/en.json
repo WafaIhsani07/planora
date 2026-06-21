@@ -524,5 +524,41 @@
     "notifications": "Notifications",
     "language": "Language",
     "theme": "Theme"
+  },
+  "download": {
+    "back": "Back",
+    "title1": "Manage Business",
+    "title2": "Anytime, Anywhere",
+    "features": [
+      "Talk directly with your clients in real-time.",
+      "Review potential clients and connect quickly.",
+      "Upload and manage your latest portfolio works.",
+      "Manage service packages and pricing in seconds.",
+      "Update your business information regularly."
+    ],
+    "downloadPro": "Download Planora Pro on",
+    "downloadOn": "Download on",
+    "getItOn": "Get it on",
+    "appStore": "App Store",
+    "googlePlay": "Google Play",
+    "oneApp": "One App, ",
+    "fullControl": "Full Control",
+    "subtitle": "Forget cumbersome manual recording. All transactions and communications are safely centralized.",
+    "smartChat": "Smart Chat",
+    "smartChatDesc": "Reply to client inquiries faster with quick-reply features and instant notifications.",
+    "analytics": "Business Analytics",
+    "analyticsDesc": "Monitor your profile view growth and booking conversions every month.",
+    "escrow": "Escrow Payment",
+    "escrowDesc": "Client funds are securely guaranteed in the Planora system and will auto-disburse to your balance.",
+    "mock": {
+      "stats": "Statistics",
+      "profileViews": "Profile Views",
+      "leads": "Leads",
+      "newMsg": "New Message",
+      "activeOrders": "Active Orders",
+      "weddingDecor": "Wedding Decor",
+      "engagement": "Engagement",
+      "checkLeads": "Check All Leads"
+    }
   }
 }

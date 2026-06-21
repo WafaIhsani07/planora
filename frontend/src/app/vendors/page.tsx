@@ -4,26 +4,58 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Search, MapPin, Star, ChevronRight, HelpCircle, Menu, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { listVendors } from '@/lib/vendors';
 import { getCategoryById } from '@/lib/categories';
 import Footer from '@/components/Footer';
 import ScrollObserver from '@/components/ScrollObserver';
 import { getAllKategori } from '@/services/admin.service';
-
-const vendors = listVendors();
+import { getAllVendors } from '@/services/vendor.service';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 export default function VendorsPage() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCity, setSelectedCity] = useState('All Indonesia');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
+  const [vendorsList, setVendorsList] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     getAllKategori().then((data) => {
       if (data) setCategories(data);
     }).catch(err => console.error("Error fetching categories:", err));
   }, []);
+
+  useEffect(() => {
+    const fetchVendors = async () => {
+      setIsLoading(true);
+      try {
+        const categoryId = selectedCategory ? categories.find(c => c.slug === selectedCategory)?.id : undefined;
+        const city = selectedCity === 'All Indonesia' ? undefined : selectedCity;
+        const data = await getAllVendors({ 
+          search: searchTerm || undefined, 
+          kategoriId: categoryId,
+          city,
+          limit: 50 
+        });
+        if (data && data.vendors) {
+          setVendorsList(data.vendors);
+        }
+      } catch (error) {
+        console.error("Error fetching vendors:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    // Use a small delay for search debounce if needed, but since it's an effect on every change, we can just fetch.
+    const delayDebounceFn = setTimeout(() => {
+      fetchVendors();
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm, selectedCategory, selectedCity, categories]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -38,14 +70,16 @@ export default function VendorsPage() {
     };
   }, []);
 
-  const filteredVendors = vendors.filter((vendor) => {
-    const matchCategory =
-      !selectedCategory ||
-      vendor.category === selectedCategory ||
-      (selectedCategory === 'catering' && vendor.category === 'katering') ||
-      (selectedCategory === 'katering' && vendor.category === 'catering');
-    const matchSearch = !searchTerm || vendor.name.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchCategory && matchSearch;
+  const filteredVendors = vendorsList.map((vendor) => {
+    return {
+      id: vendor.id,
+      name: vendor.businessName || 'Unnamed Vendor',
+      category: vendor.layanan?.[0]?.kategori?.slug || 'katering',
+      rating: vendor.rating || 0,
+      location: vendor.city || 'Indonesia',
+      price: vendor.layanan?.[0]?.price ? `Rp ${vendor.layanan[0].price.toLocaleString('id-ID')}` : 'Belum ada harga',
+      cover: vendor.user?.avatar || 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=800&auto=format&fit=crop',
+    };
   });
 
   return (
@@ -70,6 +104,7 @@ export default function VendorsPage() {
             </nav>
 
             <div className="flex items-center gap-3">
+              <div className="hidden md:block mr-2"><LanguageSwitcher /></div>
               <Link href="/login" className="hidden rounded-xl bg-[#FF9A9E] px-6 py-2.5 text-sm font-bold text-white transition hover:bg-[#FF527B] md:block">Sign In</Link>
               <Link href="/download" className="rounded-xl bg-pink-gradient px-6 py-2.5 text-sm font-bold text-black shadow-[0_12px_28px_-14px_rgba(255,154,158,0.8)] transition hover:opacity-90">Download App</Link>
               <button
@@ -92,6 +127,9 @@ export default function VendorsPage() {
               <a href="#" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>Explore Vendors</a>
               <Link href="/#footer" className="rounded-xl px-3 py-2 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>About</Link>
               <Link href="/download" className="rounded-xl bg-pink-gradient px-3 py-2 text-center font-bold text-black transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20" onClick={() => setIsMobileMenuOpen(false)}>Download App</Link>
+              <div className="mt-2 border-t border-white/10 pt-4 flex justify-center">
+                <LanguageSwitcher />
+              </div>
             </div>
           </div>
         )}
@@ -123,11 +161,14 @@ export default function VendorsPage() {
             </div>
             <div className="flex flex-1 items-center gap-4 px-8 py-5">
               <MapPin className="h-5 w-5 text-[#FF9A9E]" />
-              <select className="w-full appearance-none bg-transparent text-sm font-bold text-[#2A2A2A] outline-none cursor-pointer">
-                <option>All Indonesia</option>
-                <option>Jakarta</option>
-                <option>Padang</option>
-                <option>Bandung</option>
+              <select 
+                value={selectedCity}
+                onChange={(e) => setSelectedCity(e.target.value)}
+                className="w-full appearance-none bg-transparent text-sm font-bold text-[#2A2A2A] outline-none cursor-pointer">
+                <option value="All Indonesia">All Indonesia</option>
+                <option value="Jakarta">Jakarta</option>
+                <option value="Padang">Padang</option>
+                <option value="Bandung">Bandung</option>
               </select>
             </div>
             <button className="rounded-[24px] bg-[#2A2A2A] px-12 py-5 text-[11px] font-black uppercase tracking-[0.2em] text-white shadow-lg shadow-black/10 hover:bg-black transition active:scale-95">
