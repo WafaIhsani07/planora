@@ -122,8 +122,8 @@ export default function VendorLayananPage() {
       const transformed: ServicePackage[] = (layananData || []).map((item: any) => {
         const { features, descriptionText } = parseDescription(item.description);
         
-        // Random order count for premium mockup feel or read from backend count if present
-        const ordersCount = item._count?.bookings || (parseInt(item.id.slice(-2), 16) % 35) + 3;
+        // Menggunakan jumlah pesanan asli dari database, jika belum ada pesanan maka 0
+        const ordersCount = item._count?.bookings || 0;
 
         // Custom discount logic parsing if stored in description text or formatted
         let originalPrice: string | undefined;
