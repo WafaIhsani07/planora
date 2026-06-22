@@ -7,8 +7,8 @@ import 'package:http_parser/http_parser.dart';
 
 class ApiService {
   static String get baseUrl {
-    // URL Publik Sementara via Localtunnel agar bisa diakses tim dari jaringan berbeda
-    return 'https://loud-nights-tap.loca.lt/api/v1';
+    // URL Backend Production di Hugging Face
+    return 'https://nooname77-planora-api.hf.space/api/v1';
   }
 
   // Alamat dasar host (tanpa /api/v1), untuk membangun URL aset gambar
