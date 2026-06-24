@@ -7,7 +7,18 @@
     "edit": "Ubah",
     "delete": "Hapus",
     "success": "Sukses",
-    "error": "Kesalahan"
+    "error": "Kesalahan",
+    "action": "Aksi",
+    "all": "Semua",
+    "search": "Cari",
+    "status": "Status",
+    "category": "Kategori",
+    "client": "Klien",
+    "showing_data": "Menampilkan {start} - {end} dari {total} data",
+    "not_set": "Belum Diatur",
+    "view_detail": "Lihat detail",
+    "per_page": "{count} / halaman",
+    "back": "Kembali"
   },
   "nav": {
     "dashboard": "Dasbor",
@@ -204,6 +215,14 @@
       "upcoming": "Pesanan Terdekat",
       "empty": "Tidak ada pesanan yang dikonfirmasi",
       "confirmedBadge": "DIKONFIRMASI"
+    },
+    "pesan": {
+      "title": "Pesan",
+      "subtitle": "Hubungi pelanggan Anda",
+      "searchPlaceholder": "Cari pesan...",
+      "today": "Hari ini",
+      "inputPlaceholder": "Ketik pesan Anda...",
+      "emptyState": "Pilih obrolan untuk mulai mengirim pesan"
     },
     "katalog": {
       "title": "Kelola Paket Layanan",
@@ -679,6 +698,348 @@
     "total_revenue": "Total Pendapatan",
     "recent_vendors": "Vendor Terbaru",
     "view_all": "Lihat Semua",
-    "no_vendors": "Belum ada pendaftaran vendor baru"
+    "no_vendors": "Belum ada pendaftaran vendor baru",
+    "greeting": "Selamat datang, Admin Planora! 👋",
+    "greeting_sub": "Berikut ringkasan aktivitas platform Planora hari ini.",
+    "escrow": "Dana Ditanam (Escrow)",
+    "from_last_week": "dari minggu lalu",
+    "revenue_chart": "Grafik Pendapatan",
+    "last_7_days": "7 Hari Terakhir",
+    "last_30_days": "30 Hari Terakhir",
+    "recent_activity": "Aktivitas Terbaru",
+    "activity": {
+      "new_vendor": "Vendor baru mendaftar",
+      "dp_confirmed": "Pembayaran DP dikonfirmasi",
+      "order_completed": "Pesanan selesai",
+      "fund_disbursed": "Pencairan dana ke vendor",
+      "new_review": "Ulasan baru diterima",
+      "mins_ago_10": "10 menit yang lalu",
+      "mins_ago_25": "25 menit yang lalu",
+      "hour_ago_1": "1 jam yang lalu",
+      "hours_ago_2": "2 jam yang lalu",
+      "hours_ago_3": "3 jam yang lalu"
+    },
+    "tasks": {
+      "pending_vendor": "Menunggu Verifikasi Vendor",
+      "pending_payment": "Menunggu Verifikasi Pembayaran",
+      "ready_withdraw": "Dana Siap Dicairkan",
+      "platform_commission": "Komisi Platform Bulan Ini"
+    },
+    "view_details": "Lihat detail"
+  },
+  "admin_pages": {
+    "verifikasi": {
+      "title": "Verifikasi Vendor Baru",
+      "subtitle": "PENYARINGAN KUALITAS MITRA",
+      "tabs": {
+        "all": "Semua",
+        "pending": "Menunggu",
+        "verified": "Dikonfirmasi",
+        "rejected": "Ditolak"
+      },
+      "search": "Cari vendor atau nama usaha...",
+      "all_categories": "Semua Kategori",
+      "table": {
+        "vendor": "Vendor",
+        "business": "Nama Usaha",
+        "category": "Kategori",
+        "date": "Tanggal Daftar",
+        "status": "Status",
+        "action": "Aksi"
+      },
+      "vendor_details": "Detail Vendor",
+      "business_info": "Informasi Usaha",
+      "address": "Alamat",
+      "phone": "No. Telepon",
+      "email": "Email",
+      "description": "Deskripsi",
+      "documents": "Dokumen Pendukung",
+      "ktp": "KTP",
+      "bank": "Rekening Bank",
+      "license": "Surat Izin Usaha",
+      "portfolio": "Portofolio",
+      "uploaded": "Diunggah",
+      "not_uploaded": "Belum Diunggah",
+      "btn_reject": "Tolak",
+      "btn_verify": "Verifikasi",
+      "status_pending": "Menunggu Verifikasi",
+      "status_verified": "Terverifikasi",
+      "status_rejected": "Ditolak",
+      "preview": "Preview tidak tersedia."
+    },
+    "pembayaran": {
+      "title": "Verifikasi Pembayaran",
+      "subtitle": "PENYARINGAN DP & PELUNASAN KLIEN",
+      "search": "Cari transaksi atau invoice...",
+      "tabs": {
+        "all": "Semua",
+        "pending": "Menunggu",
+        "verified": "Diverifikasi",
+        "rejected": "Ditolak"
+      },
+      "all_status": "Semua Status",
+      "table": {
+        "transaction": "Transaksi",
+        "client": "Klien",
+        "amount": "Nominal",
+        "type": "Tipe",
+        "date": "Tanggal",
+        "status": "Status"
+      },
+      "type_dp": "Uang Muka",
+      "type_settlement": "Pelunasan",
+      "detail": "Detail",
+      "proof": "Bukti Pembayaran",
+      "btn_reject": "Tolak Pembayaran",
+      "btn_verify": "Verifikasi Pembayaran"
+    },
+    "pencairan": {
+      "title": "Pencairan Dana",
+      "subtitle": "PANTAU PROSES PENARIKAN MITRA",
+      "tabs": {
+        "all": "Semua",
+        "pending": "Menunggu",
+        "processing": "Diproses",
+        "completed": "Selesai"
+      },
+      "search": "Cari vendor...",
+      "table": {
+        "transaction": "No. Penarikan",
+        "vendor": "Vendor",
+        "amount": "Total Pencairan",
+        "account": "Rekening Tujuan",
+        "status": "Status"
+      },
+      "detail": "Detail Pencairan",
+      "info": "Info Pencairan",
+      "vendor_balance": "Saldo Vendor",
+      "withdrawal_method": "Metode Penarikan",
+      "details_fund": "Rincian Dana",
+      "total_order": "Total Pesanan",
+      "commission": "Komisi Platform (5%)",
+      "fund_disbursed": "Dana Dicairkan",
+      "btn_process": "Proses Sekarang",
+      "btn_cancel": "Batal",
+      "btn_finish": "Tandai Selesai & Unggah Bukti"
+    },
+    "kategori": {
+      "title": "Manajemen Kategori",
+      "subtitle": "KATALOG KATEGORI LAYANAN",
+      "btn_add": "Tambah Kategori",
+      "search": "Cari kategori...",
+      "stat_total": "TOTAL KATEGORI",
+      "stat_popular": "KATEGORI TERPOPULER",
+      "stat_active": "KATEGORI AKTIF",
+      "modal_add": "Tambah Kategori",
+      "modal_edit": "Edit Kategori",
+      "field_name": "Nama Kategori",
+      "field_desc": "Deskripsi",
+      "saving": "Menyimpan...",
+      "table": {
+        "icon": "Ikon",
+        "name": "Nama",
+        "slug": "Slug",
+        "vendor_count": "Total Vendor"
+      },
+      "add_title": "Tambah Kategori Baru",
+      "edit_title": "Edit Kategori",
+      "form": {
+        "name": "Nama Kategori",
+        "slug": "Slug / URL",
+        "icon": "Ikon",
+        "btn_save": "Simpan Kategori"
+      }
+    },
+    "manajemen_user": {
+      "title": "Manajemen User Sistem",
+      "subtitle": "AUDIT & SUPERVISI PENGGUNA",
+      "total_customer": "TOTAL PELANGGAN",
+      "total_vendor": "TOTAL VENDOR",
+      "search": "Cari nama atau email...",
+      "tabs": {
+        "all": "Semua",
+        "customer": "Pelanggan",
+        "vendor": "Vendor"
+      },
+      "table": {
+        "identity": "DETAIL IDENTITAS",
+        "role": "TIPE PERAN",
+        "joined": "TANGGAL GABUNG",
+        "action": "Aksi"
+      },
+      "user_detail": "Detail User",
+      "phone": "No. Telepon",
+      "status_active": "Aktif",
+      "status_inactive": "Tidak Aktif",
+      "vendor_data": "Data Vendor",
+      "business_name": "Nama Usaha",
+      "city": "Kota",
+      "province": "Provinsi",
+      "vendor_status": "Status Vendor",
+      "opening": "Membuka...",
+      "processing": "Memproses...",
+      "now": "sekarang",
+      "btn_activate": "Aktifkan",
+      "btn_deactivate": "Nonaktifkan",
+      "status_banned": "Diblokir",
+      "btn_suspend": "Tangguhkan"
+    },
+    "laporan": {
+      "title": "Laporan Keuangan",
+      "subtitle": "LAPORAN KEUANGAN",
+      "description": "Ringkasan pemasukan, komisi, dan status transaksi dalam periode tertentu.",
+      "btn_download": "Unduh Laporan",
+      "search": "Cari nomor transaksi atau nama vendor...",
+      "stat_income": "Total Pemasukan",
+      "stat_commission": "Total Komisi Planora",
+      "stat_escrow": "Dana Tertahan (Escrow)",
+      "stat_success": "Transaksi Berhasil",
+      "tabs": {
+        "all": "SEMUA",
+        "success": "SUKSES",
+        "pending": "MENUNGGU",
+        "refund": "REFUND",
+        "failed": "GAGAL"
+      },
+      "table": {
+        "amount": "Nominal",
+        "date": "Tanggal"
+      }
+    },
+    "keuangan": {
+      "title": "Laporan Keuangan",
+      "subtitle": "PENDAPATAN DAN TRANSAKSI PLATFORM",
+      "stats": {
+        "total_revenue": "Total Pendapatan Platform",
+        "total_transactions": "Total Transaksi",
+        "total_commission": "Total Komisi",
+        "pending_clearance": "Menunggu Pencairan"
+      },
+      "table": {
+        "date": "Tanggal",
+        "description": "Deskripsi",
+        "amount": "Nominal",
+        "type": "Tipe",
+        "status": "Status"
+      }
+    },
+    "pengaturan": {
+      "title": "Profil & Pengaturan",
+      "subtitle": "KONFIGURASI AKUN",
+      "tabs": {
+        "profil": "Profil Admin",
+        "keamanan": "Keamanan",
+        "notifikasi": "Notifikasi"
+      },
+      "profil": {
+        "title": "Profil Admin",
+        "desc": "Informasi dasar akun administrator.",
+        "name": "Nama Lengkap",
+        "email": "Email",
+        "phone": "No. Telepon",
+        "role": "Jabatan",
+        "photo_change": "Ubah Foto",
+        "photo_hint": "JPG, PNG maks. 2MB",
+        "save": "Simpan Perubahan",
+        "last_updated": "Terakhir diperbarui:",
+        "sections": {
+          "security": {
+            "title": "Keamanan Akun",
+            "desc": "Ubah password dan atur keamanan akun Anda.",
+            "btn": "Ubah Password"
+          },
+          "escrow": {
+            "title": "Rekening Escrow",
+            "desc": "Kelola rekening escrow yang digunakan untuk menampung dana sementara.",
+            "btn": "Kelola Rekening",
+            "active": "Aktif"
+          },
+          "notif": {
+            "title": "Notifikasi",
+            "desc": "Atur preferensi notifikasi yang ingin Anda terima.",
+            "btn": "Atur Notifikasi"
+          },
+          "pref": {
+            "title": "Preferensi Sistem",
+            "desc": "Sesuaikan tampilan, zona waktu, dan pengaturan sistem lainnya.",
+            "btn": "Atur Preferensi"
+          },
+          "about": {
+            "title": "Tentang Planora",
+            "desc": "Informasi versi aplikasi dan kebijakan penggunaan.",
+            "btn": "Lihat Detail"
+          }
+        }
+      },
+      "keamanan": {
+        "title": "Keamanan Akun",
+        "subtitle": "Perbarui password akun admin",
+        "current": "Password Saat Ini",
+        "new": "Password Baru",
+        "confirm": "Konfirmasi Password Baru",
+        "hint": "Password minimal 8 karakter, kombinasi huruf besar, huruf kecil, dan angka."
+      },
+      "notifikasi": {
+        "title": "Preferensi Notifikasi",
+        "subtitle": "Atur notifikasi yang ingin diterima"
+      },
+      "modals": {
+        "password": {
+          "title": "Ubah Password",
+          "current": "Password Saat Ini",
+          "new": "Password Baru",
+          "confirm": "Konfirmasi Password Baru"
+        },
+        "escrow": {
+          "title": "Kelola Rekening Escrow",
+          "bank": "Nama Bank",
+          "account": "Nomor Rekening",
+          "holder": "Nama Pemilik Rekening",
+          "verified": "Diverifikasi",
+          "unverified": "Belum Diverifikasi"
+        },
+        "notif": {
+          "title": "Atur Notifikasi"
+        },
+        "pref": {
+          "title": "Preferensi Sistem",
+          "timezone": "Zona Waktu",
+          "language": "Bahasa",
+          "theme": "Tema Tampilan",
+          "date_format": "Format Tanggal"
+        },
+        "about": {
+          "title": "Tentang Aplikasi",
+          "version": "Versi Aplikasi",
+          "support": "Pusat Bantuan",
+          "description": "Deskripsi"
+        }
+      }
+    },
+    "monitoring": {
+      "title": "MONITORING <br /> TRANSAKSI SISTEM.",
+      "subtitle": "ARUS KAS EKOSISTEM GLOBAL",
+      "search": "CARI INVOICE ATAU ID TRANSAKSI...",
+      "fee": "FEE PLATFORM",
+      "refund": "REFUND PENDING",
+      "period": "PERIODE: APRIL 2026",
+      "stats": {
+        "gmv": "TOTAL NILAI TRANSAKSI (GMV)",
+        "escrow": "SALDO TERTAHAN (ESCROW)",
+        "disbursed": "SUDAH CAIR HARI INI",
+        "dispute": "KASUS SENGKETA"
+      },
+      "tabs": {
+        "all": "SEMUA TRANSAKSI",
+        "pending": "TERTAHAN",
+        "disbursed": "SUDAH CAIR"
+      },
+      "table": {
+        "invoice": "INVOICE & VENDOR",
+        "customer": "NAMA PELANGGAN",
+        "amount": "NOMINAL (RP)",
+        "status": "STATUS ARUS DANA"
+      }
+    }
   }
 }

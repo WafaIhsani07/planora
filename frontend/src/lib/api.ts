@@ -23,7 +23,7 @@ api.interceptors.request.use(
       }
     }
 
-    if (token && config.headers && !config.headers.Authorization) {
+    if (token && config.headers && !(config.headers.has && config.headers.has("Authorization")) && !config.headers.Authorization && !config.headers.authorization) {
       config.headers.Authorization = `Bearer ${token}`;
     }
 

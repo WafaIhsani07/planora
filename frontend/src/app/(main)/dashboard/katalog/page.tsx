@@ -377,7 +377,7 @@ export default function KatalogPage() {
                 {/* Kategori */}
                 <div className="space-y-3">
                   <label className="text-[10px] font-black text-[#2A2A2A]/40 uppercase tracking-widest ml-1">
-                    Kategori Paket
+                    {t('dashboard.katalog.form.categoryLabel')}
                   </label>
                   <select
                     value={formData.kategoriId}

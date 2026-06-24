@@ -276,12 +276,12 @@ export default function DashboardClient() {
               <table className="w-full text-left table-auto border-collapse min-w-[820px]">
                 <thead>
                   <tr className="bg-slate-50/40 text-[9px] lg:text-[10px] font-black text-[#2A2A2A]/30 uppercase tracking-[0.18em] border-b border-slate-50">
-                    <th className="px-5 py-4 text-left">Order</th>
-                    <th className="px-5 py-4 text-left">Client</th>
-                    <th className="px-5 py-4 text-left">Date</th>
-                    <th className="px-5 py-4 text-left">Package</th>
-                    <th className="px-5 py-4 text-right min-w-[140px]">Total</th>
-                    <th className="px-5 py-4 text-center">Status</th>
+                    <th className="px-5 py-4 text-left">{t('dashboard.recentOrders.table.order')}</th>
+                    <th className="px-5 py-4 text-left">{t('dashboard.recentOrders.table.client')}</th>
+                    <th className="px-5 py-4 text-left">{t('dashboard.recentOrders.table.date')}</th>
+                    <th className="px-5 py-4 text-left">{t('dashboard.recentOrders.table.package')}</th>
+                    <th className="px-5 py-4 text-right min-w-[140px]">{t('dashboard.recentOrders.table.total')}</th>
+                    <th className="px-5 py-4 text-center">{t('dashboard.recentOrders.table.status')}</th>
                   </tr>
                 </thead>
                 <tbody>

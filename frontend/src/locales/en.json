@@ -7,7 +7,18 @@
     "edit": "Edit",
     "delete": "Delete",
     "success": "Success",
-    "error": "Error"
+    "error": "Error",
+    "action": "Action",
+    "all": "All",
+    "search": "Search",
+    "status": "Status",
+    "category": "Category",
+    "client": "Client",
+    "showing_data": "Showing {start} - {end} of {total} data",
+    "not_set": "Not Set",
+    "view_detail": "View detail",
+    "per_page": "{count} / page",
+    "back": "Back"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -204,6 +215,14 @@
       "upcoming": "Upcoming Orders",
       "empty": "No confirmed orders",
       "confirmedBadge": "CONFIRMED"
+    },
+    "pesan": {
+      "title": "Messages",
+      "subtitle": "Contact your clients",
+      "searchPlaceholder": "Search messages...",
+      "today": "Today",
+      "inputPlaceholder": "Type your message...",
+      "emptyState": "Select a chat to start messaging"
     },
     "katalog": {
       "title": "Manage Services",
@@ -679,6 +698,348 @@
     "total_revenue": "Total Revenue",
     "recent_vendors": "Recent Vendors",
     "view_all": "View All",
-    "no_vendors": "No new vendor registrations yet"
+    "no_vendors": "No new vendor registrations yet",
+    "greeting": "Welcome, Planora Admin! 👋",
+    "greeting_sub": "Here is the summary of Planora platform activities today.",
+    "escrow": "Escrow Funds",
+    "from_last_week": "from last week",
+    "revenue_chart": "Revenue Chart",
+    "last_7_days": "Last 7 Days",
+    "last_30_days": "Last 30 Days",
+    "recent_activity": "Recent Activity",
+    "activity": {
+      "new_vendor": "New vendor registered",
+      "dp_confirmed": "DP payment confirmed",
+      "order_completed": "Order completed",
+      "fund_disbursed": "Fund disbursed to vendor",
+      "new_review": "New review received",
+      "mins_ago_10": "10 minutes ago",
+      "mins_ago_25": "25 minutes ago",
+      "hour_ago_1": "1 hour ago",
+      "hours_ago_2": "2 hours ago",
+      "hours_ago_3": "3 hours ago"
+    },
+    "tasks": {
+      "pending_vendor": "Pending Vendor Verification",
+      "pending_payment": "Pending Payment Verification",
+      "ready_withdraw": "Funds Ready to Withdraw",
+      "platform_commission": "Platform Commission This Month"
+    },
+    "view_details": "View Details"
+  },
+  "admin_pages": {
+    "verifikasi": {
+      "title": "New Vendor Verification",
+      "subtitle": "PARTNER QUALITY SCREENING",
+      "tabs": {
+        "all": "All",
+        "pending": "Waiting",
+        "verified": "Confirmed",
+        "rejected": "Rejected"
+      },
+      "search": "Search vendor or business name...",
+      "all_categories": "All Categories",
+      "table": {
+        "vendor": "Vendor",
+        "business": "Business Name",
+        "category": "Category",
+        "date": "Registration Date",
+        "status": "Status",
+        "action": "Action"
+      },
+      "vendor_details": "Vendor Details",
+      "business_info": "Business Info",
+      "address": "Address",
+      "phone": "Phone",
+      "email": "Email",
+      "description": "Description",
+      "documents": "Supporting Documents",
+      "ktp": "ID Card",
+      "bank": "Bank Account",
+      "license": "Business License",
+      "portfolio": "Portfolio",
+      "uploaded": "Uploaded",
+      "not_uploaded": "Not Uploaded",
+      "btn_reject": "Reject",
+      "btn_verify": "Verify",
+      "status_pending": "Waiting Verification",
+      "status_verified": "Verified",
+      "status_rejected": "Rejected",
+      "preview": "Preview not available."
+    },
+    "pembayaran": {
+      "title": "Payment Verification",
+      "subtitle": "CLIENT DP & SETTLEMENT SCREENING",
+      "search": "Search transaction or invoice...",
+      "tabs": {
+        "all": "All",
+        "pending": "Pending",
+        "verified": "Verified",
+        "rejected": "Rejected"
+      },
+      "all_status": "All Status",
+      "table": {
+        "transaction": "Transaction",
+        "client": "Client",
+        "amount": "Amount",
+        "type": "Type",
+        "date": "Date",
+        "status": "Status"
+      },
+      "type_dp": "Down Payment",
+      "type_settlement": "Settlement",
+      "detail": "Details",
+      "proof": "Payment Proof",
+      "btn_reject": "Reject Payment",
+      "btn_verify": "Verify Payment"
+    },
+    "pencairan": {
+      "title": "Fund Disbursement",
+      "subtitle": "MONITOR PARTNER WITHDRAWAL PROCESS",
+      "tabs": {
+        "all": "All",
+        "pending": "Pending",
+        "processing": "Processing",
+        "completed": "Completed"
+      },
+      "search": "Search vendor...",
+      "table": {
+        "transaction": "Withdrawal No.",
+        "vendor": "Vendor",
+        "amount": "Total Disbursement",
+        "account": "Target Account",
+        "status": "Status"
+      },
+      "detail": "Disbursement Details",
+      "info": "Disbursement Info",
+      "vendor_balance": "Vendor Balance",
+      "withdrawal_method": "Withdrawal Method",
+      "details_fund": "Fund Breakdown",
+      "total_order": "Total Orders",
+      "commission": "Platform Commission (5%)",
+      "fund_disbursed": "Disbursed Amount",
+      "btn_process": "Process Now",
+      "btn_cancel": "Cancel",
+      "btn_finish": "Mark Complete & Upload Proof"
+    },
+    "kategori": {
+      "title": "Category Management",
+      "subtitle": "SERVICE CATEGORIES CATALOG",
+      "btn_add": "Add Category",
+      "search": "Search category...",
+      "stat_total": "TOTAL CATEGORIES",
+      "stat_popular": "MOST POPULAR",
+      "stat_active": "ACTIVE CATEGORIES",
+      "modal_add": "Add Category",
+      "modal_edit": "Edit Category",
+      "field_name": "Category Name",
+      "field_desc": "Description",
+      "saving": "Saving...",
+      "table": {
+        "icon": "Icon",
+        "name": "Name",
+        "slug": "Slug",
+        "vendor_count": "Total Vendors"
+      },
+      "add_title": "Add New Category",
+      "edit_title": "Edit Category",
+      "form": {
+        "name": "Category Name",
+        "slug": "Slug / URL",
+        "icon": "Icon",
+        "btn_save": "Save Category"
+      }
+    },
+    "manajemen_user": {
+      "title": "System User Management",
+      "subtitle": "AUDIT & USER SUPERVISION",
+      "total_customer": "TOTAL CUSTOMERS",
+      "total_vendor": "TOTAL VENDORS",
+      "search": "Search name or email...",
+      "tabs": {
+        "all": "All",
+        "customer": "Customers",
+        "vendor": "Vendors"
+      },
+      "table": {
+        "identity": "IDENTITY DETAIL",
+        "role": "ROLE TYPE",
+        "joined": "JOIN DATE",
+        "action": "Action"
+      },
+      "user_detail": "User Detail",
+      "phone": "Phone No.",
+      "status_active": "Active",
+      "status_inactive": "Inactive",
+      "vendor_data": "Vendor Data",
+      "business_name": "Business Name",
+      "city": "City",
+      "province": "Province",
+      "vendor_status": "Vendor Status",
+      "opening": "Opening...",
+      "processing": "Processing...",
+      "now": "now",
+      "btn_activate": "Activate",
+      "btn_deactivate": "Deactivate",
+      "status_banned": "Banned",
+      "btn_suspend": "Suspend"
+    },
+    "laporan": {
+      "title": "Financial Report",
+      "subtitle": "FINANCIAL REPORT",
+      "description": "Summary of income, commissions, and transaction status for a given period.",
+      "btn_download": "Download Report",
+      "search": "Search transaction number or vendor name...",
+      "stat_income": "Total Income",
+      "stat_commission": "Total Planora Commission",
+      "stat_escrow": "Held Funds (Escrow)",
+      "stat_success": "Successful Transactions",
+      "tabs": {
+        "all": "ALL",
+        "success": "SUCCESS",
+        "pending": "PENDING",
+        "refund": "REFUND",
+        "failed": "FAILED"
+      },
+      "table": {
+        "amount": "Amount",
+        "date": "Date"
+      }
+    },
+    "keuangan": {
+      "title": "Financial Report",
+      "subtitle": "PLATFORM REVENUE AND TRANSACTIONS",
+      "stats": {
+        "total_revenue": "Total Platform Revenue",
+        "total_transactions": "Total Transactions",
+        "total_commission": "Total Commission",
+        "pending_clearance": "Pending Clearance"
+      },
+      "table": {
+        "date": "Date",
+        "description": "Description",
+        "amount": "Amount",
+        "type": "Type",
+        "status": "Status"
+      }
+    },
+    "pengaturan": {
+      "title": "Profile & Settings",
+      "subtitle": "ACCOUNT CONFIGURATION",
+      "tabs": {
+        "profil": "Admin Profile",
+        "keamanan": "Security",
+        "notifikasi": "Notifications"
+      },
+      "profil": {
+        "title": "Admin Profile",
+        "desc": "Administrator account basic info.",
+        "name": "Full Name",
+        "email": "Email",
+        "phone": "Phone No.",
+        "role": "Role",
+        "photo_change": "Change Photo",
+        "photo_hint": "JPG, PNG max. 2MB",
+        "save": "Save Changes",
+        "last_updated": "Last updated:",
+        "sections": {
+          "security": {
+            "title": "Account Security",
+            "desc": "Change password and manage account security.",
+            "btn": "Change Password"
+          },
+          "escrow": {
+            "title": "Escrow Account",
+            "desc": "Manage escrow account for holding funds.",
+            "btn": "Manage Account",
+            "active": "Active"
+          },
+          "notif": {
+            "title": "Notifications",
+            "desc": "Set your notification preferences.",
+            "btn": "Settings"
+          },
+          "pref": {
+            "title": "System Preferences",
+            "desc": "Adjust theme, timezone, and other settings.",
+            "btn": "Settings"
+          },
+          "about": {
+            "title": "About Planora",
+            "desc": "App version and usage policy.",
+            "btn": "View Details"
+          }
+        }
+      },
+      "keamanan": {
+        "title": "Account Security",
+        "subtitle": "Update admin password",
+        "current": "Current Password",
+        "new": "New Password",
+        "confirm": "Confirm New Password",
+        "hint": "Password minimum 8 characters, combination of uppercase, lowercase, and numbers."
+      },
+      "notifikasi": {
+        "title": "Notification Preferences",
+        "subtitle": "Set notifications to receive"
+      },
+      "modals": {
+        "password": {
+          "title": "Change Password",
+          "current": "Current Password",
+          "new": "New Password",
+          "confirm": "Confirm New Password"
+        },
+        "escrow": {
+          "title": "Manage Escrow Account",
+          "bank": "Bank Name",
+          "account": "Account Number",
+          "holder": "Account Holder",
+          "verified": "Verified",
+          "unverified": "Unverified"
+        },
+        "notif": {
+          "title": "Notification Settings"
+        },
+        "pref": {
+          "title": "System Preferences",
+          "timezone": "Timezone",
+          "language": "Language",
+          "theme": "Display Theme",
+          "date_format": "Date Format"
+        },
+        "about": {
+          "title": "About Application",
+          "version": "App Version",
+          "support": "Support Center",
+          "description": "Description"
+        }
+      }
+    },
+    "monitoring": {
+      "title": "TRANSACTION <br /> MONITORING SYSTEM.",
+      "subtitle": "GLOBAL ECOSYSTEM CASH FLOW",
+      "search": "SEARCH INVOICE OR TRANSACTION ID...",
+      "fee": "PLATFORM FEE",
+      "refund": "PENDING REFUND",
+      "period": "PERIOD: APRIL 2026",
+      "stats": {
+        "gmv": "TOTAL TRANSACTION VALUE (GMV)",
+        "escrow": "HELD BALANCE (ESCROW)",
+        "disbursed": "DISBURSED TODAY",
+        "dispute": "DISPUTE CASES"
+      },
+      "tabs": {
+        "all": "ALL TRANSACTIONS",
+        "pending": "HELD",
+        "disbursed": "DISBURSED"
+      },
+      "table": {
+        "invoice": "INVOICE & VENDOR",
+        "customer": "CUSTOMER NAME",
+        "amount": "AMOUNT",
+        "status": "CASH FLOW STATUS"
+      }
+    }
   }
 }

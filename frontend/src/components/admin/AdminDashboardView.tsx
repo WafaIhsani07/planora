@@ -82,18 +82,18 @@ export default function AdminDashboardView({ stats, pendingVendors }: AdminDashb
   const areaD = `${lineD} L ${chartPoints[chartPoints.length - 1].x} 200 L ${chartPoints[0].x} 200 Z`;
 
   const activityItems = [
-    { title: 'Vendor baru mendaftar', subtitle: pendingVendors[0]?.businessName ?? 'Eterna Photography', time: '10 menit yang lalu', icon: UserPlus, tone: 'pink' },
-    { title: 'Pembayaran DP dikonfirmasi', subtitle: 'ORD-240518-021', time: '25 menit yang lalu', icon: CheckCircle, tone: 'emerald' },
-    { title: 'Pesanan selesai', subtitle: 'ORD-240517-018', time: '1 jam yang lalu', icon: ClipboardList, tone: 'violet' },
-    { title: 'Pencairan dana ke vendor', subtitle: 'Wafa Decoration', time: '2 jam yang lalu', icon: HandCoins, tone: 'blue' },
-    { title: 'Ulasan baru diterima', subtitle: 'dari Andini Putri', time: '3 jam yang lalu', icon: Terminal, tone: 'amber' },
+    { title: t('admin_dashboard.activity.new_vendor'), subtitle: pendingVendors[0]?.businessName ?? 'Eterna Photography', time: t('admin_dashboard.activity.mins_ago_10'), icon: UserPlus, tone: 'pink' },
+    { title: t('admin_dashboard.activity.dp_confirmed'), subtitle: 'ORD-240518-021', time: t('admin_dashboard.activity.mins_ago_25'), icon: CheckCircle, tone: 'emerald' },
+    { title: t('admin_dashboard.activity.order_completed'), subtitle: 'ORD-240517-018', time: t('admin_dashboard.activity.hour_ago_1'), icon: ClipboardList, tone: 'violet' },
+    { title: t('admin_dashboard.activity.fund_disbursed'), subtitle: 'Wafa Decoration', time: t('admin_dashboard.activity.hours_ago_2'), icon: HandCoins, tone: 'blue' },
+    { title: t('admin_dashboard.activity.new_review'), subtitle: 'dari Andini Putri', time: t('admin_dashboard.activity.hours_ago_3'), icon: Terminal, tone: 'amber' },
   ];
 
   const taskCards = [
-    { title: 'Menunggu Verifikasi Vendor', value: formatNumber(pendingVendorCount), icon: UserCheck, tone: 'red', href: '/admin/verifikasi' },
-    { title: 'Menunggu Verifikasi Pembayaran', value: formatNumber(pendingPayments), icon: CreditCard, tone: 'indigo', href: '/admin/verifikasi-pembayaran' },
-    { title: 'Dana Siap Dicairkan', value: formatCurrency(readyToWithdraw), icon: Download, tone: 'amber', href: '/admin/pencairan-dana' },
-    { title: 'Komisi Platform Bulan Ini', value: formatCurrency(monthlyCommission), icon: Terminal, tone: 'violet', href: '/admin/laporan-keuangan' },
+    { title: t('admin_dashboard.tasks.pending_vendor'), value: formatNumber(pendingVendorCount), icon: UserCheck, tone: 'red', href: '/admin/verifikasi' },
+    { title: t('admin_dashboard.tasks.pending_payment'), value: formatNumber(pendingPayments), icon: CreditCard, tone: 'indigo', href: '/admin/verifikasi-pembayaran' },
+    { title: t('admin_dashboard.tasks.ready_withdraw'), value: formatCurrency(readyToWithdraw), icon: Download, tone: 'amber', href: '/admin/pencairan-dana' },
+    { title: t('admin_dashboard.tasks.platform_commission'), value: formatCurrency(monthlyCommission), icon: Terminal, tone: 'violet', href: '/admin/laporan-keuangan' },
   ];
 
   useEffect(() => {
@@ -110,10 +110,10 @@ export default function AdminDashboardView({ stats, pendingVendors }: AdminDashb
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <h1 className="text-3xl md:text-[2rem] font-black tracking-[-0.04em] leading-[1.05] text-[#2A2A2A]">
-              Selamat datang, Admin Planora! 👋
+              {t('admin_dashboard.greeting')}
             </h1>
             <p className="mt-1 text-[13px] font-semibold text-[#2A2A2A]/70 md:text-sm">
-              Berikut ringkasan aktivitas platform Planora hari ini.
+              {t('admin_dashboard.greeting_sub')}
             </p>
           </div>
 
@@ -125,11 +125,11 @@ export default function AdminDashboardView({ stats, pendingVendors }: AdminDashb
 
         <div className="grid grid-cols-1 gap-5 md:grid-cols-3 xl:grid-cols-5">
           {[
-            { label: t('admin_dashboard.total_vendors'), value: formatNumber(totalVendors), icon: TrendingUp, iconWrap: 'bg-red-50 text-red-500', hint: '12% dari minggu lalu' },
-            { label: t('admin_dashboard.total_users'), value: formatNumber(totalUsers), icon: Users, iconWrap: 'bg-indigo-50 text-indigo-500', hint: '16% dari minggu lalu' },
-            { label: t('admin_dashboard.total_transactions'), value: formatNumber(totalBookings), icon: ClipboardList, iconWrap: 'bg-amber-50 text-amber-500', hint: '18% dari minggu lalu' },
-            { label: t('admin_dashboard.total_revenue'), value: formatCurrency(totalRevenue), icon: Wallet, iconWrap: 'bg-emerald-50 text-emerald-500', hint: '20% dari minggu lalu' },
-            { label: 'Dana Ditanam (Escrow)', value: formatCurrency(escrowValue), icon: ShieldCheck, iconWrap: 'bg-amber-50 text-amber-500', hint: '20% dari minggu lalu' },
+            { label: t('admin_dashboard.total_vendors'), value: formatNumber(totalVendors), icon: TrendingUp, iconWrap: 'bg-red-50 text-red-500', hint: `12% ${t('admin_dashboard.from_last_week')}` },
+            { label: t('admin_dashboard.total_users'), value: formatNumber(totalUsers), icon: Users, iconWrap: 'bg-indigo-50 text-indigo-500', hint: `16% ${t('admin_dashboard.from_last_week')}` },
+            { label: t('admin_dashboard.total_transactions'), value: formatNumber(totalBookings), icon: ClipboardList, iconWrap: 'bg-amber-50 text-amber-500', hint: `18% ${t('admin_dashboard.from_last_week')}` },
+            { label: t('admin_dashboard.total_revenue'), value: formatCurrency(totalRevenue), icon: Wallet, iconWrap: 'bg-emerald-50 text-emerald-500', hint: `20% ${t('admin_dashboard.from_last_week')}` },
+            { label: t('admin_dashboard.escrow'), value: formatCurrency(escrowValue), icon: ShieldCheck, iconWrap: 'bg-amber-50 text-amber-500', hint: `20% ${t('admin_dashboard.from_last_week')}` },
           ].map((card) => {
             const Icon = card.icon;
             const compact = card.label === 'Total Pendapatan' || card.label === 'Dana Ditanam (Escrow)';
@@ -156,11 +156,11 @@ export default function AdminDashboardView({ stats, pendingVendors }: AdminDashb
         <div className="grid gap-8 lg:grid-cols-12">
           <div className="h-full space-y-6 rounded-2xl border border-[#F4D7D4] bg-white p-6 shadow-[0_10px_30px_-5px_rgba(0,0,0,0.02)] lg:col-span-6">
             <div className="flex items-center justify-between">
-              <h4 className="text-sm font-black uppercase tracking-wider text-[#2A2A2A]">Grafik Pendapatan</h4>
+              <h4 className="text-sm font-black uppercase tracking-wider text-[#2A2A2A]">{t('admin_dashboard.revenue_chart')}</h4>
               <div className="relative">
                 <select className="appearance-none rounded-xl border border-[#F4D7D4] bg-[#FDF1F0] px-4 py-2 text-[10px] font-extrabold uppercase tracking-wider text-[#A8A8A8] focus:outline-none">
-                  <option>7 Hari Terakhir</option>
-                  <option>30 Hari Terakhir</option>
+                  <option>{t('admin_dashboard.last_7_days')}</option>
+                  <option>{t('admin_dashboard.last_30_days')}</option>
                 </select>
               </div>
             </div>
@@ -193,9 +193,9 @@ export default function AdminDashboardView({ stats, pendingVendors }: AdminDashb
 
           <div className="h-full space-y-6 rounded-2xl border border-[#F4D7D4] bg-white p-6 shadow-[0_10px_30px_-5px_rgba(0,0,0,0.02)] lg:col-span-6">
             <div className="flex items-center justify-between">
-              <h4 className="text-sm font-black uppercase tracking-wider text-[#2A2A2A]">Aktivitas Terbaru</h4>
+              <h4 className="text-sm font-black uppercase tracking-wider text-[#2A2A2A]">{t('admin_dashboard.recent_activity')}</h4>
               <button type="button" className="text-xs font-bold uppercase tracking-wider text-[#FF9A9E] hover:underline">
-                Lihat Semua
+                {t('admin_dashboard.view_all')}
               </button>
             </div>
 
@@ -245,7 +245,7 @@ export default function AdminDashboardView({ stats, pendingVendors }: AdminDashb
                     <h3 className="text-2xl font-black text-[#2A2A2A]">{task.value}</h3>
                   </div>
                   <Link href={task.href} className="mt-2 flex items-center gap-1.5 text-left text-[10px] font-black uppercase tracking-widest text-[#FF9A9E] transition-colors hover:text-[#FF527B]">
-                    Lihat detail
+                    {t('admin_dashboard.view_details')}
                     <ChevronRight className="h-3.5 w-3.5" />
                   </Link>
                 </div>

@@ -3,9 +3,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import AdminHeader from '@/components/admin/AdminHeader';
 import { getAllPayments, verifyPayment } from '@/services/admin.service';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type PaymentStatus = 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED';
-type FilterTab = 'semua' | PaymentStatus;
+type FilterTab = 'all' | PaymentStatus;
 
 type PaymentItem = {
 	id: string;
@@ -102,11 +103,12 @@ function FunnelIcon({ className }: { className?: string }) {
 }
 
 export default function AdminPaymentVerificationPage() {
+    const { t } = useLanguage();
 	const [payments, setPayments] = useState<PaymentItem[]>([]);
-	const [activeTab, setActiveTab] = useState<FilterTab>('semua');
+	const [activeTab, setActiveTab] = useState<FilterTab>('all');
 	const [selectedInvoice, setSelectedInvoice] = useState<string | null>(null);
 	const [searchQuery, setSearchQuery] = useState('');
-	const [methodFilter, setMethodFilter] = useState('semua');
+	const [methodFilter, setMethodFilter] = useState('all');
 	const [dateFrom, setDateFrom] = useState('');
 	const [dateTo, setDateTo] = useState('');
     const [isLoading, setIsLoading] = useState(true);
@@ -158,7 +160,7 @@ export default function AdminPaymentVerificationPage() {
 
 	const filteredPayments = useMemo(() => {
 		return payments.filter(payment => {
-            if (activeTab !== 'semua' && payment.status !== activeTab) return false;
+            if (activeTab !== 'all' && payment.status !== activeTab) return false;
             if (searchQuery) {
                 const query = searchQuery.toLowerCase();
                 if (!payment.id.toLowerCase().includes(query) && 
@@ -180,10 +182,10 @@ export default function AdminPaymentVerificationPage() {
 	const pendingCount = counts.PENDING;
 	const receivedTodayCount = payments.filter(payment => payment.reviewedAt && isSameDay(new Date(payment.reviewedAt), new Date()) && payment.status !== 'FAILED').length;
 	const tabFilters = [
-		{ key: 'semua', label: 'SEMUA', value: payments.length },
-		{ key: 'PENDING', label: 'MENUNGGU', value: counts.PENDING },
-		{ key: 'PAID', label: 'VERIFIKASI', value: counts.PAID },
-		{ key: 'FAILED', label: 'DITOLAK', value: counts.FAILED },
+		{ key: 'all', label: t('admin_pages.pembayaran.tabs.all'), value: payments.length },
+		{ key: 'PENDING', label: t('admin_pages.pembayaran.tabs.pending'), value: counts.PENDING },
+		{ key: 'PAID', label: t('admin_pages.pembayaran.tabs.verified'), value: counts.PAID },
+		{ key: 'FAILED', label: t('admin_pages.pembayaran.tabs.rejected'), value: counts.FAILED },
 	] as const;
 
 	const handleSelect = (invoice: string) => setSelectedInvoice(invoice);
@@ -220,8 +222,8 @@ export default function AdminPaymentVerificationPage() {
 				<div className="mx-auto flex max-w-[1300px] flex-col gap-6">
 					<div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
 						<div>
-								<span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#2A2A2A]/40">Penyaringan transaksi masuk</span>
-								<h1 className="text-2xl xl:text-3xl font-black tracking-tight text-[#2A2A2A]">Verifikasi Pembayaran</h1>
+								<span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#2A2A2A]/40">{t('admin_pages.pembayaran.subtitle')}</span>
+								<h1 className="text-2xl xl:text-3xl font-black tracking-tight text-[#2A2A2A]">{t('admin_pages.pembayaran.title')}</h1>
 							</div>
 
 						<div className="flex h-14 items-center rounded-full border border-[#F4D7D4] bg-white px-4 shadow-sm sm:px-5">
@@ -263,7 +265,7 @@ export default function AdminPaymentVerificationPage() {
 									type="text"
 									value={searchQuery}
 									onChange={(event) => setSearchQuery(event.target.value)}
-									placeholder="Cari no. pesanan, customer, atau vendor..."
+									placeholder={t('admin_pages.pembayaran.search')}
 									className="w-full bg-transparent text-sm font-semibold text-[#2A2A2A] placeholder:text-[#A8A8A8] focus:outline-none"
 								/>
 							</div>
@@ -274,7 +276,7 @@ export default function AdminPaymentVerificationPage() {
 									onChange={(event) => setMethodFilter(event.target.value)}
 									className="w-full appearance-none bg-transparent pr-8 text-sm font-semibold text-[#2A2A2A] focus:outline-none"
 								>
-									<option value="semua">Semua Metode</option>
+									<option value="all">{t('admin_pages.pembayaran.all_status')}</option>
 									<option value="transfer">Transfer</option>
 									<option value="va">Virtual Account</option>
 								</select>
@@ -288,14 +290,14 @@ export default function AdminPaymentVerificationPage() {
 								<table className="w-full table-fixed border-collapse text-left" style={{ willChange: 'transform', borderSpacing: 0 }}>
 										<thead>
 											<tr className="border-b border-[#F4D7D4]/60 bg-[#FAFAFC] text-[10px] font-black uppercase tracking-widest text-[#A8A8A8]">
-											<th className="px-6 py-5">No. Pesanan</th>
-											<th className="px-6 py-5">Customer</th>
+											<th className="px-6 py-5">{t('admin_pages.pembayaran.table.transaction')}</th>
+											<th className="px-6 py-5">{t('admin_pages.pembayaran.table.client')}</th>
 											<th className="px-6 py-5">Vendor</th>
-											<th className="px-6 py-5">Tanggal Transfer</th>
-											<th className="px-6 py-5">Total Pembayaran</th>
+											<th className="px-6 py-5">{t('admin_pages.pembayaran.table.date')}</th>
+											<th className="px-6 py-5">{t('admin_pages.pembayaran.table.amount')}</th>
 											<th className="px-6 py-5">Metode</th>
-											<th className="px-6 py-5">Status</th>
-											<th className="px-6 py-5 text-center align-middle">Aksi</th>
+											<th className="px-6 py-5">{t('admin_pages.pembayaran.table.status')}</th>
+											<th className="px-6 py-5 text-center align-middle">{t('common.action')}</th>
 											</tr>
 										</thead>
 										<tbody className="divide-y divide-[#F4D7D4]/40">
@@ -346,7 +348,7 @@ export default function AdminPaymentVerificationPage() {
 															<div className="text-[10px] font-bold uppercase tracking-wider text-[#2A2A2A]/60">{payment.paymentMethod}</div>
 														</td>
 														<td className="w-[96px] px-2 py-3 align-middle">
-															<span className={`rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wider ${statusBadgeClasses[payment.status]}`}>{payment.status === 'PENDING' ? 'Menunggu' : payment.status === 'PAID' ? 'Valid' : payment.status === 'FAILED' ? 'Ditolak' : 'Kembali'}</span>
+															<span className={`rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wider ${statusBadgeClasses[payment.status]}`}>{payment.status === 'PENDING' ? t('admin_pages.verifikasi.status_pending') : payment.status === 'PAID' ? t('admin_pages.verifikasi.status_verified') : payment.status === 'FAILED' ? t('admin_pages.verifikasi.status_rejected') : 'Refund'}</span>
 														</td>
 														<td className="w-[120px] px-2 py-3 text-left align-middle" onClick={(e) => e.stopPropagation()}>
 															{payment.status === 'PENDING' ? (
@@ -357,17 +359,17 @@ export default function AdminPaymentVerificationPage() {
 																		className="rounded-full border border-[#FF9A9E]/30 bg-white px-3 py-1.5 text-[11px] font-bold text-[#FF5E7E] transition-colors hover:bg-[#FFF5F6]"
 																		aria-label={`Verifikasi ${payment.id}`}
 																	>
-																		Verifikasi
+																		{t('admin_pages.pembayaran.btn_verify')}
 																	</button>
 																</div>
 															) : payment.status === 'PAID' ? (
 																<div className="flex items-center gap-2">
-																	<span className="text-[10px] font-black text-emerald-600">Terverifikasi</span>
-																	<button type="button" onClick={() => handleSelect(payment.id)} className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-bold text-slate-600">Lihat</button>
+																	<span className="text-[10px] font-black text-emerald-600">{t('admin_pages.verifikasi.status_verified')}</span>
+																	<button type="button" onClick={() => handleSelect(payment.id)} className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-bold text-slate-600">{t('common.view_detail')}</button>
 																</div>
 															) : (
 																<div className="flex items-center gap-2">
-																	<button type="button" onClick={() => handleSelect(payment.id)} className="rounded-full border border-[#F4D7D4] bg-white px-3 py-1 text-xs font-bold text-[#FF5E7E]">Tinjau</button>
+																	<button type="button" onClick={() => handleSelect(payment.id)} className="rounded-full border border-[#F4D7D4] bg-white px-3 py-1 text-xs font-bold text-[#FF5E7E]">{t('common.view_detail')}</button>
 																</div>
 															)}
 														</td>
@@ -378,7 +380,7 @@ export default function AdminPaymentVerificationPage() {
 										</table>
 
 								<div className="flex flex-col items-center justify-between gap-4 border-t border-[#F4D7D4] bg-white p-6 sm:flex-row">
-									<span className="text-xs font-bold text-slate-400">Menampilkan 1 - {filteredPayments.length} dari {filteredPayments.length} data</span>
+									<span className="text-xs font-bold text-slate-400">{t('common.showing_data').replace('{start}', '1').replace('{end}', filteredPayments.length.toString()).replace('{total}', filteredPayments.length.toString())}</span>
 									<div className="flex items-center gap-1.5">
 										<button className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-400 transition-all hover:bg-slate-50">‹</button>
 										<button className="h-8 w-8 rounded-lg bg-[#FF9A9E] text-xs font-black text-white">1</button>
@@ -388,7 +390,7 @@ export default function AdminPaymentVerificationPage() {
 									</div>
 									<div className="relative">
 										<select className="appearance-none rounded-xl border border-slate-200 bg-white py-2 pl-4 pr-10 text-xs font-semibold text-slate-500 focus:outline-none">
-											<option>10 / halaman</option>
+											<option>{t('common.per_page').replace('{count}', '10')}</option>
 										</select>
 										<div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">▾</div>
 									</div>
@@ -399,7 +401,7 @@ export default function AdminPaymentVerificationPage() {
 								{selectedPayment ? (
 									<>
 										<div className="flex items-center justify-between border-b border-[#F4D7D4] p-6">
-											<h4 className="text-sm font-black uppercase tracking-wider text-[#2A2A2A]">Detail Pembayaran</h4>
+											<h4 className="text-sm font-black uppercase tracking-wider text-[#2A2A2A]">{t('admin_pages.pembayaran.detail')}</h4>
 											<button onClick={handleClose} className="text-slate-300 transition-colors hover:text-slate-600" aria-label="Tutup detail">
 												<svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12" /></svg>
 											</button>
@@ -411,7 +413,7 @@ export default function AdminPaymentVerificationPage() {
 												<p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{selectedPayment.transferDate} • {selectedPayment.transferTime}</p>
 												<div className="mt-3">
 													<span className={`rounded-full px-3 py-1 text-[10px] font-black uppercase ${statusBadgeClasses[selectedPayment.status]}`}>
-														{selectedPayment.status === 'PENDING' ? 'Menunggu Verifikasi' : selectedPayment.status === 'PAID' ? 'Terverifikasi' : selectedPayment.status === 'FAILED' ? 'Ditolak' : 'Dikembalikan'}
+														{selectedPayment.status === 'PENDING' ? t('admin_pages.verifikasi.status_pending') : selectedPayment.status === 'PAID' ? t('admin_pages.verifikasi.status_verified') : selectedPayment.status === 'FAILED' ? t('admin_pages.verifikasi.status_rejected') : 'Refunded'}
 													</span>
 												</div>
 											</div>
@@ -457,15 +459,15 @@ export default function AdminPaymentVerificationPage() {
 											<div className="flex gap-4 border-t border-[#F4D7D4] pt-6">
 												{selectedPayment.status === 'PENDING' && (
 													<>
-														<button onClick={() => handleUpdateStatus(selectedPayment.id, 'FAILED')} className="flex-1 rounded-2xl border border-red-200 py-3.5 text-xs font-black uppercase tracking-widest text-red-500 transition-all hover:bg-red-50">Tolak</button>
-														<button onClick={() => handleUpdateStatus(selectedPayment.id, 'PAID')} className="flex-1 rounded-2xl bg-[#10B981] py-3.5 text-xs font-black uppercase tracking-widest text-white shadow-md shadow-emerald-100 transition-all hover:bg-[#059669]">Verifikasi</button>
+														<button onClick={() => handleUpdateStatus(selectedPayment.id, 'FAILED')} className="flex-1 rounded-2xl border border-red-200 py-3.5 text-xs font-black uppercase tracking-widest text-red-500 transition-all hover:bg-red-50">{t('admin_pages.pembayaran.btn_reject')}</button>
+														<button onClick={() => handleUpdateStatus(selectedPayment.id, 'PAID')} className="flex-1 rounded-2xl bg-[#10B981] py-3.5 text-xs font-black uppercase tracking-widest text-white shadow-md shadow-emerald-100 transition-all hover:bg-[#059669]">{t('admin_pages.pembayaran.btn_verify')}</button>
 													</>
 												)}
 												{selectedPayment.status === 'PAID' && (
 													<button onClick={() => handleUpdateStatus(selectedPayment.id, 'PENDING')} className="flex-1 rounded-2xl border border-[#F4D7D4] py-3.5 text-xs font-black uppercase tracking-widest text-slate-600">Batalkan Verifikasi</button>
 												)}
 												{selectedPayment.status === 'FAILED' && (
-													<button onClick={() => handleUpdateStatus(selectedPayment.id, 'PAID')} className="flex-1 rounded-2xl bg-[#10B981] py-3.5 text-xs font-black uppercase tracking-widest text-white shadow-md shadow-emerald-100 transition-all hover:bg-[#059669]">Verifikasi</button>
+													<button onClick={() => handleUpdateStatus(selectedPayment.id, 'PAID')} className="flex-1 rounded-2xl bg-[#10B981] py-3.5 text-xs font-black uppercase tracking-widest text-white shadow-md shadow-emerald-100 transition-all hover:bg-[#059669]">{t('admin_pages.pembayaran.btn_verify')}</button>
 												)}
 											</div>
 										</div>

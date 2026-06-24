@@ -5,6 +5,7 @@ import AdminHeader from '@/components/admin/AdminHeader';
 import AdminStatCard from '@/components/admin/AdminStatCard';
 import StatusBadge from '@/components/admin/StatusBadge';
 import { getAllPayments, getMonitoringStats } from '@/services/admin.service';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type ReportTab = 'semua' | 'paid' | 'pending' | 'refund' | 'failed';
 
@@ -83,6 +84,7 @@ const tabToStatus: Record<ReportTab, PaymentRow['status'] | null> = {
 };
 
 export default function AdminLaporanKeuanganPage() {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<ReportTab>('semua');
   const [payments, setPayments] = useState<PaymentRow[]>([]);
   const [stats, setStats] = useState<any>(null);
@@ -266,13 +268,13 @@ export default function AdminLaporanKeuanganPage() {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <span className="block text-[10px] font-black uppercase tracking-[0.2em] text-[#A8A8A8]">
-                LAPORAN KEUANGAN
+                {t('admin_pages.laporan.subtitle')}
               </span>
               <h1 className="mt-2 text-3xl md:text-4xl font-black text-[#2A2A2A]">
-                Laporan Keuangan
+                {t('admin_pages.laporan.title')}
               </h1>
               <p className="mt-2 max-w-2xl text-sm font-medium leading-6 text-[#6B6B6B]">
-                Ringkasan pemasukan, komisi, dan status transaksi dalam periode tertentu.
+                {t('admin_pages.laporan.description')}
               </p>
             </div>
 
@@ -335,16 +337,16 @@ export default function AdminLaporanKeuanganPage() {
                   <path d="m7 10 5 5 5-5" />
                   <path d="M5 21h14" />
                 </svg>
-                Unduh Laporan
+                {t('admin_pages.laporan.btn_download')}
               </button>
             </div>
           </div>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
-            <AdminStatCard icon={<TrendingUpIcon className="h-4 w-4" />} label="Total Pemasukan" value={formatCurrency(totalRevenue)} valueClassName="text-[#2A2A2A]" iconWrapClassName="bg-[#FFF5F6] text-[#FF5E7E]" cardBorderClassName="border-[#FCE6E3]" />
-            <AdminStatCard icon={<ReceiptIcon className="h-4 w-4" />} label="Total Komisi Planora" value={formatCurrency(Math.round(totalRevenue * 0.05))} valueClassName="text-[#2A2A2A]" iconWrapClassName="bg-emerald-50 text-emerald-500" cardBorderClassName="border-emerald-100/50" />
-            <AdminStatCard icon={<WalletIcon className="h-4 w-4" />} label="Dana Tertahan (Escrow)" value={formatCurrency(pendingTotal)} valueClassName="text-[#2A2A2A]" iconWrapClassName="bg-blue-50 text-blue-500" cardBorderClassName="border-blue-100/50" />
-            <AdminStatCard icon={<ClockIcon className="h-4 w-4" />} label="Transaksi Berhasil" value={String(counts.paid)} valueClassName="text-[#2A2A2A]" iconWrapClassName="bg-violet-50 text-violet-500" cardBorderClassName="border-violet-100/50" />
+            <AdminStatCard icon={<TrendingUpIcon className="h-4 w-4" />} label={t('admin_pages.laporan.stat_income')} value={formatCurrency(totalRevenue)} valueClassName="text-[#2A2A2A]" iconWrapClassName="bg-[#FFF5F6] text-[#FF5E7E]" cardBorderClassName="border-[#FCE6E3]" />
+            <AdminStatCard icon={<ReceiptIcon className="h-4 w-4" />} label={t('admin_pages.laporan.stat_commission')} value={formatCurrency(Math.round(totalRevenue * 0.05))} valueClassName="text-[#2A2A2A]" iconWrapClassName="bg-emerald-50 text-emerald-500" cardBorderClassName="border-emerald-100/50" />
+            <AdminStatCard icon={<WalletIcon className="h-4 w-4" />} label={t('admin_pages.laporan.stat_escrow')} value={formatCurrency(pendingTotal)} valueClassName="text-[#2A2A2A]" iconWrapClassName="bg-blue-50 text-blue-500" cardBorderClassName="border-blue-100/50" />
+            <AdminStatCard icon={<ClockIcon className="h-4 w-4" />} label={t('admin_pages.laporan.stat_success')} value={String(counts.paid)} valueClassName="text-[#2A2A2A]" iconWrapClassName="bg-violet-50 text-violet-500" cardBorderClassName="border-violet-100/50" />
           </div>
 
           {/* Search box moved below stat cards (sentence case placeholder) */}
@@ -353,7 +355,7 @@ export default function AdminLaporanKeuanganPage() {
               <svg className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#D8A7A0]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
               <input
                 type="text"
-                placeholder="Cari nomor transaksi atau nama vendor..."
+                placeholder={t('admin_pages.laporan.search')}
                 aria-label="Cari nomor transaksi atau nama vendor"
                 className="w-full rounded-2xl border border-[#F4D7D4] bg-white/80 py-3 pl-12 pr-4 text-sm font-semibold text-[#2A2A2A] placeholder-[#D8A7A0] transition-all focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/15"
               />
@@ -364,11 +366,11 @@ export default function AdminLaporanKeuanganPage() {
             <div className="mb-10 flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
               <div className="flex flex-wrap items-center gap-3">
                 {([
-                  { label: 'SEMUA', value: 'semua' },
-                  { label: 'SUKSES', value: 'paid' },
-                  { label: 'MENUNGGU', value: 'pending' },
-                  { label: 'REFUND', value: 'refund' },
-                  { label: 'GAGAL', value: 'failed' },
+                  { label: t('admin_pages.laporan.tabs.all'), value: 'semua' },
+                  { label: t('admin_pages.laporan.tabs.success'), value: 'paid' },
+                  { label: t('admin_pages.laporan.tabs.pending'), value: 'pending' },
+                  { label: t('admin_pages.laporan.tabs.refund'), value: 'refund' },
+                  { label: t('admin_pages.laporan.tabs.failed'), value: 'failed' },
                 ] as Array<{ label: string; value: ReportTab }>).map((tab) => {
                   const active = activeTab === tab.value;
                   const count = counts[tab.value];
@@ -397,8 +399,8 @@ export default function AdminLaporanKeuanganPage() {
                 <div className="w-[18%] text-[9px] font-bold uppercase tracking-[0.2em] text-[#A8A8A8]">Invoice</div>
                 <div className="w-[24%] text-[9px] font-bold uppercase tracking-[0.2em] text-[#A8A8A8]">Vendor</div>
                 <div className="w-[20%] text-[9px] font-bold uppercase tracking-[0.2em] text-[#A8A8A8]">Customer</div>
-                <div className="w-[14%] text-[9px] font-bold uppercase tracking-[0.2em] text-[#A8A8A8]">Nominal</div>
-                <div className="w-[14%] text-[9px] font-bold uppercase tracking-[0.2em] text-[#A8A8A8]">Tanggal</div>
+                <div className="w-[14%] text-[9px] font-bold uppercase tracking-[0.2em] text-[#A8A8A8]">{t('admin_pages.laporan.table.amount')}</div>
+                <div className="w-[14%] text-[9px] font-bold uppercase tracking-[0.2em] text-[#A8A8A8]">{t('admin_pages.laporan.table.date')}</div>
                 <div className="w-[10%] pr-2 text-right text-[9px] font-bold uppercase tracking-[0.2em] text-[#A8A8A8]">Status</div>
               </div>
 
@@ -443,7 +445,7 @@ export default function AdminLaporanKeuanganPage() {
                     </div>
                     <div className="flex w-[10%] justify-end">
                       <StatusBadge
-                        text={payment.status === 'PAID' ? 'SUKSES' : payment.status === 'PENDING' ? 'MENUNGGU' : payment.status === 'REFUNDED' ? 'REFUND' : 'GAGAL'}
+                        text={payment.status === 'PAID' ? t('admin_pages.laporan.tabs.success') : payment.status === 'PENDING' ? t('admin_pages.laporan.tabs.pending') : payment.status === 'REFUNDED' ? t('admin_pages.laporan.tabs.refund') : t('admin_pages.laporan.tabs.failed')}
                         variant={statusMap[payment.status]}
                         rounded="md"
                       />
@@ -455,7 +457,7 @@ export default function AdminLaporanKeuanganPage() {
 
             <div className="flex flex-col gap-4 border-t border-[#F4D7D4]/50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
               <div className="text-sm font-semibold text-[#A8A8A8]">
-                Menampilkan {startIndex} - {endIndex} dari {total} data
+                {t('common.showing_data').replace('{start}', startIndex.toString()).replace('{end}', endIndex.toString()).replace('{total}', total.toString())}
               </div>
 
               <div className="flex items-center justify-center gap-2">
@@ -497,9 +499,9 @@ export default function AdminLaporanKeuanganPage() {
                   onChange={(event) => setPerPage(Number(event.target.value))}
                   className="appearance-none rounded-xl border border-[#E6E8EB] bg-white px-4 py-2 pr-10 text-sm font-semibold text-[#2A2A2A] focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/15"
                 >
-                  <option value={10}>10 / halaman</option>
-                  <option value={20}>20 / halaman</option>
-                  <option value={30}>30 / halaman</option>
+                  <option value={10}>{t('common.per_page').replace('{count}', '10')}</option>
+                  <option value={20}>{t('common.per_page').replace('{count}', '20')}</option>
+                  <option value={30}>{t('common.per_page').replace('{count}', '30')}</option>
                 </select>
                 <svg className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A8A8A8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6" /></svg>
               </div>

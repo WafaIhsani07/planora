@@ -31,9 +31,9 @@ export default function PesanPage() {
     <DashboardLayout>
       <div className="flex flex-col h-[calc(100vh-8rem)]">
         <div className="space-y-1 mb-6">
-          <h1 className="text-3xl font-black tracking-tight text-[#2A2A2A]">Pesan</h1>
+          <h1 className="text-3xl font-black tracking-tight text-[#2A2A2A]">{t('dashboard.pesan.title')}</h1>
           <p className="text-sm font-medium uppercase tracking-widest text-slate-400">
-            Hubungi pelanggan Anda
+            {t('dashboard.pesan.subtitle')}
           </p>
         </div>
 
@@ -42,9 +42,9 @@ export default function PesanPage() {
           <div className="w-1/3 border-r border-slate-100 flex flex-col">
             <div className="p-6 border-b border-slate-100">
               <div className="relative">
-                <input 
+                  <input 
                   type="text" 
-                  placeholder="Cari pesan..." 
+                  placeholder={t('dashboard.pesan.searchPlaceholder')} 
                   className="w-full bg-[#FDF1F0]/50 border border-transparent rounded-2xl py-3 pl-12 pr-4 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/30 focus:bg-white focus:border-[#FF9A9E] transition-all"
                 />
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -99,7 +99,7 @@ export default function PesanPage() {
               <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-[#FAFAFC]">
                 <div className="text-center mb-6">
                   <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 bg-white px-4 py-1.5 rounded-full border border-slate-100">
-                    Hari ini
+                    {t('dashboard.pesan.today')}
                   </span>
                 </div>
                 {DUMMY_MESSAGES.map((msg) => (
@@ -130,7 +130,7 @@ export default function PesanPage() {
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                      placeholder="Ketik pesan Anda..." 
+                      placeholder={t('dashboard.pesan.inputPlaceholder')} 
                       className="w-full bg-[#F7F9FC] border border-transparent rounded-full py-3 px-6 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/30 focus:bg-white focus:border-[#FF9A9E] transition-all"
                     />
                     <button className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#FF9A9E] transition-colors">
@@ -149,7 +149,7 @@ export default function PesanPage() {
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center text-slate-400 bg-[#FAFAFC]">
               <MessageCircle className="w-16 h-16 mb-4 text-slate-200" />
-              <p className="text-sm font-bold">Pilih obrolan untuk mulai mengirim pesan</p>
+              <p className="text-sm font-bold">{t('dashboard.pesan.emptyState')}</p>
             </div>
           )}
         </div>

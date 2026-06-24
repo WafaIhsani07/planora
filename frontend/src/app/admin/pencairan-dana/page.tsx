@@ -4,6 +4,7 @@ import { useMemo, useState, useEffect, useRef } from 'react';
 import { getAllWithdrawals, processWithdrawal } from '@/services/admin.service';
 import AdminHeader from '@/components/admin/AdminHeader';
 import StatusBadge from '@/components/admin/StatusBadge';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type WithdrawalStatus = 'menunggu' | 'diproses' | 'selesai' | 'ditolak';
 
@@ -253,8 +254,9 @@ function RejectModal({
 
 // ─── Main Page Component ──────────────────────────────────────────────────────
 export default function AdminPencairanDanaPage() {
+  const { t } = useLanguage();
   const [items, setItems] = useState<WithdrawalItem[]>([]);
-  const [activeFilter, setActiveFilter] = useState<'semua' | 'menunggu' | 'diproses' | 'selesai'>('semua');
+  const [activeFilter, setActiveFilter] = useState<'all' | 'menunggu' | 'diproses' | 'selesai'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -297,14 +299,14 @@ export default function AdminPencairanDanaPage() {
   useEffect(() => { loadData(); }, []);
 
   const counts = useMemo(() => ({
-    semua: items.length,
+    all: items.length,
     menunggu: items.filter((i) => i.status === 'menunggu').length,
     diproses: items.filter((i) => i.status === 'diproses').length,
     selesai: items.filter((i) => i.status === 'selesai').length,
   }), [items]);
 
   const filteredItems = useMemo(() => {
-    const base = activeFilter === 'semua' ? items : items.filter((i) => i.status === activeFilter);
+    const base = activeFilter === 'all' ? items : items.filter((i) => i.status === activeFilter);
     const q = searchQuery.trim().toLowerCase();
     if (!q) return base;
     return base.filter(
@@ -360,18 +362,18 @@ export default function AdminPencairanDanaPage() {
       <div className="min-h-screen bg-[#FDF1F0] px-8 py-5 text-[#2A2A2A]">
         <div className="mx-auto flex max-w-[1300px] flex-col gap-6">
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#2A2A2A]/40">Pantau proses pencairan mitra</span>
-            <h1 className="text-2xl xl:text-3xl font-black tracking-tight text-[#2A2A2A]">Pencairan Dana</h1>
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#2A2A2A]/40">{t('admin_pages.pencairan.subtitle')}</span>
+            <h1 className="text-2xl xl:text-3xl font-black tracking-tight text-[#2A2A2A]">{t('admin_pages.pencairan.title')}</h1>
           </div>
 
           <div className="space-y-5">
             {/* Tabs */}
             <div className="flex flex-wrap items-center gap-4">
               {[
-                { key: 'semua', label: 'SEMUA', value: counts.semua },
-                { key: 'menunggu', label: 'MENUNGGU', value: counts.menunggu },
-                { key: 'diproses', label: 'DALAM PROSES', value: counts.diproses },
-                { key: 'selesai', label: 'SELESAI', value: counts.selesai },
+                { key: 'all', label: t('admin_pages.pencairan.tabs.all'), value: counts.all },
+                { key: 'menunggu', label: t('admin_pages.pencairan.tabs.pending'), value: counts.menunggu },
+                { key: 'diproses', label: t('admin_pages.pencairan.tabs.processing'), value: counts.diproses },
+                { key: 'selesai', label: t('admin_pages.pencairan.tabs.completed'), value: counts.selesai },
               ].map((tab) => {
                 const active = activeFilter === tab.key;
                 return (
@@ -392,7 +394,7 @@ export default function AdminPencairanDanaPage() {
             {/* Search */}
             <div className="flex h-12 items-center gap-3 rounded-xl border border-[#F4D7D4] bg-white px-4 shadow-sm">
               <SearchIcon className="h-4 w-4 shrink-0 text-[#A8A8A8]" />
-              <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Cari vendor..." className="w-full bg-transparent text-sm font-semibold text-[#2A2A2A] placeholder:text-[#A8A8A8] focus:outline-none" />
+              <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder={t('admin_pages.pencairan.search')} className="w-full bg-transparent text-sm font-semibold text-[#2A2A2A] placeholder:text-[#A8A8A8] focus:outline-none" />
             </div>
 
             <div className="grid gap-3 lg:grid-cols-12 items-start">
@@ -401,12 +403,12 @@ export default function AdminPencairanDanaPage() {
                 <table className="w-full table-fixed border-collapse text-left">
                   <thead>
                     <tr className="border-b border-[#F4D7D4]/60 bg-[#FAFAFC] text-[10px] font-black uppercase tracking-widest text-[#A8A8A8]">
-                      <th className="px-6 py-5">No. Pencairan</th>
-                      <th className="px-6 py-5">Vendor</th>
-                      <th className="px-6 py-5">Total Pencairan</th>
+                      <th className="px-6 py-5">{t('admin_pages.pencairan.table.transaction')}</th>
+                      <th className="px-6 py-5">{t('admin_pages.pencairan.table.vendor')}</th>
+                      <th className="px-6 py-5">{t('admin_pages.pencairan.table.amount')}</th>
                       <th className="px-6 py-5">Metode</th>
-                      <th className="px-6 py-5">Rekening Tujuan</th>
-                      <th className="px-6 py-5">Status</th>
+                      <th className="px-6 py-5">{t('admin_pages.pencairan.table.account')}</th>
+                      <th className="px-6 py-5">{t('admin_pages.pencairan.table.status')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#F4D7D4]/40">
@@ -446,7 +448,7 @@ export default function AdminPencairanDanaPage() {
                             : item.status === 'ditolak' ? 'bg-rose-50 text-rose-600 border border-rose-100'
                             : 'bg-orange-50 text-orange-600 border border-orange-100'
                           }`}>
-                            {item.status === 'menunggu' ? 'Menunggu' : item.status === 'diproses' ? 'Diproses' : item.status === 'selesai' ? 'Selesai' : 'Ditolak'}
+                            {item.status === 'menunggu' ? t('admin_pages.verifikasi.status_pending') : item.status === 'diproses' ? t('admin_pages.pencairan.tabs.processing') : item.status === 'selesai' ? t('admin_pages.pencairan.tabs.completed') : t('admin_pages.verifikasi.status_rejected')}
                           </span>
                         </td>
                       </tr>
@@ -454,14 +456,14 @@ export default function AdminPencairanDanaPage() {
                   </tbody>
                 </table>
                 <div className="flex items-center justify-between gap-4 border-t border-[#F4D7D4] bg-white p-6">
-                  <span className="text-xs font-bold text-slate-400">Menampilkan {filteredItems.length} dari {items.length} data</span>
+                  <span className="text-xs font-bold text-slate-400">{t('common.showing_data').replace('{start}', '1').replace('{end}', filteredItems.length.toString()).replace('{total}', items.length.toString())}</span>
                   <div className="flex items-center gap-1.5">
                     <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:bg-slate-50">‹</button>
                     <button className="h-8 w-8 rounded-lg bg-[#FF9A9E] text-xs font-black text-white">1</button>
                     <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:bg-slate-50">›</button>
                   </div>
                   <select className="rounded-xl border border-slate-200 bg-white py-2 pl-4 pr-8 text-xs font-semibold text-slate-500 focus:outline-none">
-                    <option>10 / halaman</option>
+                    <option>{t('common.per_page').replace('{count}', '10')}</option>
                   </select>
                 </div>
               </div>
@@ -480,7 +482,7 @@ export default function AdminPencairanDanaPage() {
                   return (
                     <div className="p-6">
                       <div className="flex items-start justify-between">
-                        <h4 className="text-lg font-black">Detail Pencairan</h4>
+                        <h4 className="text-lg font-black">{t('admin_pages.pencairan.detail')}</h4>
                         <button onClick={() => setSelectedId(null)} className="rounded-full p-2 text-slate-400 hover:bg-slate-50">✕</button>
                       </div>
 
@@ -492,7 +494,7 @@ export default function AdminPencairanDanaPage() {
                         </div>
                         <div className="ml-auto">
                           <StatusBadge
-                            text={sel.status === 'menunggu' ? 'Siap Dicairkan' : sel.status === 'diproses' ? 'Diproses' : 'Selesai'}
+                            text={sel.status === 'menunggu' ? t('admin_pages.pencairan.tabs.pending') : sel.status === 'diproses' ? t('admin_pages.pencairan.tabs.processing') : t('admin_pages.pencairan.tabs.completed')}
                             variant={sel.status === 'selesai' ? 'emerald' : 'blue'}
                             rounded="md"
                           />
@@ -501,17 +503,17 @@ export default function AdminPencairanDanaPage() {
 
                       <hr className="my-5 border-t border-[#F4F4F6]" />
 
-                      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#A8A8A8]">Informasi Pencairan</p>
+                      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#A8A8A8]">{t('admin_pages.pencairan.info')}</p>
                       <div className="mt-3 space-y-3">
-                        <DetailRow label="No. Pencairan" value={formatWithdrawalNumber(sel.id)} />
-                        <DetailRow label="Vendor" value={sel.vendor} />
-                        <DetailRow label="Total Pencairan" value={fmt(totalNum)} />
-                        <DetailRow label="Saldo Vendor" value={sel.balance} />
-                        <DetailRow label="Metode Pencairan" value={`BANK ${sel.bank}`} />
+                        <DetailRow label={t('admin_pages.pencairan.table.transaction')} value={formatWithdrawalNumber(sel.id)} />
+                        <DetailRow label={t('admin_pages.pencairan.table.vendor')} value={sel.vendor} />
+                        <DetailRow label={t('admin_pages.pencairan.table.amount')} value={fmt(totalNum)} />
+                        <DetailRow label={t('admin_pages.pencairan.vendor_balance')} value={sel.balance} />
+                        <DetailRow label={t('admin_pages.pencairan.withdrawal_method')} value={`BANK ${sel.bank}`} />
                       </div>
 
                       <div className="mt-5">
-                        <h5 className="text-sm font-black">Rekening Tujuan</h5>
+                        <h5 className="text-sm font-black">{t('admin_pages.pencairan.table.account')}</h5>
                         <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm">
                           <div className="font-bold">{sel.bank} - {sel.accountNumber}</div>
                           <div className="text-xs text-slate-500 mt-1">a.n {sel.accountName}</div>
@@ -519,27 +521,27 @@ export default function AdminPencairanDanaPage() {
                       </div>
 
                       <div className="mt-5">
-                        <h5 className="text-sm font-black">Rincian Dana</h5>
+                        <h5 className="text-sm font-black">{t('admin_pages.pencairan.details_fund')}</h5>
                         <div className="mt-3 space-y-2">
-                          <DetailRow label="Total Pesanan" value={fmt(totalNum)} />
-                          <DetailRow label="Komisi Platform (5%)" value={fmt(commission)} />
-                          <DetailRow label="Dana Dicairkan" value={fmt(danaDicairkan)} highlight />
+                          <DetailRow label={t('admin_pages.pencairan.total_order')} value={fmt(totalNum)} />
+                          <DetailRow label={t('admin_pages.pencairan.commission')} value={fmt(commission)} />
+                          <DetailRow label={t('admin_pages.pencairan.fund_disbursed')} value={fmt(danaDicairkan)} highlight />
                         </div>
                       </div>
 
                       <div className="mt-6 flex gap-3">
                         {sel.status === 'menunggu' && (
                           <button onClick={() => handleProses(sel.id)} className="w-full rounded-full bg-blue-500 px-4 py-2.5 text-sm font-black text-white hover:bg-blue-600 transition-all">
-                            Proses Sekarang
+                            {t('admin_pages.pencairan.btn_process')}
                           </button>
                         )}
                         {sel.status === 'diproses' && (
                           <>
                             <button onClick={() => handleTolak(sel.id)} className="rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold hover:bg-slate-50 transition-all">
-                              Batalkan
+                              {t('admin_pages.pencairan.btn_cancel')}
                             </button>
                             <button onClick={() => handleSelesai(sel.id)} className="ml-auto rounded-full bg-emerald-500 px-4 py-2.5 text-sm font-black text-white hover:bg-emerald-600 transition-all">
-                              Tandai Selesai &amp; Unggah Bukti
+                              {t('admin_pages.pencairan.btn_finish')}
                             </button>
                           </>
                         )}

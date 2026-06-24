@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import AdminHeader from '@/components/admin/AdminHeader';
 import StatusBadge from '@/components/admin/StatusBadge';
 import { getAllKategori, createKategori, updateKategori } from '@/services/admin.service';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const GridIcon = ({ className }: { className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="7" height="7" x="3" y="3" rx="1" /><rect width="7" height="7" x="14" y="3" rx="1" /><rect width="7" height="7" x="14" y="14" rx="1" /><rect width="7" height="7" x="3" y="14" rx="1" /></svg>
@@ -58,6 +59,7 @@ function CategoryCard({ cat, onEdit }: { cat: any; onEdit: (id: string) => void 
 }
 
 export default function AdminManajemenKategoriPage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const [categories, setCategories] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -108,14 +110,14 @@ export default function AdminManajemenKategoriPage() {
         <div className="max-w-[1300px] mx-auto">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
             <div>
-                <h2 className="text-2xl font-black text-[#2A2A2A]">Manajemen Kategori</h2>
-                <p className="text-sm text-[#6B6B6B] mt-1">Kelola semua kategori layanan yang tersedia di Planora.</p>
+                <h2 className="text-2xl font-black text-[#2A2A2A]">{t('admin_pages.kategori.title')}</h2>
+                <p className="text-sm text-[#6B6B6B] mt-1">{t('admin_pages.kategori.subtitle')}</p>
               </div>
 
             <div className="ml-auto">
               <button onClick={() => { setForm({}); setShowModal(true); }} type="button" className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FF5E7E] hover:bg-[#ef5570] text-white text-sm font-bold shadow-md">
                 <PlusIcon className="w-4 h-4" />
-                Tambah Kategori
+                {t('admin_pages.kategori.btn_add')}
               </button>
             </div>
           </div>
@@ -126,7 +128,7 @@ export default function AdminManajemenKategoriPage() {
                   <GridIcon className="w-5 h-5" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase mb-1">TOTAL KATEGORI</span>
+                <span className="text-[10px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase mb-1">{t('admin_pages.kategori.stat_total')}</span>
                   <span className="text-2xl font-black text-[#2A2A2A] tracking-tighter">{categories.length}</span>
               </div>
             </div>
@@ -136,7 +138,7 @@ export default function AdminManajemenKategoriPage() {
                 <MedalIcon className="w-5 h-5" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase mb-1">KATEGORI TERPOPULER</span>
+                <span className="text-[10px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase mb-1">{t('admin_pages.kategori.stat_popular')}</span>
                 <span className="text-lg md:text-xl font-black text-[#2A2A2A] tracking-tighter uppercase">
                     {categories[0]?.name || '-'}
                 </span>
@@ -148,7 +150,7 @@ export default function AdminManajemenKategoriPage() {
                 <ShieldCheckIcon className="w-5 h-5" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase mb-1">KATEGORI AKTIF</span>
+                <span className="text-[10px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase mb-1">{t('admin_pages.kategori.stat_active')}</span>
                 <span className="text-2xl font-black text-emerald-500 tracking-tighter">
                     {categories.filter(c => c.isActive !== false).length}
                 </span>
@@ -160,7 +162,7 @@ export default function AdminManajemenKategoriPage() {
             <div className="flex-1">
               <div className="flex items-center gap-3 rounded-xl border border-[#F4D7D4] bg-white px-4 py-2">
                 <svg className="w-4 h-4 text-[#A8A8A8]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-                <input value={q} onChange={e => { setQ(e.target.value); setPage(1); }} placeholder="Cari kategori..." className="w-full bg-transparent outline-none text-sm font-semibold" />
+                <input value={q} onChange={e => { setQ(e.target.value); setPage(1); }} placeholder={t('admin_pages.kategori.search')} className="w-full bg-transparent outline-none text-sm font-semibold" />
                 {q && <button onClick={() => setQ('')} className="text-sm text-[#A8A8A8]">✕</button>}
               </div>
             </div>
@@ -209,7 +211,7 @@ export default function AdminManajemenKategoriPage() {
               </div>
 
               <div className="mt-6 flex items-center justify-between">
-                <div className="text-xs text-[#A8A8A8]">Menampilkan {startIndex(page, perPage, categories.length)} - {endIndex(page, perPage, categories.length)} dari {categories.length} kategori</div>
+                <div className="text-xs text-[#A8A8A8]">{t('common.showing_data').replace('{start}', startIndex(page, perPage, categories.length).toString()).replace('{end}', endIndex(page, perPage, categories.length).toString()).replace('{total}', categories.length.toString())}</div>
                 <div className="flex items-center gap-2">
                   <button onClick={() => setPage(p => Math.max(1, p-1))} disabled={page===1} className="w-8 h-8 rounded-lg border border-[#E6E8EB]">‹</button>
                   <div className="w-8 h-8 rounded-lg bg-[#FF9A9E] text-white flex items-center justify-center">{page}</div>
@@ -251,22 +253,22 @@ export default function AdminManajemenKategoriPage() {
                 }
               }} className="relative bg-white rounded-2xl p-6 w-full max-w-2xl">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-black">{form.id ? 'Edit Kategori' : 'Tambah Kategori'}</h3>
+                  <h3 className="text-lg font-black">{form.id ? t('admin_pages.kategori.modal_edit') : t('admin_pages.kategori.modal_add')}</h3>
                   <button type="button" onClick={() => { if (!saving) { setShowModal(false); setForm({}); } }} className="text-slate-400">✕</button>
                 </div>
                 <div className="space-y-3">
                   <div>
-                    <label className="text-xs font-black text-[#A8A8A8]">Nama Kategori</label>
+                    <label className="text-xs font-black text-[#A8A8A8]">{t('admin_pages.kategori.field_name')}</label>
                     <input value={form.name || ''} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className="w-full border border-[#E6E8EB] rounded-xl p-3 mt-1" />
                   </div>
                   <div>
-                    <label className="text-xs font-black text-[#A8A8A8]">Deskripsi</label>
+                    <label className="text-xs font-black text-[#A8A8A8]">{t('admin_pages.kategori.field_desc')}</label>
                     <textarea value={form.description || ''} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} className="w-full border border-[#E6E8EB] rounded-xl p-3 mt-1 h-24" />
                   </div>
                 </div>
                 <div className="mt-4 flex gap-3">
-                  <button type="button" onClick={() => { if (!saving) { setShowModal(false); setForm({}); } }} className="flex-1 border border-[#E6E8EB] rounded-xl py-2">Batal</button>
-                  <button type="submit" disabled={saving} className="flex-1 bg-[#FF5E7E] text-white rounded-xl py-2 font-black">{saving ? 'Menyimpan...' : 'Simpan'}</button>
+                  <button type="button" onClick={() => { if (!saving) { setShowModal(false); setForm({}); } }} className="flex-1 border border-[#E6E8EB] rounded-xl py-2">{t('common.cancel')}</button>
+                  <button type="submit" disabled={saving} className="flex-1 bg-[#FF5E7E] text-white rounded-xl py-2 font-black">{saving ? t('admin_pages.kategori.saving') : t('common.save')}</button>
                 </div>
               </form>
             </div>

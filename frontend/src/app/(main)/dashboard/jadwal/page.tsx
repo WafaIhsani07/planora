@@ -325,7 +325,7 @@ export default function PesananPage() {
                       <th className="px-10 py-6 text-center">{t('dashboard.recentOrders.table.package')}</th>
                       <th className="px-10 py-6 text-center min-w-[180px]">{t('dashboard.recentOrders.table.total')}</th>
                       <th className="px-10 py-6 text-center">{t('dashboard.recentOrders.table.status')}</th>
-                      <th className="px-10 py-6 text-center">Aksi</th>
+                      <th className="px-10 py-6 text-center">{t('common.action')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">

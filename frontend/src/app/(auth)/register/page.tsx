@@ -137,9 +137,17 @@ export default function RegisterPage() {
       setSuccessMessage("Registration successful!");
       setShowSuccessModal(true);
     } catch (error) {
-      const message = (error as { response?: { data?: { message?: string } } })
-        ?.response?.data?.message;
-      setErrorMessage(message ?? "Registration failed. Please try again.");
+      const errResponse = (error as any)?.response?.data;
+      let errMessage = errResponse?.message ?? "Registration failed. Please try again.";
+      
+      if (errResponse?.errors) {
+        const errorValues = Object.values(errResponse.errors).flat();
+        if (errorValues.length > 0) {
+          errMessage = errorValues.join(" ");
+        }
+      }
+      
+      setErrorMessage(errMessage);
 
       if (createdAccessToken) {
         try {

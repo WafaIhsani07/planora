@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import AdminHeader from '@/components/admin/AdminHeader';
 import { getPendingVendors, verifyVendor, rejectVendor } from '@/services/admin.service';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const DUMMY_VENDORS = [
     {
@@ -67,16 +68,17 @@ const TrashIcon = ({ className }: { className?: string }) => (
  
 
 export default function AdminVerifikasiVendorPage() {
+    const { t } = useLanguage();
     const [vendors, setVendors] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [processingId, setProcessingId] = useState<string | null>(null);
     const [useMock, setUseMock] = useState(false);
-    const [activeTab, setActiveTab] = useState<string>('Semua');
+    const [activeTab, setActiveTab] = useState<string>('all');
     const [selectedVendorId, setSelectedVendorId] = useState<string | null>(null);
     // pagination
     const [page, setPage] = useState<number>(1);
     const [perPage, setPerPage] = useState<number>(8);
-    const [categoryFilter, setCategoryFilter] = useState<string>('Semua');
+    const [categoryFilter, setCategoryFilter] = useState<string>('all');
     const [docViewer, setDocViewer] = useState<{ open: boolean; title?: string; url?: string | null }>({ open: false });
     const [searchQuery, setSearchQuery] = useState<string>('');
 
@@ -160,10 +162,10 @@ export default function AdminVerifikasiVendorPage() {
                     <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                         <div>
                             <span className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-[#A8A8A8]">
-                                PENYARINGAN KUALITAS MITRA
+                                {t('admin_pages.verifikasi.subtitle')}
                             </span>
                             <h1 className="text-4xl md:text-[2.75rem] leading-[1.05] font-black tracking-tighter text-[#2A2A2A] whitespace-nowrap">
-                                Verifikasi Vendor Baru
+                                {t('admin_pages.verifikasi.title')}
                             </h1>
                         </div>
 
@@ -176,22 +178,27 @@ export default function AdminVerifikasiVendorPage() {
                             <div className="flex items-center gap-2">
                                 {(() => {
                                     const counts = {
-                                        Semua: vendors.length,
-                                        Menunggu: vendors.filter(v => v.status === 'PENDING').length,
-                                        Dikonfirmasi: vendors.filter(v => v.status === 'VERIFIED').length,
-                                        Ditolak: vendors.filter(v => v.status === 'REJECTED').length,
+                                        all: vendors.length,
+                                        pending: vendors.filter(v => v.status === 'PENDING').length,
+                                        verified: vendors.filter(v => v.status === 'VERIFIED').length,
+                                        rejected: vendors.filter(v => v.status === 'REJECTED').length,
                                     } as Record<string, number>;
 
-                                    const tabs = ['Semua','Menunggu','Dikonfirmasi','Ditolak'];
+                                    const tabs = [
+                                        { id: 'all', label: t('admin_pages.verifikasi.tabs.all') },
+                                        { id: 'pending', label: t('admin_pages.verifikasi.tabs.pending') },
+                                        { id: 'verified', label: t('admin_pages.verifikasi.tabs.verified') },
+                                        { id: 'rejected', label: t('admin_pages.verifikasi.tabs.rejected') }
+                                    ];
                                     return tabs.map(tab => {
-                                        const key = tab;
-                                        const isActive = activeTab === tab;
-                                        const countKey = tab as keyof typeof counts;
+                                        const key = tab.id;
+                                        const isActive = activeTab === tab.id;
+                                        const countKey = tab.id as keyof typeof counts;
                                         return (
-                                            <button key={key} onClick={() => setActiveTab(tab)}
+                                            <button key={key} onClick={() => setActiveTab(tab.id)}
                                             className={`flex items-center gap-2 ${isActive ? 'bg-[#FF9A9E] text-white shadow-[0_8px_24px_-6px_rgba(255,94,126,0.24)]' : 'bg-white text-[#A8A8A8] border border-[#F4D7D4]'} rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all`}
                                             >
-                                                <span>{tab}</span>
+                                                <span>{tab.label}</span>
                                                 <span className={`${isActive ? 'bg-white text-[#FF527B]' : 'bg-[#F4F4F6] text-[#A8A8A8]'} w-5 h-5 flex items-center justify-center rounded-full text-[9px] font-bold`}>{counts[countKey] ?? 0}</span>
                                             </button>
                                         );
@@ -204,14 +211,14 @@ export default function AdminVerifikasiVendorPage() {
                         <div className="grid grid-cols-1 gap-3 lg:grid-cols-8">
                             <div className="lg:col-span-6 relative">
                                 <svg className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#C9B4AF]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 21l-4.35-4.35" /><circle cx="11" cy="11" r="7" /></svg>
-                                <input type="text" value={searchQuery} onChange={e => { setSearchQuery(e.target.value); setPage(1); }} placeholder="Cari vendor atau nama usaha..." className="w-full rounded-xl border border-[#F4D7D4] bg-white py-3 pl-11 pr-4 text-xs font-semibold text-[#2A2A2A] placeholder:text-[#C7B5B0] focus:border-[#FF9A9E] focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/10" />
+                                <input type="text" value={searchQuery} onChange={e => { setSearchQuery(e.target.value); setPage(1); }} placeholder={t('admin_pages.verifikasi.search')} className="w-full rounded-xl border border-[#F4D7D4] bg-white py-3 pl-11 pr-4 text-xs font-semibold text-[#2A2A2A] placeholder:text-[#C7B5B0] focus:border-[#FF9A9E] focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/10" />
                             </div>
                             <div className="lg:col-span-2 relative">
                                 {(() => {
                                     const categories = Array.from(new Set(vendors.map(v => v.category).filter(Boolean)));
                                     return (
                                         <select value={categoryFilter} onChange={e => { setCategoryFilter(e.target.value); setPage(1); }} className="w-full appearance-none rounded-xl border border-[#F4D7D4] bg-white py-3 px-4 pr-10 text-xs font-semibold focus:border-[#FF9A9E] focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/10">
-                                            <option value="Semua">Semua Kategori</option>
+                                            <option value="all">{t('admin_pages.verifikasi.all_categories')}</option>
                                             {categories.map(c => <option key={c} value={c}>{c}</option>)}
                                         </select>
                                     );
@@ -226,27 +233,27 @@ export default function AdminVerifikasiVendorPage() {
                                     <table className="w-full border-collapse text-left">
                                         <thead>
                                             <tr className="border-b border-[#F4D7D4]/60 bg-[#FAFAFC] text-[10px] font-black uppercase tracking-widest text-[#A8A8A8]">
-                                                <th className="px-6 py-5">Vendor</th>
-                                                <th className="px-6 py-5">Nama Usaha</th>
-                                                <th className="px-6 py-5">Kategori</th>
-                                                <th className="px-6 py-5">Tanggal Daftar</th>
+                                                <th className="px-6 py-5">{t('admin_pages.verifikasi.table.vendor')}</th>
+                                                <th className="px-6 py-5">{t('admin_pages.verifikasi.table.business')}</th>
+                                                <th className="px-6 py-5">{t('admin_pages.verifikasi.table.category')}</th>
+                                                <th className="px-6 py-5">{t('admin_pages.verifikasi.table.date')}</th>
                                                 {/* Kontak column removed per design */}
-                                                <th className="px-6 py-5 text-center">Status</th>
+                                                <th className="px-6 py-5 text-center">{t('admin_pages.verifikasi.table.status')}</th>
                                                 <th className="px-6 py-5 text-center align-middle">
-                                                    <span className="block w-full text-center">Aksi</span>
+                                                    <span className="block w-full text-center">{t('admin_pages.verifikasi.table.action')}</span>
                                                 </th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-[#F4D7D4]/50">
                                             {(() => {
                                                 const filtered = vendors.filter(v => {
-                                                    if (activeTab === 'Semua') {
+                                                    if (activeTab === 'all') {
                                                         // ok
-                                                    } else if (activeTab === 'Menunggu' && v.status !== 'PENDING') return false;
-                                                    else if (activeTab === 'Dikonfirmasi' && v.status !== 'VERIFIED') return false;
-                                                    else if (activeTab === 'Ditolak' && v.status !== 'REJECTED') return false;
+                                                    } else if (activeTab === 'pending' && v.status !== 'PENDING') return false;
+                                                    else if (activeTab === 'verified' && v.status !== 'VERIFIED') return false;
+                                                    else if (activeTab === 'rejected' && v.status !== 'REJECTED') return false;
 
-                                                    if (categoryFilter && categoryFilter !== 'Semua' && v.category !== categoryFilter) return false;
+                                                    if (categoryFilter && categoryFilter !== 'all' && v.category !== categoryFilter) return false;
 
                                                     if (searchQuery && searchQuery.trim().length > 0) {
                                                         const q = searchQuery.trim().toLowerCase();
@@ -284,11 +291,11 @@ export default function AdminVerifikasiVendorPage() {
                                                         <td className="px-6 py-5"><p className="text-xs font-black text-[#2A2A2A]">{date}</p></td>
                                                         {/* contact column removed */}
                                                         <td className="px-6 py-5 text-center">
-                                                            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider ${badgeClass}`}>{v.status === 'PENDING' ? 'Menunggu' : v.status === 'VERIFIED' ? 'Terverifikasi' : 'Ditolak'}</span>
+                                                            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider ${badgeClass}`}>{v.status === 'PENDING' ? t('admin_pages.verifikasi.status_pending') : v.status === 'VERIFIED' ? t('admin_pages.verifikasi.status_verified') : t('admin_pages.verifikasi.status_rejected')}</span>
                                                         </td>
                                                         <td className="px-6 py-5 text-right">
                                                             <div className="flex justify-end gap-2" onClick={e => e.stopPropagation()}>
-                                                                <button onClick={() => setSelectedVendorId(v.id)} className="px-3 py-2 bg-white border border-[#F4D7D4] rounded-lg text-[11px] font-black tracking-widest shadow-sm normal-case">Lihat detail</button>
+                                                                <button onClick={() => setSelectedVendorId(v.id)} className="px-3 py-2 bg-white border border-[#F4D7D4] rounded-lg text-[11px] font-black tracking-widest shadow-sm normal-case">{t('common.view_detail')}</button>
                                                             </div>
                                                         </td>
                                                     </tr>
@@ -302,26 +309,26 @@ export default function AdminVerifikasiVendorPage() {
                                     {/* left: range text */}
                                     <span className="text-xs font-bold text-[#A8A8A8]">{(() => {
                                         const filtered = vendors.filter(v => {
-                                            if (activeTab === 'Semua') return true;
-                                            if (activeTab === 'Menunggu') return v.status === 'PENDING';
-                                            if (activeTab === 'Dikonfirmasi') return v.status === 'VERIFIED';
-                                            if (activeTab === 'Ditolak') return v.status === 'REJECTED';
+                                            if (activeTab === 'all') return true;
+                                            if (activeTab === 'pending') return v.status === 'PENDING';
+                                            if (activeTab === 'verified') return v.status === 'VERIFIED';
+                                            if (activeTab === 'rejected') return v.status === 'REJECTED';
                                             return true;
                                         });
                                         const total = filtered.length;
                                         const startIndex = total === 0 ? 0 : (page - 1) * perPage + 1;
                                         const endIndex = Math.min(page * perPage, total);
-                                        return `Menampilkan ${startIndex} - ${endIndex} dari ${total} data`;
+                                        return t('common.showing_data').replace('{start}', startIndex.toString()).replace('{end}', endIndex.toString()).replace('{total}', total.toString());
                                     })()}</span>
 
                                     {/* center: pagination controls */}
                                     <div className="flex items-center gap-2">
                                         {(() => {
                                             const filtered = vendors.filter(v => {
-                                                if (activeTab === 'Semua') return true;
-                                                if (activeTab === 'Menunggu') return v.status === 'PENDING';
-                                                if (activeTab === 'Dikonfirmasi') return v.status === 'VERIFIED';
-                                                if (activeTab === 'Ditolak') return v.status === 'REJECTED';
+                                                if (activeTab === 'all') return true;
+                                                if (activeTab === 'pending') return v.status === 'PENDING';
+                                                if (activeTab === 'verified') return v.status === 'VERIFIED';
+                                                if (activeTab === 'rejected') return v.status === 'REJECTED';
                                                 return true;
                                             });
                                             const total = filtered.length;
@@ -358,9 +365,9 @@ export default function AdminVerifikasiVendorPage() {
                                     {/* right: per-page select */}
                                     <div className="relative">
                                         <select value={perPage} onChange={e => { setPerPage(Number(e.target.value)); setPage(1); }} className="appearance-none rounded-xl border border-[#F4D7D4] bg-white py-2 px-4 pr-10 text-xs font-semibold text-[#A8A8A8] focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/10">
-                                            <option value={8}>8 / halaman</option>
-                                            <option value={10}>10 / halaman</option>
-                                            <option value={20}>20 / halaman</option>
+                                            <option value={8}>{t('common.per_page').replace('{count}', '8')}</option>
+                                            <option value={10}>{t('common.per_page').replace('{count}', '10')}</option>
+                                            <option value={20}>{t('common.per_page').replace('{count}', '20')}</option>
                                         </select>
                                     </div>
                                 </div>
@@ -368,7 +375,7 @@ export default function AdminVerifikasiVendorPage() {
 
                             <div id="vendor-details-panel" className={`overflow-hidden rounded-2xl border border-[#F4D7D4] bg-white shadow-[0_10px_30px_-5px_rgba(0,0,0,0.02)] ${selectedVendorId ? 'block lg:col-span-4' : 'hidden'}`}>
                                 <div className="flex items-center justify-between border-b border-[#F4D7D4]/50 p-6">
-                                    <h4 className="text-sm font-black uppercase tracking-wider text-[#2A2A2A]">Detail Vendor</h4>
+                                    <h4 className="text-sm font-black uppercase tracking-wider text-[#2A2A2A]">{t('admin_pages.verifikasi.vendor_details')}</h4>
                                     <button onClick={() => setSelectedVendorId(null)} className="text-[#D8C2BD] transition-colors hover:text-[#2A2A2A]">
                                         <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12" /></svg>
                                     </button>
@@ -377,8 +384,8 @@ export default function AdminVerifikasiVendorPage() {
                                 <div id="vendor-details-content" className="space-y-6 p-6">
                                     {selectedVendorId ? (() => {
                                         const v = vendors.find(x => x.id === selectedVendorId);
-                                        if (!v) return <div>Data vendor tidak ditemukan.</div>;
-                                        const statusBadge = v.status === 'PENDING' ? <span className="bg-orange-50 text-orange-600 text-[10px] font-black px-3 py-1 rounded-full border border-orange-100 uppercase">Menunggu Verifikasi</span> : v.status === 'VERIFIED' ? <span className="bg-emerald-50 text-emerald-600 text-[10px] font-black px-3 py-1 rounded-full border border-emerald-100 uppercase">Terverifikasi</span> : <span className="bg-red-50 text-red-600 text-[10px] font-black px-3 py-1 rounded-full border border-red-100 uppercase">Ditolak</span>;
+                                        if (!v) return <div>{t('common.error')}</div>;
+                                        const statusBadge = v.status === 'PENDING' ? <span className="bg-orange-50 text-orange-600 text-[10px] font-black px-3 py-1 rounded-full border border-orange-100 uppercase">{t('admin_pages.verifikasi.status_pending')}</span> : v.status === 'VERIFIED' ? <span className="bg-emerald-50 text-emerald-600 text-[10px] font-black px-3 py-1 rounded-full border border-emerald-100 uppercase">{t('admin_pages.verifikasi.status_verified')}</span> : <span className="bg-red-50 text-red-600 text-[10px] font-black px-3 py-1 rounded-full border border-red-100 uppercase">{t('admin_pages.verifikasi.status_rejected')}</span>;
                                         return (
                                             <>
                                                 <div className="flex items-center gap-4">
@@ -391,53 +398,53 @@ export default function AdminVerifikasiVendorPage() {
                                                 </div>
 
                                                 <div className="space-y-4 pt-6 border-t border-[#F4D7D4]/50">
-                                                    <h5 className="text-[11px] font-black text-[#A8A8A8] uppercase tracking-widest">Informasi Usaha</h5>
+                                                    <h5 className="text-[11px] font-black text-[#A8A8A8] uppercase tracking-widest">{t('admin_pages.verifikasi.business_info')}</h5>
                                                     <div className="space-y-3">
                                                         <div className="grid grid-cols-[110px_1fr] gap-4 text-xs">
-                                                            <span className="font-bold text-[#A8A8A8]">Nama Usaha</span>
+                                                            <span className="font-bold text-[#A8A8A8]">{t('admin_pages.verifikasi.table.business')}</span>
                                                             <span className="text-left font-black text-[#2A2A2A]">{v.businessName}</span>
                                                         </div>
                                                         <div className="grid grid-cols-[110px_1fr] gap-4 text-xs">
-                                                            <span className="font-bold text-[#A8A8A8]">Kategori</span>
+                                                            <span className="font-bold text-[#A8A8A8]">{t('admin_pages.verifikasi.table.category')}</span>
                                                             <span className="text-left font-black text-[#2A2A2A]">{v.category ?? '-'}</span>
                                                         </div>
                                                         <div className="grid grid-cols-[110px_1fr] gap-4 text-xs">
-                                                            <span className="font-bold text-[#A8A8A8]">Alamat</span>
-                                                            <span className="text-left font-bold leading-relaxed text-[#2A2A2A]">{[v.city, v.province].filter(Boolean).join(', ') || 'LOKASI BELUM DIATUR'}</span>
+                                                            <span className="font-bold text-[#A8A8A8]">{t('admin_pages.verifikasi.address')}</span>
+                                                            <span className="text-left font-bold leading-relaxed text-[#2A2A2A]">{[v.city, v.province].filter(Boolean).join(', ') || t('common.not_set')}</span>
                                                         </div>
                                                         <div className="grid grid-cols-[110px_1fr] gap-4 text-xs">
-                                                            <span className="font-bold text-[#A8A8A8]">No. Telepon</span>
+                                                            <span className="font-bold text-[#A8A8A8]">{t('admin_pages.verifikasi.phone')}</span>
                                                             <span className="text-left font-black text-[#2A2A2A]">{v.phone ?? '-'}</span>
                                                         </div>
                                                         <div className="grid grid-cols-[110px_1fr] gap-4 text-xs">
-                                                            <span className="font-bold text-[#A8A8A8]">Email</span>
+                                                            <span className="font-bold text-[#A8A8A8]">{t('admin_pages.verifikasi.email')}</span>
                                                             <span className="min-w-0 text-left font-black text-[#2A2A2A] break-words">{v.user?.email ?? '-'}</span>
                                                         </div>
                                                         <div className="space-y-1.5 pt-2">
-                                                            <p className="font-bold text-[#A8A8A8] text-xs">Deskripsi</p>
+                                                            <p className="font-bold text-[#A8A8A8] text-xs">{t('admin_pages.verifikasi.description')}</p>
                                                             <p className="text-xs font-medium text-[#6B6B6B] leading-relaxed">{v.description ?? '-'}</p>
                                                         </div>
                                                     </div>
                                                 </div>
 
                                                 <div className="space-y-3 pt-6 border-t border-[#F4D7D4]/50">
-                                                    <h5 className="text-[11px] font-black text-[#A8A8A8] uppercase tracking-widest">Dokumen Pendukung</h5>
+                                                    <h5 className="text-[11px] font-black text-[#A8A8A8] uppercase tracking-widest">{t('admin_pages.verifikasi.documents')}</h5>
                                                     <div className="space-y-2">
                                                         <div className="flex items-center justify-between p-3 bg-[#FAFAFC] rounded-xl border border-[#F4F4F5]">
                                                             <div className="flex items-center gap-3">
                                                                 <svg className="w-5 h-5 text-[#6B6B6B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="5" width="18" height="14" rx="2" /></svg>
-                                                                <span className="text-xs font-bold text-[#6B6B6B]">KTP</span>
+                                                                <span className="text-xs font-bold text-[#6B6B6B]">{t('admin_pages.verifikasi.ktp')}</span>
                                                             </div>
                                                             <div className="flex items-center gap-2">
                                                                 {v.ktpUrl ? (
                                                                     <>
-                                                                        <span className="bg-emerald-50 text-emerald-600 text-[8px] font-black px-2 py-0.5 rounded uppercase border border-emerald-100">Diunggah</span>
+                                                                        <span className="bg-emerald-50 text-emerald-600 text-[8px] font-black px-2 py-0.5 rounded uppercase border border-emerald-100">{t('admin_pages.verifikasi.uploaded')}</span>
                                                                         <button aria-label="Preview KTP" onClick={() => setDocViewer({ open: true, title: 'KTP', url: v.ktpUrl! })} className="text-[#6B6B6B] hover:text-[#2A2A2A]">
                                                                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
                                                                         </button>
                                                                     </>
                                                                 ) : (
-                                                                    <span className="bg-slate-100 text-slate-500 text-[8px] font-black px-2 py-0.5 rounded uppercase border border-slate-200">Belum Diunggah</span>
+                                                                    <span className="bg-slate-100 text-slate-500 text-[8px] font-black px-2 py-0.5 rounded uppercase border border-slate-200">{t('admin_pages.verifikasi.not_uploaded')}</span>
                                                                 )}
                                                             </div>
                                                         </div>
@@ -445,18 +452,18 @@ export default function AdminVerifikasiVendorPage() {
                                                         <div className="flex items-center justify-between p-3 bg-[#FAFAFC] rounded-xl border border-[#F4F4F5]">
                                                             <div className="flex items-center gap-3">
                                                                 <svg className="w-5 h-5 text-[#6B6B6B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 10h18" /><path d="M7 6v12" /></svg>
-                                                                <span className="text-xs font-bold text-[#6B6B6B]">Rekening Bank</span>
+                                                                <span className="text-xs font-bold text-[#6B6B6B]">{t('admin_pages.verifikasi.bank')}</span>
                                                             </div>
                                                             <div className="flex items-center gap-2">
                                                                 {v.bankBookUrl ? (
                                                                     <>
-                                                                        <span className="bg-emerald-50 text-emerald-600 text-[8px] font-black px-2 py-0.5 rounded uppercase border border-emerald-100">Diunggah</span>
+                                                                        <span className="bg-emerald-50 text-emerald-600 text-[8px] font-black px-2 py-0.5 rounded uppercase border border-emerald-100">{t('admin_pages.verifikasi.uploaded')}</span>
                                                                         <button aria-label="Preview Rekening Bank" onClick={() => setDocViewer({ open: true, title: 'Rekening Bank', url: v.bankBookUrl! })} className="text-[#6B6B6B] hover:text-[#2A2A2A]">
                                                                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
                                                                         </button>
                                                                     </>
                                                                 ) : (
-                                                                    <span className="bg-slate-100 text-slate-500 text-[8px] font-black px-2 py-0.5 rounded uppercase border border-slate-200">Belum Diunggah</span>
+                                                                    <span className="bg-slate-100 text-slate-500 text-[8px] font-black px-2 py-0.5 rounded uppercase border border-slate-200">{t('admin_pages.verifikasi.not_uploaded')}</span>
                                                                 )}
                                                             </div>
                                                         </div>
@@ -464,18 +471,18 @@ export default function AdminVerifikasiVendorPage() {
                                                         <div className="flex items-center justify-between p-3 bg-[#FAFAFC] rounded-xl border border-[#F4F4F5]">
                                                             <div className="flex items-center gap-3">
                                                                 <svg className="w-5 h-5 text-[#6B6B6B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></svg>
-                                                                <span className="text-xs font-bold text-[#6B6B6B]">Surat Izin Usaha</span>
+                                                                <span className="text-xs font-bold text-[#6B6B6B]">{t('admin_pages.verifikasi.license')}</span>
                                                             </div>
                                                             <div className="flex items-center gap-2">
                                                                 {v.businessLicenseUrl ? (
                                                                     <>
-                                                                        <span className="bg-emerald-50 text-emerald-600 text-[8px] font-black px-2 py-0.5 rounded uppercase border border-emerald-100">Diunggah</span>
+                                                                        <span className="bg-emerald-50 text-emerald-600 text-[8px] font-black px-2 py-0.5 rounded uppercase border border-emerald-100">{t('admin_pages.verifikasi.uploaded')}</span>
                                                                         <button aria-label="Preview Surat Izin Usaha" onClick={() => setDocViewer({ open: true, title: 'Surat Izin Usaha', url: v.businessLicenseUrl! })} className="text-[#6B6B6B] hover:text-[#2A2A2A]">
                                                                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
                                                                         </button>
                                                                     </>
                                                                 ) : (
-                                                                    <span className="bg-slate-100 text-slate-500 text-[8px] font-black px-2 py-0.5 rounded uppercase border border-slate-200">Belum Diunggah</span>
+                                                                    <span className="bg-slate-100 text-slate-500 text-[8px] font-black px-2 py-0.5 rounded uppercase border border-slate-200">{t('admin_pages.verifikasi.not_uploaded')}</span>
                                                                 )}
                                                             </div>
                                                         </div>
@@ -483,10 +490,10 @@ export default function AdminVerifikasiVendorPage() {
                                                         <div className="flex items-center justify-between p-3 bg-[#FAFAFC] rounded-xl border border-[#F4F4F5]">
                                                             <div className="flex items-center gap-3">
                                                                 <svg className="w-5 h-5 text-[#6B6B6B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 4v16" /><path d="M6 8h12" /></svg>
-                                                                <span className="text-xs font-bold text-[#6B6B6B]">Portofolio</span>
+                                                                <span className="text-xs font-bold text-[#6B6B6B]">{t('admin_pages.verifikasi.portfolio')}</span>
                                                             </div>
                                                             <div className="flex items-center gap-2">
-                                                                <span className="bg-emerald-50 text-emerald-600 text-[8px] font-black px-2 py-0.5 rounded uppercase border border-emerald-100 text-[10px]">Lihat</span>
+                                                                <span className="bg-emerald-50 text-emerald-600 text-[8px] font-black px-2 py-0.5 rounded uppercase border border-emerald-100 text-[10px]">{t('common.view_detail')}</span>
                                                                 <button aria-label="Preview Portofolio" onClick={() => setDocViewer({ open: true, title: 'Portofolio', url: 'https://via.placeholder.com/900x600?text=Portofolio' })} className="text-[#6B6B6B] hover:text-[#2A2A2A]">
                                                                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
                                                                 </button>
@@ -496,8 +503,8 @@ export default function AdminVerifikasiVendorPage() {
                                                 </div>
 
                                                 <div className="flex gap-4 pt-6 border-t border-[#F4D7D4]/50">
-                                                    <button onClick={() => { if (selectedVendorId) handleReject(selectedVendorId); }} className="flex-1 border border-red-200 hover:bg-red-50 text-red-500 py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest">Tolak</button>
-                                                    <button onClick={() => { if (selectedVendorId) handleVerify(selectedVendorId); }} className="flex-1 bg-[#10B981] hover:bg-[#059669] text-white py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest">Verifikasi</button>
+                                                    <button onClick={() => { if (selectedVendorId) handleReject(selectedVendorId); }} className="flex-1 border border-red-200 hover:bg-red-50 text-red-500 py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest">{t('admin_pages.verifikasi.btn_reject')}</button>
+                                                    <button onClick={() => { if (selectedVendorId) handleVerify(selectedVendorId); }} className="flex-1 bg-[#10B981] hover:bg-[#059669] text-white py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest">{t('admin_pages.verifikasi.btn_verify')}</button>
                                                 </div>
                                             </>
                                         );
@@ -522,7 +529,7 @@ export default function AdminVerifikasiVendorPage() {
                                                 // eslint-disable-next-line @next/next/no-img-element
                                                 <img src={docViewer.url} alt={docViewer.title} className="max-h-full max-w-full object-contain rounded-md" />
                                             ) : (
-                                                <div className="text-sm text-[#6B6B6B]">Preview tidak tersedia.</div>
+                                                <div className="text-sm text-[#6B6B6B]">{t('admin_pages.verifikasi.preview')}</div>
                                             )}
                                         </div>
                                     </div>

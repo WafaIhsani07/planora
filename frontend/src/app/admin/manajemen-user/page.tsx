@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import AdminHeader from '@/components/admin/AdminHeader';
 import StatusBadge from '@/components/admin/StatusBadge';
 import { getAllUsers, getUserById, updateUserStatus } from '@/services/admin.service';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const EyeIcon = ({ className }: { className?: string }) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
@@ -16,7 +17,8 @@ const BanIcon = ({ className }: { className?: string }) => (
 );
 
 export default function AdminManajemenUserPage() {
-    const [activeTab, setActiveTab] = useState<'semua' | 'pelanggan' | 'vendor'>('semua');
+    const { t } = useLanguage();
+    const [activeTab, setActiveTab] = useState<'all' | 'customer' | 'vendor'>('all');
     const [allUsers, setAllUsers] = useState<any[]>([]);
     const [stats, setStats] = useState({ totalCustomer: 0, totalVendor: 0 });
     const [isLoading, setIsLoading] = useState(true);
@@ -60,7 +62,7 @@ export default function AdminManajemenUserPage() {
         const query = searchQuery.trim().toLowerCase();
 
         return allUsers.filter((user: any) => {
-            if (activeTab === 'pelanggan' && user.role !== 'CUSTOMER') return false;
+            if (activeTab === 'customer' && user.role !== 'CUSTOMER') return false;
             if (activeTab === 'vendor' && user.role !== 'VENDOR') return false;
 
             if (!query) return true;
@@ -123,17 +125,17 @@ export default function AdminManajemenUserPage() {
                 <div className="max-w-[1300px] mx-auto">
                     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 mb-6">
                         <div>
-                            <span className="text-[10px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase mb-2 block">AUDIT & PENGAWASAN PENGGUNA</span>
-                            <h1 className="text-3xl md:text-4xl font-black text-[#2A2A2A]">Manajemen Pengguna Sistem</h1>
+                            <span className="text-[10px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase mb-2 block">{t('admin_pages.manajemen_user.subtitle')}</span>
+                            <h1 className="text-3xl md:text-4xl font-black text-[#2A2A2A]">{t('admin_pages.manajemen_user.title')}</h1>
                         </div>
 
                         <div className="flex items-center bg-white rounded-full px-8 py-2 border border-gray-100 shadow-sm h-14">
                             <div className="flex flex-col items-center justify-center pr-8 border-r border-gray-100">
-                                <span className="text-[8px] font-bold tracking-widest text-[#A8A8A8] uppercase">TOTAL PELANGGAN</span>
+                                <span className="text-[8px] font-bold tracking-widest text-[#A8A8A8] uppercase">{t('admin_pages.manajemen_user.total_customer')}</span>
                                 <span className="text-base font-black text-[#2A2A2A] leading-none mt-1">{stats.totalCustomer}</span>
                             </div>
                             <div className="flex flex-col items-center justify-center pl-8">
-                                <span className="text-[8px] font-bold tracking-widest text-[#A8A8A8] uppercase">TOTAL VENDOR</span>
+                                <span className="text-[8px] font-bold tracking-widest text-[#A8A8A8] uppercase">{t('admin_pages.manajemen_user.total_vendor')}</span>
                                 <span className="text-base font-black text-[#2A2A2A] leading-none mt-1">{stats.totalVendor}</span>
                             </div>
                         </div>
@@ -144,20 +146,24 @@ export default function AdminManajemenUserPage() {
                         <div className="flex items-center gap-3">
                             {(() => {
                                 const counts = {
-                                    Semua: allUsers.length,
-                                    Pelanggan: allUsers.filter(u => u.role === 'CUSTOMER').length,
-                                    Vendor: allUsers.filter(u => u.role === 'VENDOR').length,
+                                    all: allUsers.length,
+                                    customer: allUsers.filter(u => u.role === 'CUSTOMER').length,
+                                    vendor: allUsers.filter(u => u.role === 'VENDOR').length,
                                 } as Record<string, number>;
-                                const tabs = ['Semua','Pelanggan','Vendor'];
+                                const tabs = [
+                                    { id: 'all', label: t('admin_pages.manajemen_user.tabs.all') },
+                                    { id: 'customer', label: t('admin_pages.manajemen_user.tabs.customer') },
+                                    { id: 'vendor', label: t('admin_pages.manajemen_user.tabs.vendor') }
+                                ];
                                 return tabs.map(tab => {
-                                    const key = tab;
-                                    const isActive = (activeTab === 'semua' && tab === 'Semua') || (activeTab === 'pelanggan' && tab === 'Pelanggan') || (activeTab === 'vendor' && tab === 'Vendor');
-                                    const countKey = tab as keyof typeof counts;
+                                    const key = tab.id;
+                                    const isActive = activeTab === tab.id;
+                                    const countKey = tab.id as keyof typeof counts;
                                     return (
-                                        <button key={key} onClick={() => setActiveTab(tab.toLowerCase() as any)}
+                                        <button key={key} onClick={() => setActiveTab(tab.id as any)}
                                             className={`flex items-center gap-2 ${isActive ? 'bg-[#FF9A9E] text-white shadow-[0_8px_24px_-6px_rgba(255,94,126,0.24)]' : 'bg-white text-[#A8A8A8] border border-[#F4D7D4]'} rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all`}
                                         >
-                                            <span>{tab}</span>
+                                            <span>{tab.label}</span>
                                             <span className={`${isActive ? 'bg-white text-[#FF527B]' : 'bg-[#F4F4F6] text-[#A8A8A8]'} w-5 h-5 flex items-center justify-center rounded-full text-[9px] font-bold`}>{counts[countKey] ?? 0}</span>
                                         </button>
                                     );
@@ -173,7 +179,7 @@ export default function AdminManajemenUserPage() {
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="Cari nama atau email user..."
+                                placeholder={t('admin_pages.manajemen_user.search')}
                                 aria-label="Cari nama atau email user"
                                 className="w-full rounded-xl border border-[#F4D7D4] bg-white/80 py-2 pl-10 pr-3 text-sm font-semibold text-[#2A2A2A] placeholder-[#D8A7A0] transition-all focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/15"
                             />
@@ -191,10 +197,10 @@ export default function AdminManajemenUserPage() {
                                 <table className="w-full border-collapse text-left">
                                     <thead>
                                         <tr className="border-b border-[#F4D7D4]/60 bg-[#FAFAFC] text-[10px] font-black uppercase tracking-widest text-[#A8A8A8]">
-                                            <th className="px-6 py-5">DETAIL IDENTITAS</th>
-                                            <th className="px-6 py-5 text-center">TIPE PERAN</th>
-                                            <th className="px-6 py-5 text-center">TANGGAL JOIN</th>
-                                            <th className="px-6 py-5 text-center align-middle">Aksi</th>
+                                            <th className="px-6 py-5">{t('admin_pages.manajemen_user.table.identity')}</th>
+                                            <th className="px-6 py-5 text-center">{t('admin_pages.manajemen_user.table.role')}</th>
+                                            <th className="px-6 py-5 text-center">{t('admin_pages.manajemen_user.table.joined')}</th>
+                                            <th className="px-6 py-5 text-center align-middle">{t('admin_pages.manajemen_user.table.action')}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-[#F4D7D4]/50">
@@ -226,11 +232,11 @@ export default function AdminManajemenUserPage() {
                                                         <div className="flex justify-center gap-2">
                                                             <button type="button" onClick={() => handleOpenDetail(user)} aria-label="Detail user" className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-100 bg-[#FAFAFC] px-3 text-xs font-bold text-gray-500 transition-colors hover:bg-gray-100 hover:text-[#2A2A2A] disabled:cursor-not-allowed disabled:opacity-50" disabled={detailLoadingId === user.id}>
                                                                 <EyeIcon className="w-4 h-4" />
-                                                                <span>{detailLoadingId === user.id ? 'Membuka...' : 'Detail'}</span>
+                                                                <span>{detailLoadingId === user.id ? t('admin_pages.manajemen_user.opening') : t('common.view_detail')}</span>
                                                             </button>
                                                             <button type="button" onClick={() => handleDisableUser(user)} disabled={actionLoadingId === user.id} aria-label={user.isActive === false ? 'Aktifkan user' : 'Nonaktifkan user'} className={`inline-flex h-9 items-center gap-2 rounded-lg px-3 text-xs font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${user.isActive === false ? 'border border-emerald-50 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700' : 'border border-red-50 bg-[#FDF1F0] text-red-400 hover:bg-red-50 hover:text-red-500'}`}>
                                                                 <BanIcon className="w-4 h-4" />
-                                                                <span>{actionLoadingId === user.id ? 'Memproses...' : user.isActive === false ? 'Aktifkan' : 'Nonaktifkan'}</span>
+                                                                <span>{actionLoadingId === user.id ? t('admin_pages.manajemen_user.processing') : user.isActive === false ? t('admin_pages.manajemen_user.btn_activate') : t('admin_pages.manajemen_user.btn_deactivate')}</span>
                                                             </button>
                                                         </div>
                                                     </td>
@@ -244,7 +250,7 @@ export default function AdminManajemenUserPage() {
 
                         <div className="flex flex-col gap-4 border-t border-[#F4D7D4]/50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                             <div className="text-sm font-semibold text-[#A8A8A8]">
-                                Menampilkan {startIndex} - {endIndex} dari {total} data
+                                {t('common.showing_data').replace('{start}', startIndex.toString()).replace('{end}', endIndex.toString()).replace('{total}', total.toString())}
                             </div>
 
                             <div className="flex items-center justify-center gap-2">
@@ -286,9 +292,9 @@ export default function AdminManajemenUserPage() {
                                     onChange={(e) => setPerPage(Number(e.target.value))}
                                     className="appearance-none rounded-xl border border-[#E6E8EB] bg-white px-4 py-2 pr-10 text-sm font-semibold text-[#2A2A2A] focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/15"
                                 >
-                                    <option value={10}>10 / halaman</option>
-                                    <option value={20}>20 / halaman</option>
-                                    <option value={30}>30 / halaman</option>
+                                    <option value={10}>{t('common.per_page').replace('{count}', '10')}</option>
+                                    <option value={20}>{t('common.per_page').replace('{count}', '20')}</option>
+                                    <option value={30}>{t('common.per_page').replace('{count}', '30')}</option>
                                 </select>
                                 <svg className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A8A8A8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6" /></svg>
                             </div>
@@ -298,7 +304,7 @@ export default function AdminManajemenUserPage() {
                             <div className="fixed inset-y-0 right-0 z-40 flex w-full max-w-[420px] flex-col border-l border-[#F4D7D4] bg-white shadow-[-20px_0_50px_-20px_rgba(0,0,0,0.18)]">
                                 <div className="flex items-center justify-between border-b border-[#F4D7D4]/60 px-6 py-5">
                                     <div>
-                                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#A8A8A8]">Detail User</p>
+                                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#A8A8A8]">{t('admin_pages.manajemen_user.user_detail')}</p>
                                         <h3 className="mt-1 text-lg font-black text-[#2A2A2A]">{selectedUser.name || selectedUser.email}</h3>
                                     </div>
                                     <button type="button" onClick={() => setSelectedUser(null)} className="text-[#A8A8A8] transition-colors hover:text-[#2A2A2A]" aria-label="Tutup detail user">
@@ -326,36 +332,36 @@ export default function AdminManajemenUserPage() {
                                             <span className="break-words font-black text-[#2A2A2A]">{selectedUser.email}</span>
                                         </div>
                                         <div className="grid grid-cols-[110px_1fr] gap-4 text-xs">
-                                            <span className="font-bold text-[#A8A8A8]">No. Telepon</span>
+                                            <span className="font-bold text-[#A8A8A8]">{t('admin_pages.manajemen_user.phone')}</span>
                                             <span className="font-black text-[#2A2A2A]">{selectedUser.phone || '-'}</span>
                                         </div>
                                         <div className="grid grid-cols-[110px_1fr] gap-4 text-xs">
                                             <span className="font-bold text-[#A8A8A8]">Status</span>
-                                            <span className="font-black text-[#2A2A2A]">{selectedUser.isActive === false ? 'Nonaktif' : 'Aktif'}</span>
+                                            <span className="font-black text-[#2A2A2A]">{selectedUser.isActive === false ? t('admin_pages.manajemen_user.status_inactive') : t('admin_pages.manajemen_user.status_active')}</span>
                                         </div>
                                         <div className="grid grid-cols-[110px_1fr] gap-4 text-xs">
-                                            <span className="font-bold text-[#A8A8A8]">Bergabung</span>
+                                            <span className="font-bold text-[#A8A8A8]">{t('admin_pages.manajemen_user.table.joined')}</span>
                                             <span className="font-black text-[#2A2A2A]">{new Date(selectedUser.createdAt).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
                                         </div>
                                     </div>
 
                                     {selectedUser.vendor ? (
                                         <div className="space-y-3 border-t border-[#F4D7D4]/60 pt-5">
-                                            <h4 className="text-[11px] font-black uppercase tracking-widest text-[#A8A8A8]">Data Vendor</h4>
+                                            <h4 className="text-[11px] font-black uppercase tracking-widest text-[#A8A8A8]">{t('admin_pages.manajemen_user.vendor_data')}</h4>
                                             <div className="grid grid-cols-[110px_1fr] gap-4 text-xs">
-                                                <span className="font-bold text-[#A8A8A8]">Nama Usaha</span>
+                                                <span className="font-bold text-[#A8A8A8]">{t('admin_pages.manajemen_user.business_name')}</span>
                                                 <span className="font-black text-[#2A2A2A]">{selectedUser.vendor.businessName || '-'}</span>
                                             </div>
                                             <div className="grid grid-cols-[110px_1fr] gap-4 text-xs">
-                                                <span className="font-bold text-[#A8A8A8]">Kota</span>
+                                                <span className="font-bold text-[#A8A8A8]">{t('admin_pages.manajemen_user.city')}</span>
                                                 <span className="font-black text-[#2A2A2A]">{selectedUser.vendor.city || '-'}</span>
                                             </div>
                                             <div className="grid grid-cols-[110px_1fr] gap-4 text-xs">
-                                                <span className="font-bold text-[#A8A8A8]">Provinsi</span>
+                                                <span className="font-bold text-[#A8A8A8]">{t('admin_pages.manajemen_user.province')}</span>
                                                 <span className="font-black text-[#2A2A2A]">{selectedUser.vendor.province || '-'}</span>
                                             </div>
                                             <div className="grid grid-cols-[110px_1fr] gap-4 text-xs">
-                                                <span className="font-bold text-[#A8A8A8]">Status Vendor</span>
+                                                <span className="font-bold text-[#A8A8A8]">{t('admin_pages.manajemen_user.vendor_status')}</span>
                                                 <span className="font-black text-[#2A2A2A]">{selectedUser.vendor.status || '-'}</span>
                                             </div>
                                             {'_count' in selectedUser ? (
@@ -385,9 +391,9 @@ export default function AdminManajemenUserPage() {
                                     onClick={() => setPendingDisableUser(null)}
                                 />
                                 <div className="relative w-full max-w-md rounded-2xl border border-[#F4D7D4] bg-white p-6 shadow-2xl">
-                                    <h3 className="text-lg font-black text-[#2A2A2A]">{pendingDisableUser.isActive === false ? 'Aktifkan user?' : 'Nonaktifkan user?'}</h3>
+                                    <h3 className="text-lg font-black text-[#2A2A2A]">{pendingDisableUser.isActive === false ? t('admin_pages.manajemen_user.btn_activate') + ' user?' : t('admin_pages.manajemen_user.btn_deactivate') + ' user?'}</h3>
                                     <p className="mt-2 text-sm text-[#6B6B6B]">
-                                        {pendingDisableUser.isActive === false ? 'Aktifkan' : 'Nonaktifkan'} user {pendingDisableUser.name ?? pendingDisableUser.email} sekarang?
+                                        {pendingDisableUser.isActive === false ? t('admin_pages.manajemen_user.btn_activate') : t('admin_pages.manajemen_user.btn_deactivate')} user {pendingDisableUser.name ?? pendingDisableUser.email} {t('admin_pages.manajemen_user.now')}?
                                     </p>
                                     <div className="mt-6 flex justify-end gap-3">
                                         <button
@@ -395,14 +401,14 @@ export default function AdminManajemenUserPage() {
                                             onClick={() => setPendingDisableUser(null)}
                                             className="rounded-xl border border-[#E6E8EB] bg-white px-4 py-2 text-sm font-bold text-[#2A2A2A] hover:bg-gray-50"
                                         >
-                                            Batal
+                                            {t('common.cancel')}
                                         </button>
                                         <button
                                             type="button"
                                             onClick={confirmDisableUser}
                                             className="rounded-xl bg-[#FF9A9E] px-4 py-2 text-sm font-bold text-white hover:bg-[#ff8a8f]"
                                         >
-                                            {pendingDisableUser.isActive === false ? 'Aktifkan' : 'Nonaktifkan'}
+                                            {pendingDisableUser.isActive === false ? t('admin_pages.manajemen_user.btn_activate') : t('admin_pages.manajemen_user.btn_deactivate')}
                                         </button>
                                     </div>
                                 </div>

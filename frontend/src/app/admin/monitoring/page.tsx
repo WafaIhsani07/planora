@@ -6,6 +6,7 @@ import FilterTabs from '@/components/admin/FilterTabs';
 import AdminPagination from '@/components/admin/AdminPagination';
 import AdminStatCard from '@/components/admin/AdminStatCard';
 import StatusBadge from '@/components/admin/StatusBadge';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const BuildingIcon = ({ className }: { className?: string }) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 22h16" /><path d="M12 2 4 7h16Z" /><path d="M18 22V11" /><path d="M14 22V11" /><path d="M10 22V11" /><path d="M6 22V11" /></svg>
@@ -21,31 +22,30 @@ const AlertCircleIcon = ({ className }: { className?: string }) => (
 );
 
 export default function AdminMonitoringTrxPage() {
+    const { t } = useLanguage();
     const [activeTab, setActiveTab] = useState<'semua' | 'tertahan' | 'sudah-cair'>('semua');
 
     return (
         <>
-            <AdminHeader searchPlaceholder="CARI INVOICE ATAU ID TRANSAKSI..." />
+            <AdminHeader searchPlaceholder={t('admin_pages.monitoring.search')} />
 
             <div className="flex-1 overflow-y-auto p-10 pb-16">
                 <div className="max-w-[1300px] mx-auto">
                     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 mb-12">
                         <div>
                             <span className="text-[10px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase mb-2 block">
-                                ARUS KAS EKOSISTEM GLOBAL
+                                {t('admin_pages.monitoring.subtitle')}
                             </span>
-                            <h1 className="text-4xl md:text-[2.75rem] leading-[1.05] font-black italic tracking-tighter text-[#2A2A2A]">
-                                MONITORING <br /> TRANSAKSI SISTEM.
-                            </h1>
+                            <h1 className="text-4xl md:text-[2.75rem] leading-[1.05] font-black italic tracking-tighter text-[#2A2A2A]" dangerouslySetInnerHTML={{ __html: t('admin_pages.monitoring.title') }}></h1>
                         </div>
 
                         <div className="flex items-center bg-white rounded-full px-8 py-2 border border-gray-100 shadow-sm h-14">
                             <div className="flex flex-col items-center justify-center pr-8 border-r border-gray-100">
-                                <span className="text-[8px] font-bold tracking-widest text-[#A8A8A8] uppercase">FEE PLATFORM</span>
+                                <span className="text-[8px] font-bold tracking-widest text-[#A8A8A8] uppercase">{t('admin_pages.monitoring.fee')}</span>
                                 <span className="text-base font-black text-emerald-500 leading-none mt-1">Rp 124.5M</span>
                             </div>
                             <div className="flex flex-col items-center justify-center pl-8">
-                                <span className="text-[8px] font-bold tracking-widest text-[#A8A8A8] uppercase">REFUND PENDING</span>
+                                <span className="text-[8px] font-bold tracking-widest text-[#A8A8A8] uppercase">{t('admin_pages.monitoring.refund')}</span>
                                 <span className="text-base font-black text-red-500 leading-none mt-1">02</span>
                             </div>
                         </div>
@@ -54,13 +54,13 @@ export default function AdminMonitoringTrxPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 mb-14">
                         <AdminStatCard
                             icon={<BuildingIcon className="w-6 h-6" />}
-                            label="TOTAL NILAI TRANSAKSI (GMV)"
+                            label={t('admin_pages.monitoring.stats.gmv')}
                             value="Rp 2.450M"
                         />
 
                         <AdminStatCard
                             icon={<ClockIcon className="w-6 h-6" />}
-                            label="SALDO TERTAHAN (ESCROW)"
+                            label={t('admin_pages.monitoring.stats.escrow')}
                             value="Rp 840.2M"
                             valueClassName="text-[#A8A8A8]"
                             iconWrapClassName="bg-[#F4F4F5] text-gray-400"
@@ -68,7 +68,7 @@ export default function AdminMonitoringTrxPage() {
 
                         <AdminStatCard
                             icon={<CheckSquareIcon className="w-6 h-6" />}
-                            label="SUDAH CAIR HARI INI"
+                            label={t('admin_pages.monitoring.stats.disbursed')}
                             value="Rp 42.5M"
                             valueClassName="text-emerald-500"
                             iconWrapClassName="bg-emerald-50 text-emerald-500"
@@ -77,7 +77,7 @@ export default function AdminMonitoringTrxPage() {
 
                         <AdminStatCard
                             icon={<AlertCircleIcon className="w-6 h-6" />}
-                            label="KASUS SENGKETA"
+                            label={t('admin_pages.monitoring.stats.dispute')}
                             value="02 Kasus"
                             valueClassName="text-red-500"
                             iconWrapClassName="bg-[#FDF1F0] text-red-500"
@@ -91,23 +91,23 @@ export default function AdminMonitoringTrxPage() {
                                 active={activeTab}
                                 onChange={setActiveTab}
                                 tabs={[
-                                    { label: 'SEMUA TRANSAKSI', value: 'semua' },
-                                    { label: 'TERTAHAN', value: 'tertahan' },
-                                    { label: 'SUDAH CAIR', value: 'sudah-cair' },
+                                    { label: t('admin_pages.monitoring.tabs.all'), value: 'semua' },
+                                    { label: t('admin_pages.monitoring.tabs.pending'), value: 'tertahan' },
+                                    { label: t('admin_pages.monitoring.tabs.disbursed'), value: 'sudah-cair' },
                                 ]}
                             />
 
                             <span className="text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">
-                                PERIODE: APRIL 2026
+                                {t('admin_pages.monitoring.period')}
                             </span>
                         </div>
 
                         <div className="flex flex-col w-full mb-10">
                             <div className="flex items-center pb-5 border-b border-gray-100">
-                                <div className="w-[30%] text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">INVOICE & VENDOR</div>
-                                <div className="w-[30%] text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">NAMA PELANGGAN</div>
-                                <div className="w-[20%] text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">NOMINAL (RP)</div>
-                                <div className="w-[20%] text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase text-right pr-2">STATUS ARUS DANA</div>
+                                <div className="w-[30%] text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">{t('admin_pages.monitoring.table.invoice')}</div>
+                                <div className="w-[30%] text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">{t('admin_pages.monitoring.table.customer')}</div>
+                                <div className="w-[20%] text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase">{t('admin_pages.monitoring.table.amount')}</div>
+                                <div className="w-[20%] text-[9px] font-bold tracking-[0.2em] text-[#A8A8A8] uppercase text-right pr-2">{t('admin_pages.monitoring.table.status')}</div>
                             </div>
 
                             <div className="flex items-center py-6 border-b border-gray-50 transition-colors hover:bg-gray-50/50">

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createKategori } from '@/services/admin.service';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 function slugify(s: string) {
   return s
@@ -14,6 +15,7 @@ function slugify(s: string) {
 }
 
 export default function TambahKategoriPage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
@@ -53,13 +55,13 @@ export default function TambahKategoriPage() {
           onClick={() => router.back()}
           className="flex items-center gap-2 text-[#2A2A2A] font-bold mb-6 hover:opacity-70 transition"
         >
-          ← Kembali
+          ← {t('common.back')}
         </button>
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-black text-[#2A2A2A] mb-2">Tambah Kategori</h1>
-          <p className="text-[#6B6B6B]">Buat kategori layanan baru untuk mengorganisir data dengan lebih baik.</p>
+          <h1 className="text-3xl font-black text-[#2A2A2A] mb-2">{t('admin_pages.kategori.add_title')}</h1>
+          <p className="text-[#6B6B6B]">{t('admin_pages.kategori.field_desc')}</p>
         </div>
 
         {/* Form Card */}
@@ -68,33 +70,29 @@ export default function TambahKategoriPage() {
             {/* Nama Kategori */}
             <div className="mb-6">
               <label className="block text-sm font-bold text-[#2A2A2A] mb-2">
-                Nama Kategori <span className="text-[#FF5E7E]">*</span>
+                {t('admin_pages.kategori.field_name')} <span className="text-[#FF5E7E]">*</span>
               </label>
               <input
                 type="text"
                 name="name"
                 value={form.name}
                 onChange={handleInputChange}
-                placeholder="Contoh: Fotografi & Videografi"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg text-[#2A2A2A] placeholder-[#BDBDBD] focus:outline-none focus:ring-2 focus:ring-[#FF5E7E] focus:border-transparent transition"
               />
-              <p className="text-xs text-[#8A8A8A] mt-2">Masukkan nama kategori layanan</p>
             </div>
 
             {/* Deskripsi */}
             <div className="mb-8">
               <label className="block text-sm font-bold text-[#2A2A2A] mb-2">
-                Deskripsi <span className="text-[#FF5E7E]">*</span>
+                {t('admin_pages.kategori.field_desc')} <span className="text-[#FF5E7E]">*</span>
               </label>
               <textarea
                 name="description"
                 value={form.description}
                 onChange={handleInputChange}
-                placeholder="Jelaskan tentang kategori layanan ini..."
                 rows={5}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg text-[#2A2A2A] placeholder-[#BDBDBD] focus:outline-none focus:ring-2 focus:ring-[#FF5E7E] focus:border-transparent transition resize-none"
               />
-              <p className="text-xs text-[#8A8A8A] mt-2">Berikan deskripsi singkat mengenai layanan dalam kategori ini</p>
             </div>
 
             {/* Buttons */}
@@ -105,14 +103,14 @@ export default function TambahKategoriPage() {
                 className="px-6 py-3 border border-[#E6E6E6] rounded-lg text-[#2A2A2A] font-bold hover:bg-gray-50 transition"
                 disabled={loading}
               >
-                Batal
+                {t('common.cancel')}
               </button>
               <button
                 type="submit"
                 className="px-6 py-3 bg-[#FF5E7E] hover:bg-[#FF4565] text-white font-bold rounded-lg flex items-center gap-2 transition disabled:opacity-50"
                 disabled={loading}
               >
-                📝 {loading ? 'Menyimpan...' : 'Simpan Kategori'}
+                📝 {loading ? t('admin_pages.kategori.saving') : t('admin_pages.kategori.form.btn_save')}
               </button>
             </div>
           </form>

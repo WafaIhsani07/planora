@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import AdminHeader from '@/components/admin/AdminHeader';
 import { getAdminSettings, updateAdminSettings, updateAdminPassword } from '@/services/admin.service';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const UserIcon = ({ className }: { className?: string }) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
@@ -26,6 +27,7 @@ const InfoIcon = ({ className }: { className?: string }) => (
 type Tab = 'profil' | 'keamanan' | 'notifikasi';
 
 export default function AdminPengaturanPage() {
+    const { t } = useLanguage();
     const [activeTab, setActiveTab] = useState<Tab>('profil');
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -186,9 +188,9 @@ export default function AdminPengaturanPage() {
     };
 
     const tabs: { value: Tab; label: string; icon: React.ReactNode }[] = [
-        { value: 'profil', label: 'Profil Admin', icon: <UserIcon className="w-4 h-4" /> },
-        { value: 'keamanan', label: 'Keamanan', icon: <LockIcon className="w-4 h-4" /> },
-        { value: 'notifikasi', label: 'Notifikasi', icon: <BellIcon className="w-4 h-4" /> },
+        { value: 'profil', label: t('admin_pages.pengaturan.tabs.profil'), icon: <UserIcon className="w-4 h-4" /> },
+        { value: 'keamanan', label: t('admin_pages.pengaturan.tabs.keamanan'), icon: <LockIcon className="w-4 h-4" /> },
+        { value: 'notifikasi', label: t('admin_pages.pengaturan.tabs.notifikasi'), icon: <BellIcon className="w-4 h-4" /> },
     ];
 
     return (
@@ -201,10 +203,10 @@ export default function AdminPengaturanPage() {
                     {/* Page Header */}
                     <div>
                         <span className="text-[10px] font-bold tracking-[0.2em] text-[#2A2A2A]/40 uppercase mb-2 block">
-                            KONFIGURASI AKUN
+                            {t('admin_pages.pengaturan.subtitle')}
                         </span>
                         <h1 className="text-3xl md:text-4xl leading-tight font-black tracking-tight text-[#2A2A2A]">
-                            Profil & Pengaturan
+                            {t('admin_pages.pengaturan.title')}
                         </h1>
                     </div>
 
@@ -235,10 +237,10 @@ export default function AdminPengaturanPage() {
                             <>
                                 <div>
                                     <h2 className="text-base font-black tracking-tighter text-[#2A2A2A] mb-1">
-                                        Profil Admin
+                                        {t('admin_pages.pengaturan.profil.title')}
                                     </h2>
                                     <p className="text-[12px] font-medium text-[#A8A8A8]">
-                                        Informasi dasar akun administrator.
+                                        {t('admin_pages.pengaturan.profil.desc')}
                                     </p>
                                 </div>
 
@@ -246,20 +248,20 @@ export default function AdminPengaturanPage() {
                                     <div className="flex flex-col md:flex-row gap-6">
                                         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="flex flex-col gap-2">
-                                                <label className="text-xs font-black text-[#A8A8A8]">Nama Lengkap</label>
+                                                <label className="text-xs font-black text-[#A8A8A8]">{t('admin_pages.pengaturan.profil.name')}</label>
                                                 <input defaultValue="Admin Planora" className="w-full bg-[#FAFAFC] border border-gray-100 rounded-lg px-4 py-3 text-sm font-semibold text-[#2A2A2A] outline-none focus:ring-2 focus:ring-[#FF9A9E]/20" />
                                             </div>
                                             <div className="flex flex-col gap-2">
-                                                <label className="text-xs font-black text-[#A8A8A8]">Email</label>
+                                                <label className="text-xs font-black text-[#A8A8A8]">{t('admin_pages.pengaturan.profil.email')}</label>
                                                 <input defaultValue="admin@planora.com" className="w-full bg-[#FAFAFC] border border-gray-100 rounded-lg px-4 py-3 text-sm font-semibold text-[#2A2A2A] outline-none focus:ring-2 focus:ring-[#FF9A9E]/20" />
                                             </div>
 
                                             <div className="flex flex-col gap-2">
-                                                <label className="text-xs font-black text-[#A8A8A8]">No. Telepon</label>
+                                                <label className="text-xs font-black text-[#A8A8A8]">{t('admin_pages.pengaturan.profil.phone')}</label>
                                                 <input defaultValue="0812-3456-7890" className="w-full bg-[#FAFAFC] border border-gray-100 rounded-lg px-4 py-3 text-sm font-semibold text-[#2A2A2A] outline-none focus:ring-2 focus:ring-[#FF9A9E]/20" />
                                             </div>
                                             <div className="flex flex-col gap-2">
-                                                <label className="text-xs font-black text-[#A8A8A8]">Jabatan</label>
+                                                <label className="text-xs font-black text-[#A8A8A8]">{t('admin_pages.pengaturan.profil.role')}</label>
                                                 <input defaultValue="Super Admin" className="w-full bg-[#FAFAFC] border border-gray-100 rounded-lg px-4 py-3 text-sm font-semibold text-[#2A2A2A] outline-none focus:ring-2 focus:ring-[#FF9A9E]/20" />
                                             </div>
                                         </div>
@@ -269,14 +271,14 @@ export default function AdminPengaturanPage() {
                                                     {photoPreview ? <img src={photoPreview} alt="avatar" className="w-full h-full object-cover"/> : 'A'}
                                                 </div>
                                                 <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
-                                                <button onClick={handlePhotoClick} className="px-3 py-2 bg-white border border-gray-100 rounded-lg text-sm font-bold">Ubah Foto</button>
-                                            <p className="text-xs text-[#A8A8A8]">JPG, PNG maks. 2MB</p>
+                                                <button onClick={handlePhotoClick} className="px-3 py-2 bg-white border border-gray-100 rounded-lg text-sm font-bold">{t('admin_pages.pengaturan.profil.photo_change')}</button>
+                                            <p className="text-xs text-[#A8A8A8]">{t('admin_pages.pengaturan.profil.photo_hint')}</p>
                                         </div>
                                     </div>
 
                                     <div className="mt-6 flex items-center justify-between">
-                                        <button className="px-6 py-3 bg-[#FF6B82] text-white rounded-lg font-black">Simpan Perubahan</button>
-                                        <span className="text-sm text-[#A8A8A8]">Terakhir diperbarui: 20 Mei 2026</span>
+                                        <button className="px-6 py-3 bg-[#FF6B82] text-white rounded-lg font-black">{t('admin_pages.pengaturan.profil.save')}</button>
+                                        <span className="text-sm text-[#A8A8A8]">{t('admin_pages.pengaturan.profil.last_updated')} 20 Mei 2026</span>
                                     </div>
                                 </div>
 
@@ -285,24 +287,24 @@ export default function AdminPengaturanPage() {
                                         <div className="flex items-start gap-4">
                                             <div className="w-10 h-10 rounded-lg bg-[#E9FFF6] flex items-center justify-center text-[#0F766E]"><LockIcon className="w-5 h-5"/></div>
                                             <div>
-                                                <div className="font-black text-sm">Keamanan Akun</div>
-                                                <div className="text-xs text-[#A8A8A8]">Ubah password dan atur keamanan akun Anda.</div>
+                                                <div className="font-black text-sm">{t('admin_pages.pengaturan.profil.sections.security.title')}</div>
+                                                <div className="text-xs text-[#A8A8A8]">{t('admin_pages.pengaturan.profil.sections.security.desc')}</div>
                                             </div>
                                         </div>
-                                        <button onClick={() => { setShowPasswordModal(true); setPasswordDirty(false); setPasswordDraft({ current: '', next: '', confirm: '' }); }} className="px-4 py-2 border rounded-lg">Ubah Password</button>
+                                        <button onClick={() => { setShowPasswordModal(true); setPasswordDirty(false); setPasswordDraft({ current: '', next: '', confirm: '' }); }} className="px-4 py-2 border rounded-lg">{t('admin_pages.pengaturan.profil.sections.security.btn')}</button>
                                     </div>
 
                                     <div className="bg-white rounded-2xl p-4 flex items-center justify-between border border-gray-50 shadow-sm">
                                         <div className="flex items-start gap-4">
                                             <div className="w-10 h-10 rounded-lg bg-[#F0FFF9] flex items-center justify-center text-[#065F46]"><BankIcon className="w-5 h-5"/></div>
                                             <div>
-                                                <div className="font-black text-sm">Rekening Escrow</div>
-                                                <div className="text-xs text-[#A8A8A8]">Kelola rekening escrow yang digunakan untuk menampung dana sementara.</div>
+                                                <div className="font-black text-sm">{t('admin_pages.pengaturan.profil.sections.escrow.title')}</div>
+                                                <div className="text-xs text-[#A8A8A8]">{t('admin_pages.pengaturan.profil.sections.escrow.desc')}</div>
                                             </div>
                                         </div>
                                         <div className="flex flex-col items-end gap-2">
-                                            <span className="text-xs text-green-600 font-bold">Aktif</span>
-                                            <button onClick={() => { setShowEscrowModal(true); setEscrowEditMode(true); setEscrowDraft(escrowBank); }} className="px-4 py-2 border rounded-lg">Kelola Rekening</button>
+                                            <span className="text-xs text-green-600 font-bold">{t('admin_pages.pengaturan.profil.sections.escrow.active')}</span>
+                                            <button onClick={() => { setShowEscrowModal(true); setEscrowEditMode(true); setEscrowDraft(escrowBank); }} className="px-4 py-2 border rounded-lg">{t('admin_pages.pengaturan.profil.sections.escrow.btn')}</button>
                                         </div>
                                     </div>
 
@@ -310,33 +312,33 @@ export default function AdminPengaturanPage() {
                                         <div className="flex items-start gap-4">
                                             <div className="w-10 h-10 rounded-lg bg-[#FDF7FF] flex items-center justify-center text-[#6B21A8]"><BellIcon className="w-5 h-5"/></div>
                                             <div>
-                                                <div className="font-black text-sm">Notifikasi</div>
-                                                <div className="text-xs text-[#A8A8A8]">Atur preferensi notifikasi yang ingin Anda terima.</div>
+                                                <div className="font-black text-sm">{t('admin_pages.pengaturan.profil.sections.notif.title')}</div>
+                                                <div className="text-xs text-[#A8A8A8]">{t('admin_pages.pengaturan.profil.sections.notif.desc')}</div>
                                             </div>
                                         </div>
-                                        <button onClick={() => { setShowNotifModal(true); setNotifEditMode(true); setNotifDraft(notifSettings); }} className="px-4 py-2 border rounded-lg">Atur Notifikasi</button>
+                                        <button onClick={() => { setShowNotifModal(true); setNotifEditMode(true); setNotifDraft(notifSettings); }} className="px-4 py-2 border rounded-lg">{t('admin_pages.pengaturan.profil.sections.notif.btn')}</button>
                                     </div>
 
                                     <div className="bg-white rounded-2xl p-4 flex items-center justify-between border border-gray-50 shadow-sm">
                                         <div className="flex items-start gap-4">
                                             <div className="w-10 h-10 rounded-lg bg-[#FFF7ED] flex items-center justify-center text-[#92400E]"><CogIcon className="w-5 h-5"/></div>
                                             <div>
-                                                <div className="font-black text-sm">Preferensi Sistem</div>
-                                                <div className="text-xs text-[#A8A8A8]">Sesuaikan tampilan, zona waktu, dan pengaturan sistem lainnya.</div>
+                                                <div className="font-black text-sm">{t('admin_pages.pengaturan.profil.sections.pref.title')}</div>
+                                                <div className="text-xs text-[#A8A8A8]">{t('admin_pages.pengaturan.profil.sections.pref.desc')}</div>
                                             </div>
                                         </div>
-                                        <button onClick={() => { setShowPrefModal(true); setPrefEditMode(true); setPrefDraft(prefSettings); }} className="px-4 py-2 border rounded-lg">Atur Preferensi</button>
+                                        <button onClick={() => { setShowPrefModal(true); setPrefEditMode(true); setPrefDraft(prefSettings); }} className="px-4 py-2 border rounded-lg">{t('admin_pages.pengaturan.profil.sections.pref.btn')}</button>
                                     </div>
 
                                     <div className="bg-white rounded-2xl p-4 flex items-center justify-between border border-gray-50 shadow-sm">
                                         <div className="flex items-start gap-4">
                                             <div className="w-10 h-10 rounded-lg bg-[#F3F4F6] flex items-center justify-center text-[#374151]"><InfoIcon className="w-5 h-5"/></div>
                                             <div>
-                                                <div className="font-black text-sm">Tentang Planora</div>
-                                                <div className="text-xs text-[#A8A8A8]">Informasi versi aplikasi dan kebijakan penggunaan.</div>
+                                                <div className="font-black text-sm">{t('admin_pages.pengaturan.profil.sections.about.title')}</div>
+                                                <div className="text-xs text-[#A8A8A8]">{t('admin_pages.pengaturan.profil.sections.about.desc')}</div>
                                             </div>
                                         </div>
-                                        <button onClick={() => { setShowAboutModal(true); setAboutEditMode(true); setAboutDraft(aboutInfo); }} className="px-4 py-2 border rounded-lg">Lihat Detail</button>
+                                        <button onClick={() => { setShowAboutModal(true); setAboutEditMode(true); setAboutDraft(aboutInfo); }} className="px-4 py-2 border rounded-lg">{t('admin_pages.pengaturan.profil.sections.about.btn')}</button>
                                     </div>
                                 </div>
                             </>
@@ -347,18 +349,18 @@ export default function AdminPengaturanPage() {
                             <>
                                 <div>
                                     <h2 className="text-base font-black italic tracking-tighter text-[#2A2A2A] uppercase mb-1">
-                                        Keamanan Akun
+                                        {t('admin_pages.pengaturan.keamanan.title')}
                                     </h2>
                                     <p className="text-[10px] font-bold text-[#2A2A2A]/30 uppercase tracking-wider">
-                                        Perbarui password akun admin
+                                        {t('admin_pages.pengaturan.keamanan.subtitle')}
                                     </p>
                                 </div>
 
                                 <div className="flex flex-col gap-6 max-w-md">
                                     {[
-                                        { label: 'Password Saat Ini', placeholder: '••••••••' },
-                                        { label: 'Password Baru', placeholder: '••••••••' },
-                                        { label: 'Konfirmasi Password Baru', placeholder: '••••••••' },
+                                        { label: t('admin_pages.pengaturan.keamanan.current'), placeholder: '••••••••' },
+                                        { label: t('admin_pages.pengaturan.keamanan.new'), placeholder: '••••••••' },
+                                        { label: t('admin_pages.pengaturan.keamanan.confirm'), placeholder: '••••••••' },
                                     ].map((field) => (
                                         <div key={field.label} className="flex flex-col gap-2">
                                             <label className="text-[9px] font-black tracking-[0.2em] text-[#2A2A2A]/50 uppercase">
@@ -374,7 +376,7 @@ export default function AdminPengaturanPage() {
 
                                     <div className="p-4 bg-[#FDF1F0] rounded-xl border border-[#FF9A9E]/10">
                                         <p className="text-[9px] font-bold text-[#2A2A2A]/50 uppercase tracking-wider leading-relaxed">
-                                            Password minimal 8 karakter, kombinasi huruf besar, huruf kecil, dan angka.
+                                            {t('admin_pages.pengaturan.keamanan.hint')}
                                         </p>
                                     </div>
                                 </div>
@@ -386,10 +388,10 @@ export default function AdminPengaturanPage() {
                             <>
                                 <div>
                                     <h2 className="text-base font-black italic tracking-tighter text-[#2A2A2A] uppercase mb-1">
-                                        Preferensi Notifikasi
+                                        {t('admin_pages.pengaturan.notifikasi.title')}
                                     </h2>
                                     <p className="text-[10px] font-bold text-[#2A2A2A]/30 uppercase tracking-wider">
-                                        Atur notifikasi yang ingin diterima
+                                        {t('admin_pages.pengaturan.notifikasi.subtitle')}
                                     </p>
                                 </div>
 
@@ -435,14 +437,14 @@ export default function AdminPengaturanPage() {
                             >
                                 <div className="w-full max-w-md bg-white rounded-2xl p-6 shadow-sm border border-gray-50 relative" onClick={(e) => e.stopPropagation()}>
                                     <button aria-label="Tutup" onClick={() => { if (passwordDirty && !confirm('Perubahan belum disimpan. Yakin keluar?')) return; setShowPasswordModal(false); setPasswordDraft({ current: '', next: '', confirm: '' }); setPasswordDirty(false); }} className="absolute right-4 top-4 h-9 w-9 rounded-lg bg-slate-50 text-[#2A2A2A]/60 hover:bg-[#F3F4F6]">×</button>
-                                    <h3 className="font-black text-lg mb-4">Ubah Password</h3>
+                                    <h3 className="font-black text-lg mb-4">{t('admin_pages.pengaturan.modals.password.title')}</h3>
                                     <div className="space-y-3">
-                                        <input value={passwordDraft.current} onChange={(e) => { setPasswordDraft(prev => ({ ...prev, current: e.target.value })); setPasswordDirty(true); }} type="password" placeholder="Password Saat Ini" className="w-full border rounded-lg px-3 py-2" />
-                                        <input value={passwordDraft.next} onChange={(e) => { setPasswordDraft(prev => ({ ...prev, next: e.target.value })); setPasswordDirty(true); }} type="password" placeholder="Password Baru" className="w-full border rounded-lg px-3 py-2" />
-                                        <input value={passwordDraft.confirm} onChange={(e) => { setPasswordDraft(prev => ({ ...prev, confirm: e.target.value })); setPasswordDirty(true); }} type="password" placeholder="Konfirmasi Password Baru" className="w-full border rounded-lg px-3 py-2" />
+                                        <input value={passwordDraft.current} onChange={(e) => { setPasswordDraft(prev => ({ ...prev, current: e.target.value })); setPasswordDirty(true); }} type="password" placeholder={t('admin_pages.pengaturan.modals.password.current')} className="w-full border rounded-lg px-3 py-2" />
+                                        <input value={passwordDraft.next} onChange={(e) => { setPasswordDraft(prev => ({ ...prev, next: e.target.value })); setPasswordDirty(true); }} type="password" placeholder={t('admin_pages.pengaturan.modals.password.new')} className="w-full border rounded-lg px-3 py-2" />
+                                        <input value={passwordDraft.confirm} onChange={(e) => { setPasswordDraft(prev => ({ ...prev, confirm: e.target.value })); setPasswordDirty(true); }} type="password" placeholder={t('admin_pages.pengaturan.modals.password.confirm')} className="w-full border rounded-lg px-3 py-2" />
                                     </div>
                                     <div className="mt-4 flex justify-end gap-2">
-                                        <button onClick={() => { if (passwordDirty && !confirm('Perubahan belum disimpan. Yakin batal?')) return; setShowPasswordModal(false); setPasswordDraft({ current: '', next: '', confirm: '' }); setPasswordDirty(false); }} className="px-4 py-2">Batal</button>
+                                        <button onClick={() => { if (passwordDirty && !confirm('Perubahan belum disimpan. Yakin batal?')) return; setShowPasswordModal(false); setPasswordDraft({ current: '', next: '', confirm: '' }); setPasswordDirty(false); }} className="px-4 py-2">{t('common.cancel')}</button>
                                         <button onClick={() => {
                                             if (!passwordDraft.next || passwordDraft.next.length < 8) { pushToast('error', 'Password baru minimal 8 karakter.'); return; }
                                             if (passwordDraft.next !== passwordDraft.confirm) { pushToast('error', 'Konfirmasi password tidak cocok.'); return; }
@@ -455,7 +457,7 @@ export default function AdminPengaturanPage() {
                                             setShowPasswordModal(false);
                                             setPasswordDraft({ current: '', next: '', confirm: '' });
                                             setPasswordDirty(false);
-                                        }} className="px-4 py-2 bg-[#FF6B82] text-white rounded-lg">Simpan</button>
+                                        }} className="px-4 py-2 bg-[#FF6B82] text-white rounded-lg">{t('common.save')}</button>
                                     </div>
                                 </div>
                             </div>
@@ -475,9 +477,9 @@ export default function AdminPengaturanPage() {
                             >
                                 <div className="w-full max-w-lg bg-white rounded-2xl p-6 shadow-sm border border-gray-50 relative" onClick={(e) => e.stopPropagation()}>
                                     <button aria-label="Tutup" onClick={() => { if (escrowDirty && !confirm('Perubahan belum disimpan. Yakin keluar?')) return; setShowEscrowModal(false); setEscrowEditMode(false); setEscrowDirty(false); }} className="absolute right-4 top-4 h-9 w-9 rounded-lg bg-slate-50 text-[#2A2A2A]/60 hover:bg-[#F3F4F6]">×</button>
-                                    <h3 className="font-black text-lg mb-4">Kelola Rekening Escrow</h3>
+                                    <h3 className="font-black text-lg mb-4">{t('admin_pages.pengaturan.modals.escrow.title')}</h3>
                                     <div className="space-y-3">
-                                        <label className="text-[10px] font-black text-[#6B6B6B]">Nama Bank</label>
+                                        <label className="text-[10px] font-black text-[#6B6B6B]">{t('admin_pages.pengaturan.modals.escrow.bank')}</label>
                                         <select value={escrowEditMode ? escrowDraft.bankName : escrowBank.bankName} disabled={!escrowEditMode} onChange={(e) => { setEscrowDraft(prev => ({ ...prev, bankName: e.target.value })); setEscrowDirty(true); }} className="w-full border rounded-lg px-4 py-3 pr-10">
                                             <option>BCA</option>
                                             <option>Mandiri</option>
@@ -485,19 +487,19 @@ export default function AdminPengaturanPage() {
                                             <option>CIMB Niaga</option>
                                         </select>
 
-                                        <label className="text-[10px] font-black text-[#6B6B6B]">Nomor Rekening</label>
+                                        <label className="text-[10px] font-black text-[#6B6B6B]">{t('admin_pages.pengaturan.modals.escrow.account')}</label>
                                         <input value={escrowEditMode ? escrowDraft.accountNumber : escrowBank.accountNumber} onChange={(e) => { setEscrowDraft(prev => ({ ...prev, accountNumber: e.target.value })); setEscrowDirty(true); }} readOnly={!escrowEditMode} className="w-full border rounded-lg px-4 py-3" />
 
-                                        <label className="text-[10px] font-black text-[#6B6B6B]">Nama Pemilik Rekening</label>
+                                        <label className="text-[10px] font-black text-[#6B6B6B]">{t('admin_pages.pengaturan.modals.escrow.holder')}</label>
                                         <input value={escrowEditMode ? escrowDraft.accountHolder : escrowBank.accountHolder} onChange={(e) => { setEscrowDraft(prev => ({ ...prev, accountHolder: e.target.value })); setEscrowDirty(true); }} readOnly={!escrowEditMode} className="w-full border rounded-lg px-4 py-3" />
                                     </div>
 
                                     <div className="mt-4 flex items-center justify-between">
-                                        <div className="text-sm text-[#0F766E] font-bold">{escrowBank.verified ? 'Aktif' : 'Belum Diverifikasi'}</div>
+                                        <div className="text-sm text-[#0F766E] font-bold">{escrowBank.verified ? t('admin_pages.pengaturan.modals.escrow.verified') : t('admin_pages.pengaturan.modals.escrow.unverified')}</div>
                                         <div className="flex gap-2">
                                             {escrowEditMode ? (
                                                 <>
-                                                    <button onClick={() => { setShowEscrowModal(false); setEscrowEditMode(false); setEscrowDraft(escrowBank); setEscrowDirty(false); }} className="px-4 py-2 border rounded-lg">Batal</button>
+                                                    <button onClick={() => { setShowEscrowModal(false); setEscrowEditMode(false); setEscrowDraft(escrowBank); setEscrowDirty(false); }} className="px-4 py-2 border rounded-lg">{t('common.cancel')}</button>
                                                     <button onClick={() => {
                                                         if (!escrowDraft.accountNumber || !escrowDraft.accountHolder) {
                                                             pushToast('error', 'Isi semua field rekening terlebih dahulu.');
@@ -535,7 +537,7 @@ export default function AdminPengaturanPage() {
                             >
                                 <div className="w-full max-w-md bg-white rounded-2xl p-6 shadow-sm border border-gray-50 relative" onClick={(e) => e.stopPropagation()}>
                                     <button aria-label="Tutup" onClick={() => { if (notifDirty && !confirm('Perubahan belum disimpan. Yakin keluar?')) return; setShowNotifModal(false); setNotifEditMode(false); setNotifDraft(notifSettings); setNotifDirty(false); }} className="absolute right-4 top-4 h-9 w-9 rounded-lg bg-slate-50 text-[#2A2A2A]/60 hover:bg-[#F3F4F6]">×</button>
-                                    <h3 className="font-black text-lg mb-4">Atur Notifikasi</h3>
+                                    <h3 className="font-black text-lg mb-4">{t('admin_pages.pengaturan.modals.notif.title')}</h3>
                                     <div className="space-y-3">
                                         {Object.entries(notifDraft).map(([key, val]) => (
                                             <label key={key} className="flex items-center justify-between p-2 bg-[#FAFAFC] rounded-lg">
@@ -552,7 +554,7 @@ export default function AdminPengaturanPage() {
                                         <div className="flex gap-2">
                                             {notifEditMode ? (
                                                 <>
-                                                    <button onClick={() => { setShowNotifModal(false); setNotifEditMode(false); setNotifDraft(notifSettings); setNotifDirty(false); }} className="px-4 py-2 border rounded-lg">Batal</button>
+                                                    <button onClick={() => { setShowNotifModal(false); setNotifEditMode(false); setNotifDraft(notifSettings); setNotifDirty(false); }} className="px-4 py-2 border rounded-lg">{t('common.cancel')}</button>
                                                     <button onClick={() => {
                                                         setNotifSettings(notifDraft);
                                                         updateAdminSettings({ adminNotifSettings: notifDraft }).catch(console.error);
@@ -560,10 +562,10 @@ export default function AdminPengaturanPage() {
                                                         setNotifDirty(false);
                                                         setShowNotifModal(false);
                                                         pushToast('success', 'Preferensi notifikasi disimpan.');
-                                                    }} className="px-4 py-2 bg-[#FF6B82] text-white rounded-lg">Simpan</button>
+                                                    }} className="px-4 py-2 bg-[#FF6B82] text-white rounded-lg">{t('common.save')}</button>
                                                 </>
                                             ) : (
-                                                <button onClick={() => setShowNotifModal(false)} className="px-4 py-2 border rounded-lg">Tutup</button>
+                                                <button onClick={() => setShowNotifModal(false)} className="px-4 py-2 border rounded-lg">{t('common.close')}</button>
                                             )}
                                         </div>
                                     </div>
@@ -593,28 +595,28 @@ export default function AdminPengaturanPage() {
                             >
                                 <div className="w-full max-w-md bg-white rounded-2xl p-6 shadow-sm border border-gray-50 relative" onClick={(e) => e.stopPropagation()}>
                                     <button aria-label="Tutup" onClick={() => { if (prefDirty && !confirm('Perubahan belum disimpan. Yakin keluar?')) return; setShowPrefModal(false); setPrefEditMode(false); setPrefDraft(prefSettings); setPrefDirty(false); }} className="absolute right-4 top-4 h-9 w-9 rounded-lg bg-slate-50 text-[#2A2A2A]/60 hover:bg-[#F3F4F6]">×</button>
-                                    <h3 className="font-black text-lg mb-4">Preferensi Sistem</h3>
+                                    <h3 className="font-black text-lg mb-4">{t('admin_pages.pengaturan.modals.pref.title')}</h3>
                                     <div className="space-y-3">
-                                        <label className="text-sm">Zona Waktu</label>
+                                        <label className="text-sm">{t('admin_pages.pengaturan.modals.pref.timezone')}</label>
                                         <select disabled={!prefEditMode} value={prefDraft.timezone} onChange={(e) => { setPrefDraft(prev => ({ ...prev, timezone: e.target.value })); setPrefDirty(true); }} className="w-full border rounded-lg px-4 py-3 pr-10">
                                             <option>(UTC+07:00) Jakarta</option>
                                             <option>(UTC+08:00) Kuala Lumpur</option>
                                             <option>(UTC+09:00) Tokyo</option>
                                         </select>
 
-                                        <label className="text-sm">Bahasa</label>
+                                        <label className="text-sm">{t('admin_pages.pengaturan.modals.pref.language')}</label>
                                         <select disabled={!prefEditMode} value={prefDraft.language} onChange={(e) => { setPrefDraft(prev => ({ ...prev, language: e.target.value })); setPrefDirty(true); }} className="w-full border rounded-lg px-4 py-3 pr-10">
                                             <option>Indonesia</option>
                                             <option>English</option>
                                         </select>
 
-                                        <label className="text-sm">Tema</label>
+                                        <label className="text-sm">{t('admin_pages.pengaturan.modals.pref.theme')}</label>
                                         <select disabled={!prefEditMode} value={prefDraft.theme} onChange={(e) => { setPrefDraft(prev => ({ ...prev, theme: e.target.value })); setPrefDirty(true); }} className="w-full border rounded-lg px-4 py-3 pr-10">
                                             <option value="light">Terang</option>
                                             <option value="dark">Gelap</option>
                                         </select>
 
-                                        <label className="text-sm">Format Tanggal</label>
+                                        <label className="text-sm">{t('admin_pages.pengaturan.modals.pref.date_format')}</label>
                                         <select disabled={!prefEditMode} value={prefDraft.dateFormat} onChange={(e) => { setPrefDraft(prev => ({ ...prev, dateFormat: e.target.value })); setPrefDirty(true); }} className="w-full border rounded-lg px-4 py-3 pr-10">
                                             <option>DD/MM/YYYY</option>
                                             <option>MM/DD/YYYY</option>
@@ -626,7 +628,7 @@ export default function AdminPengaturanPage() {
                                         <div className="flex gap-2">
                                             {prefEditMode ? (
                                                 <>
-                                                    <button onClick={() => { setShowPrefModal(false); setPrefEditMode(false); setPrefDraft(prefSettings); setPrefDirty(false); }} className="px-4 py-2 border rounded-lg">Batal</button>
+                                                    <button onClick={() => { setShowPrefModal(false); setPrefEditMode(false); setPrefDraft(prefSettings); setPrefDirty(false); }} className="px-4 py-2 border rounded-lg">{t('common.cancel')}</button>
                                                     <button onClick={() => {
                                                         setPrefSettings(prefDraft);
                                                         updateAdminSettings({ adminPrefSettings: prefDraft }).catch(console.error);
@@ -634,10 +636,10 @@ export default function AdminPengaturanPage() {
                                                         setPrefDirty(false);
                                                         setShowPrefModal(false);
                                                         pushToast('success', 'Preferensi sistem disimpan.');
-                                                    }} className="px-4 py-2 bg-[#FF6B82] text-white rounded-lg">Simpan</button>
+                                                    }} className="px-4 py-2 bg-[#FF6B82] text-white rounded-lg">{t('common.save')}</button>
                                                 </>
                                             ) : (
-                                                <button onClick={() => setShowPrefModal(false)} className="px-4 py-2 border rounded-lg">Tutup</button>
+                                                <button onClick={() => setShowPrefModal(false)} className="px-4 py-2 border rounded-lg">{t('common.close')}</button>
                                             )}
                                         </div>
                                     </div>
@@ -660,14 +662,14 @@ export default function AdminPengaturanPage() {
                             >
                                 <div className="w-full max-w-md bg-white rounded-2xl p-6 shadow-sm border border-gray-50 relative" onClick={(e) => e.stopPropagation()}>
                                     <button aria-label="Tutup" onClick={() => { if (aboutDirty && !confirm('Perubahan belum disimpan. Yakin keluar?')) return; setShowAboutModal(false); setAboutEditMode(false); setAboutDraft(aboutInfo); setAboutDirty(false); }} className="absolute right-4 top-4 h-9 w-9 rounded-lg bg-slate-50 text-[#2A2A2A]/60 hover:bg-[#F3F4F6]">×</button>
-                                    <h3 className="font-black text-lg mb-4">Tentang Planora</h3>
+                                    <h3 className="font-black text-lg mb-4">{t('admin_pages.pengaturan.modals.about.title')}</h3>
                                     <div className="space-y-3">
-                                        <label className="text-xs font-bold">Versi</label>
+                                        <label className="text-xs font-bold">{t('admin_pages.pengaturan.modals.about.version')}</label>
                                         <input value={aboutEditMode ? aboutDraft.version : aboutInfo.version} onChange={(e) => { setAboutDraft(prev => ({ ...prev, version: e.target.value })); setAboutDirty(true); }} readOnly={!aboutEditMode} className="w-full border rounded-lg px-3 py-2" />
 
-                                        <label className="text-xs font-bold">Deskripsi</label>
+                                        <label className="text-xs font-bold">{t('admin_pages.pengaturan.modals.about.description')}</label>
 
-                                        <label className="text-xs font-bold">Email Dukungan</label>
+                                        <label className="text-xs font-bold">{t('admin_pages.pengaturan.modals.about.support')}</label>
                                         <textarea value={aboutEditMode ? aboutDraft.description : aboutInfo.description} onChange={(e) => { setAboutDraft(prev => ({ ...prev, description: e.target.value })); setAboutDirty(true); }} readOnly={!aboutEditMode} className="w-full border rounded-lg px-3 py-2" />
 
                                         <input value={aboutEditMode ? aboutDraft.supportEmail : aboutInfo.supportEmail} onChange={(e) => { setAboutDraft(prev => ({ ...prev, supportEmail: e.target.value })); setAboutDirty(true); }} readOnly={!aboutEditMode} className="w-full border rounded-lg px-3 py-2" />
@@ -677,7 +679,7 @@ export default function AdminPengaturanPage() {
                                         <div className="flex gap-2">
                                             {aboutEditMode ? (
                                                 <>
-                                                    <button onClick={() => { setShowAboutModal(false); setAboutEditMode(false); setAboutDraft(aboutInfo); setAboutDirty(false); }} className="px-4 py-2 border rounded-lg">Batal</button>
+                                                    <button onClick={() => { setShowAboutModal(false); setAboutEditMode(false); setAboutDraft(aboutInfo); setAboutDirty(false); }} className="px-4 py-2 border rounded-lg">{t('common.cancel')}</button>
                                                     <button onClick={() => {
                                                         setAboutInfo(aboutDraft);
                                                         updateAdminSettings({ adminAboutInfo: aboutDraft }).catch(console.error);
@@ -685,10 +687,10 @@ export default function AdminPengaturanPage() {
                                                         setAboutDirty(false);
                                                         setShowAboutModal(false);
                                                         pushToast('success', 'Informasi tentang aplikasi disimpan.');
-                                                    }} className="px-4 py-2 bg-[#FF6B82] text-white rounded-lg">Simpan</button>
+                                                    }} className="px-4 py-2 bg-[#FF6B82] text-white rounded-lg">{t('common.save')}</button>
                                                 </>
                                             ) : (
-                                                <button onClick={() => setShowAboutModal(false)} className="px-4 py-2 border rounded-lg">Tutup</button>
+                                                <button onClick={() => setShowAboutModal(false)} className="px-4 py-2 border rounded-lg">{t('common.close')}</button>
                                             )}
                                         </div>
                                     </div>
