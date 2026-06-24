@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { Heart, Star } from "lucide-react";
+import { Heart, Star, MessageCircle } from "lucide-react";
 import { listVendors } from "../lib/vendors";
 import { getCategoryById } from "../lib/categories";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -61,9 +61,14 @@ export default function VendorFeatured() {
                   <span className="text-xs text-gray-400">({vendor.reviews})</span>
                 </div>
 
-                <div>
-                  <p className="text-[10px] font-bold uppercase text-gray-400">{t('vendorFeatured.startingFrom')}</p>
-                  <p className="text-xl font-extrabold text-[#FF9A9E]">{vendor.price}</p>
+                <div className="mt-4 flex items-end justify-between">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase text-gray-400">{t('vendorFeatured.startingFrom')}</p>
+                    <p className="text-xl font-extrabold text-[#FF9A9E]">{vendor.price}</p>
+                  </div>
+                  <button className="flex items-center gap-2 rounded-xl bg-[#2A2A2A] px-4 py-2.5 text-xs font-bold text-white transition-all hover:bg-[#FF9A9E] hover:shadow-lg hover:shadow-[#FF9A9E]/30">
+                    <MessageCircle className="h-3.5 w-3.5" /> Chat
+                  </button>
                 </div>
               </div>
             </article>

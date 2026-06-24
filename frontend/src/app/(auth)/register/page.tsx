@@ -29,6 +29,10 @@ export default function RegisterPage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
+  const [ktpFile, setKtpFile] = useState<File | null>(null);
+  const [bankBookFile, setBankBookFile] = useState<File | null>(null);
+  const [businessLicenseFile, setBusinessLicenseFile] = useState<File | null>(null);
+
   const [categoriesList, setCategoriesList] = useState<any[]>(CATEGORIES);
 
   useEffect(() => {
@@ -118,6 +122,24 @@ export default function RegisterPage() {
 
       createdAccessToken = accessToken;
 
+      setSuccessMessage("Uploading documents...");
+      const uploadFile = async (file: File) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        const res = await api.post("/uploads", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        return res.data?.data?.imageUrl;
+      };
+
+      let ktpUrl, bankBookUrl, businessLicenseUrl;
+      if (ktpFile) ktpUrl = await uploadFile(ktpFile);
+      if (bankBookFile) bankBookUrl = await uploadFile(bankBookFile);
+      if (businessLicenseFile) businessLicenseUrl = await uploadFile(businessLicenseFile);
+
       setSuccessMessage("Creating business profile...");
       await api.post(
         "/vendors/profile",
@@ -126,6 +148,9 @@ export default function RegisterPage() {
           ...(city.trim() ? { city: city.trim() } : {}),
           ...(address.trim() ? { address: address.trim() } : {}),
           ...(category ? { description: `Main category: ${category}` } : {}),
+          ...(ktpUrl ? { ktpUrl } : {}),
+          ...(bankBookUrl ? { bankBookUrl } : {}),
+          ...(businessLicenseUrl ? { businessLicenseUrl } : {}),
         },
         {
           headers: {
@@ -330,6 +355,48 @@ export default function RegisterPage() {
                     value={address}
                     onChange={(event) => setAddress(event.target.value)}
                   />
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="space-y-2.5">
+                  <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">KTP Document (Optional)</label>
+                  <div className="relative group">
+                    <Upload className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[#FF9A9E] transition-colors" />
+                    <input
+                      type="file"
+                      accept="image/*,.pdf"
+                      onChange={(e) => setKtpFile(e.target.files?.[0] || null)}
+                      className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-3.5 pl-12 pr-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-[#FF9A9E]/10 file:text-[#FF527B] hover:file:bg-[#FF9A9E]/20"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2.5">
+                    <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Bank Book (Optional)</label>
+                    <div className="relative group">
+                      <Upload className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[#FF9A9E] transition-colors" />
+                      <input
+                        type="file"
+                        accept="image/*,.pdf"
+                        onChange={(e) => setBankBookFile(e.target.files?.[0] || null)}
+                        className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-3.5 pl-12 pr-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#FF9A9E]/10 file:text-[#FF527B] hover:file:bg-[#FF9A9E]/20"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2.5">
+                    <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest ml-1">Business License (Optional)</label>
+                    <div className="relative group">
+                      <Upload className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-[#FF9A9E] transition-colors" />
+                      <input
+                        type="file"
+                        accept="image/*,.pdf"
+                        onChange={(e) => setBusinessLicenseFile(e.target.files?.[0] || null)}
+                        className="w-full bg-[#F7F9FC] border border-[#E2E8F0] rounded-2xl py-3.5 pl-12 pr-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/20 focus:bg-white focus:border-[#FF9A9E] transition-all file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#FF9A9E]/10 file:text-[#FF527B] hover:file:bg-[#FF9A9E]/20"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
 
