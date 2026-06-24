@@ -3,23 +3,14 @@ import path from "path"
 import fs from "fs"
 import { AppError } from "../utils/error.js"
 
-// Pastikan direktori uploads ada
-const uploadDir = "uploads"
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true })
-}
+// Hapus pembuatan folder lokal karena kita akan menggunakan Supabase Storage
+// const uploadDir = "uploads"
+// if (!fs.existsSync(uploadDir)) {
+//   fs.mkdirSync(uploadDir, { recursive: true })
+// }
 
-// Konfigurasi penyimpanan lokal disk
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, uploadDir)
-  },
-  filename: (_req, file, cb) => {
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`
-    const ext = path.extname(file.originalname)
-    cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`)
-  },
-})
+// Konfigurasi penyimpanan memori (Buffer)
+const storage = multer.memoryStorage()
 
 // Filter hanya file bertipe gambar
 const fileFilter = (_req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
