@@ -26,15 +26,9 @@ const app = express()
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Izinkan request tanpa origin (seperti mobile app native, curl, postman)
-      if (!origin) return callback(null, true);
-      
-      const isLocalhost = origin.startsWith("http://localhost:") || origin.startsWith("http://127.0.0.1:");
-      if (origin === env.FRONTEND_URL || isLocalhost) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
+      // Izinkan semua origin untuk mempermudah development (mobile, web, emulator, local network)
+      // CORS middleware akan secara otomatis mengembalikan origin yang merequest jika true
+      callback(null, true);
     },
     credentials: true,
   })
