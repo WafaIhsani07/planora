@@ -26,7 +26,7 @@ const envSchema = z.object({
 
   // Supabase Storage
   SUPABASE_URL: z.string({ required_error: "SUPABASE_URL wajib diisi di .env" }),
-  SUPABASE_ANON_KEY: z.string({ required_error: "SUPABASE_ANON_KEY wajib diisi di .env" }),
+  SUPABASE_SERVICE_ROLE_KEY: z.string({ required_error: "SUPABASE_SERVICE_ROLE_KEY wajib diisi di .env" }),
   SUPABASE_BUCKET_NAME: z.string().default("planora-uploads"),
 })
 

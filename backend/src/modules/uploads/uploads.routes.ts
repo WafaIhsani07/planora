@@ -9,8 +9,8 @@ import { env } from "../../config/env.js"
 
 const router = Router()
 
-// Inisialisasi Supabase Client
-const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY)
+// Inisialisasi Supabase Client menggunakan SERVICE_ROLE_KEY untuk bypass RLS
+const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY)
 
 // Handler upload single image
 const uploadSingleImage = (req: Request, res: Response, next: NextFunction): void => {
