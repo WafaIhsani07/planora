@@ -44,7 +44,7 @@ const uploadSingleImage = (req: Request, res: Response, next: NextFunction): voi
 
       if (error) {
         console.error("Supabase Upload Error:", error)
-        return next(new AppError("Gagal mengunggah gambar ke server penyimpanan", 500))
+        return next(new AppError(`Gagal mengunggah gambar: ${error.message || JSON.stringify(error)}`, 500))
       }
 
       // Dapatkan public URL
