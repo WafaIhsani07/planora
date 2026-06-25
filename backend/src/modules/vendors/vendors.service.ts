@@ -51,6 +51,7 @@ export const getAllVendors = async (query: GetVendorsQuery) => {
           id: true,
           name: true,
           price: true,
+          images: true,
           kategori: { select: { name: true, slug: true } },
         },
       },

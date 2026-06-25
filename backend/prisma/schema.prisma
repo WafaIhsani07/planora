@@ -181,9 +181,26 @@ model Payment {
   bookingId      String        @unique
   amount         Decimal       @db.Decimal(12, 2)
   status         PaymentStatus @default(PENDING)
+  mode           PaymentMode   @default(FULL)
   method         String?
   proofUrl       String?
   paidAt         DateTime?
+  verifiedAt     DateTime?
+  
+  dpAmount       Decimal?      @db.Decimal(12, 2)
+  dpStatus       PaymentStatus?
+  dpProofUrl     String?
+  dpMethod       String?
+  dpPaidAt       DateTime?
+  dpVerifiedAt   DateTime?
+  
+  pelunasanAmount Decimal?     @db.Decimal(12, 2)
+  pelunasanStatus PaymentStatus?
+  pelunasanProofUrl String?
+  pelunasanMethod String?
+  pelunasanPaidAt DateTime?
+  pelunasanVerifiedAt DateTime?
+
   verifiedAt     DateTime?
   verifiedBy     String?
   refundProofUrl String?
@@ -302,6 +319,11 @@ enum PaymentStatus {
   FAILED
   PENDING_REFUND
   REFUNDED
+}
+
+enum PaymentMode {
+  FULL
+  DP
 }
 
 enum NotificationType {

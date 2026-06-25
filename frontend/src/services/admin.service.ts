@@ -128,7 +128,7 @@ export async function rejectVendor(id: string, reason: string) {
   return data.data;
 }
 
-export async function verifyPayment(id: string, payload: { status: string, note?: string, refundProofUrl?: string }) {
+export async function verifyPayment(id: string, payload: { status: string, note?: string, refundProofUrl?: string, type?: string }) {
   const { data } = await api.patch(`/payments/${id}/verify`, payload);
   return data.data;
 }

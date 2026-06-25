@@ -235,14 +235,21 @@ class _HomeScreenState extends State<HomeScreen> {
                           itemCount: _vendors.length,
                           itemBuilder: (context, index) {
                             final vendor = _vendors[index];
+                            final rawAvatar = (vendor['user'] != null && vendor['user']['avatar'] != null) 
+                                ? vendor['user']['avatar'].toString() 
+                                : (vendor['avatar']?.toString() ?? '');
+                            final assetUrl = ApiService.getAssetUrl(rawAvatar);
+                            final finalImageUrl = assetUrl.isNotEmpty 
+                                ? assetUrl 
+                                : 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?q=80&w=200&auto=format&fit=crop';
+                                
                             return _buildVendorCard(
                               id: vendor['id']?.toString() ?? '1',
                               name: vendor['businessName'] ?? 'Vendor Name',
                               category: vendor['city'] ?? 'Location',
                               price: Translations.t('home.viewDetails'),
                               rating: vendor['rating']?.toString() ?? '0.0',
-                              imageUrl: vendor['avatar'] ??
-                                  'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?q=80&w=200&auto=format&fit=crop',
+                              imageUrl: finalImageUrl,
                               context: context,
                             );
                           },

@@ -136,6 +136,7 @@ export const getAllBookings = async (query: AdminGetAllBookingsQuery) => {
       cancelReason: true,
       createdAt: true,
       updatedAt: true,
+      jadwalId: true,
       customer: {
         select: { id: true, name: true, email: true, phone: true },
       },
@@ -146,11 +147,35 @@ export const getAllBookings = async (query: AdminGetAllBookingsQuery) => {
         select: { id: true, name: true, price: true },
       },
       payment: {
-        select: { id: true, status: true, amount: true, method: true },
+        select: { id: true, status: true, amount: true, method: true, mode: true },
       },
     },
   })
   const total = await db.booking.count({ where })
+
+  // Pembatalan Otomatis H-3 (Lazy Evaluation)
+  const now = new Date()
+  for (const booking of bookings) {
+    if (booking.status === "CONFIRMED" && booking.payment?.mode === "DP" && booking.payment?.status !== "PAID") {
+      const h3Date = new Date(booking.eventDate)
+      h3Date.setDate(h3Date.getDate() - 3)
+      if (now >= h3Date) {
+        await db.booking.update({
+          where: { id: booking.id },
+          data: { status: "CANCELLED", cancelReason: "Otomatis dibatalkan: Belum melunasi pembayaran hingga H-3 acara" }
+        })
+        booking.status = "CANCELLED" as any
+        booking.cancelReason = "Otomatis dibatalkan: Belum melunasi pembayaran hingga H-3 acara"
+        
+        if (booking.jadwalId) {
+          await db.jadwal.update({
+            where: { id: booking.jadwalId },
+            data: { isAvailable: true, note: null }
+          })
+        }
+      }
+    }
+  }
 
   return {
     bookings,
@@ -262,6 +287,15 @@ export const getAllPayments = async (query: AdminGetAllPaymentsQuery) => {
       paidAt: true,
       verifiedAt: true,
       createdAt: true,
+      mode: true,
+      dpAmount: true,
+      dpMethod: true,
+      dpProofUrl: true,
+      dpStatus: true,
+      pelunasanAmount: true,
+      pelunasanMethod: true,
+      pelunasanProofUrl: true,
+      pelunasanStatus: true,
       booking: {
         select: {
           id: true,

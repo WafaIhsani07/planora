@@ -3,9 +3,10 @@ import { z } from "zod"
 
 export const createBookingSchema = z.object({
   layananId: z.string({ required_error: "Layanan ID wajib diisi" }),
-  eventDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Format eventDate harus YYYY-MM-DD"),
+  eventDate: z.string({ required_error: "eventDate wajib diisi" }),
   eventAddress: z.string().optional(),
   notes: z.string().optional(),
+  paymentMode: z.enum(["FULL", "DP"]).optional().default("FULL"),
 })
 
 export const updateStatusSchema = z.object({

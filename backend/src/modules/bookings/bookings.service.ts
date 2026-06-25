@@ -64,6 +64,21 @@ export const createBooking = async (customerId: string, input: CreateBookingInpu
         },
       })
 
+      // Create Initial Payment Record based on paymentMode
+      const isDP = input.paymentMode === "DP";
+      const totalDec = Number(layanan.price);
+      
+      await tx.payment.create({
+        data: {
+          bookingId: newBooking.id,
+          amount: layanan.price, // Total expected
+          mode: isDP ? "DP" : "FULL",
+          status: "PENDING",
+          dpAmount: isDP ? totalDec * 0.3 : null,
+          pelunasanAmount: isDP ? totalDec * 0.7 : null,
+        }
+      })
+
       return newBooking
     })
 
@@ -121,8 +136,8 @@ export const getMyBookings = async (
   const data = await db.booking.findMany({
     where: whereClause,
     include: {
-      layanan: { select: { name: true, price: true } },
-      customer: { select: { name: true, phone: true } },
+      layanan: { select: { name: true, price: true, duration: true } },
+      customer: { select: { name: true, phone: true, email: true } },
       vendor: { select: { businessName: true } },
       payment: true,
     },
@@ -131,6 +146,32 @@ export const getMyBookings = async (
     take: limit,
   })
   const total = await db.booking.count({ where: whereClause })
+
+  // Pembatalan Otomatis H-3 (Lazy Evaluation)
+  const now = new Date()
+  for (const booking of data) {
+    if (booking.status === "CONFIRMED" && booking.payment?.mode === "DP" && booking.payment?.status !== "PAID") {
+      const h3Date = new Date(booking.eventDate)
+      h3Date.setDate(h3Date.getDate() - 3)
+      if (now >= h3Date) {
+        // Batalkan pesanan
+        await db.booking.update({
+          where: { id: booking.id },
+          data: { status: "CANCELLED", cancelReason: "Otomatis dibatalkan: Belum melunasi pembayaran hingga H-3 acara" }
+        })
+        booking.status = "CANCELLED"
+        booking.cancelReason = "Otomatis dibatalkan: Belum melunasi pembayaran hingga H-3 acara"
+        
+        // Buka kembali jadwal vendor
+        if (booking.jadwalId) {
+          await db.jadwal.update({
+            where: { id: booking.jadwalId },
+            data: { isAvailable: true, note: null }
+          })
+        }
+      }
+    }
+  }
 
   return {
     data,
@@ -300,6 +341,22 @@ export const updateBookingStatus = async (
           data: { bookingId },
         })
       }
+    } else if (input.status === "CONFIRMED") {
+      await createNotification({
+        userId: booking.customerId,
+        title: "Pesanan Dikonfirmasi",
+        message: `Pesanan Anda #${bookingId.substring(Math.max(0, bookingId.length - 6)).toUpperCase()} telah dikonfirmasi oleh Vendor. Silakan segera selesaikan pembayaran agar pesanan dapat diproses.`,
+        type: "BOOKING",
+        data: { bookingId },
+      })
+    } else if (input.status === "IN_PROGRESS") {
+      await createNotification({
+        userId: booking.customerId,
+        title: "Pesanan Diproses",
+        message: `Pesanan Anda #${bookingId.substring(Math.max(0, bookingId.length - 6)).toUpperCase()} saat ini sedang dikerjakan oleh Vendor.`,
+        type: "BOOKING",
+        data: { bookingId },
+      })
     }
   } catch (e) {
     console.error("[UpdateBookingStatus] Gagal membuat notifikasi CANCELLED:", e)

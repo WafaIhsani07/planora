@@ -14,11 +14,13 @@ class PemesananFormScreen extends StatefulWidget {
 
 class _PemesananFormScreenState extends State<PemesananFormScreen> {
   final TextEditingController _dateController = TextEditingController();
+  final TextEditingController _timeController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _notesController = TextEditingController();
 
   Map<String, dynamic>? _serviceData;
   bool _isSubmitting = false;
+  String _paymentMode = "FULL";
 
   @override
   void didChangeDependencies() {
@@ -32,6 +34,7 @@ class _PemesananFormScreenState extends State<PemesananFormScreen> {
   @override
   void dispose() {
     _dateController.dispose();
+    _timeController.dispose();
     _addressController.dispose();
     _notesController.dispose();
     super.dispose();
@@ -76,10 +79,35 @@ class _PemesananFormScreenState extends State<PemesananFormScreen> {
     }
   }
 
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: const TimeOfDay(hour: 8, minute: 0),
+      builder: (context, child) => Theme(
+        data: Theme.of(context).copyWith(
+          colorScheme: const ColorScheme.light(
+            primary: PlanoraColors.brandDark,
+            onPrimary: PlanoraColors.background,
+            surface: PlanoraColors.background,
+            onSurface: PlanoraColors.brandDark,
+          ),
+        ),
+        child: child!,
+      ),
+    );
+    if (picked != null && mounted) {
+      setState(() {
+        final hour = picked.hour.toString().padLeft(2, '0');
+        final minute = picked.minute.toString().padLeft(2, '0');
+        _timeController.text = '$hour:$minute';
+      });
+    }
+  }
+
   Future<void> _submitOrder() async {
-    if (_dateController.text.isEmpty) {
+    if (_dateController.text.isEmpty || _timeController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(Translations.t('booking.form.dateReq'))),
+        SnackBar(content: Text("Tanggal dan waktu acara wajib diisi")),
       );
       return;
     }
@@ -87,11 +115,29 @@ class _PemesananFormScreenState extends State<PemesananFormScreen> {
     setState(() => _isSubmitting = true);
 
     final String layananId = _serviceData?['id']?.toString() ?? '1';
-    final String date = _dateController.text;
+    
+    // Combine date and time into a single ISO string
+    final dateParts = _dateController.text.split('-');
+    final timeParts = _timeController.text.split(':');
+    final combinedDate = DateTime(
+      int.parse(dateParts[0]), 
+      int.parse(dateParts[1]), 
+      int.parse(dateParts[2]),
+      int.parse(timeParts[0]),
+      int.parse(timeParts[1])
+    );
+    final String date = combinedDate.toUtc().toIso8601String();
+    
     final String address = _addressController.text.trim();
     final String notes = _notesController.text.trim();
 
-    final result = await ApiService.createBooking(layananId, date, address, notes);
+    final result = await ApiService.createBooking(
+      layananId, 
+      date, 
+      address, 
+      notes, 
+      paymentMode: _paymentMode
+    );
 
     if (mounted) {
       setState(() => _isSubmitting = false);
@@ -200,6 +246,39 @@ class _PemesananFormScreenState extends State<PemesananFormScreen> {
                   Text(Translations.t('booking.form.details'), style: tt.titleLarge),
                   const SizedBox(height: 24),
 
+                  // Metode Pembayaran
+                  Text("METODE PEMBAYARAN",
+                      style: tt.labelSmall?.copyWith(letterSpacing: 0.8)),
+                  const SizedBox(height: 8),
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: PlanoraColors.divider),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      children: [
+                        RadioListTile<String>(
+                          title: const Text("Bayar Lunas (100%)"),
+                          subtitle: const Text("Bayar penuh sekarang", style: TextStyle(fontSize: 12)),
+                          value: "FULL",
+                          groupValue: _paymentMode,
+                          onChanged: (val) => setState(() => _paymentMode = val!),
+                          activeColor: PlanoraColors.brandDark,
+                        ),
+                        const Divider(height: 1),
+                        RadioListTile<String>(
+                          title: const Text("Bayar DP (30%)"),
+                          subtitle: const Text("Sisa dilunasi maksimal H-3 Acara", style: TextStyle(fontSize: 12, color: Colors.orange)),
+                          value: "DP",
+                          groupValue: _paymentMode,
+                          onChanged: (val) => setState(() => _paymentMode = val!),
+                          activeColor: PlanoraColors.brandDark,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
                   // Tanggal Acara
                   Text(Translations.t('booking.form.eventDate'),
                       style: tt.labelSmall?.copyWith(letterSpacing: 0.8)),
@@ -211,6 +290,21 @@ class _PemesananFormScreenState extends State<PemesananFormScreen> {
                     decoration: InputDecoration(
                       hintText: Translations.t('booking.form.selectDate'),
                       suffixIcon: const Icon(Icons.calendar_today_rounded, size: 20),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Waktu Acara
+                  Text("WAKTU ACARA",
+                      style: tt.labelSmall?.copyWith(letterSpacing: 0.8)),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _timeController,
+                    readOnly: true,
+                    onTap: () => _selectTime(context),
+                    decoration: const InputDecoration(
+                      hintText: "Pilih Waktu Acara",
+                      suffixIcon: Icon(Icons.access_time_rounded, size: 20),
                     ),
                   ),
                   const SizedBox(height: 20),

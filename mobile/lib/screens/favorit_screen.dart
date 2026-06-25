@@ -169,8 +169,10 @@ class _FavoritScreenState extends State<FavoritScreen> {
                           itemBuilder: (context, index) {
                             final item = _favorites[index];
                             final itemId = item['id']?.toString() ?? '1';
-                            final avatar = item['avatar']?.toString() ?? '';
-                            final assetUrl = ApiService.getAssetUrl(avatar);
+                            final rawAvatar = (item['user'] != null && item['user']['avatar'] != null) 
+                                ? item['user']['avatar'].toString() 
+                                : (item['avatar']?.toString() ?? '');
+                            final assetUrl = ApiService.getAssetUrl(rawAvatar);
                             final imageUrl = assetUrl.isNotEmpty
                                 ? assetUrl
                                 : 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=200&auto=format&fit=crop';

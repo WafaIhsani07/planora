@@ -465,6 +465,10 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
                                 final svcName = svc['namaLayanan'] ?? svc['name'] ?? 'Paket ${index + 1}';
                                 final svcDesc = svc['deskripsi'] ?? svc['description'] ?? '';
                                 final svcPrice = svc['harga'] ?? svc['price'] ?? 0;
+                                final svcImages = svc['images'] ?? svc['gambar'] ?? [];
+                                final svcImageUrl = (svcImages is List && svcImages.isNotEmpty) 
+                                    ? svcImages[0] 
+                                    : (svcImages is String ? svcImages : null);
                                 final isSelected = _selectedService?['id']?.toString() == svcId;
 
                                 return GestureDetector(
@@ -507,6 +511,24 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
                                           size: 22,
                                         ),
                                         const SizedBox(width: 12),
+                                        if (svcImageUrl != null && svcImageUrl.toString().isNotEmpty) ...[
+                                          ClipRRect(
+                                            borderRadius: BorderRadius.circular(8),
+                                            child: Image.network(
+                                              svcImageUrl.toString(),
+                                              width: 60,
+                                              height: 60,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (_, __, ___) => Container(
+                                                width: 60,
+                                                height: 60,
+                                                color: Colors.grey[200],
+                                                child: const Icon(Icons.image_not_supported, size: 20, color: Colors.grey),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                        ],
                                         Expanded(
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,

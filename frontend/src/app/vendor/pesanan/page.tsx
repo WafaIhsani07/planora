@@ -148,7 +148,7 @@ export default function VendorPesananPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const viewParam = searchParams?.get('view');
-  
+
   const [pesananView, setPesananView] = useState<'list' | 'calendar'>('list');
   const [bookings, setBookings] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -355,11 +355,10 @@ export default function VendorPesananPage() {
                 setPesananView('list');
                 router.push('/vendor/pesanan?view=list');
               }}
-              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer ${
-                pesananView === 'list'
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer ${pesananView === 'list'
                   ? 'bg-[#FF9A9E] text-white shadow-sm'
                   : 'text-[#2A2A2A]/30 hover:bg-slate-50'
-              }`}
+                }`}
             >
               <List className="w-3.5 h-3.5" /> Daftar
             </button>
@@ -368,11 +367,10 @@ export default function VendorPesananPage() {
                 setPesananView('calendar');
                 router.push('/vendor/pesanan?view=calendar');
               }}
-              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer ${
-                pesananView === 'calendar'
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer ${pesananView === 'calendar'
                   ? 'bg-[#FF9A9E] text-white shadow-sm'
                   : 'text-[#2A2A2A]/30 hover:bg-slate-50'
-              }`}
+                }`}
             >
               <CalendarIcon className="w-3.5 h-3.5" /> Kalender
             </button>
@@ -397,23 +395,21 @@ export default function VendorPesananPage() {
                   setFilterStatus(status.name);
                   setCurrentPage(1);
                 }}
-                className={`px-6 py-2.5 text-[11px] font-black uppercase tracking-widest transition-all flex items-center gap-2 whitespace-nowrap rounded-full border-2 cursor-pointer ${
-                  filterStatus === status.name
+                className={`px-6 py-2.5 text-[11px] font-black uppercase tracking-widest transition-all flex items-center gap-2 whitespace-nowrap rounded-full border-2 cursor-pointer ${filterStatus === status.name
                     ? status.name === 'Bukti Bayar'
                       ? 'bg-amber-400 text-white border-amber-400'
                       : 'bg-[#FF9A9E] text-white border-[#FF9A9E]'
                     : status.name === 'Bukti Bayar' && bookings.filter((b) => b.status === 'PENDING' && b.payment?.status === 'PENDING').length > 0
-                    ? 'bg-amber-50 text-amber-600 border-amber-300 animate-pulse'
-                    : 'bg-white text-[#2A2A2A]/60 border-[#2A2A2A]/10 hover:border-[#2A2A2A]/30'
-                }`}
+                      ? 'bg-amber-50 text-amber-600 border-amber-300 animate-pulse'
+                      : 'bg-white text-[#2A2A2A]/60 border-[#2A2A2A]/10 hover:border-[#2A2A2A]/30'
+                  }`}
               >
                 {status.name === 'Bukti Bayar' ? '🧾 Bukti Bayar Masuk' : status.name}
                 <span
-                  className={`w-5 h-5 flex items-center justify-center rounded-full text-[9px] font-black ${
-                    filterStatus === status.name
+                  className={`w-5 h-5 flex items-center justify-center rounded-full text-[9px] font-black ${filterStatus === status.name
                       ? 'bg-white text-[#FF9A9E]'
                       : 'bg-[#2A2A2A]/10 text-[#2A2A2A]/60'
-                  }`}
+                    }`}
                 >
                   {status.count}
                 </span>
@@ -476,7 +472,9 @@ export default function VendorPesananPage() {
                           <td className="px-10 py-6 text-center">
                             <div className="space-y-1">
                               <p className="text-sm font-black text-[#2A2A2A]">{formattedDate}</p>
-                              <p className="text-[10px] font-bold text-[#2A2A2A]/40 uppercase">08.00 - 16.00</p>
+                              <p className="text-[10px] font-bold text-[#2A2A2A]/40 uppercase">
+                                {new Date(booking.eventDate).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace(':', '.')} - Selesai
+                              </p>
                             </div>
                           </td>
                           <td className="px-10 py-6 text-center">
@@ -547,11 +545,10 @@ export default function VendorPesananPage() {
                     <button
                       key={p}
                       onClick={() => setCurrentPage(p)}
-                      className={`w-10 h-10 rounded-xl text-[11px] font-black transition-all cursor-pointer ${
-                        p === currentPage
+                      className={`w-10 h-10 rounded-xl text-[11px] font-black transition-all cursor-pointer ${p === currentPage
                           ? 'bg-[#FCE6E3] text-[#FF527B] shadow-sm'
                           : 'text-[#2A2A2A]/30 hover:bg-slate-50'
-                      }`}
+                        }`}
                     >
                       {p}
                     </button>
@@ -611,15 +608,13 @@ export default function VendorPesananPage() {
                         setSelectedBooking(date.bookings[0]);
                       }
                     }}
-                    className={`border-b border-r border-[#2A2A2A]/5 p-3 h-full flex flex-col last:border-r-0 ${
-                      date.isPrevMonth || date.isNextMonth ? 'bg-[#FAFAFC]' : 'bg-white'
-                    } ${date.isEvent ? 'hover:bg-[#FDF1F0]/50 cursor-pointer' : ''}`}
+                    className={`border-b border-r border-[#2A2A2A]/5 p-3 h-full flex flex-col last:border-r-0 ${date.isPrevMonth || date.isNextMonth ? 'bg-[#FAFAFC]' : 'bg-white'
+                      } ${date.isEvent ? 'hover:bg-[#FDF1F0]/50 cursor-pointer' : ''}`}
                   >
                     <div className="flex items-start justify-between mb-2">
                       <span
-                        className={`text-[12px] font-bold ${
-                          date.isPrevMonth || date.isNextMonth ? 'text-[#2A2A2A]/20' : 'text-[#2A2A2A]/60'
-                        }`}
+                        className={`text-[12px] font-bold ${date.isPrevMonth || date.isNextMonth ? 'text-[#2A2A2A]/20' : 'text-[#2A2A2A]/60'
+                          }`}
                       >
                         {date.day}
                       </span>
@@ -638,7 +633,9 @@ export default function VendorPesananPage() {
                             {b.layanan?.name || 'Acara'}
                           </p>
                         </div>
-                        <p className="text-[8px] font-bold text-[#2A2A2A]/60">08.00 - 16.00</p>
+                        <p className="text-[8px] font-bold text-[#2A2A2A]/60">
+                          {new Date(b.eventDate).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace(':', '.')} - Selesai
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -685,7 +682,7 @@ export default function VendorPesananPage() {
 
                       <div className="space-y-2 text-xs text-[#2A2A2A]/60">
                         <div>📅 {formattedDate}</div>
-                        <div>🕐 08.00 - 16.00</div>
+                        <div>🕐 {new Date(o.eventDate).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace(':', '.')} - Selesai</div>
                         <div className="pt-2 border-t border-[#2A2A2A]/10">
                           💰{' '}
                           <span className="font-black text-[#2A2A2A]">{formatCurrency(Number(o.totalPrice))}</span>
@@ -713,9 +710,8 @@ export default function VendorPesananPage() {
       {/* Detailed Booking Modal */}
       {selectedBooking && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#2A2A2A]/60 backdrop-blur-[4px] px-4">
-          <div className={`w-full overflow-hidden rounded-[2.5rem] border border-white/10 bg-white shadow-2xl animate-in zoom-in duration-300 transition-all ${
-            showChat ? 'max-w-4xl' : 'max-w-lg'
-          }`}>
+          <div className={`w-full overflow-hidden rounded-[2.5rem] border border-white/10 bg-white shadow-2xl animate-in zoom-in duration-300 transition-all ${showChat ? 'max-w-4xl' : 'max-w-lg'
+            }`}>
             {/* Modal Header */}
             <div className="p-8 border-b border-[#2A2A2A]/5 flex items-center justify-between">
               <div>
@@ -725,11 +721,10 @@ export default function VendorPesananPage() {
                 <h3 className="text-2xl font-black text-[#2A2A2A] mt-1">Detail Informasi Pesanan</h3>
                 <button
                   onClick={() => setShowChat(!showChat)}
-                  className={`mt-2 flex items-center gap-1.5 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer ${
-                    showChat 
-                      ? 'bg-[#FF527B] text-white shadow-md' 
+                  className={`mt-2 flex items-center gap-1.5 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer ${showChat
+                      ? 'bg-[#FF527B] text-white shadow-md'
                       : 'bg-[#FDF1F0] text-[#FF527B] border border-[#FF9A9E]/20 hover:bg-[#FF9A9E]/10'
-                  }`}
+                    }`}
                 >
                   💬 {showChat ? 'Tutup Chat' : 'Chat Pelanggan'}
                 </button>
@@ -791,7 +786,9 @@ export default function VendorPesananPage() {
                       </div>
                       <div className="min-w-0">
                         <p className="text-[8px] font-bold text-slate-400 uppercase">Waktu Acara</p>
-                        <p className="text-xs font-black text-[#2A2A2A] truncate">08.00 - 16.00</p>
+                        <p className="text-xs font-black text-[#2A2A2A] truncate">
+                          {new Date(selectedBooking.eventDate).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace(':', '.')} - Selesai
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -981,11 +978,10 @@ export default function VendorPesananPage() {
                             key={msg.id}
                             className={`flex flex-col max-w-[80%] ${isMe ? 'self-end items-end' : 'self-start items-start'}`}
                           >
-                            <div className={`px-4 py-2.5 rounded-2xl text-xs font-semibold leading-relaxed shadow-sm ${
-                              isMe
+                            <div className={`px-4 py-2.5 rounded-2xl text-xs font-semibold leading-relaxed shadow-sm ${isMe
                                 ? 'bg-[#FF9A9E] text-white rounded-br-none'
                                 : 'bg-white text-[#2A2A2A] rounded-bl-none border border-[#2A2A2A]/5'
-                            }`}>
+                              }`}>
                               {msg.content}
                             </div>
                             <span className="text-[8px] font-bold text-slate-400 uppercase mt-1 tracking-tighter">

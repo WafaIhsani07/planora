@@ -31,6 +31,9 @@ type PaymentItem = {
 	status: PaymentStatus;
 	note: string;
     proofUrl: string;
+    rawMode: string;
+    rawDpStatus: string | null;
+    rawPelunasanStatus: string | null;
 };
 
 const statusBadgeClasses: Record<PaymentStatus, string> = {
@@ -118,31 +121,57 @@ export default function AdminPaymentVerificationPage() {
         setIsLoading(true);
         const data = await getAllPayments();
         const mapped: PaymentItem[] = (data.payments || []).map((p: any) => {
-            const date = new Date(p.createdAt);
-            return {
-                id: p.id,
-                customerName: p.booking?.customer?.name || '-',
-                customerEmail: p.booking?.customer?.email || '-',
-                customerPhone: p.booking?.customer?.phone || '-',
-                vendorName: p.booking?.vendor?.businessName || '-',
-                vendorCategory: '-',
-                vendorInit: p.booking?.vendor?.businessName?.charAt(0) || 'V',
-                transferDate: date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase(),
-                transferTime: date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB',
-                amount: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(p.amount),
-                type: 'PEMBAYARAN',
-                packageName: p.booking?.layanan?.name || '-',
-                totalOrder: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(p.amount),
-                paymentMethod: p.method === 'BANK_TRANSFER' ? 'Transfer Bank' : p.method || '-',
-                bankName: '-',
-                targetAccount: '-',
-                accountName: '-',
-                actualTransferTime: date.toLocaleDateString('id-ID') + ' ' + date.toLocaleTimeString('id-ID'),
-                reviewedAt: p.verifiedAt,
-                status: p.status,
-                note: p.note || '',
-                proofUrl: p.proofUrl || ''
-            };
+                    const date = new Date(p.createdAt);
+                    
+                    let currentAmount = p.amount;
+                    let currentStatus = p.status;
+                    let currentProof = p.proofUrl;
+                    let currentMethod = p.method;
+                    let currentType = 'LUNAS (100%)';
+
+                    if (p.mode === 'DP') {
+                        if (p.dpStatus !== 'PAID') {
+                            currentAmount = p.dpAmount;
+                            currentStatus = p.dpStatus || 'PENDING';
+                            currentProof = p.dpProofUrl;
+                            currentMethod = p.dpMethod;
+                            currentType = 'DP (30%)';
+                        } else {
+                            currentAmount = p.pelunasanAmount;
+                            currentStatus = p.pelunasanStatus || 'PENDING';
+                            currentProof = p.pelunasanProofUrl;
+                            currentMethod = p.pelunasanMethod;
+                            currentType = 'PELUNASAN (70%)';
+                        }
+                    }
+
+                    return {
+                        id: p.id,
+                        customerName: p.booking?.customer?.name || '-',
+                        customerEmail: p.booking?.customer?.email || '-',
+                        customerPhone: p.booking?.customer?.phone || '-',
+                        vendorName: p.booking?.vendor?.businessName || '-',
+                        vendorCategory: '-',
+                        vendorInit: p.booking?.vendor?.businessName?.charAt(0) || 'V',
+                        transferDate: date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase(),
+                        transferTime: date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB',
+                        amount: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(currentAmount || p.amount),
+                        type: currentType,
+                        packageName: p.booking?.layanan?.name || '-',
+                        totalOrder: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(p.amount),
+                        paymentMethod: currentMethod === 'BANK_TRANSFER' ? 'Transfer Bank' : currentMethod || '-',
+                        bankName: '-',
+                        targetAccount: '-',
+                        accountName: '-',
+                        actualTransferTime: date.toLocaleDateString('id-ID') + ' ' + date.toLocaleTimeString('id-ID'),
+                        reviewedAt: p.verifiedAt,
+                        status: currentStatus,
+                        note: p.note || '',
+                        proofUrl: currentProof || '',
+                        rawMode: p.mode || 'FULL',
+                        rawDpStatus: p.dpStatus || null,
+                        rawPelunasanStatus: p.pelunasanStatus || null
+                    };
         });
         setPayments(mapped);
         setIsLoading(false);
@@ -213,13 +242,47 @@ export default function AdminPaymentVerificationPage() {
         setSelectedInvoice(next ? next.id : null);
 
         try {
+            // Determine type based on mode and dpStatus
+            const paymentObj = payments.find(p => p.id === invoice);
+            let paymentType = 'FULL';
+            if (paymentObj && paymentObj.rawMode === 'DP') {
+                if (paymentObj.rawDpStatus !== 'PAID') {
+                    paymentType = 'DP';
+                } else {
+                    paymentType = 'PELUNASAN';
+                }
+            }
+
             // Lakukan request ke backend di background
-            await verifyPayment(invoice, { status, note });
+            await verifyPayment(invoice, { status, note, type: paymentType });
             
             // (Opsional) Refresh data asli di background agar selalu sinkron tanpa memblokir UI
             getAllPayments().then(data => {
                 const mapped: PaymentItem[] = (data.payments || []).map((p: any) => {
                     const date = new Date(p.createdAt);
+                    
+                    let currentAmount = p.amount;
+                    let currentStatus = p.status;
+                    let currentProof = p.proofUrl;
+                    let currentMethod = p.method;
+                    let currentType = 'LUNAS (100%)';
+
+                    if (p.mode === 'DP') {
+                        if (p.dpStatus !== 'PAID') {
+                            currentAmount = p.dpAmount;
+                            currentStatus = p.dpStatus || 'PENDING';
+                            currentProof = p.dpProofUrl;
+                            currentMethod = p.dpMethod;
+                            currentType = 'DP (30%)';
+                        } else {
+                            currentAmount = p.pelunasanAmount;
+                            currentStatus = p.pelunasanStatus || 'PENDING';
+                            currentProof = p.pelunasanProofUrl;
+                            currentMethod = p.pelunasanMethod;
+                            currentType = 'PELUNASAN (70%)';
+                        }
+                    }
+
                     return {
                         id: p.id,
                         customerName: p.booking?.customer?.name || '-',
@@ -230,19 +293,22 @@ export default function AdminPaymentVerificationPage() {
                         vendorInit: p.booking?.vendor?.businessName?.charAt(0) || 'V',
                         transferDate: date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase(),
                         transferTime: date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB',
-                        amount: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(p.amount),
-                        type: 'PEMBAYARAN',
+                        amount: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(currentAmount || p.amount),
+                        type: currentType,
                         packageName: p.booking?.layanan?.name || '-',
                         totalOrder: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(p.amount),
-                        paymentMethod: p.method === 'BANK_TRANSFER' ? 'Transfer Bank' : p.method || '-',
+                        paymentMethod: currentMethod === 'BANK_TRANSFER' ? 'Transfer Bank' : currentMethod || '-',
                         bankName: '-',
                         targetAccount: '-',
                         accountName: '-',
                         actualTransferTime: date.toLocaleDateString('id-ID') + ' ' + date.toLocaleTimeString('id-ID'),
                         reviewedAt: p.verifiedAt,
-                        status: p.status,
+                        status: currentStatus,
                         note: p.note || '',
-                        proofUrl: p.proofUrl || ''
+                        proofUrl: currentProof || '',
+                        rawMode: p.mode || 'FULL',
+                        rawDpStatus: p.dpStatus || null,
+                        rawPelunasanStatus: p.pelunasanStatus || null
                     };
                 });
                 setPayments(mapped);

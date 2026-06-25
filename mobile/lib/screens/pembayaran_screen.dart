@@ -121,6 +121,22 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
         ? rawPrice.toDouble()
         : (double.tryParse(rawPrice?.toString() ?? '0') ?? 0.0);
 
+    final String mode = _selectedOrder!['payment']?['mode'] ?? 'FULL';
+    final String dpStatus = _selectedOrder!['payment']?['dpStatus'] ?? '';
+    
+    String type = 'FULL';
+    double amountToPay = totalPrice;
+    
+    if (mode == 'DP') {
+      if (dpStatus != 'PAID') {
+        type = 'DP';
+        amountToPay = double.tryParse(_selectedOrder!['payment']?['dpAmount']?.toString() ?? '0') ?? (totalPrice * 0.3);
+      } else {
+        type = 'PELUNASAN';
+        amountToPay = double.tryParse(_selectedOrder!['payment']?['pelunasanAmount']?.toString() ?? '0') ?? (totalPrice * 0.7);
+      }
+    }
+
     try {
       // 1. Unggah file gambar bukti transfer
       final uploadResult = await ApiService.uploadFile(image);
@@ -141,9 +157,10 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
       // 2. Kirim data pembayaran ke backend dengan proofUrl
       final payResult = await ApiService.createPayment(
         bookingId: bookingId,
-        amount: totalPrice,
+        amount: amountToPay,
         method: 'BANK_TRANSFER',
         proofUrl: imageUrl,
+        type: type,
       );
       if (!mounted) return;
 

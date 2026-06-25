@@ -7,6 +7,7 @@ import { createNotification } from "../notifications/notifications.service.js"
 export const createPayment = async (userId: string, input: CreatePaymentInput) => {
   const booking = await db.booking.findUnique({
     where: { id: input.bookingId },
+    include: { vendor: { select: { userId: true } } },
   })
 
   if (!booking) throw new AppError("Pesanan tidak ditemukan", 404)
@@ -15,9 +16,63 @@ export const createPayment = async (userId: string, input: CreatePaymentInput) =
   const existingPayment = await db.payment.findUnique({
     where: { bookingId: input.bookingId },
   })
-  if (existingPayment) throw new AppError("Data pembayaran untuk pesanan ini sudah ada", 400)
 
-  // Otomatis ambil nominal total dari tabel Booking
+  if (existingPayment) {
+    const isDP = existingPayment.mode === "DP"
+    
+    let updatedPayment;
+    if (input.type === "DP" || (isDP && (existingPayment.dpStatus === null || existingPayment.dpStatus === "FAILED"))) {
+      if (existingPayment.dpStatus === "PAID") throw new AppError("DP sudah dibayar lunas", 400)
+      updatedPayment = await db.payment.update({
+        where: { bookingId: input.bookingId },
+        data: {
+          dpMethod: input.method,
+          dpProofUrl: input.proofUrl,
+          dpStatus: "PENDING",
+        }
+      })
+    } else if (input.type === "PELUNASAN" || (isDP && existingPayment.dpStatus === "PAID")) {
+      if (existingPayment.pelunasanStatus === "PAID") throw new AppError("Pelunasan sudah dibayar lunas", 400)
+      updatedPayment = await db.payment.update({
+        where: { bookingId: input.bookingId },
+        data: {
+          pelunasanMethod: input.method,
+          pelunasanProofUrl: input.proofUrl,
+          pelunasanStatus: "PENDING",
+        }
+      })
+    } else {
+      if (existingPayment.status === "PAID") throw new AppError("Pesanan sudah lunas", 400)
+      updatedPayment = await db.payment.update({
+        where: { bookingId: input.bookingId },
+        data: {
+          method: input.method,
+          proofUrl: input.proofUrl,
+          status: "PENDING",
+        }
+      })
+    }
+    
+    // Kirim notifikasi ke Vendor bahwa Customer telah mengunggah bukti bayar
+    try {
+      const displayId = input.bookingId.substring(Math.max(0, input.bookingId.length - 6)).toUpperCase()
+      if (booking.vendor?.userId) {
+        await createNotification({
+          userId: booking.vendor.userId,
+          title: "Bukti Pembayaran Diunggah",
+          message: `Pelanggan telah mengunggah bukti pembayaran untuk pesanan #${displayId}. Menunggu verifikasi Admin.`,
+          type: "PAYMENT",
+          data: { bookingId: input.bookingId },
+        })
+      }
+    } catch (e) {
+      console.error("[CreatePayment] Gagal mengirim notifikasi upload bukti:", e)
+    }
+
+    return updatedPayment;
+  }
+
+  // Fallback (jika data payment belum ada sama sekali)
   const payment = await db.payment.create({
     data: {
       bookingId: input.bookingId,
@@ -27,6 +82,22 @@ export const createPayment = async (userId: string, input: CreatePaymentInput) =
       status: "PENDING",
     },
   })
+
+  // Kirim notifikasi ke Vendor bahwa Customer telah mengunggah bukti bayar
+  try {
+    const displayId = input.bookingId.substring(Math.max(0, input.bookingId.length - 6)).toUpperCase()
+    if (booking.vendor?.userId) {
+      await createNotification({
+        userId: booking.vendor.userId,
+        title: "Bukti Pembayaran Diunggah",
+        message: `Pelanggan telah mengunggah bukti pembayaran untuk pesanan #${displayId}. Menunggu verifikasi Admin.`,
+        type: "PAYMENT",
+        data: { bookingId: input.bookingId },
+      })
+    }
+  } catch (e) {
+    console.error("[CreatePayment] Gagal mengirim notifikasi upload bukti:", e)
+  }
 
   return payment
 }
@@ -45,22 +116,41 @@ export const verifyPayment = async (userId: string, userRole: string, paymentId:
     throw new AppError("Akses ditolak: Hanya Admin yang dapat memverifikasi pembayaran", 403)
   }
 
+  let updateData: any = {
+    verifiedBy: userId,
+    note: input.note ?? null,
+  }
+
+  if (input.type === "DP") {
+    updateData.dpStatus = input.status
+    updateData.dpVerifiedAt = new Date()
+    updateData.dpPaidAt = input.status === "PAID" ? new Date() : null
+  } else if (input.type === "PELUNASAN") {
+    updateData.pelunasanStatus = input.status
+    updateData.pelunasanVerifiedAt = new Date()
+    updateData.pelunasanPaidAt = input.status === "PAID" ? new Date() : null
+    
+    if (input.status === "PAID") {
+      updateData.status = "PAID"
+      updateData.verifiedAt = new Date()
+      updateData.paidAt = new Date()
+    }
+  } else {
+    updateData.status = input.status
+    updateData.verifiedAt = new Date()
+    updateData.paidAt = input.status === "PAID" ? new Date() : null
+    updateData.refundProofUrl = input.refundProofUrl ?? null
+    updateData.refundedAt = input.status === "REFUNDED" ? new Date() : null
+    updateData.refundedBy = input.status === "REFUNDED" ? userId : null
+  }
+
   const verifiedPayment = await db.payment.update({
     where: { id: paymentId },
-    data: {
-      status: input.status,
-      verifiedAt: new Date(),
-      verifiedBy: userId,
-      paidAt: input.status === "PAID" ? new Date() : null,
-      note: input.note ?? null,
-      refundProofUrl: input.refundProofUrl ?? null,
-      refundedAt: input.status === "REFUNDED" ? new Date() : null,
-      refundedBy: input.status === "REFUNDED" ? userId : null,
-    },
+    data: updateData,
   })
 
-  // Jika pembayaran SAH (PAID), otomatis naikkan status booking jadi CONFIRMED
-  if (input.status === "PAID") {
+  // Jika pembayaran DP atau FULL SAH (PAID), otomatis naikkan status booking jadi CONFIRMED
+  if (input.status === "PAID" && (input.type === "FULL" || input.type === "DP")) {
     await db.booking.update({
       where: { id: payment.bookingId },
       data: { status: "CONFIRMED" },
