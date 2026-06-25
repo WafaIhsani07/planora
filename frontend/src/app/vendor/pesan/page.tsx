@@ -230,7 +230,11 @@ export default function VendorPesanPage() {
                 </div>
               ) : (
                 messages.map((msg) => {
-                  const isMyMessage = msg.senderId === (user as any)?.id;
+                  const currentUserId = (user as any)?.id;
+                  // Gunakan role sebagai deteksi utama (konsisten dengan pesanan/page.tsx)
+                  // Karena halaman ini adalah vendor dashboard, pesan dari VENDOR = milik saya
+                  const isMyMessage = msg.sender?.role === 'VENDOR' || 
+                    (currentUserId && (msg.senderId === currentUserId || msg.sender?.id === currentUserId));
                   
                   return (
                     <div key={msg.id} className={`flex ${isMyMessage ? 'justify-end' : 'justify-start'}`}>
