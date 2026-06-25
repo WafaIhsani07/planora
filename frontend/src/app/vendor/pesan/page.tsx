@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, Phone, Video, MoreVertical, Search, Paperclip, Smile, MessageCircle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useSession } from 'next-auth/react';
+import { useAuthStore } from '@/store/authStore';
 import { getBookings, getBookingMessages, sendBookingMessage } from '@/services/bookings.service';
 import { format } from 'date-fns';
 
@@ -33,7 +33,7 @@ interface Message {
 
 export default function VendorPesanPage() {
   const { t } = useLanguage();
-  const { data: session } = useSession();
+  const { user } = useAuthStore();
   const [chats, setChats] = useState<ChatUser[]>([]);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -108,14 +108,14 @@ export default function VendorPesanPage() {
     const tempMsg: Message = {
       id: Date.now().toString(),
       bookingId: activeChatId,
-      senderId: (session?.user as any)?.id || '',
+      senderId: (user as any)?.id || '',
       content: textToSend,
       isRead: true,
       createdAt: new Date().toISOString(),
       sender: {
-        id: (session?.user as any)?.id || '',
-        name: session?.user?.name || 'You',
-        avatar: session?.user?.image || null,
+        id: (user as any)?.id || '',
+        name: user?.name || 'You',
+        avatar: user?.avatar || null,
         role: 'VENDOR'
       }
     };
@@ -224,7 +224,7 @@ export default function VendorPesanPage() {
                 </div>
               ) : (
                 messages.map((msg) => {
-                  const isMyMessage = msg.senderId === (session?.user as any)?.id;
+                  const isMyMessage = msg.senderId === (user as any)?.id;
                   
                   return (
                     <div key={msg.id} className={`flex ${isMyMessage ? 'justify-end' : 'justify-start'}`}>

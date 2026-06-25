@@ -623,6 +623,7 @@
   },
   "vendor_sidebar": {
     "dashboard": "Dashboard",
+    "pesan": "Messages",
     "pesanan": "Orders",
     "layanan": "Service Packages",
     "portofolio": "Portfolio",
