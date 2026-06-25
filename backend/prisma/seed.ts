@@ -153,7 +153,7 @@ async function main() {
       bankName: 'BANK BCA',
       bankAccount: '8123456789',
       bankHolder: 'Feri Wafa',
-      balance: 15500000.00
+      balance: 0.00
     }
   });
 
@@ -172,7 +172,7 @@ async function main() {
       bankName: 'BANK Mandiri',
       bankAccount: '1230099887766',
       bankHolder: 'Sarah Ritz',
-      balance: 22000000.00
+      balance: 0.00
     }
   });
 
@@ -209,7 +209,7 @@ async function main() {
       bankName: 'BANK BNI',
       bankAccount: '0987654321',
       bankHolder: 'Amelia Rosella',
-      balance: 8500000.00
+      balance: 0.00
     }
   });
 
