@@ -68,15 +68,15 @@ describe('AdminVerifikasiVendorPage', () => {
 
     // Must click "Lihat detail" first to open the panel
     await waitFor(() => {
-      expect(screen.getByText('Lihat detail')).toBeDefined();
+      expect(screen.getByText('common.view_detail')).toBeDefined();
     });
-    fireEvent.click(screen.getByText('Lihat detail'));
+    fireEvent.click(screen.getByText('common.view_detail'));
 
     await waitFor(() => {
-      expect(screen.getByText('Verifikasi')).toBeDefined();
+      expect(screen.getByText('admin_pages.verifikasi.actions.verify')).toBeDefined();
     });
 
-    fireEvent.click(screen.getByText('Verifikasi'));
+    fireEvent.click(screen.getByText('admin_pages.verifikasi.actions.verify'));
 
     await waitFor(() => {
       expect(adminService.verifyVendor).toHaveBeenCalledWith('v1');
@@ -94,17 +94,17 @@ describe('AdminVerifikasiVendorPage', () => {
 
     // Must click "Lihat detail" first to open the panel
     await waitFor(() => {
-      expect(screen.getByText('Lihat detail')).toBeDefined();
+      expect(screen.getByText('common.view_detail')).toBeDefined();
     });
-    fireEvent.click(screen.getByText('Lihat detail'));
+    fireEvent.click(screen.getByText('common.view_detail'));
 
     await waitFor(() => {
-      const tolakButtons = screen.getAllByRole('button', { name: /Tolak/i });
+      const tolakButtons = screen.getAllByRole('button', { name: /admin_pages.verifikasi.actions.reject/i });
       expect(tolakButtons.length).toBeGreaterThan(0);
     });
 
     // Click the last "Tolak" button (the one in the detail panel)
-    const tolakButtons = screen.getAllByRole('button', { name: /Tolak/i });
+    const tolakButtons = screen.getAllByRole('button', { name: /admin_pages.verifikasi.actions.reject/i });
     fireEvent.click(tolakButtons[tolakButtons.length - 1]);
 
     await waitFor(() => {
