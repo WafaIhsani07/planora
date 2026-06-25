@@ -201,7 +201,6 @@ model Payment {
   pelunasanPaidAt DateTime?
   pelunasanVerifiedAt DateTime?
 
-  verifiedAt     DateTime?
   verifiedBy     String?
   refundProofUrl String?
   refundedAt     DateTime?

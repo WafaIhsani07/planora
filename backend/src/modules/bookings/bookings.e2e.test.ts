@@ -29,6 +29,7 @@ describe("End-to-End (E2E) Integration Tests - Fase 1-4 dengan Peningkatan", () 
         eventDate: "2026-07-05",
         eventAddress: "Jakarta",
         notes: "Ulang tahun",
+        paymentMode: "FULL" as const,
       }
 
       const mockLayanan = {
@@ -123,6 +124,7 @@ describe("End-to-End (E2E) Integration Tests - Fase 1-4 dengan Peningkatan", () 
       const input = {
         layananId: "layanan-1",
         eventDate: "2026-07-05",
+        paymentMode: "FULL" as const,
       }
 
       const mockLayanan = {
@@ -167,16 +169,16 @@ describe("End-to-End (E2E) Integration Tests - Fase 1-4 dengan Peningkatan", () 
 
       // Customer mencoba verifikasi -> Gagal (403)
       await expect(
-        paymentsService.verifyPayment("customer-1", "CUSTOMER", paymentId, { status: "PAID" })
+        paymentsService.verifyPayment("customer-1", "CUSTOMER", paymentId, { status: "PAID", type: "FULL" })
       ).rejects.toThrow("Akses ditolak: Hanya Admin yang dapat memverifikasi pembayaran")
 
       // Vendor mencoba verifikasi -> Gagal (403)
       await expect(
-        paymentsService.verifyPayment("vendor-user-1", "VENDOR", paymentId, { status: "PAID" })
+        paymentsService.verifyPayment("vendor-user-1", "VENDOR", paymentId, { status: "PAID", type: "FULL" })
       ).rejects.toThrow("Akses ditolak: Hanya Admin yang dapat memverifikasi pembayaran")
 
       // Admin melakukan verifikasi -> Berhasil
-      const result = await paymentsService.verifyPayment("admin-1", "ADMIN", paymentId, { status: "PAID" })
+      const result = await paymentsService.verifyPayment("admin-1", "ADMIN", paymentId, { status: "PAID", type: "FULL" })
       expect(result.status).toBe("PAID")
 
       // Pastikan notifikasi dikirim ke Customer dan Vendor
@@ -193,6 +195,7 @@ describe("End-to-End (E2E) Integration Tests - Fase 1-4 dengan Peningkatan", () 
 
       const result = await paymentsService.verifyPayment("admin-1", "ADMIN", paymentId, { 
         status: "REFUNDED",
+        type: "FULL",
         refundProofUrl: "https://example.com/proof.jpg"
       })
 

@@ -27,7 +27,7 @@ export const createPayment = async (userId: string, input: CreatePaymentInput) =
         where: { bookingId: input.bookingId },
         data: {
           dpMethod: input.method,
-          dpProofUrl: input.proofUrl,
+          dpProofUrl: input.proofUrl ?? null,
           dpStatus: "PENDING",
         }
       })
@@ -37,7 +37,7 @@ export const createPayment = async (userId: string, input: CreatePaymentInput) =
         where: { bookingId: input.bookingId },
         data: {
           pelunasanMethod: input.method,
-          pelunasanProofUrl: input.proofUrl,
+          pelunasanProofUrl: input.proofUrl ?? null,
           pelunasanStatus: "PENDING",
         }
       })
@@ -47,7 +47,7 @@ export const createPayment = async (userId: string, input: CreatePaymentInput) =
         where: { bookingId: input.bookingId },
         data: {
           method: input.method,
-          proofUrl: input.proofUrl,
+          proofUrl: input.proofUrl ?? null,
           status: "PENDING",
         }
       })
