@@ -108,12 +108,12 @@ export default function VendorPesanPage() {
     const tempMsg: Message = {
       id: Date.now().toString(),
       bookingId: activeChatId,
-      senderId: session?.user?.id || '',
+      senderId: (session?.user as any)?.id || '',
       content: textToSend,
       isRead: true,
       createdAt: new Date().toISOString(),
       sender: {
-        id: session?.user?.id || '',
+        id: (session?.user as any)?.id || '',
         name: session?.user?.name || 'You',
         avatar: session?.user?.image || null,
         role: 'VENDOR'
@@ -224,7 +224,7 @@ export default function VendorPesanPage() {
                 </div>
               ) : (
                 messages.map((msg) => {
-                  const isMyMessage = msg.senderId === session?.user?.id;
+                  const isMyMessage = msg.senderId === (session?.user as any)?.id;
                   
                   return (
                     <div key={msg.id} className={`flex ${isMyMessage ? 'justify-end' : 'justify-start'}`}>
