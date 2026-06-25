@@ -3,6 +3,16 @@ const { execSync } = require('child_process');
 console.log("Memulai proses push backend ke Hugging Face...");
 
 try {
+  // 0. Jalankan automation testing sebelum push
+  console.log("-> Menjalankan Automation Testing (backend)...");
+  try {
+    console.log("   (Menjalankan: npm run test di folder backend)");
+    execSync('npm run test', { cwd: './backend', stdio: 'inherit' });
+    console.log("✅ Semua test backend berhasil dilewati!\n");
+  } catch (testError) {
+    throw new Error("Automation Testing GAGAL. Push dibatalkan untuk mencegah masalah di production.");
+  }
+
   // 1. Tambahkan perubahan pada folder backend ke Git Index
   console.log("-> git add backend");
   execSync('git add backend');

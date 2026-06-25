@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "================================================="
+echo "Menjalankan Automation Testing sebelum Git Push..."
+echo "================================================="
+
+echo "1. Testing Backend..."
+npm --prefix backend run test
+if [ $? -ne 0 ]; then
+  echo "❌ Uji otomatis Backend GAGAL! Push dibatalkan."
+  exit 1
+fi
+
+echo "2. Testing Frontend..."
+npm --prefix frontend run test
+if [ $? -ne 0 ]; then
+  echo "❌ Uji otomatis Frontend GAGAL! Push dibatalkan."
+  exit 1
+fi
+
+echo "✅ Semua test berhasil. Melanjutkan Git Push..."

@@ -5,6 +5,7 @@
     "dev": "npm --prefix backend run dev"
   },
   "devDependencies": {
+    "husky": "^9.1.7",
     "tsx": "^4.21.0"
   },
   "dependencies": {

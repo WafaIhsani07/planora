@@ -13,6 +13,7 @@ import {
   Wallet,
   Settings,
   Menu,
+  MessageCircle,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { signOut } from 'next-auth/react';
@@ -22,6 +23,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 const navItems = [
   { href: '/vendor/dashboard', key: 'dashboard', icon: LayoutDashboard },
+  { href: '/vendor/pesan', key: 'pesan', icon: MessageCircle },
   { href: '/vendor/pesanan', key: 'pesanan', icon: ClipboardList, hasBadge: true },
   { href: '/vendor/layanan', key: 'layanan', icon: Package },
   { href: '/vendor/portofolio', key: 'portofolio', icon: ImageIcon },
