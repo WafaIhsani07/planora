@@ -74,6 +74,9 @@ describe("End-to-End (E2E) Integration Tests - Fase 1-4 dengan Peningkatan", () 
           booking: {
             create: vi.fn().mockResolvedValue(mockBooking),
           },
+          payment: {
+            create: vi.fn().mockResolvedValue({}),
+          },
         }
         return cb(tx)
       })
@@ -102,6 +105,9 @@ describe("End-to-End (E2E) Integration Tests - Fase 1-4 dengan Peningkatan", () 
               error.code = "P2002"
               throw error
             }),
+          },
+          payment: {
+            create: vi.fn().mockResolvedValue({}),
           },
         }
         return cb(tx)

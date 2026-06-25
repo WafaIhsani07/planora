@@ -26,6 +26,7 @@ describe("Payments Service", () => {
 
       const result = await paymentsService.verifyPayment("admin-1", "ADMIN", "pay-1", {
         status: "PAID",
+        type: "FULL",
       })
 
       expect(mockDb.payment.update).toHaveBeenCalledWith(
@@ -61,6 +62,7 @@ describe("Payments Service", () => {
 
       const result = await paymentsService.verifyPayment("admin-1", "ADMIN", "pay-1", {
         status: "FAILED",
+        type: "FULL",
         note: "Bukti palsu",
       })
 
