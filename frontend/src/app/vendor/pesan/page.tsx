@@ -48,22 +48,28 @@ export default function VendorPesanPage() {
         const res = await getBookings();
         const bookings = Array.isArray(res?.data?.data) ? res.data.data : (Array.isArray(res?.data) ? res.data : []);
         
-        const chatList: ChatUser[] = bookings.map((booking: any) => {
-          // Find the customer details
-          const customerName = booking.customer?.name || 'Customer';
-          const avatar = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(customerName) + '&background=random';
+        const uniqueCustomers = new Map<string, ChatUser>();
+        
+        bookings.forEach((booking: any) => {
+          const customerId = booking.customerId;
+          if (!customerId) return;
           
-          return {
-            bookingId: booking.id,
-            name: customerName,
-            lastMessage: 'Ketuk untuk melihat pesan',
-            time: format(new Date(booking.createdAt), 'HH:mm'),
-            unread: 0,
-            avatar,
-          };
+          if (!uniqueCustomers.has(customerId)) {
+            const customerName = booking.customer?.name || 'Customer';
+            const avatar = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(customerName) + '&background=random';
+            
+            uniqueCustomers.set(customerId, {
+              bookingId: booking.id,
+              name: customerName,
+              lastMessage: 'Ketuk untuk melihat pesan',
+              time: format(new Date(booking.createdAt), 'HH:mm'),
+              unread: 0,
+              avatar,
+            });
+          }
         });
         
-        setChats(chatList);
+        setChats(Array.from(uniqueCustomers.values()));
       } catch (error) {
         console.error("Failed to fetch bookings for chats:", error);
       } finally {
