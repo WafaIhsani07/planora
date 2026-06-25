@@ -31,12 +31,34 @@ const envSchema = z.object({
 })
 
 // ─── Parse & Validasi ───────────────────────────────────────────────────────
-const _parsed = envSchema.safeParse(process.env)
+let _parsed = envSchema.safeParse(process.env)
 
 if (!_parsed.success) {
-  console.error("❌ Environment variables tidak valid, server tidak bisa start:")
-  console.error(JSON.stringify(_parsed.error.format(), null, 2))
-  process.exit(1)
+  if (process.env.NODE_ENV === "test" || process.env.VITEST) {
+    // Gunakan fallback dummy jika di vitest
+    console.warn("⚠️ Warning: Environment variables invalid, using dummy values for testing.");
+    _parsed = {
+      success: true,
+      data: {
+        NODE_ENV: "test",
+        PORT: 5000,
+        DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/testdb",
+        DIRECT_URL: undefined,
+        JWT_SECRET: "test-secret",
+        JWT_REFRESH_SECRET: "test-refresh",
+        JWT_EXPIRES_IN: "7d",
+        JWT_REFRESH_EXPIRES_IN: "7d",
+        FRONTEND_URL: "http://localhost:3000",
+        SUPABASE_URL: "https://test.supabase.co",
+        SUPABASE_SERVICE_ROLE_KEY: "test-service-key",
+        SUPABASE_BUCKET_NAME: "planora-uploads"
+      }
+    } as any;
+  } else {
+    console.error("❌ Environment variables tidak valid, server tidak bisa start:")
+    console.error(JSON.stringify(_parsed.error.format(), null, 2))
+    process.exit(1)
+  }
 }
 
 export const env = _parsed.data

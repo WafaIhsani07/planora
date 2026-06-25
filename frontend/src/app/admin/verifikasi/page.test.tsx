@@ -15,6 +15,12 @@ vi.mock('@/components/admin/AdminHeader', () => ({
   default: () => <div data-testid="admin-header">Header Mock</div>
 }));
 
+// Mock LanguageContext
+vi.mock('@/contexts/LanguageContext', () => ({
+  useLanguage: () => ({ t: (key: string) => key, language: 'id', setLanguage: vi.fn() }),
+  LanguageProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
 describe('AdminVerifikasiVendorPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
