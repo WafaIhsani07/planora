@@ -222,8 +222,11 @@ class _DetailBookingBatalkanScreenState
     final vendorData = detail['vendor'] ?? detail['layanan']?['vendor'] ?? {};
     final layananData = detail['layanan'] ?? {};
 
-    final String imagePath = ApiService.getAssetUrl(vendorData['avatar']?.toString()).isNotEmpty
-        ? ApiService.getAssetUrl(vendorData['avatar']?.toString())
+    final String rawAvatar = (vendorData['user'] != null && vendorData['user']['avatar'] != null)
+        ? vendorData['user']['avatar'].toString()
+        : vendorData['avatar']?.toString() ?? '';
+    final String imagePath = ApiService.getAssetUrl(rawAvatar).isNotEmpty
+        ? ApiService.getAssetUrl(rawAvatar)
         : 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=600&auto=format&fit=crop';
 
 

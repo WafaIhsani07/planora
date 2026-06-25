@@ -279,8 +279,10 @@ class _PesananScreenState extends State<PesananScreen> {
     final vid = vendorData['id']?.toString() ?? '';
     final bid = id;
     final vname = vendorData['businessName'] ?? vendorData['name'] ?? 'Vendor';
-    final avatar = vendorData['avatar']?.toString() ?? '';
-    final assetUrl = ApiService.getAssetUrl(avatar);
+    final rawAvatar = (vendorData['user'] != null && vendorData['user']['avatar'] != null)
+        ? vendorData['user']['avatar'].toString()
+        : vendorData['avatar']?.toString() ?? '';
+    final assetUrl = ApiService.getAssetUrl(rawAvatar);
     final finalImageUrl = assetUrl.isNotEmpty ? assetUrl : imageUrl;
 
     final chatArgs = {

@@ -209,7 +209,10 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
     }
 
     final vendor = _vendorDetails!;
-    final String imagePath = ApiService.getAssetUrl(vendor['avatar']?.toString());
+    final String rawAvatar = (vendor['user'] != null && vendor['user']['avatar'] != null)
+        ? vendor['user']['avatar'].toString()
+        : vendor['avatar']?.toString() ?? '';
+    final String imagePath = ApiService.getAssetUrl(rawAvatar);
 
     final String category = vendor['category'] ?? 'Vendor';
     final String title = vendor['businessName'] ?? vendor['name'] ?? 'Vendor';

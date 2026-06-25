@@ -38,8 +38,10 @@ class _ChatListScreenState extends State<ChatListScreen> {
         if (vid.isEmpty || bid.isEmpty) continue;
 
         final vname = vendorData['businessName'] ?? vendorData['name'] ?? 'Vendor';
-        final avatar = vendorData['avatar']?.toString() ?? '';
-        final assetUrl = ApiService.getAssetUrl(avatar);
+        final rawAvatar = (vendorData['user'] != null && vendorData['user']['avatar'] != null)
+            ? vendorData['user']['avatar'].toString()
+            : vendorData['avatar']?.toString() ?? '';
+        final assetUrl = ApiService.getAssetUrl(rawAvatar);
         final imageUrl = assetUrl.isNotEmpty
             ? assetUrl
             : 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=200&auto=format&fit=crop';
