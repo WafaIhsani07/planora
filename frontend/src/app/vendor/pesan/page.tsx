@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Send, Phone, Video, MoreVertical, Search, Paperclip, Smile, MessageCircle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
-import { useSession } from 'next-auth/react';
+import { getSession } from 'next-auth/react';
 import { getBookings, getBookingMessages, sendBookingMessage } from '@/services/bookings.service';
 import { format } from 'date-fns';
 
@@ -35,13 +35,22 @@ interface Message {
 export default function VendorPesanPage() {
   const { t } = useLanguage();
   const { user } = useAuthStore();
-  const { data: session } = useSession();
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [chats, setChats] = useState<ChatUser[]>([]);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageInput, setMessageInput] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Fetch session to get current user ID reliably
+  useEffect(() => {
+    getSession().then(session => {
+      if (session?.user?.id) {
+        setCurrentUserId(session.user.id);
+      }
+    });
+  }, []);
 
   // Fetch list of chats (bookings)
   useEffect(() => {
@@ -109,18 +118,17 @@ export default function VendorPesanPage() {
     setMessageInput("");
     
     // Optimistic UI update
-    const currentUserId = (session?.user as any)?.id || (user as any)?.id || '';
     const tempMsg: Message = {
       id: Date.now().toString(),
       bookingId: activeChatId,
-      senderId: currentUserId,
+      senderId: currentUserId || (user as any)?.id || '',
       content: textToSend,
       isRead: true,
       createdAt: new Date().toISOString(),
       sender: {
-        id: currentUserId,
-        name: (session?.user as any)?.name || user?.name || 'You',
-        avatar: (session?.user as any)?.image || (user as any)?.avatar || null,
+        id: currentUserId || (user as any)?.id || '',
+        name: user?.name || 'You',
+        avatar: (user as any)?.avatar || null,
         role: 'VENDOR'
       }
     };
@@ -229,13 +237,13 @@ export default function VendorPesanPage() {
                 </div>
               ) : (
                 messages.map((msg) => {
-                  const currentUserId = (session?.user as any)?.id || (user as any)?.id;
+                  const fallbackId = (user as any)?.id;
                   
                   // Gunakan ID user sebagai deteksi utama karena sender.role kadang bisa tidak valid
                   // Jika ID cocok, itu adalah pesan kita. Jika tidak, itu pesan orang lain.
                   // Sebagai fallback untuk safety di vendor dashboard, pesan dari VENDOR dianggap milik kita jika ID tidak ada
-                  const isMyMessage = currentUserId 
-                    ? (msg.senderId === currentUserId || msg.sender?.id === currentUserId)
+                  const isMyMessage = currentUserId || fallbackId
+                    ? (msg.senderId === currentUserId || msg.senderId === fallbackId || msg.sender?.id === currentUserId || msg.sender?.id === fallbackId)
                     : msg.sender?.role === 'VENDOR';
                   
                   return (
