@@ -46,8 +46,8 @@ export default function VendorPesanPage() {
   // Fetch session to get current user ID reliably
   useEffect(() => {
     getSession().then(session => {
-      if (session?.user?.id) {
-        setCurrentUserId(session.user.id);
+      if ((session?.user as any)?.id) {
+        setCurrentUserId((session!.user as any).id);
       }
     });
   }, []);
