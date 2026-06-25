@@ -59,24 +59,28 @@ export default function VendorPesanPage() {
         const res = await getBookings();
         const bookings = Array.isArray(res?.data?.data) ? res.data.data : (Array.isArray(res?.data) ? res.data : []);
         
-        const chatList: ChatUser[] = bookings.map((booking: any) => {
-          const customerName = booking.customer?.name || 'Customer';
-          // Tambahkan nama layanan agar jelas jika satu customer punya beberapa pesanan berbeda
-          const serviceName = booking.layanan?.name || 'Layanan';
-          const displayName = `${customerName} (${serviceName})`;
-          const avatar = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(customerName) + '&background=random';
+        const uniqueCustomers = new Map<string, ChatUser>();
+        
+        bookings.forEach((booking: any) => {
+          const customerId = booking.customerId;
+          if (!customerId) return;
           
-          return {
-            bookingId: booking.id,
-            name: displayName,
-            lastMessage: 'Ketuk untuk melihat pesan pesanan ini',
-            time: format(new Date(booking.createdAt), 'HH:mm'),
-            unread: 0,
-            avatar,
-          };
+          if (!uniqueCustomers.has(customerId)) {
+            const customerName = booking.customer?.name || 'Customer';
+            const avatar = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(customerName) + '&background=random';
+            
+            uniqueCustomers.set(customerId, {
+              bookingId: booking.id, // Gunakan ID salah satu booking (karena backend sekarang menarik semua pesan untuk customer ini)
+              name: customerName,
+              lastMessage: 'Ketuk untuk melihat pesan',
+              time: format(new Date(booking.createdAt), 'HH:mm'),
+              unread: 0,
+              avatar,
+            });
+          }
         });
         
-        setChats(chatList);
+        setChats(Array.from(uniqueCustomers.values()));
       } catch (error) {
         console.error("Failed to fetch bookings for chats:", error);
       } finally {

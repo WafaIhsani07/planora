@@ -35,6 +35,7 @@ export const getMessagesByBooking = async (
     select: {
       id: true,
       customerId: true,
+      vendorId: true,
       vendor: { select: { userId: true } },
     },
   })
@@ -47,18 +48,27 @@ export const getMessagesByBooking = async (
 
   if (!isParticipant) throw new AppError("Akses ditolak", 403)
 
-  // Tandai semua pesan yang belum dibaca oleh requester sebagai sudah dibaca
+  // Tandai semua pesan yang belum dibaca oleh requester sebagai sudah dibaca dalam percakapan dengan vendor ini
   await db.message.updateMany({
     where: {
-      bookingId,
+      booking: {
+        customerId: booking.customerId,
+        vendorId: booking.vendorId,
+      },
       isRead: false,
       NOT: { senderId: requesterId },
     },
     data: { isRead: true },
   })
 
+  // Mengambil SEMUA pesan antara customer dan vendor ini, dari semua pesanan mereka
   const messages = await db.message.findMany({
-    where: { bookingId },
+    where: {
+      booking: {
+        customerId: booking.customerId,
+        vendorId: booking.vendorId,
+      },
+    },
     select: MESSAGE_SELECT,
     orderBy: { createdAt: "asc" },
   })
