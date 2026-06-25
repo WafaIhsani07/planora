@@ -4,6 +4,14 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "node",
+    env: {
+      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/testdb",
+      JWT_SECRET: "test-secret",
+      JWT_REFRESH_SECRET: "test-refresh-secret",
+      SUPABASE_URL: "https://test.supabase.co",
+      SUPABASE_SERVICE_ROLE_KEY: "test-service-key",
+      NODE_ENV: "test"
+    },
     include: ["src/**/*.test.ts"],
     coverage: {
       provider: "v8",
