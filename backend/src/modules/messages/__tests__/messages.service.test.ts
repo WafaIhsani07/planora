@@ -16,10 +16,12 @@ const BOOKING_ID = "booking-111"
 const CUSTOMER_ID = "user-customer-001"
 const VENDOR_USER_ID = "user-vendor-001"
 const OUTSIDER_ID = "user-outsider-999"
+const VENDOR_ID = "vendor-111"
 
 const mockBooking = {
   id: BOOKING_ID,
   customerId: CUSTOMER_ID,
+  vendorId: VENDOR_ID,
   vendor: { userId: VENDOR_USER_ID },
 }
 
@@ -57,7 +59,10 @@ describe("messagesService", () => {
       expect(result[0]!.content).toBe("Halo, apakah tersedia tanggal 5 Desember?")
       expect(mockDb.message.updateMany).toHaveBeenCalledWith({
         where: {
-          bookingId: BOOKING_ID,
+          booking: {
+            customerId: CUSTOMER_ID,
+            vendorId: VENDOR_ID,
+          },
           isRead: false,
           NOT: { senderId: CUSTOMER_ID },
         },
