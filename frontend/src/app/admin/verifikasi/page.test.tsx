@@ -73,10 +73,10 @@ describe('AdminVerifikasiVendorPage', () => {
     fireEvent.click(screen.getByText('common.view_detail'));
 
     await waitFor(() => {
-      expect(screen.getByText('admin_pages.verifikasi.actions.verify')).toBeDefined();
+      expect(screen.getByText('admin_pages.verifikasi.btn_verify')).toBeDefined();
     });
 
-    fireEvent.click(screen.getByText('admin_pages.verifikasi.actions.verify'));
+    fireEvent.click(screen.getByText('admin_pages.verifikasi.btn_verify'));
 
     await waitFor(() => {
       expect(adminService.verifyVendor).toHaveBeenCalledWith('v1');
@@ -99,12 +99,12 @@ describe('AdminVerifikasiVendorPage', () => {
     fireEvent.click(screen.getByText('common.view_detail'));
 
     await waitFor(() => {
-      const tolakButtons = screen.getAllByRole('button', { name: /admin_pages.verifikasi.actions.reject/i });
+      const tolakButtons = screen.getAllByRole('button', { name: /admin_pages.verifikasi.btn_reject/i });
       expect(tolakButtons.length).toBeGreaterThan(0);
     });
 
     // Click the last "Tolak" button (the one in the detail panel)
-    const tolakButtons = screen.getAllByRole('button', { name: /admin_pages.verifikasi.actions.reject/i });
+    const tolakButtons = screen.getAllByRole('button', { name: /admin_pages.verifikasi.btn_reject/i });
     fireEvent.click(tolakButtons[tolakButtons.length - 1]);
 
     await waitFor(() => {
