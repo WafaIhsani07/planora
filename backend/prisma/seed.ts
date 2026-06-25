@@ -345,6 +345,10 @@ async function main() {
   });
   console.log('✅ Layanan (Services) berhasil dibuat.');
 
+  // 7. BUAT KETERSEDIAAN JADWAL (JADWAL ACARA VENDOR)
+  // Buat tanggal penting di minggu depan
+  const today = new Date();
+
   // PORTFOLIO VENUE
   await prisma.portfolio.create({
     data: {
@@ -357,9 +361,7 @@ async function main() {
   });
   console.log('✅ Portfolio berhasil dibuat.');
 
-  // 7. BUAT KETERSEDIAAN JADWAL (JADWAL ACARA VENDOR)
-  // Buat tanggal penting di minggu depan
-  const today = new Date();
+
   
   // Tanggal penting untuk event Confirmed (Jadwal 1)
   const targetEventDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 5, 8, 0, 0); 

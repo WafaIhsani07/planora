@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Send, Phone, Video, MoreVertical, Search, Paperclip, Smile, MessageCircle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
+import { useSession } from 'next-auth/react';
 import { getBookings, getBookingMessages, sendBookingMessage } from '@/services/bookings.service';
 import { format } from 'date-fns';
 
@@ -34,6 +35,7 @@ interface Message {
 export default function VendorPesanPage() {
   const { t } = useLanguage();
   const { user } = useAuthStore();
+  const { data: session } = useSession();
   const [chats, setChats] = useState<ChatUser[]>([]);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -48,28 +50,24 @@ export default function VendorPesanPage() {
         const res = await getBookings();
         const bookings = Array.isArray(res?.data?.data) ? res.data.data : (Array.isArray(res?.data) ? res.data : []);
         
-        const uniqueCustomers = new Map<string, ChatUser>();
-        
-        bookings.forEach((booking: any) => {
-          const customerId = booking.customerId;
-          if (!customerId) return;
+        const chatList: ChatUser[] = bookings.map((booking: any) => {
+          const customerName = booking.customer?.name || 'Customer';
+          // Tambahkan nama layanan agar jelas jika satu customer punya beberapa pesanan berbeda
+          const serviceName = booking.layanan?.name || 'Layanan';
+          const displayName = `${customerName} (${serviceName})`;
+          const avatar = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(customerName) + '&background=random';
           
-          if (!uniqueCustomers.has(customerId)) {
-            const customerName = booking.customer?.name || 'Customer';
-            const avatar = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(customerName) + '&background=random';
-            
-            uniqueCustomers.set(customerId, {
-              bookingId: booking.id,
-              name: customerName,
-              lastMessage: 'Ketuk untuk melihat pesan',
-              time: format(new Date(booking.createdAt), 'HH:mm'),
-              unread: 0,
-              avatar,
-            });
-          }
+          return {
+            bookingId: booking.id,
+            name: displayName,
+            lastMessage: 'Ketuk untuk melihat pesan pesanan ini',
+            time: format(new Date(booking.createdAt), 'HH:mm'),
+            unread: 0,
+            avatar,
+          };
         });
         
-        setChats(Array.from(uniqueCustomers.values()));
+        setChats(chatList);
       } catch (error) {
         console.error("Failed to fetch bookings for chats:", error);
       } finally {
@@ -111,17 +109,18 @@ export default function VendorPesanPage() {
     setMessageInput("");
     
     // Optimistic UI update
+    const currentUserId = (session?.user as any)?.id || (user as any)?.id || '';
     const tempMsg: Message = {
       id: Date.now().toString(),
       bookingId: activeChatId,
-      senderId: (user as any)?.id || '',
+      senderId: currentUserId,
       content: textToSend,
       isRead: true,
       createdAt: new Date().toISOString(),
       sender: {
-        id: (user as any)?.id || '',
-        name: user?.name || 'You',
-        avatar: (user as any)?.avatar || (user as any)?.image || null,
+        id: currentUserId,
+        name: (session?.user as any)?.name || user?.name || 'You',
+        avatar: (session?.user as any)?.image || (user as any)?.avatar || null,
         role: 'VENDOR'
       }
     };
@@ -230,11 +229,14 @@ export default function VendorPesanPage() {
                 </div>
               ) : (
                 messages.map((msg) => {
-                  const currentUserId = (user as any)?.id;
-                  // Gunakan role sebagai deteksi utama (konsisten dengan pesanan/page.tsx)
-                  // Karena halaman ini adalah vendor dashboard, pesan dari VENDOR = milik saya
-                  const isMyMessage = msg.sender?.role === 'VENDOR' || 
-                    (currentUserId && (msg.senderId === currentUserId || msg.sender?.id === currentUserId));
+                  const currentUserId = (session?.user as any)?.id || (user as any)?.id;
+                  
+                  // Gunakan ID user sebagai deteksi utama karena sender.role kadang bisa tidak valid
+                  // Jika ID cocok, itu adalah pesan kita. Jika tidak, itu pesan orang lain.
+                  // Sebagai fallback untuk safety di vendor dashboard, pesan dari VENDOR dianggap milik kita jika ID tidak ada
+                  const isMyMessage = currentUserId 
+                    ? (msg.senderId === currentUserId || msg.sender?.id === currentUserId)
+                    : msg.sender?.role === 'VENDOR';
                   
                   return (
                     <div key={msg.id} className={`flex ${isMyMessage ? 'justify-end' : 'justify-start'}`}>
