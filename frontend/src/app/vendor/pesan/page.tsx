@@ -115,7 +115,7 @@ export default function VendorPesanPage() {
       sender: {
         id: (user as any)?.id || '',
         name: user?.name || 'You',
-        avatar: user?.avatar || null,
+        avatar: (user as any)?.avatar || (user as any)?.image || null,
         role: 'VENDOR'
       }
     };
