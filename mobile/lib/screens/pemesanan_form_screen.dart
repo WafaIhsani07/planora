@@ -143,10 +143,16 @@ class _PemesananFormScreenState extends State<PemesananFormScreen> {
       setState(() => _isSubmitting = false);
 
       if (result['success'] == true) {
+        final bookingId = result['data']?['id']?.toString();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(Translations.t('booking.form.success'))),
         );
-        Navigator.pushReplacementNamed(context, '/pesanan');
+        // Arahkan langsung ke halaman pembayaran agar user bisa langsung upload bukti
+        if (bookingId != null) {
+          Navigator.pushReplacementNamed(context, '/pembayaran', arguments: bookingId);
+        } else {
+          Navigator.pushReplacementNamed(context, '/pesanan');
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(result['message'] ?? Translations.t('booking.form.fail'))),

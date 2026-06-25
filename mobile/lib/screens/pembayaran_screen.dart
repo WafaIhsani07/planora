@@ -231,9 +231,16 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
       _selectedOrder?['payment']?['status'] as String?;
 
   bool get _isOrderPending => _selectedOrder?['status'] == 'PENDING';
-  bool get _hasPaymentSubmitted =>
-      _paymentStatus != null; // Ada payment record
-  bool get _isPaymentPendingVerification => _paymentStatus == 'PENDING';
+  bool get _hasPaymentSubmitted {
+    // Cek apakah user sudah mengirim bukti bayar (ada proofUrl)
+    final pay = _selectedOrder?['payment'];
+    if (pay == null) return false;
+    final hasProof = (pay['proofUrl'] != null && pay['proofUrl'].toString().isNotEmpty) ||
+                     (pay['dpProofUrl'] != null && pay['dpProofUrl'].toString().isNotEmpty) ||
+                     (pay['pelunasanProofUrl'] != null && pay['pelunasanProofUrl'].toString().isNotEmpty);
+    return hasProof;
+  }
+  bool get _isPaymentPendingVerification => _paymentStatus == 'PENDING' && _hasPaymentSubmitted;
   bool get _isPaymentPaid => _paymentStatus == 'PAID';
   bool get _isPaymentFailed => _paymentStatus == 'FAILED';
   bool get _isOrderConfirmedOrLater =>

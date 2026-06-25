@@ -308,7 +308,14 @@ class _PesananScreenState extends State<PesananScreen> {
     };
 
     final paymentData = item['payment'];
-    final isPaymentPending = paymentData != null && paymentData['status'] == 'PENDING';
+    // isProofUploaded: user sudah upload bukti, sedang menunggu verifikasi admin
+    final bool isProofUploaded = paymentData != null && (
+      (paymentData['proofUrl'] != null && paymentData['proofUrl'].toString().isNotEmpty) ||
+      (paymentData['dpProofUrl'] != null && paymentData['dpProofUrl'].toString().isNotEmpty) ||
+      (paymentData['pelunasanProofUrl'] != null && paymentData['pelunasanProofUrl'].toString().isNotEmpty)
+    );
+    // isPaymentPending: payment record ada DAN sudah upload bukti (menunggu verif)
+    final isPaymentPending = paymentData != null && paymentData['status'] == 'PENDING' && isProofUploaded;
 
     // Status badge color logic
     Color statusBg;
