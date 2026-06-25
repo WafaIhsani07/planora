@@ -234,6 +234,18 @@ export const updateBookingStatus = async (
       throw new AppError("Pesanan tidak bisa diselesaikan karena belum lunas dibayar", 400)
     }
 
+    // Validasi Tanggal: Tidak boleh selesai sebelum tanggal acara dimulai
+    const now = new Date()
+    const eventDate = new Date(booking.eventDate)
+    
+    // Set both to start of day for comparison
+    now.setHours(0, 0, 0, 0)
+    eventDate.setHours(0, 0, 0, 0)
+    
+    if (now < eventDate) {
+      throw new AppError("Pesanan belum bisa diselesaikan karena tanggal acara belum terlewat.", 400)
+    }
+
     // Gunakan transaction untuk update status dan tambah saldo vendor
     const result = await db.$transaction(async (tx: Prisma.TransactionClient) => {
       // 1. Update Booking Status
