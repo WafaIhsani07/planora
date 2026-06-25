@@ -81,6 +81,15 @@ class _PesananScreenState extends State<PesananScreen> {
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
 
+    final filteredOrders = _orders.where((order) {
+      final status = (order['status'] ?? '').toString().toUpperCase();
+      if (_isBerjalan) {
+        return status != 'COMPLETED' && status != 'CANCELLED';
+      } else {
+        return status == 'COMPLETED' || status == 'CANCELLED';
+      }
+    }).toList();
+
     return Scaffold(
       backgroundColor: PlanoraColors.background,
       body: SafeArea(
@@ -178,14 +187,14 @@ class _PesananScreenState extends State<PesananScreen> {
                   ? const Center(child: Padding(
                       padding: EdgeInsets.symmetric(vertical: 40),
                       child: CircularProgressIndicator()))
-                  : _orders.isEmpty
+                  : filteredOrders.isEmpty
                       ? _buildEmptyState(tt)
                       : ListView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          itemCount: _orders.length,
+                          itemCount: filteredOrders.length,
                           itemBuilder: (context, index) {
-                            final item = _orders[index];
+                            final item = filteredOrders[index];
                             return _buildOrderCard(item);
                           },
                         ),

@@ -1,5 +1,6 @@
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+import 'dotenv/config';
+import { db } from './src/config/database.js';
+const prisma = db;
 
 async function main() {
   await prisma.vendor.updateMany({
