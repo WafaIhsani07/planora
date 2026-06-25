@@ -138,6 +138,14 @@
     },
     "loading": "Memuat dasbor...",
     "manageSubtitle": "Kelola bisnis dan pesanan Anda dengan mudah.",
+    "pesan": {
+      "title": "Pesan",
+      "subtitle": "Komunikasi dengan klien Anda",
+      "searchPlaceholder": "Cari pesan...",
+      "today": "Hari ini",
+      "inputPlaceholder": "Ketik pesan...",
+      "emptyTitle": "Pilih Obrolan"
+    },
     "status": {
       "pending": "Menunggu",
       "confirmed": "Dikonfirmasi",

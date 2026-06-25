@@ -138,6 +138,14 @@
     },
     "loading": "Loading dashboard...",
     "manageSubtitle": "Manage your business and orders easily.",
+    "pesan": {
+      "title": "Messages",
+      "subtitle": "Communicate with your clients",
+      "searchPlaceholder": "Search messages...",
+      "today": "Today",
+      "inputPlaceholder": "Type a message...",
+      "emptyTitle": "Select a Chat"
+    },
     "status": {
       "pending": "Pending",
       "confirmed": "Confirmed",
