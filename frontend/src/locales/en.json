@@ -144,7 +144,8 @@
       "searchPlaceholder": "Search messages...",
       "today": "Today",
       "inputPlaceholder": "Type a message...",
-      "emptyTitle": "Select a Chat"
+      "emptyTitle": "Select a Chat",
+      "emptySubtitle": "Please select a chat from the list to start replying."
     },
     "status": {
       "pending": "Pending",

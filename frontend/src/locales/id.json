@@ -144,7 +144,8 @@
       "searchPlaceholder": "Cari pesan...",
       "today": "Hari ini",
       "inputPlaceholder": "Ketik pesan...",
-      "emptyTitle": "Pilih Obrolan"
+      "emptyTitle": "Pilih Obrolan",
+      "emptySubtitle": "Silakan pilih obrolan dari daftar untuk mulai membalas pesan."
     },
     "status": {
       "pending": "Menunggu",

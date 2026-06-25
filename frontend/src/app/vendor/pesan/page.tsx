@@ -279,8 +279,8 @@ export default function VendorPesanPage() {
             <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm border border-slate-100 mb-6">
               <MessageCircle className="w-8 h-8 text-slate-300" />
             </div>
-            <h3 className="text-lg font-bold text-[#2A2A2A] mb-2">Pilih Obrolan</h3>
-            <p className="text-sm">Silakan pilih obrolan dari daftar untuk mulai membalas pesan.</p>
+            <h3 className="text-lg font-bold text-[#2A2A2A] mb-2">{t('dashboard.pesan.emptyTitle') !== 'dashboard.pesan.emptyTitle' ? t('dashboard.pesan.emptyTitle') : 'Pilih Obrolan'}</h3>
+            <p className="text-sm">{t('dashboard.pesan.emptySubtitle') !== 'dashboard.pesan.emptySubtitle' ? t('dashboard.pesan.emptySubtitle') : 'Silakan pilih obrolan dari daftar untuk mulai membalas pesan.'}</p>
           </div>
         )}
       </div>
