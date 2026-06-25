@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'package:intl/intl.dart';
+import 'package:intl/intl.dart';
 import '../main.dart' show PlanoraColors;
+import '../utils/translations.dart';
 
 class ChatListScreen extends StatefulWidget {
   const ChatListScreen({super.key});
@@ -45,8 +47,8 @@ class _ChatListScreenState extends State<ChatListScreen> {
         // Ambil preview pesan terakhir dari order jika tersedia
         final lastMsgList = order['messages'] as List? ?? [];
         final lastMsg = lastMsgList.isNotEmpty
-            ? lastMsgList.last['content']?.toString() ?? 'Tekan untuk melihat percakapan'
-            : 'Tekan untuk melihat percakapan';
+            ? lastMsgList.last['content']?.toString() ?? Translations.t('chatList.tapToView')
+            : Translations.t('chatList.tapToView');
 
         // Gunakan bookingId terbaru jika vendor sama
         if (!uniqueVendors.containsKey(vid)) {
@@ -80,7 +82,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
     return Scaffold(
       backgroundColor: PlanoraColors.background,
       appBar: AppBar(
-        title: const Text('Chat Vendor'),
+        title: Text(Translations.t('chatList.title')),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => Navigator.pop(context),
@@ -105,7 +107,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                               size: 36, color: PlanoraColors.brandDark),
                         ),
                         const SizedBox(height: 16),
-                        Text('Belum ada riwayat pesanan untuk dihubungi.',
+                        Text(Translations.t('chatList.noHistory'),
                             style: tt.bodyMedium?.copyWith(
                               color: PlanoraColors.brandGray,
                               fontStyle: FontStyle.italic,

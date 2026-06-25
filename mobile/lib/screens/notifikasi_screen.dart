@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
+import '../services/api_service.dart';
 import '../main.dart' show PlanoraColors;
+import '../utils/translations.dart';
 
 class NotifikasiScreen extends StatefulWidget {
   const NotifikasiScreen({super.key});
@@ -71,7 +73,7 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
                           color: PlanoraColors.brandDark, size: 20),
                     ),
                   ),
-                  Text('Notifikasi', style: tt.titleLarge),
+                  Text(Translations.t('notif.title'), style: tt.titleLarge),
                   GestureDetector(
                     onTap: _fetchNotifications,
                     child: Container(
@@ -110,7 +112,7 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
                                       size: 36, color: PlanoraColors.brandDark),
                                 ),
                                 const SizedBox(height: 16),
-                                Text('Belum ada notifikasi.',
+                                Text(Translations.t('notif.empty'),
                                     style: tt.bodyMedium?.copyWith(
                                       color: PlanoraColors.brandGray,
                                       fontStyle: FontStyle.italic,
@@ -132,9 +134,9 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
                               ),
                               child: _buildNotifikasiCard(
                                 type: item['type'] ?? 'info',
-                                title: item['title'] ?? 'Notifikasi',
-                                description: item['description'] ?? item['message'] ?? 'Detail notifikasi',
-                                time: item['time'] ?? item['createdAt'] ?? 'Baru saja',
+                                title: item['title'] ?? Translations.t('notif.title'),
+                                description: item['description'] ?? item['message'] ?? Translations.t('notif.defaultDesc'),
+                                time: item['time'] ?? item['createdAt'] ?? Translations.t('notif.justNow'),
                                 isUnread: item['isUnread'] ?? item['isRead'] == false,
                                 tt: tt,
                               ),

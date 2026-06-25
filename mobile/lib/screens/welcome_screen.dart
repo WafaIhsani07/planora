@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../main.dart' show PlanoraColors;
+import '../utils/translations.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -60,7 +61,7 @@ class WelcomeScreen extends StatelessWidget {
 
                 // ── Tagline ───────────────────────────────────────────
                 Text(
-                  'Make Your Best Moments Come True\nwith Selected Vendors.',
+                  Translations.t('welcome.tagline'),
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 15,
                     fontWeight: FontWeight.w400,
@@ -87,7 +88,7 @@ class WelcomeScreen extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      'Sign In',
+                      Translations.t('welcome.signIn'),
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -116,7 +117,7 @@ class WelcomeScreen extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      'Create Account',
+                      Translations.t('welcome.createAccount'),
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,

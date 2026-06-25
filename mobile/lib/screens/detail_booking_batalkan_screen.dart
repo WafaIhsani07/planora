@@ -3,6 +3,7 @@ import '../services/api_service.dart';
 import 'package:intl/intl.dart';
 import '../main.dart' show PlanoraColors;
 import '../utils/formatters.dart';
+import '../utils/translations.dart';
 
 class DetailBookingBatalkanScreen extends StatefulWidget {
   const DetailBookingBatalkanScreen({super.key});
@@ -186,7 +187,7 @@ class _DetailBookingBatalkanScreenState
 
     if (_errorMessage != null || _bookingDetails == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Detail Pesanan')),
+        appBar: AppBar(title: Text(Translations.t('booking.detail'))),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -203,12 +204,12 @@ class _DetailBookingBatalkanScreenState
                       size: 36, color: PlanoraColors.error),
                 ),
                 const SizedBox(height: 16),
-                Text(_errorMessage ?? 'Pesanan tidak ditemukan.',
+                Text(_errorMessage ?? Translations.t('booking.notFound'),
                     textAlign: TextAlign.center, style: tt.bodyMedium),
                 const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Kembali'),
+                  child: Text(Translations.t('booking.back')),
                 ),
               ],
             ),
@@ -229,15 +230,15 @@ class _DetailBookingBatalkanScreenState
     final String category = vendorData['category'] ?? 'Wedding Organizer';
     final String title = vendorData['businessName'] ?? vendorData['name'] ?? 'Nama Vendor';
     final String description = layananData['deskripsi'] ?? layananData['description'] ??
-        vendorData['description'] ?? 'Deskripsi belum tersedia.';
+        vendorData['description'] ?? Translations.t('booking.noDesc');
     final String price = layananData['harga']?.toString() ??
         layananData['price']?.toString() ?? detail['totalPrice']?.toString() ?? '0';
     final String scheduleDate = detail['eventDate'] != null
         ? detail['eventDate'].toString().substring(0, 10)
-        : 'Jadwal belum ditentukan';
+        : Translations.t('booking.notSet');
     final String statusText = detail['status'] ?? 'PENDING';
-    final String pemesan = detail['user']?['name'] ?? detail['userName'] ?? 'Pemesan';
-    final String alamat = detail['eventAddress'] ?? detail['address'] ?? 'Alamat belum diisi';
+    final String pemesan = detail['user']?['name'] ?? detail['userName'] ?? Translations.t('booking.customer');
+    final String alamat = detail['eventAddress'] ?? detail['address'] ?? Translations.t('booking.addressNotSet');
 
     final bool isCompleted = statusText.toUpperCase() == 'COMPLETED' ||
         statusText.toUpperCase() == 'SELESAI';
@@ -366,7 +367,7 @@ class _DetailBookingBatalkanScreenState
                         const Icon(Icons.calendar_today_rounded,
                             color: PlanoraColors.brandDark, size: 18),
                         const SizedBox(width: 8),
-                        Text('Jadwal: $scheduleDate',
+                        Text('${Translations.t('booking.schedule')} $scheduleDate',
                             style: tt.titleSmall),
                       ],
                     ),
@@ -383,15 +384,15 @@ class _DetailBookingBatalkanScreenState
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Info rows
-                          _buildInfoRow(Icons.person_outline_rounded, 'Pemesan', pemesan, tt),
+                          _buildInfoRow(Icons.person_outline_rounded, Translations.t('booking.customer'), pemesan, tt),
                           const SizedBox(height: 8),
-                          _buildInfoRow(Icons.location_on_outlined, 'Alamat Acara', alamat, tt),
+                          _buildInfoRow(Icons.location_on_outlined, Translations.t('booking.address'), alamat, tt),
                           const SizedBox(height: 20),
                           const Divider(),
                           const SizedBox(height: 12),
 
                           // Deskripsi
-                          Text('Deskripsi Layanan', style: tt.titleMedium),
+                          Text(Translations.t('booking.description'), style: tt.titleMedium),
                           const SizedBox(height: 10),
                           Text(description,
                               style: tt.bodyMedium?.copyWith(
@@ -454,7 +455,7 @@ class _DetailBookingBatalkanScreenState
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('TOTAL HARGA',
+                Text(Translations.t('booking.total'),
                     style: tt.labelSmall?.copyWith(letterSpacing: 0.8)),
                 Text(_formatCurrency(price), style: tt.headlineSmall),
               ],
@@ -474,7 +475,7 @@ class _DetailBookingBatalkanScreenState
                         side: const BorderSide(color: PlanoraColors.error),
                         foregroundColor: PlanoraColors.error,
                       ),
-                      child: const Text('Batalkan'),
+                      child: Text(Translations.t('booking.cancel')),
                     ),
                     const SizedBox(width: 8),
                     isPaymentPending
@@ -486,7 +487,7 @@ class _DetailBookingBatalkanScreenState
                               border: Border.all(color: const Color(0xFFFFEBA8)),
                             ),
                             child: Text(
-                              'Menunggu Verifikasi',
+                              Translations.t('orders.awaiting'),
                               style: tt.labelMedium?.copyWith(
                                 color: const Color(0xFF856404),
                                 fontWeight: FontWeight.w700,
@@ -501,7 +502,7 @@ class _DetailBookingBatalkanScreenState
                               minimumSize: const Size(0, 48),
                               padding: const EdgeInsets.symmetric(horizontal: 16),
                             ),
-                            child: const Text('Bayar Sekarang'),
+                            child: Text(Translations.t('orders.payNow')),
                           ),
                   ],
                 );

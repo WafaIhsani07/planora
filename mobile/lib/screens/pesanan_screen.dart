@@ -312,7 +312,7 @@ class _PesananScreenState extends State<PesananScreen> {
     }
 
     return GestureDetector(
-      onTap: () => Navigator.pushNamed(context, '/detail_booking_batalkan', arguments: id),
+      onTap: () => Navigator.pushNamed(context, '/detail_booking_batalkan', arguments: id).then((_) => _fetchOrders()),
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
@@ -389,7 +389,7 @@ class _PesananScreenState extends State<PesananScreen> {
                               ? [
                                   OutlinedButton(
                                     onPressed: () {
-                                      Navigator.pushNamed(context, '/chat_detail', arguments: chatArgs);
+                                      Navigator.pushNamed(context, '/chat_detail', arguments: chatArgs).then((_) => _fetchOrders());
                                     },
                                     style: OutlinedButton.styleFrom(
                                       minimumSize: const Size(0, 36),
@@ -400,7 +400,7 @@ class _PesananScreenState extends State<PesananScreen> {
                                   const SizedBox(width: 8),
                                   ElevatedButton(
                                     onPressed: () {
-                                      Navigator.pushNamed(context, '/detail_booking_batalkan', arguments: id);
+                                      Navigator.pushNamed(context, '/detail_booking_batalkan', arguments: id).then((_) => _fetchOrders());
                                     },
                                     style: ElevatedButton.styleFrom(
                                       minimumSize: const Size(0, 36),
@@ -429,7 +429,7 @@ class _PesananScreenState extends State<PesananScreen> {
                                     ]
                                   : [
                                       ElevatedButton(
-                                        onPressed: () => Navigator.pushNamed(context, '/pembayaran', arguments: id),
+                                        onPressed: () => Navigator.pushNamed(context, '/pembayaran', arguments: id).then((_) => _fetchOrders()),
                                         style: ElevatedButton.styleFrom(
                                           minimumSize: const Size(0, 36),
                                           padding: const EdgeInsets.symmetric(horizontal: 16),

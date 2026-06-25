@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../services/api_service.dart';
 import '../main.dart' show PlanoraColors;
+import '../utils/translations.dart';
 
 class KalenderScreen extends StatefulWidget {
   const KalenderScreen({super.key});
@@ -75,7 +76,7 @@ class _KalenderScreenState extends State<KalenderScreen> {
     return Scaffold(
       backgroundColor: PlanoraColors.background,
       appBar: AppBar(
-        title: const Text('Kalender Acara'),
+        title: Text(Translations.t('calendar.title')),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => Navigator.pop(context),
@@ -182,7 +183,7 @@ class _KalenderScreenState extends State<KalenderScreen> {
 
                     // ── Agenda Section ──────────────────────────────────
                     Text(
-                      'Agenda Tanggal ${_selectedDay?.day ?? ""}',
+                      '${Translations.t('calendar.agendaDate')} ${_selectedDay?.day ?? ""}',
                       style: tt.titleLarge,
                     ),
                     const SizedBox(height: 14),
@@ -202,7 +203,7 @@ class _KalenderScreenState extends State<KalenderScreen> {
                                 const Icon(Icons.event_note_rounded,
                                     size: 36, color: PlanoraColors.brandGray),
                                 const SizedBox(height: 10),
-                                Text('Tidak ada agenda untuk tanggal ini.',
+                                Text(Translations.t('calendar.noAgenda'),
                                     style: tt.bodySmall),
                               ],
                             ),
@@ -227,7 +228,7 @@ class _KalenderScreenState extends State<KalenderScreen> {
     final String title = vendorData['businessName'] ??
         vendorData['name'] ??
         layananData['namaLayanan'] ??
-        'Acara';
+        Translations.t('calendar.event');
 
     final avatar = vendorData['avatar']?.toString() ?? '';
     final assetUrl = ApiService.getAssetUrl(avatar);
@@ -277,7 +278,7 @@ class _KalenderScreenState extends State<KalenderScreen> {
                     const Icon(Icons.schedule_rounded,
                         size: 14, color: PlanoraColors.brandGray),
                     const SizedBox(width: 6),
-                    Text('Jadwal Mulai Persiapan (08:00 WIB)', style: tt.bodySmall),
+                    Text(Translations.t('calendar.prepTime'), style: tt.bodySmall),
                   ],
                 ),
               ],

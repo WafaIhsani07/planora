@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
+import '../utils/translations.dart';
 
 class DetailNotifikasiScreen extends StatefulWidget {
   const DetailNotifikasiScreen({super.key});
@@ -85,9 +86,9 @@ class _DetailNotifikasiScreenState extends State<DetailNotifikasiScreen> {
                       size: 20,
                     ),
                   ),
-                  const Text(
-                    'Detail Pesan',
-                    style: TextStyle(
+                  Text(
+                    Translations.t('notifDetail.title'),
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF333333),
@@ -119,8 +120,8 @@ class _DetailNotifikasiScreenState extends State<DetailNotifikasiScreen> {
                       child: Padding(
                         padding: EdgeInsets.all(40.0),
                         child: Text(
-                          'Data detail pesan tidak ditemukan dari server.',
-                          style: TextStyle(
+                          Translations.t('notifDetail.notFound'),
+                          style: const TextStyle(
                             color: Colors.grey,
                             fontStyle: FontStyle.italic,
                           ),
@@ -160,7 +161,7 @@ class _DetailNotifikasiScreenState extends State<DetailNotifikasiScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      _detail!['vendorName'] ?? 'Vendor Name',
+                                      _detail!['vendorName'] ?? Translations.t('notifDetail.vendorNameFallback'),
                                       style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
@@ -170,7 +171,7 @@ class _DetailNotifikasiScreenState extends State<DetailNotifikasiScreen> {
                                     const SizedBox(height: 4),
                                     Text(
                                       _detail!['vendorCategory'] ??
-                                          'Kategori Layanan',
+                                          Translations.t('notifDetail.categoryFallback'),
                                       style: const TextStyle(
                                         fontSize: 12,
                                         color: Colors.grey,
@@ -206,7 +207,7 @@ class _DetailNotifikasiScreenState extends State<DetailNotifikasiScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  _detail!['title'] ?? 'Detail Pesan',
+                                  _detail!['title'] ?? Translations.t('notifDetail.title'),
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -222,7 +223,7 @@ class _DetailNotifikasiScreenState extends State<DetailNotifikasiScreen> {
 
                                 Text(
                                   _detail!['fullMessage'] ??
-                                      'Memuat isi pesan dari server...',
+                                      Translations.t('notifDetail.loading'),
                                   style: const TextStyle(
                                     fontSize: 14,
                                     color: Colors.grey,
@@ -232,7 +233,7 @@ class _DetailNotifikasiScreenState extends State<DetailNotifikasiScreen> {
 
                                 const SizedBox(height: 32),
                                 Text(
-                                  _detail!['time'] ?? 'Beberapa saat yang lalu',
+                                  _detail!['time'] ?? Translations.t('notif.justNow'),
                                   style: TextStyle(
                                     fontSize: 11,
                                     color: Colors.grey.shade400,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../main.dart' show PlanoraColors, PlanoraSnackBar;
+import '../utils/translations.dart';
 
 class EditProfilScreen extends StatefulWidget {
   const EditProfilScreen({super.key});
@@ -83,7 +84,7 @@ class _EditProfilScreenState extends State<EditProfilScreen> {
               ),
               const SizedBox(height: 20),
               Text(
-                'Pilih Avatar Keren Kamu ✨',
+                Translations.t('editProfile.avatarTitle'),
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: PlanoraColors.brandDark,
@@ -91,7 +92,7 @@ class _EditProfilScreenState extends State<EditProfilScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Ekspresikan dirimu dengan avatar pilihan!',
+                Translations.t('editProfile.avatarDesc'),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: PlanoraColors.brandGray,
                     ),
@@ -158,7 +159,7 @@ class _EditProfilScreenState extends State<EditProfilScreen> {
     if (name.isEmpty) {
       PlanoraSnackBar.show(
         context,
-        message: 'Nama tidak boleh kosong.',
+        message: Translations.t('editProfile.emptyName'),
         isError: true,
       );
       return;
@@ -174,14 +175,14 @@ class _EditProfilScreenState extends State<EditProfilScreen> {
     if (result['success'] == true) {
       PlanoraSnackBar.show(
         context,
-        message: 'Profil berhasil diperbarui!',
+        message: Translations.t('editProfile.success'),
       );
       // Pop dengan membawa data baru supaya profil screen bisa refresh
       Navigator.pop(context, {'name': name, 'phone': phone, 'avatar': _selectedAvatarUrl});
     } else {
       PlanoraSnackBar.show(
         context,
-        message: result['message'] ?? 'Gagal memperbarui profil.',
+        message: result['message'] ?? Translations.t('editProfile.fail'),
         isError: true,
       );
     }
@@ -194,7 +195,7 @@ class _EditProfilScreenState extends State<EditProfilScreen> {
     return Scaffold(
       backgroundColor: PlanoraColors.background,
       appBar: AppBar(
-        title: const Text('Edit Profil'),
+        title: Text(Translations.t('editProfile.title')),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => Navigator.pop(context),
@@ -276,7 +277,7 @@ class _EditProfilScreenState extends State<EditProfilScreen> {
                       children: [
                         // Email (read-only)
                         if (_email != null && _email!.isNotEmpty) ...[
-                          Text('EMAIL',
+                          Text(Translations.t('editProfile.email'),
                               style: tt.labelSmall?.copyWith(letterSpacing: 0.8)),
                           const SizedBox(height: 8),
                           Container(
@@ -304,29 +305,29 @@ class _EditProfilScreenState extends State<EditProfilScreen> {
                         ],
 
                         // Nama
-                        Text('NAMA LENGKAP',
+                        Text(Translations.t('editProfile.fullName'),
                             style: tt.labelSmall?.copyWith(letterSpacing: 0.8)),
                         const SizedBox(height: 8),
                         TextField(
                           controller: _nameController,
                           textCapitalization: TextCapitalization.words,
-                          decoration: const InputDecoration(
-                            hintText: 'Masukkan nama lengkap',
-                            prefixIcon: Icon(Icons.person_outline_rounded),
+                          decoration: InputDecoration(
+                            hintText: Translations.t('editProfile.nameHint'),
+                            prefixIcon: const Icon(Icons.person_outline_rounded),
                           ),
                         ),
                         const SizedBox(height: 20),
 
                         // No. Telepon
-                        Text('NOMOR TELEPON',
+                        Text(Translations.t('editProfile.phone'),
                             style: tt.labelSmall?.copyWith(letterSpacing: 0.8)),
                         const SizedBox(height: 8),
                         TextField(
                           controller: _phoneController,
                           keyboardType: TextInputType.phone,
-                          decoration: const InputDecoration(
-                            hintText: 'Masukkan nomor telepon',
-                            prefixIcon: Icon(Icons.phone_outlined),
+                          decoration: InputDecoration(
+                            hintText: Translations.t('editProfile.phoneHint'),
+                            prefixIcon: const Icon(Icons.phone_outlined),
                           ),
                         ),
                       ],
@@ -345,7 +346,7 @@ class _EditProfilScreenState extends State<EditProfilScreen> {
                               valueColor: AlwaysStoppedAnimation<Color>(
                                   PlanoraColors.brandDark),
                             ))
-                        : const Text('Simpan Perubahan'),
+                        : Text(Translations.t('editProfile.save')),
                   ),
                 ],
               ),

@@ -138,7 +138,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
                             ? Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 20),
                                 child: Text(
-                                  'No profile data available from the server.',
+                                  Translations.t('profile.noData'),
                                   style: tt.bodyMedium?.copyWith(
                                     color: PlanoraColors.brandGray,
                                     fontStyle: FontStyle.italic,
@@ -257,7 +257,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
                                       }
                                     },
                                     icon: const Icon(Icons.edit_outlined, size: 16),
-                                    label: const Text('Edit Profile'),
+                                    label: Text(Translations.t('profile.edit')),
                                     style: OutlinedButton.styleFrom(
                                       minimumSize: const Size(160, 40),
                                       padding: const EdgeInsets.symmetric(
@@ -276,26 +276,26 @@ class _ProfilScreenState extends State<ProfilScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Activity', style: tt.titleMedium?.copyWith(color: PlanoraColors.brandGray)),
+                    Text(Translations.t('profile.activity'), style: tt.titleMedium?.copyWith(color: PlanoraColors.brandGray)),
                     const SizedBox(height: 12),
                     _buildMenuItem(
                       icon: Icons.chat_bubble_outline_rounded,
-                      title: 'Chat Vendor',
+                      title: Translations.t('profile.chatVendor'),
                       onTap: () => Navigator.pushNamed(context, '/chat_list'),
                     ),
                     _buildMenuItem(
                       icon: Icons.calendar_today_outlined,
-                      title: 'Event Calendar',
+                      title: Translations.t('profile.calendar'),
                       onTap: () => Navigator.pushNamed(context, '/kalender'),
                     ),
                     _buildMenuItem(
                       icon: Icons.history_rounded,
-                      title: 'Booking History',
+                      title: Translations.t('profile.history'),
                       onTap: () => Navigator.pushNamed(context, '/riwayat'),
                     ),
                     _buildMenuItem(
                       icon: Icons.payment_outlined,
-                      title: 'Payment List',
+                      title: Translations.t('profile.payment'),
                       onTap: () => Navigator.pushNamed(context, '/pembayaran'),
                     ),
                     const SizedBox(height: 16),
@@ -307,7 +307,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
                     // Tombol Keluar
                     _buildMenuItem(
                       icon: Icons.logout_rounded,
-                      title: 'Sign Out',
+                      title: Translations.t('profile.signOut'),
                       isDestructive: true,
                       onTap: _logOut,
                     ),

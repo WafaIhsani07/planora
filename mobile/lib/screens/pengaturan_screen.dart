@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../main.dart' show PlanoraColors;
+import '../utils/translations.dart';
 
 class PengaturanScreen extends StatefulWidget {
   const PengaturanScreen({super.key});
@@ -27,7 +28,7 @@ class _PengaturanScreenState extends State<PengaturanScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Gagal melakukan logout, coba lagi.')),
+          SnackBar(content: Text(Translations.t('settings.logoutFail'))),
         );
       }
     } finally {
@@ -42,7 +43,7 @@ class _PengaturanScreenState extends State<PengaturanScreen> {
     return Scaffold(
       backgroundColor: PlanoraColors.background,
       appBar: AppBar(
-        title: const Text('Pengaturan'),
+        title: Text(Translations.t('settings.title')),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => Navigator.pop(context),
@@ -64,17 +65,17 @@ class _PengaturanScreenState extends State<PengaturanScreen> {
                   children: [
                     _buildSettingsTile(
                       icon: Icons.person_outline_rounded,
-                      title: 'Edit Profil',
+                      title: Translations.t('settings.editProfile'),
                       onTap: () => Navigator.pushNamed(context, '/edit_profil'),
                       tt: tt,
                     ),
                     _buildDivider(),
                     _buildSettingsTile(
                       icon: Icons.lock_outline_rounded,
-                      title: 'Keamanan Akun',
+                      title: Translations.t('settings.security'),
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Fitur segera hadir.')),
+                          SnackBar(content: Text(Translations.t('settings.comingSoon'))),
                         );
                       },
                       tt: tt,
@@ -82,10 +83,10 @@ class _PengaturanScreenState extends State<PengaturanScreen> {
                     _buildDivider(),
                     _buildSettingsTile(
                       icon: Icons.notifications_none_rounded,
-                      title: 'Notifikasi',
+                      title: Translations.t('settings.notifications'),
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Fitur segera hadir.')),
+                          SnackBar(content: Text(Translations.t('settings.comingSoon'))),
                         );
                       },
                       tt: tt,
@@ -93,11 +94,11 @@ class _PengaturanScreenState extends State<PengaturanScreen> {
                     _buildDivider(),
                     _buildSettingsTile(
                       icon: Icons.language_rounded,
-                      title: 'Bahasa',
-                      trailingText: 'ID',
+                      title: Translations.t('settings.language'),
+                      trailingText: Translations.currentLang.toUpperCase(),
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Fitur segera hadir.')),
+                          SnackBar(content: Text(Translations.t('settings.comingSoon'))),
                         );
                       },
                       tt: tt,
@@ -105,10 +106,10 @@ class _PengaturanScreenState extends State<PengaturanScreen> {
                     _buildDivider(),
                     _buildSettingsTile(
                       icon: Icons.help_outline_rounded,
-                      title: 'Pusat Bantuan',
+                      title: Translations.t('settings.helpCenter'),
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Fitur segera hadir.')),
+                          SnackBar(content: Text(Translations.t('settings.comingSoon'))),
                         );
                       },
                       tt: tt,
@@ -138,7 +139,7 @@ class _PengaturanScreenState extends State<PengaturanScreen> {
                           valueColor: const AlwaysStoppedAnimation<Color>(
                               PlanoraColors.error),
                         ))
-                    : const Text('Keluar Akun'),
+                    : Text(Translations.t('settings.logout')),
               ),
             ],
           ),

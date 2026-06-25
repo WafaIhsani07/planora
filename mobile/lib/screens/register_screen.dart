@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/api_service.dart';
 import '../main.dart' show PlanoraColors;
+import '../utils/translations.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -46,22 +47,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
         password.isEmpty ||
         confirmPassword.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('All fields are required')),
+        SnackBar(content: Text(Translations.t('register.allFieldsRequired'))),
       );
       return;
     }
 
     if (password != confirmPassword) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password and confirmation do not match')),
+        SnackBar(content: Text(Translations.t('register.passwordMismatch'))),
       );
       return;
     }
 
     if (!_agreeTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('You must agree to the terms and conditions')),
+        SnackBar(
+            content: Text(Translations.t('register.mustAgree'))),
       );
       return;
     }
@@ -75,12 +76,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (result['success'] == true) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registration successful! Please sign in.')),
+        SnackBar(content: Text(Translations.t('register.success'))),
       );
       Navigator.pushReplacementNamed(context, '/login');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result['message'] ?? 'Registration failed')),
+        SnackBar(content: Text(result['message'] ?? Translations.t('register.fail'))),
       );
     }
   }
@@ -187,7 +188,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(width: 16),
                       Text(
-                        'Create Account',
+                        Translations.t('register.title'),
                         style: GoogleFonts.playfairDisplay(
                           fontSize: 24,
                           fontWeight: FontWeight.w700,
@@ -200,37 +201,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   // ── Nama Lengkap ────────────────────────────────────
                   _buildField(
-                    label: 'Full Name',
+                    label: Translations.t('register.fullName'),
                     controller: _namaController,
-                    hintText: 'Enter your full name',
+                    hintText: Translations.t('register.nameHint'),
                     textCapitalization: TextCapitalization.words,
                   ),
                   const SizedBox(height: 18),
 
                   // ── Email ───────────────────────────────────────────
                   _buildField(
-                    label: 'Email',
+                    label: Translations.t('register.email'),
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
-                    hintText: 'contoh@email.com',
+                    hintText: Translations.t('register.emailHint'),
                   ),
                   const SizedBox(height: 18),
 
                   // ── Phone Number ────────────────────────────────────
                   _buildField(
-                    label: 'Phone Number',
+                    label: Translations.t('register.phone'),
                     controller: _phoneController,
                     keyboardType: TextInputType.phone,
-                    hintText: 'e.g., 08xxxxxxxxxx',
+                    hintText: Translations.t('register.phoneHint'),
                   ),
                   const SizedBox(height: 18),
 
                   // ── Password ────────────────────────────────────────
                   _buildField(
-                    label: 'Password',
+                    label: Translations.t('register.password'),
                     controller: _passwordController,
                     obscureText: _isPasswordHidden,
-                    hintText: '••••••••',
+                    hintText: Translations.t('register.passwordHint'),
                     suffixIcon: IconButton(
                       icon: Icon(
                         _isPasswordHidden
@@ -247,10 +248,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   // ── Konfirmasi Password ─────────────────────────────
                   _buildField(
-                    label: 'Confirm Password',
+                    label: Translations.t('register.confirmPassword'),
                     controller: _confirmPasswordController,
                     obscureText: _isConfirmPasswordHidden,
-                    hintText: '••••••••',
+                    hintText: Translations.t('register.passwordHint'),
                     suffixIcon: IconButton(
                       icon: Icon(
                         _isConfirmPasswordHidden
@@ -292,14 +293,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Expanded(
                         child: Text.rich(
                           TextSpan(
-                            text: 'I agree to the ',
+                            text: Translations.t('register.agreeText'),
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 12,
                               color: PlanoraColors.brandGray,
                             ),
                             children: [
                               TextSpan(
-                                text: 'Terms & Conditions',
+                                text: Translations.t('register.terms'),
                                 style: GoogleFonts.plusJakartaSans(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
@@ -308,14 +309,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 ),
                               ),
                               TextSpan(
-                                text: ' and ',
+                                text: Translations.t('register.and'),
                                 style: GoogleFonts.plusJakartaSans(
                                   fontSize: 12,
                                   color: PlanoraColors.brandGray,
                                 ),
                               ),
                               TextSpan(
-                                text: 'Privacy Policy',
+                                text: Translations.t('register.privacy'),
                                 style: GoogleFonts.plusJakartaSans(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
@@ -358,7 +359,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                             )
                           : Text(
-                              'Create Account',
+                              Translations.t('register.title'),
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -373,7 +374,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Already have an account?  ',
+                        Translations.t('register.haveAccount'),
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 13,
                           color: PlanoraColors.brandGray,
@@ -383,7 +384,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         onTap: () =>
                             Navigator.pushReplacementNamed(context, '/login'),
                         child: Text(
-                          'Sign In',
+                          Translations.t('register.signIn'),
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,

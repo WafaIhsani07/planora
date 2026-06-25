@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
+import '../services/api_service.dart';
 import '../main.dart' show PlanoraColors;
+import '../utils/translations.dart';
 
 class ChatDetailScreen extends StatefulWidget {
   const ChatDetailScreen({super.key});
@@ -48,7 +50,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
   Future<void> _fetchMessages({bool silent = false}) async {
     if (_bookingId == null) {
       setState(() {
-        _error = 'Booking ID tidak ditemukan';
+        _error = Translations.t('chatDetail.noBookingId');
         _isLoading = false;
       });
       return;
@@ -74,7 +76,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
         }).toList();
         _error = null;
       } else {
-        _error = result['message'] ?? 'Gagal memuat pesan';
+        _error = result['message'] ?? Translations.t('chatDetail.failLoad');
       }
       _isLoading = false;
     });
@@ -107,7 +109,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(result['message'] ?? 'Gagal mengirim pesan'),
+          content: Text(result['message'] ?? Translations.t('chatDetail.failSend')),
           backgroundColor: PlanoraColors.error,
         ),
       );
@@ -141,7 +143,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
     if (_vendorData == null) {
       return Scaffold(
         appBar: AppBar(title: const Text('Chat')),
-        body: const Center(child: Text('Data tidak memadai')),
+        body: Center(child: Text(Translations.t('chatDetail.insufficientData'))),
       );
     }
 
@@ -215,7 +217,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                   const Icon(Icons.lock_outline_rounded,
                       size: 13, color: PlanoraColors.brandDark),
                   const SizedBox(width: 8),
-                  Text('Percakapan tersimpan & terenkripsi.',
+                  Text(Translations.t('chatDetail.encrypted'),
                       style: tt.labelSmall?.copyWith(color: PlanoraColors.brandDark)),
                 ],
               ),
@@ -237,7 +239,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                             const SizedBox(height: 12),
                             ElevatedButton(
                               onPressed: _fetchMessages,
-                              child: const Text('Coba Lagi'),
+                              child: Text(Translations.t('chatDetail.tryAgain')),
                             ),
                           ],
                         ),
@@ -257,7 +259,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                                       size: 30, color: PlanoraColors.brandDark),
                                 ),
                                 const SizedBox(height: 12),
-                                Text('Mulai percakapan dengan $name',
+                                Text('${Translations.t('chatDetail.startConversation')}$name',
                                     style: tt.bodySmall),
                               ],
                             ),
@@ -306,8 +308,8 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
                         ),
-                        decoration: const InputDecoration(
-                          hintText: 'Ketik pesan...',
+                        decoration: InputDecoration(
+                          hintText: Translations.t('chatDetail.typeMessage'),
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,
                           focusedBorder: InputBorder.none,

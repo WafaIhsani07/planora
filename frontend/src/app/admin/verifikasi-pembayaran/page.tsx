@@ -199,18 +199,59 @@ export default function AdminPaymentVerificationPage() {
             note = reason;
         }
 
+        // Optimistic UI Update: Langsung ubah status di state agar UI merespon seketika
+        setPayments(prev => prev.map(p => p.id === invoice ? { ...p, status, note } : p));
+        
+        // Langsung tampilkan modal sukses
+        setSuccessModal({ 
+            show: true, 
+            message: `Pembayaran ${formatOrderNumber(invoice)} berhasil ${status === 'PAID' ? 'diverifikasi' : 'ditolak'}.` 
+        });
+
+        // Pindah ke invoice PENDING berikutnya jika ada
+        const next = payments.find(p => p.id !== invoice && p.status === 'PENDING');
+        setSelectedInvoice(next ? next.id : null);
+
         try {
+            // Lakukan request ke backend di background
             await verifyPayment(invoice, { status, note });
-            await loadPayments();
-            setSuccessModal({ 
-                show: true, 
-                message: `Pembayaran ${formatOrderNumber(invoice)} berhasil ${status === 'PAID' ? 'diverifikasi' : 'ditolak'}.` 
+            
+            // (Opsional) Refresh data asli di background agar selalu sinkron tanpa memblokir UI
+            getAllPayments().then(data => {
+                const mapped: PaymentItem[] = (data.payments || []).map((p: any) => {
+                    const date = new Date(p.createdAt);
+                    return {
+                        id: p.id,
+                        customerName: p.booking?.customer?.name || '-',
+                        customerEmail: p.booking?.customer?.email || '-',
+                        customerPhone: p.booking?.customer?.phone || '-',
+                        vendorName: p.booking?.vendor?.businessName || '-',
+                        vendorCategory: '-',
+                        vendorInit: p.booking?.vendor?.businessName?.charAt(0) || 'V',
+                        transferDate: date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase(),
+                        transferTime: date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB',
+                        amount: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(p.amount),
+                        type: 'PEMBAYARAN',
+                        packageName: p.booking?.layanan?.name || '-',
+                        totalOrder: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(p.amount),
+                        paymentMethod: p.method === 'BANK_TRANSFER' ? 'Transfer Bank' : p.method || '-',
+                        bankName: '-',
+                        targetAccount: '-',
+                        accountName: '-',
+                        actualTransferTime: date.toLocaleDateString('id-ID') + ' ' + date.toLocaleTimeString('id-ID'),
+                        reviewedAt: p.verifiedAt,
+                        status: p.status,
+                        note: p.note || '',
+                        proofUrl: p.proofUrl || ''
+                    };
+                });
+                setPayments(mapped);
             });
-            const next = payments.find(p => p.id !== invoice && p.status === 'PENDING');
-		    setSelectedInvoice(next ? next.id : null);
         } catch (error) {
             console.error(error);
-            alert("Gagal memverifikasi pembayaran.");
+            alert("Gagal memverifikasi pembayaran. Mengembalikan data sebelumnya...");
+            // Rollback jika gagal
+            loadPayments();
         }
 	};
 

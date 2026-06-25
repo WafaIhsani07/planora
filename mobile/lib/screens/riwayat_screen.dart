@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../main.dart' show PlanoraColors;
+import '../utils/translations.dart';
 
 class RiwayatScreen extends StatefulWidget {
   const RiwayatScreen({super.key});
@@ -48,12 +49,12 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Hapus Riwayat?'),
-        content: const Text('Riwayat booking yang dihapus tidak akan ditampilkan lagi.'),
+        title: Text(Translations.t('history.deleteTitle')),
+        content: Text(Translations.t('history.deleteDesc')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Batal'),
+            child: Text(Translations.t('history.cancel')),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -61,7 +62,7 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
               backgroundColor: PlanoraColors.error,
               foregroundColor: PlanoraColors.background,
             ),
-            child: const Text('Hapus'),
+            child: Text(Translations.t('history.delete')),
           ),
         ],
       ),
@@ -83,14 +84,14 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
           response.statusCode == 202) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Riwayat berhasil dihapus!')),
+            SnackBar(content: Text(Translations.t('history.deleteSuccess'))),
           );
         }
         _fetchHistory();
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Gagal menghapus riwayat.')),
+            SnackBar(content: Text(Translations.t('history.deleteFail'))),
           );
         }
         setState(() => _isLoading = false);
@@ -98,7 +99,7 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Terjadi kesalahan koneksi server.')),
+          SnackBar(content: Text(Translations.t('history.error'))),
         );
       }
       setState(() => _isLoading = false);
@@ -112,7 +113,7 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
     return Scaffold(
       backgroundColor: PlanoraColors.background,
       appBar: AppBar(
-        title: const Text('Riwayat Booking'),
+        title: Text(Translations.t('history.title')),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => Navigator.pop(context),
@@ -138,7 +139,7 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
                               size: 36, color: PlanoraColors.brandDark),
                         ),
                         const SizedBox(height: 16),
-                        Text('Belum ada riwayat booking.',
+                        Text(Translations.t('history.noHistory'),
                             style: tt.bodyMedium?.copyWith(
                               color: PlanoraColors.brandGray,
                               fontStyle: FontStyle.italic,
@@ -176,7 +177,7 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
                         item['status']?.toString().toUpperCase() == 'COMPLETED' ||
                         item['status']?.toString().toUpperCase() == 'PAID';
 
-                    final String statusText = isSelesai ? 'Selesai' : 'Berjalan / Tertunda';
+                    final String statusText = isSelesai ? Translations.t('history.completed') : Translations.t('history.pending');
                     final Color statusColor = isSelesai
                         ? const Color(0xFF2E7D32)
                         : const Color(0xFF856404);

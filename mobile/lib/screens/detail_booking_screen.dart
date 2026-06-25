@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart' show PlanoraColors, PlanoraSnackBar;
 import '../utils/formatters.dart';
+import '../utils/translations.dart';
 
 class DetailBookingScreen extends StatefulWidget {
   const DetailBookingScreen({super.key});
@@ -172,7 +173,7 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
 
     if (_errorMessage != null || _vendorDetails == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Detail Vendor')),
+        appBar: AppBar(title: Text(Translations.t('booking.vendorDetail'))),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -191,14 +192,14 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  _errorMessage ?? 'Vendor tidak ditemukan.',
+                  _errorMessage ?? Translations.t('booking.vendorNotFound'),
                   textAlign: TextAlign.center,
                   style: tt.bodyMedium,
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Kembali'),
+                  child: Text(Translations.t('booking.back')),
                 ),
               ],
             ),
@@ -213,8 +214,8 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
     final String category = vendor['category'] ?? 'Vendor';
     final String title = vendor['businessName'] ?? vendor['name'] ?? 'Vendor';
     final String rating = vendor['rating']?.toString() ?? '0.0';
-    final String location = vendor['city'] ?? vendor['location'] ?? 'Lokasi belum tersedia';
-    final String description = vendor['description'] ?? 'Deskripsi belum tersedia.';
+    final String location = vendor['city'] ?? vendor['location'] ?? Translations.t('booking.addressNotSet');
+    final String description = vendor['description'] ?? Translations.t('booking.noDesc');
 
     final double? lat = vendor['latitude'] != null ? double.tryParse(vendor['latitude'].toString()) : null;
     final double? lng = vendor['longitude'] != null ? double.tryParse(vendor['longitude'].toString()) : null;
@@ -387,7 +388,7 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
                                 children: [
                                   const Icon(Icons.map_outlined, size: 14, color: PlanoraColors.brandDark),
                                   const SizedBox(width: 4),
-                                  Text('Buka Peta',
+                                  Text(Translations.t('booking.map'),
                                       style: tt.labelSmall?.copyWith(color: PlanoraColors.brandDark)),
                                 ],
                               ),
@@ -414,7 +415,7 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Deskripsi Layanan', style: tt.titleMedium),
+                                Text(Translations.t('booking.description'), style: tt.titleMedium),
                                 const SizedBox(height: 10),
                                 Text(description,
                                     style: tt.bodyMedium?.copyWith(
@@ -429,7 +430,7 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
                           // Paket Layanan
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 24),
-                            child: Text('Paket Layanan', style: tt.titleMedium),
+                            child: Text(Translations.t('booking.servicePackage'), style: tt.titleMedium),
                           ),
                           const SizedBox(height: 12),
 
@@ -448,7 +449,7 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
                                   borderRadius: BorderRadius.circular(16),
                                   border: Border.all(color: PlanoraColors.divider),
                                 ),
-                                child: Text('Belum ada paket layanan tersedia.',
+                                child: Text(Translations.t('booking.noService'),
                                     style: tt.bodySmall),
                               ),
                             )
@@ -558,7 +559,7 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _selectedService != null ? 'PAKET DIPILIH' : 'MULAI DARI',
+                  _selectedService != null ? Translations.t('booking.packageSelected') : Translations.t('booking.startFrom'),
                   style: tt.labelSmall?.copyWith(letterSpacing: 0.8),
                 ),
                 Text(_formatCurrency(displayPrice), style: tt.headlineSmall),
@@ -596,7 +597,7 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
                   onPressed: _selectedService == null
                       ? () {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Silakan pilih paket layanan terlebih dahulu.')),
+                            SnackBar(content: Text(Translations.t('booking.selectPackage'))),
                           );
                         }
                       : () {
@@ -613,7 +614,7 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
                             },
                           );
                         },
-                  child: Text(_selectedService != null ? 'Memesan' : 'Pilih Paket'),
+                  child: Text(_selectedService != null ? Translations.t('booking.order') : Translations.t('booking.choosePackage')),
                 ),
               ],
             ),

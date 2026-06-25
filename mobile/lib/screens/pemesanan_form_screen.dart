@@ -3,6 +3,7 @@ import '../services/api_service.dart';
 import 'package:intl/intl.dart';
 import '../main.dart' show PlanoraColors;
 import '../utils/formatters.dart';
+import '../utils/translations.dart';
 
 class PemesananFormScreen extends StatefulWidget {
   const PemesananFormScreen({super.key});
@@ -78,7 +79,7 @@ class _PemesananFormScreenState extends State<PemesananFormScreen> {
   Future<void> _submitOrder() async {
     if (_dateController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tanggal acara harus diisi.')),
+        SnackBar(content: Text(Translations.t('booking.form.dateReq'))),
       );
       return;
     }
@@ -97,12 +98,12 @@ class _PemesananFormScreenState extends State<PemesananFormScreen> {
 
       if (result['success'] == true) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Pemesanan berhasil! Cek riwayat pesanan Anda.')),
+          SnackBar(content: Text(Translations.t('booking.form.success'))),
         );
         Navigator.pushReplacementNamed(context, '/pesanan');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(result['message'] ?? 'Gagal melakukan pemesanan.')),
+          SnackBar(content: Text(result['message'] ?? Translations.t('booking.form.fail'))),
         );
       }
     }
@@ -114,9 +115,9 @@ class _PemesananFormScreenState extends State<PemesananFormScreen> {
 
     if (_serviceData == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Formulir Pemesanan')),
+        appBar: AppBar(title: Text(Translations.t('booking.form.title'))),
         body: Center(
-          child: Text('Data layanan tidak ditemukan.', style: tt.bodyMedium),
+          child: Text(Translations.t('booking.form.noData'), style: tt.bodyMedium),
         ),
       );
     }
@@ -128,7 +129,7 @@ class _PemesananFormScreenState extends State<PemesananFormScreen> {
 
     return Scaffold(
       backgroundColor: PlanoraColors.background,
-      appBar: AppBar(title: const Text('Formulir Pemesanan')),
+      appBar: AppBar(title: Text(Translations.t('booking.form.title'))),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(24, 20, 24, 120),
         child: Column(
@@ -196,46 +197,46 @@ class _PemesananFormScreenState extends State<PemesananFormScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Rincian Pemesanan', style: tt.titleLarge),
+                  Text(Translations.t('booking.form.details'), style: tt.titleLarge),
                   const SizedBox(height: 24),
 
                   // Tanggal Acara
-                  Text('TANGGAL ACARA',
+                  Text(Translations.t('booking.form.eventDate'),
                       style: tt.labelSmall?.copyWith(letterSpacing: 0.8)),
                   const SizedBox(height: 8),
                   TextField(
                     controller: _dateController,
                     readOnly: true,
                     onTap: () => _selectDate(context),
-                    decoration: const InputDecoration(
-                      hintText: 'Pilih Tanggal',
-                      suffixIcon: Icon(Icons.calendar_today_rounded, size: 20),
+                    decoration: InputDecoration(
+                      hintText: Translations.t('booking.form.selectDate'),
+                      suffixIcon: const Icon(Icons.calendar_today_rounded, size: 20),
                     ),
                   ),
                   const SizedBox(height: 20),
 
                   // Alamat Acara
-                  Text('ALAMAT ACARA',
+                  Text(Translations.t('booking.form.eventAddress'),
                       style: tt.labelSmall?.copyWith(letterSpacing: 0.8)),
                   const SizedBox(height: 8),
                   TextField(
                     controller: _addressController,
-                    decoration: const InputDecoration(
-                      hintText: 'Tuliskan lokasi acara',
-                      prefixIcon: Icon(Icons.location_on_outlined),
+                    decoration: InputDecoration(
+                      hintText: Translations.t('booking.form.addressHint'),
+                      prefixIcon: const Icon(Icons.location_on_outlined),
                     ),
                   ),
                   const SizedBox(height: 20),
 
                   // Catatan Tambahan
-                  Text('CATATAN TAMBAHAN',
+                  Text(Translations.t('booking.form.notes'),
                       style: tt.labelSmall?.copyWith(letterSpacing: 0.8)),
                   const SizedBox(height: 8),
                   TextField(
                     controller: _notesController,
                     maxLines: 4,
-                    decoration: const InputDecoration(
-                      hintText: 'Tulis instruksi atau tema warna...',
+                    decoration: InputDecoration(
+                      hintText: Translations.t('booking.form.notesHint'),
                       alignLabelWithHint: true,
                     ),
                   ),
@@ -260,7 +261,7 @@ class _PemesananFormScreenState extends State<PemesananFormScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('TOTAL BAYAR',
+                Text(Translations.t('booking.form.totalPay'),
                     style: tt.labelSmall?.copyWith(letterSpacing: 0.8)),
                 Text(
                   _formatCurrency(price),
@@ -285,7 +286,7 @@ class _PemesananFormScreenState extends State<PemesananFormScreen> {
                           ),
                         ),
                       )
-                    : const Text('Pesan'),
+                    : Text(Translations.t('booking.form.orderBtn')),
               ),
             ),
           ],

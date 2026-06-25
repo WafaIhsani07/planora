@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:image_picker/image_picker.dart';
 import '../services/api_service.dart';
 import '../main.dart' show PlanoraColors;
+import '../utils/translations.dart';
 
 class PembayaranScreen extends StatefulWidget {
   const PembayaranScreen({super.key});
@@ -101,7 +102,7 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
     await Clipboard.setData(const ClipboardData(text: '8123456789'));
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nomor Rekening Disalin')),
+        SnackBar(content: Text(Translations.t('booking.pay.copied'))),
       );
     }
   }
@@ -129,7 +130,7 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(
-                  uploadResult['message'] ?? 'Gagal mengunggah bukti gambar.')),
+                  uploadResult['message'] ?? Translations.t('booking.pay.failUpload'))),
         );
         setState(() => _isLoading = false);
         return;
@@ -148,23 +149,22 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
 
       if (payResult['success'] == true) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text(
-                  'Bukti pembayaran berhasil dikirim! Menunggu konfirmasi admin.')),
+          SnackBar(
+              content: Text(Translations.t('booking.pay.success'))),
         );
         await _fetchOrders();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(
-                  payResult['message'] ?? 'Gagal mengajukan pembayaran.')),
+                  payResult['message'] ?? Translations.t('booking.pay.failPay'))),
         );
         setState(() => _isLoading = false);
       }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Terjadi kesalahan. Coba lagi.')),
+        SnackBar(content: Text(Translations.t('booking.pay.error'))),
       );
       setState(() => _isLoading = false);
     }
@@ -178,15 +178,15 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
   String _statusLabel(String status) {
     switch (status) {
       case 'PENDING':
-        return 'Menunggu Pembayaran';
+        return Translations.t('booking.pay.status.pending');
       case 'CONFIRMED':
-        return 'Dikonfirmasi';
+        return Translations.t('booking.pay.status.confirmed');
       case 'IN_PROGRESS':
-        return 'Sedang Berjalan';
+        return Translations.t('booking.pay.status.inProgress');
       case 'COMPLETED':
-        return 'Selesai / Lunas';
+        return Translations.t('booking.pay.status.completed');
       case 'CANCELLED':
-        return 'Dibatalkan';
+        return Translations.t('booking.pay.status.cancelled');
       default:
         return status;
     }
@@ -229,12 +229,12 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
 
     return Scaffold(
       backgroundColor: PlanoraColors.background,
-      appBar: AppBar(title: const Text('Daftar Pembayaran')),
+      appBar: AppBar(title: Text(Translations.t('booking.pay.title'))),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _orders.isEmpty
               ? Center(
-                  child: Text('Tidak ada data pembayaran.',
+                  child: Text(Translations.t('booking.pay.noData'),
                       style: tt.bodyMedium
                           ?.copyWith(color: PlanoraColors.brandGray)),
                 )
@@ -367,22 +367,22 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
       case 'PENDING':
         bg = const Color(0xFFFFF8E1);
         fg = const Color(0xFFF59E0B);
-        label = '⏳ Menunggu Verifikasi Admin';
+        label = Translations.t('booking.pay.badge.pending');
         break;
       case 'PAID':
         bg = const Color(0xFFE8F5E9);
         fg = const Color(0xFF2E7D32);
-        label = '✅ Pembayaran Terverifikasi';
+        label = Translations.t('booking.pay.badge.paid');
         break;
       case 'FAILED':
         bg = const Color(0xFFFFEBEE);
         fg = PlanoraColors.error;
-        label = '❌ Bukti Ditolak Admin';
+        label = Translations.t('booking.pay.badge.failed');
         break;
       case 'REFUNDED':
         bg = const Color(0xFFF3E5F5);
         fg = const Color(0xFF7B1FA2);
-        label = '↩️ Dana Dikembalikan';
+        label = Translations.t('booking.pay.badge.refund');
         break;
       default:
         return const SizedBox.shrink();
@@ -412,7 +412,7 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Status & Instruksi', style: tt.titleMedium),
+              Text(Translations.t('booking.pay.statusInstruct'), style: tt.titleMedium),
               Text(
                 'ID: ${_selectedOrder!['id'].toString().substring(0, 8).toUpperCase()}',
                 style: tt.bodySmall,
@@ -428,13 +428,13 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
               iconColor: const Color(0xFF2E7D32),
               bgColor: const Color(0xFFE8F5E9),
               title: _selectedOrder!['status'] == 'COMPLETED'
-                  ? 'Pesanan Selesai'
+                  ? Translations.t('booking.pay.case1.completed.title')
                   : _selectedOrder!['status'] == 'IN_PROGRESS'
-                      ? 'Pesanan Sedang Berjalan'
-                      : 'Pembayaran Dikonfirmasi',
+                      ? Translations.t('booking.pay.case1.inProgress.title')
+                      : Translations.t('booking.pay.case1.confirmed.title'),
               subtitle: _selectedOrder!['status'] == 'COMPLETED'
-                  ? 'Terima kasih! Layanan telah selesai dikerjakan.'
-                  : 'Pembayaran Anda sudah diverifikasi oleh Admin Planora. Vendor siap melayani Anda.',
+                  ? Translations.t('booking.pay.case1.completed.sub')
+                  : Translations.t('booking.pay.case1.confirmed.sub'),
               tt: tt,
             ),
           ]
@@ -445,15 +445,14 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
               icon: Icons.hourglass_top_rounded,
               iconColor: const Color(0xFFF59E0B),
               bgColor: const Color(0xFFFFF8E1),
-              title: 'Bukti Pembayaran Diterima',
-              subtitle:
-                  'Bukti transfer Anda sudah kami terima dan sedang diverifikasi oleh Admin Planora. Mohon tunggu, proses biasanya 1×24 jam.',
+              title: Translations.t('booking.pay.case2.title'),
+              subtitle: Translations.t('booking.pay.case2.sub'),
               tt: tt,
             ),
             const SizedBox(height: 16),
             // Tampilkan bukti yang sudah dikirim
             if (_selectedOrder!['payment']?['proofUrl'] != null) ...[
-              Text('Bukti Transfer Anda',
+              Text(Translations.t('booking.pay.case2.proof'),
                   style: tt.labelSmall?.copyWith(letterSpacing: 0.8)),
               const SizedBox(height: 8),
               ClipRRect(
@@ -478,7 +477,7 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Metode: ${_selectedOrder!['payment']['method'] ?? '-'}',
+                '${Translations.t('booking.pay.case2.method')} ${_selectedOrder!['payment']['method'] ?? '-'}',
                 style: tt.bodySmall?.copyWith(color: PlanoraColors.brandGray),
               ),
             ],
@@ -490,9 +489,8 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
               icon: Icons.cancel_rounded,
               iconColor: PlanoraColors.error,
               bgColor: const Color(0xFFFFEBEE),
-              title: 'Bukti Pembayaran Ditolak',
-              subtitle:
-                  'Admin menolak bukti transfer Anda. Silakan unggah ulang bukti yang valid sebelum batas waktu habis.',
+              title: Translations.t('booking.pay.case3.title'),
+              subtitle: Translations.t('booking.pay.case3.sub'),
               tt: tt,
             ),
             const SizedBox(height: 16),
@@ -519,10 +517,10 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
               icon: Icons.remove_circle_rounded,
               iconColor: PlanoraColors.brandGray,
               bgColor: const Color(0xFFF5F5F5),
-              title: 'Pesanan Dibatalkan',
+              title: Translations.t('booking.pay.case5.title'),
               subtitle: _selectedOrder!['cancelReason'] != null
-                  ? 'Alasan: ${_selectedOrder!['cancelReason']}'
-                  : 'Pesanan ini telah dibatalkan.',
+                  ? '${Translations.t('booking.pay.case5.sub1')} ${_selectedOrder!['cancelReason']}'
+                  : Translations.t('booking.pay.case5.sub2'),
               tt: tt,
             ),
             if (_isPaymentPaid) ...[
@@ -531,8 +529,8 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
                 icon: Icons.replay_rounded,
                 iconColor: const Color(0xFF7B1FA2),
                 bgColor: const Color(0xFFF3E5F5),
-                title: 'Refund Sedang Diproses',
-                subtitle: 'Dana pembayaran akan dikembalikan oleh Admin.',
+                title: Translations.t('booking.pay.case5.refund.title'),
+                subtitle: Translations.t('booking.pay.case5.refund.sub'),
                 tt: tt,
               ),
             ],
@@ -593,7 +591,7 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            isExpired ? 'Batas Waktu Habis' : 'Batas Waktu',
+            isExpired ? Translations.t('booking.pay.countdown.expired') : Translations.t('booking.pay.countdown.limit'),
             style: tt.bodyMedium?.copyWith(
               color: PlanoraColors.error,
               fontWeight: FontWeight.w600,
@@ -615,7 +613,7 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('TRANSFER KE BANK BCA',
+        Text(Translations.t('booking.pay.bank.info'),
             style: tt.labelSmall?.copyWith(letterSpacing: 0.8)),
         const SizedBox(height: 10),
         Container(
@@ -638,7 +636,7 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    'SALIN',
+                    Translations.t('booking.pay.bank.copy'),
                     style: tt.labelSmall?.copyWith(
                       color: PlanoraColors.brandDark,
                       fontWeight: FontWeight.w700,
@@ -658,7 +656,7 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
     return ElevatedButton.icon(
       onPressed: _uploadProof,
       icon: const Icon(Icons.upload_file_rounded),
-      label: const Text('Upload Bukti Transfer'),
+      label: Text(Translations.t('booking.pay.upload')),
     );
   }
 }
