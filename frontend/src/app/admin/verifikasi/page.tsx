@@ -121,6 +121,7 @@ export default function AdminVerifikasiVendorPage() {
                 await verifyVendor(id);
                 await fetchVendors();
             }
+            if (selectedVendorId === id) setSelectedVendorId(null);
         } catch (error) {
             console.error("Gagal menyetujui vendor", error);
         } finally {
@@ -137,6 +138,7 @@ export default function AdminVerifikasiVendorPage() {
                 await rejectVendor(id, 'Ditolak oleh admin');
                 await fetchVendors();
             }
+            if (selectedVendorId === id) setSelectedVendorId(null);
         } catch (error) {
             console.error("Gagal menolak vendor", error);
         } finally {
