@@ -71,9 +71,10 @@ class _EditProfilScreenState extends State<EditProfilScreen> {
             ),
           ),
           padding: const EdgeInsets.all(28),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
               Container(
                 width: 48,
                 height: 5,
@@ -145,6 +146,7 @@ class _EditProfilScreenState extends State<EditProfilScreen> {
                 },
               ),
             ],
+          ),
           ),
         );
       },

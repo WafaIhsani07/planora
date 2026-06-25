@@ -196,13 +196,14 @@ class ApiService {
   }
 
   // Buat Pesanan Baru
-  static Future<Map<String, dynamic>> createBooking(String layananId, String eventDate, String eventAddress, String notes, {http.Client? client}) async {
+  static Future<Map<String, dynamic>> createBooking(String layananId, String eventDate, String eventAddress, String notes, {String paymentMode = 'FULL', http.Client? client}) async {
     try {
       final response = await postRequest('/bookings', {
         'layananId': layananId,
         'eventDate': eventDate,
         'eventAddress': eventAddress,
         'notes': notes,
+        'paymentMode': paymentMode,
       }, client: client);
 
       final data = json.decode(response.body);
@@ -314,6 +315,7 @@ class ApiService {
     required String bookingId,
     required double amount,
     required String method,
+    String? type,
     String? proofUrl,
     http.Client? client,
   }) async {
@@ -322,6 +324,7 @@ class ApiService {
         'bookingId': bookingId,
         'amount': amount,
         'method': method,
+        if (type != null) 'type': type,
         if (proofUrl != null) 'proofUrl': proofUrl,
       }, client: client);
 
