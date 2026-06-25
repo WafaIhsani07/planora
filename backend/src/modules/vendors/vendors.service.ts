@@ -143,6 +143,7 @@ export const getMyVendorProfile = async (userId: string) => {
       rating: true,
       totalReviews: true,
       totalBookings: true,
+      balance: true,
       bankName: true,
       bankAccount: true,
       bankHolder: true,
