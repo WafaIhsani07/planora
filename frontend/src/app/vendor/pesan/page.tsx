@@ -46,7 +46,7 @@ export default function VendorPesanPage() {
     const fetchChats = async () => {
       try {
         const res = await getBookings();
-        const bookings = res?.data || [];
+        const bookings = Array.isArray(res?.data?.data) ? res.data.data : (Array.isArray(res?.data) ? res.data : []);
         
         const chatList: ChatUser[] = bookings.map((booking: any) => {
           // Find the customer details

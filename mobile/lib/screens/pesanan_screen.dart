@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import '../services/api_service.dart';
 import '../utils/translations.dart';
 import '../main.dart' show PlanoraColors;
@@ -18,10 +20,22 @@ class _PesananScreenState extends State<PesananScreen> {
   bool _isLoading = true;
   bool _isBerjalan = true;
 
+  String? _currentUserRole;
+
   @override
   void initState() {
     super.initState();
-    _fetchOrders();
+    _initData();
+  }
+
+  Future<void> _initData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? userStr = prefs.getString('user_data');
+    if (userStr != null) {
+      final userMap = json.decode(userStr);
+      _currentUserRole = userMap['role']?.toString();
+    }
+    await _fetchOrders();
   }
 
   // Mengambil data pesanan dari backend API
@@ -275,20 +289,21 @@ class _PesananScreenState extends State<PesananScreen> {
     final price = _formatCurrency(harga);
     const imageUrl = 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=200&auto=format&fit=crop';
 
-    final vendorData = item['vendor'] ?? {};
-    final vid = vendorData['id']?.toString() ?? '';
+    final isVendor = _currentUserRole == 'VENDOR';
+    final partnerData = isVendor ? (item['customer'] ?? {}) : (item['vendor'] ?? {});
+    final partnerId = partnerData['id']?.toString() ?? '';
     final bid = id;
-    final vname = vendorData['businessName'] ?? vendorData['name'] ?? 'Vendor';
-    final rawAvatar = (vendorData['user'] != null && vendorData['user']['avatar'] != null)
-        ? vendorData['user']['avatar'].toString()
-        : vendorData['avatar']?.toString() ?? '';
+    final pName = partnerData['name'] ?? partnerData['businessName'] ?? (isVendor ? 'Customer' : 'Vendor');
+    final rawAvatar = (partnerData['user'] != null && partnerData['user']['avatar'] != null)
+        ? partnerData['user']['avatar'].toString()
+        : partnerData['avatar']?.toString() ?? '';
     final assetUrl = ApiService.getAssetUrl(rawAvatar);
     final finalImageUrl = assetUrl.isNotEmpty ? assetUrl : imageUrl;
 
     final chatArgs = {
-      'id': vid,
+      'id': partnerId,
       'bookingId': bid,
-      'name': vname,
+      'name': pName,
       'imageUrl': finalImageUrl,
     };
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
-import 'package:intl/intl.dart';
+import 'dart:convert';
 import 'package:intl/intl.dart';
 import '../main.dart' show PlanoraColors;
 import '../utils/translations.dart';
@@ -16,10 +16,22 @@ class _ChatListScreenState extends State<ChatListScreen> {
   bool _isLoading = true;
   List<dynamic> _vendors = [];
 
+  String? _currentUserRole;
+
   @override
   void initState() {
     super.initState();
-    _fetchVendorsFromOrders();
+    _initData();
+  }
+
+  Future<void> _initData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? userStr = prefs.getString('user_data');
+    if (userStr != null) {
+      final userMap = json.decode(userStr);
+      _currentUserRole = userMap['role']?.toString();
+    }
+    await _fetchVendorsFromOrders();
   }
 
   Future<void> _fetchVendorsFromOrders() async {
@@ -32,15 +44,17 @@ class _ChatListScreenState extends State<ChatListScreen> {
       // Extract unique vendors dari daftar booking
       Map<String, dynamic> uniqueVendors = {};
       for (var order in data) {
-        final vendorData = order['vendor'] ?? {};
-        final vid = vendorData['id']?.toString() ?? order['id']?.toString() ?? '';
+        // Tentukan siapa lawan bicaranya (partner)
+        final isVendor = _currentUserRole == 'VENDOR';
+        final partnerData = isVendor ? (order['customer'] ?? {}) : (order['vendor'] ?? {});
+        final partnerId = partnerData['id']?.toString() ?? order['id']?.toString() ?? '';
         final bid = order['id']?.toString() ?? '';
-        if (vid.isEmpty || bid.isEmpty) continue;
+        if (partnerId.isEmpty || bid.isEmpty) continue;
 
-        final vname = vendorData['businessName'] ?? vendorData['name'] ?? 'Vendor';
-        final rawAvatar = (vendorData['user'] != null && vendorData['user']['avatar'] != null)
-            ? vendorData['user']['avatar'].toString()
-            : vendorData['avatar']?.toString() ?? '';
+        final pName = partnerData['name'] ?? partnerData['businessName'] ?? (isVendor ? 'Customer' : 'Vendor');
+        final rawAvatar = (partnerData['user'] != null && partnerData['user']['avatar'] != null)
+            ? partnerData['user']['avatar'].toString()
+            : partnerData['avatar']?.toString() ?? '';
         final assetUrl = ApiService.getAssetUrl(rawAvatar);
         final imageUrl = assetUrl.isNotEmpty
             ? assetUrl
@@ -52,16 +66,22 @@ class _ChatListScreenState extends State<ChatListScreen> {
             ? lastMsgList.last['content']?.toString() ?? Translations.t('chatList.tapToView')
             : Translations.t('chatList.tapToView');
 
-        // Gunakan bookingId terbaru jika vendor sama
-        if (!uniqueVendors.containsKey(vid)) {
-          uniqueVendors[vid] = {
-            'id': vid,
+        // Gunakan bookingId terbaru jika partner sama
+        if (!uniqueVendors.containsKey(partnerId)) {
+          uniqueVendors[partnerId] = {
+            'id': partnerId,
             'bookingId': bid,
-            'name': vname,
+            'name': pName,
             'imageUrl': imageUrl,
             'lastMessage': lastMsg,
             'lastTime': DateFormat('HH:mm').format(DateTime.now()),
           };
+        } else {
+          // Update lastMessage jika order ini punya pesan yang lebih baru
+          if (lastMsgList.isNotEmpty) {
+            uniqueVendors[partnerId]!['lastMessage'] = lastMsg;
+            // uniqueVendors[partnerId]!['bookingId'] = bid;
+          }
         }
       }
 
