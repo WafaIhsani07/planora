@@ -116,9 +116,9 @@ class _DetailNotifikasiScreenState extends State<DetailNotifikasiScreen> {
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : _detail == null
-                  ? const Center(
+                  ? Center(
                       child: Padding(
-                        padding: EdgeInsets.all(40.0),
+                        padding: const EdgeInsets.all(40.0),
                         child: Text(
                           Translations.t('notifDetail.notFound'),
                           style: const TextStyle(
