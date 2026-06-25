@@ -138,7 +138,7 @@ export const getMyBookings = async (
     include: {
       layanan: { select: { name: true, price: true, duration: true } },
       customer: { select: { name: true, phone: true, email: true } },
-      vendor: { select: { businessName: true } },
+      vendor: { select: { businessName: true, bankName: true, bankAccount: true, bankHolder: true } },
       payment: true,
     },
     orderBy: { createdAt: "desc" },
@@ -391,6 +391,9 @@ export const getBookingById = async (userId: string, role: string, bookingId: st
           id: true,
           userId: true,
           businessName: true,
+          bankName: true,
+          bankAccount: true,
+          bankHolder: true,
           description: true,
           city: true,
           rating: true,

@@ -114,6 +114,53 @@ class _DetailBookingBatalkanScreenState
     }
   }
 
+  Future<void> _completeBooking() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Selesaikan Pesanan'),
+        content: const Text('Apakah pesanan/acara ini sudah benar-benar selesai? Setelah Anda selesaikan, dana akan langsung diteruskan ke vendor dan tidak bisa dibatalkan lagi.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF2E7D32),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Ya, Selesai'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    setState(() => _isLoading = true);
+
+    final result = await ApiService.patchRequest(
+      '/bookings/$_bookingId/status',
+      {'status': 'COMPLETED'},
+    );
+
+    if (!mounted) return;
+
+    if (result.statusCode == 200 || result.statusCode == 204) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Pesanan berhasil diselesaikan.')),
+      );
+      Navigator.pop(context, true);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Gagal menyelesaikan pesanan.')),
+      );
+      setState(() => _isLoading = false);
+    }
+  }
+
   // T11: Submit ulasan via ApiService.addReview()
   Future<void> _submitReview() async {
     if (_reviewRating == 0) {
@@ -510,6 +557,17 @@ class _DetailBookingBatalkanScreenState
                   ],
                 );
               })()
+            else if (statusText.toUpperCase() == 'CONFIRMED' || statusText.toUpperCase() == 'IN_PROGRESS')
+              ElevatedButton(
+                onPressed: _completeBooking,
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(0, 48),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  backgroundColor: const Color(0xFF2E7D32),
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Selesaikan Pesanan'),
+              )
             else
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),

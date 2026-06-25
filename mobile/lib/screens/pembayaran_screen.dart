@@ -99,7 +99,8 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
   }
 
   Future<void> _copyBankAccount() async {
-    await Clipboard.setData(const ClipboardData(text: '8123456789'));
+    final bankAccount = _selectedOrder?['vendor']?['bankAccount']?.toString() ?? '8123456789';
+    await Clipboard.setData(ClipboardData(text: bankAccount));
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(Translations.t('booking.pay.copied'))),
@@ -634,10 +635,15 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
   }
 
   Widget _buildBankInfo(TextTheme tt) {
+    final vendor = _selectedOrder?['vendor'] ?? {};
+    final bankName = vendor['bankName']?.toString().toUpperCase() ?? 'BCA';
+    final bankAccount = vendor['bankAccount']?.toString() ?? '8123 4567 89';
+    final bankHolder = vendor['bankHolder']?.toString() ?? '';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(Translations.t('booking.pay.bank.info'),
+        Text('TRANSFER KE BANK $bankName' + (bankHolder.isNotEmpty ? ' (A.N $bankHolder)' : ''),
             style: tt.labelSmall?.copyWith(letterSpacing: 0.8)),
         const SizedBox(height: 10),
         Container(
@@ -649,7 +655,7 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('8123 4567 89', style: tt.headlineSmall),
+              Text(bankAccount, style: tt.headlineSmall),
               GestureDetector(
                 onTap: _copyBankAccount,
                 child: Container(
