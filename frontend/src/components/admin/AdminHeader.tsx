@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from 'react';
-import { Bell, Menu } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import NotificationDropdown from '@/components/NotificationDropdown';
 
 type AdminHeaderProps = {
   searchPlaceholder?: string;
@@ -22,7 +23,6 @@ export default function AdminHeader({
   onToggleSidebar,
   hideSearch = false,
 }: AdminHeaderProps) {
-  const [notifCount] = useState(3);
 
   return (
     <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-[#F4D7D4] bg-[#FDF1F0] px-4 shadow-[0_1px_0_rgba(15,23,42,0.03)] md:px-8">
@@ -52,14 +52,7 @@ export default function AdminHeader({
 
       <div className="flex items-center gap-4 md:gap-6">
         <LanguageSwitcher />
-        <button type="button" className="relative cursor-pointer text-[#A8A8A8] transition-colors hover:text-[#FF9A9E]">
-          <Bell className="w-5 h-5" />
-          {notifCount > 0 && (
-            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full border-2 border-[#FDF1F0] bg-[#FF9A9E] text-[8px] font-bold text-white">
-              {notifCount}
-            </span>
-          )}
-        </button>
+        <NotificationDropdown />
 
         <div className="flex cursor-pointer items-center gap-3 border-l border-[#F4D7D4] pl-3 md:pl-5">
           <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#FF8E92] text-xs font-bold text-white">

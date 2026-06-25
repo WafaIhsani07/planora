@@ -4,9 +4,10 @@ import type { ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getSession } from 'next-auth/react';
-import { Bell, Menu } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import VendorSidebar from '@/components/vendor/VendorSidebar';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import NotificationDropdown from '@/components/NotificationDropdown';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
 import { getMyVendorProfile } from '@/services/vendor.service';
@@ -113,10 +114,7 @@ export default function VendorLayout({ children }: { children: ReactNode }) {
           <div className="flex items-center gap-6">
             <LanguageSwitcher />
 
-            <button className="relative p-2 text-[#2A2A2A]/40 hover:text-[#FF9A9E] transition-colors cursor-pointer">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#FF527B] rounded-full border border-[#FDF1F0]" />
-            </button>
+            <NotificationDropdown />
 
             <div className="flex items-center gap-3 pl-5 border-l border-[#F1D7D3] group">
               {/* Avatar: tampilkan foto jika ada, fallback ke inisial */}
