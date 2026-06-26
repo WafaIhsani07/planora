@@ -212,7 +212,10 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
     final String rawAvatar = (vendor['user'] != null && vendor['user']['avatar'] != null)
         ? vendor['user']['avatar'].toString()
         : vendor['avatar']?.toString() ?? '';
-    final String imagePath = ApiService.getAssetUrl(rawAvatar);
+    String imagePath = ApiService.getAssetUrl(rawAvatar);
+    if (imagePath.isEmpty) {
+      imagePath = 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=600&auto=format&fit=crop';
+    }
 
     final String category = vendor['category'] ?? 'Vendor';
     final String title = vendor['businessName'] ?? vendor['name'] ?? 'Vendor';
@@ -244,18 +247,16 @@ class _DetailBookingScreenState extends State<DetailBookingScreen> {
             height: MediaQuery.of(context).size.height * 0.45,
             child: Hero(
               tag: 'vendor-img-$_vendorId',
-              child: imagePath.isNotEmpty
-                  ? Image.network(
-                      imagePath,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(color: PlanoraColors.brandAccent),
-                    )
-                  : Container(
-                      color: PlanoraColors.brandAccent,
-                      child: const Center(
-                        child: Icon(Icons.storefront_outlined, size: 60, color: PlanoraColors.brandDark),
-                      ),
-                    ),
+              child: Image.network(
+                imagePath,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  color: PlanoraColors.brandAccent,
+                  child: const Center(
+                    child: Icon(Icons.storefront_outlined, size: 60, color: PlanoraColors.brandDark),
+                  ),
+                ),
+              ),
             ),
           ),
 
