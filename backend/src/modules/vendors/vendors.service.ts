@@ -246,6 +246,7 @@ export const getMyLayanan = async (userId: string) => {
       createdAt: true,
       updatedAt: true,
       kategori: { select: { id: true, name: true, slug: true } },
+      _count: { select: { bookings: true } },
     },
   })
 }

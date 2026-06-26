@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { Plus, Edit3, Trash2, X, Check, Upload, ArrowLeft, Briefcase, Tag, ShoppingBag, Calculator } from 'lucide-react';
-import { getMyLayanan, createLayanan, updateLayanan, deleteLayanan, uploadImage } from '@/services/vendor.service';
+import { getMyLayanan, createLayanan, updateLayanan, deleteLayanan, uploadImage, getMyVendorProfile } from '@/services/vendor.service';
 import { getAllKategori } from '@/services/admin.service';
 
 interface ServicePackage {
@@ -61,6 +61,7 @@ export default function VendorLayananPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [hasDiscountEnabled, setHasDiscountEnabled] = useState(false);
   const [packageToDelete, setPackageToDelete] = useState<ServicePackage | null>(null);
+  const [defaultKategoriId, setDefaultKategoriId] = useState<string>('');
   
   const [formData, setFormData] = useState({
     name: '',
@@ -111,12 +112,25 @@ export default function VendorLayananPage() {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const [layananData, kategoriData] = await Promise.all([
+      const [layananData, kategoriData, vendorProfile] = await Promise.all([
         getMyLayanan(),
-        getAllKategori()
+        getAllKategori(),
+        getMyVendorProfile()
       ]);
       
       setCategories(kategoriData || []);
+      const vendorDesc = vendorProfile?.description || '';
+      let vendorKategoriId = '';
+
+      if (kategoriData && kategoriData.length > 0) {
+        vendorKategoriId = kategoriData[0].id;
+        const match = vendorDesc.match(/Main category:\s*(.+)/i);
+        if (match && match[1]) {
+          const found = kategoriData.find((k: any) => k.name.toLowerCase() === match[1].trim().toLowerCase());
+          if (found) vendorKategoriId = found.id;
+        }
+      }
+      setDefaultKategoriId(vendorKategoriId);
 
       // Transform backend Layanan to ServicePackage frontend structures
       const transformed: ServicePackage[] = (layananData || []).map((item: any) => {
@@ -164,7 +178,7 @@ export default function VendorLayananPage() {
       setPackages(transformed);
       
       if (kategoriData && kategoriData.length > 0) {
-        setFormData(prev => ({ ...prev, kategoriId: kategoriData[0].id }));
+        setFormData(prev => ({ ...prev, kategoriId: vendorKategoriId }));
       }
     } catch (err) {
       console.error('Gagal mengambil data:', err);
@@ -194,7 +208,7 @@ export default function VendorLayananPage() {
   const resetForm = () => {
     setFormData({
       name: '',
-      kategoriId: categories[0]?.id || '',
+      kategoriId: defaultKategoriId || categories[0]?.id || '',
       price: '',
       discountPercent: '',
       discountLabel: '',
@@ -395,6 +409,25 @@ export default function VendorLayananPage() {
                   placeholder="Contoh: Paket Intimate Rose"
                   className="w-full bg-[#FDF1F0]/50 border border-transparent rounded-2xl py-4 px-6 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/30 focus:bg-white focus:border-[#FF9A9E] transition-all"
                 />
+              </div>
+
+              {/* Kategori Paket */}
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-[#2A2A2A]/40 uppercase tracking-widest ml-1">
+                  Kategori Layanan
+                </label>
+                <select
+                  value={formData.kategoriId}
+                  onChange={(e) => setFormData({ ...formData, kategoriId: e.target.value })}
+                  className="w-full bg-[#FDF1F0]/50 border border-transparent rounded-2xl py-4 px-6 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#FF9A9E]/30 focus:bg-white focus:border-[#FF9A9E] transition-all appearance-none cursor-pointer"
+                >
+                  <option value="" disabled>Pilih Kategori</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* Harga & Diskon Section */}
