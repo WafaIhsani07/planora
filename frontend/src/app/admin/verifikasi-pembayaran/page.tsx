@@ -393,8 +393,9 @@ export default function AdminPaymentVerificationPage() {
 						</div>
 
 						<div className="grid items-start gap-6 lg:grid-cols-12">
-							<div id="table-panel" className={`self-start overflow-hidden rounded-2xl border border-[#F4D7D4] bg-white shadow-[0_10px_30px_-5px_rgba(0,0,0,0.02)] ${selectedPayment ? 'lg:col-span-8' : 'lg:col-span-12'}`}>
-								<table className="w-full table-fixed border-collapse text-left" style={{ willChange: 'transform', borderSpacing: 0 }}>
+							<div id="table-panel" className={`flex flex-col self-start overflow-hidden rounded-2xl border border-[#F4D7D4] bg-white shadow-[0_10px_30px_-5px_rgba(0,0,0,0.02)] ${selectedPayment ? 'lg:col-span-8' : 'lg:col-span-12'}`}>
+								<div className="overflow-x-auto w-full">
+									<table className="w-full min-w-[1000px] table-fixed border-collapse text-left" style={{ willChange: 'transform', borderSpacing: 0 }}>
 										<thead>
 											<tr className="border-b border-[#F4D7D4]/60 bg-[#FAFAFC] text-[10px] font-black uppercase tracking-widest text-[#A8A8A8]">
 											<th className="px-6 py-5">{t('admin_pages.pembayaran.table.transaction')}</th>
@@ -484,7 +485,8 @@ export default function AdminPaymentVerificationPage() {
 												);
 											})}
 										</tbody>
-										</table>
+									</table>
+								</div>
 
 								<div className="flex flex-col items-center justify-between gap-4 border-t border-[#F4D7D4] bg-white p-6 sm:flex-row">
 									<span className="text-xs font-bold text-slate-400">{t('common.showing_data').replace('{start}', '1').replace('{end}', filteredPayments.length.toString()).replace('{total}', filteredPayments.length.toString())}</span>

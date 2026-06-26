@@ -399,9 +399,10 @@ export default function AdminPencairanDanaPage() {
 
             <div className="grid gap-3 lg:grid-cols-12 items-start">
               {/* Table */}
-              <div className={`self-start overflow-hidden rounded-2xl border border-[#F4D7D4] bg-white shadow-[0_10px_30px_-5px_rgba(0,0,0,0.02)] ${selectedId ? 'lg:col-span-8' : 'lg:col-span-12'}`}>
-                <table className="w-full table-fixed border-collapse text-left">
-                  <thead>
+              <div className={`flex flex-col self-start overflow-hidden rounded-2xl border border-[#F4D7D4] bg-white shadow-[0_10px_30px_-5px_rgba(0,0,0,0.02)] ${selectedId ? 'lg:col-span-8' : 'lg:col-span-12'}`}>
+                <div className="overflow-x-auto w-full">
+                  <table className="w-full min-w-[1000px] table-fixed border-collapse text-left">
+                    <thead>
                     <tr className="border-b border-[#F4D7D4]/60 bg-[#FAFAFC] text-[10px] font-black uppercase tracking-widest text-[#A8A8A8]">
                       <th className="px-6 py-5">{t('admin_pages.pencairan.table.transaction')}</th>
                       <th className="px-6 py-5">{t('admin_pages.pencairan.table.vendor')}</th>
@@ -455,7 +456,8 @@ export default function AdminPencairanDanaPage() {
                     ))}
                   </tbody>
                 </table>
-                <div className="flex items-center justify-between gap-4 border-t border-[#F4D7D4] bg-white p-6">
+              </div>
+              <div className="flex items-center justify-between gap-4 border-t border-[#F4D7D4] bg-white p-6">
                   <span className="text-xs font-bold text-slate-400">{t('common.showing_data').replace('{start}', '1').replace('{end}', filteredItems.length.toString()).replace('{total}', items.length.toString())}</span>
                   <div className="flex items-center gap-1.5">
                     <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:bg-slate-50">‹</button>
